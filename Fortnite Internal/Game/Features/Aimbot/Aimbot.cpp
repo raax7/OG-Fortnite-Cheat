@@ -77,6 +77,6 @@ void Features::Aimbot::GetPlayerViewpointCallback(SDK::FVector* Location, SDK::F
 	if (Actors::MainTarget.GlobalInfo.TargetActor) {
 		// This function is called when calculating bullet trajectories
 		// Set the rotation to the target aimbot rotation
-		*Rotation = Actors::MainTarget.LocalInfo.TargetRotationWithSmooth;
+		*Rotation = Actors::MainTarget.LocalInfo.TargetRotationWithSmooth;;
 	}
 }
