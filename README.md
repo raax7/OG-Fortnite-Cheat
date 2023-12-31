@@ -13,6 +13,7 @@ FUCK 1HACK!!! (and all other OG fn cheat providers that aren't free)<br>
 
 # Injection Methods
 ### Self-Injection method
+1.
 
 ### Nova's awful anti-cheat bypass
 1. Open Nova and hold alt-tab
