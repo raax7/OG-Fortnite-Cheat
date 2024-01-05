@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="Game\Actors\FortPawn\FortPawn.cpp">
+      <Filter>Game\Actors\FortPawn</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Actors\FortWeapon\FortWeapon.cpp">
+      <Filter>Game\Actors\FortWeapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Hooks\PostRender\PostRender.cpp">
+      <Filter>Game\Hooks\PostRender</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\SDK\Classes\CoreUObject_functions.cpp">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilitys\SpoofCall\SpoofCall.cpp">
+      <Filter>Utilitys\SpoofCall</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\SDK\SDK.cpp">
+      <Filter>Game\SDK</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Game">
+      <UniqueIdentifier>{e3999d05-420f-499d-bc30-18b4340ec017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\SDK">
+      <UniqueIdentifier>{d144baec-506a-4fd7-879a-dbd4ef50ea62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\SDK\Classes">
+      <UniqueIdentifier>{16d32680-e48f-4608-ba79-fd6fc8ebc64c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Actors">
+      <UniqueIdentifier>{d802ad55-8734-4574-9bf5-34010fd226d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Actors\FortPawn">
+      <UniqueIdentifier>{12e2d2a0-d7e8-4f98-898b-61eafd11b20f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Actors\FortWeapon">
+      <UniqueIdentifier>{390778b7-3924-4a70-b606-b25cd666deed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilitys">
+      <UniqueIdentifier>{36945110-583f-4825-bf11-094271508aae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features">
+      <UniqueIdentifier>{79abcb8d-25db-429f-89e6-878225a3bb30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features\Aimbot">
+      <UniqueIdentifier>{3faf4059-0cad-4eb7-8a46-b57cb403d5b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features\ESP">
+      <UniqueIdentifier>{c7195b69-6869-4b49-8a00-440ea8ff337f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features\Exploits">
+      <UniqueIdentifier>{afe9484f-1487-41bc-aa48-0f4137b79942}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Hooks">
+      <UniqueIdentifier>{8cfac435-a4b6-4529-a8fc-649d92427076}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Hooks\PostRender">
+      <UniqueIdentifier>{78de8245-297c-4324-b342-442ff6057ac7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilitys\SpoofCall">
+      <UniqueIdentifier>{93a5adc5-d198-4b24-bd90-669e54a1eba3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game\Hooks\Hooks.h">
+      <Filter>Game\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\SDK.h">
+      <Filter>Game\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\Basic.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\CoreUObject_classes.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Actors\Actors.h">
+      <Filter>Game\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitys\Math.h">
+      <Filter>Utilitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\Aimbot\Target.h">
+      <Filter>Game\Features\Aimbot</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitys\Error.h">
+      <Filter>Utilitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Hooks\PostRender\Menu.h">
+      <Filter>Game\Hooks\PostRender</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\Engine_classes.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\EngineFixups.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitys\LazyImporter.h">
+      <Filter>Utilitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitys\Memory.h">
+      <Filter>Utilitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitys\Logger.h">
+      <Filter>Utilitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitys\skCrypter.h">
+      <Filter>Utilitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\ESP\FortPawn.h">
+      <Filter>Game\Features\ESP</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Hooks\PostRender\Drawing.h">
+      <Filter>Game\Hooks\PostRender</Filter>
+    </ClInclude>
+    <ClInclude Include="Configs\Config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Utilitys\SpoofCall\spoofinternal.asm">
+      <Filter>Utilitys\SpoofCall</Filter>
+    </MASM>
+  </ItemGroup>
+</Project>
