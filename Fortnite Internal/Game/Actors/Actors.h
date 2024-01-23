@@ -57,5 +57,12 @@ namespace Actors {
 
 	namespace FortWeapon {
 		void Tick(uintptr_t Canvas_);
+
+		inline const float intervalSeconds = 0.25;
+		inline std::chrono::steady_clock::time_point lastTime = std::chrono::steady_clock::now();
 	}
+
+
+
+
 }

@@ -1,56 +1,30 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef ENGINE_CLASSES_H
+#define ENGINE_CLASSES_H
 
 #include "../SDK.h"
+#include "../../../Configs/Config.h"
+#include "Basic.h"
+#include "Engine_structs.h"
 
 namespace SDK {
+	class USceneComponent : public UObject {
+	public:
+		FVector GetPosition() {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return FVector{};
+			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
+		}
+	};
+
 	class AActor : public UObject {
 	public:
-
-	};
-
-	class AFortPlayerState : public AActor {
-	public:
-		//FString GetPlayerName() {
-		//	if (!SDK::IsValidPointer((uintptr_t)this)) return FString{};
-		//
-		//	struct {
-		//		FString return_value;
-		//	} params{};
-		//
-		//	this->ProcessEvent(SDK::Cached::Functions::GetPlayerName, &params);
-		//
-		//	return params.return_value;
-		//}
-		//uint8 TeamIndex() {
-		//	if (!SDK::IsValidPointer((uintptr_t)this)) return uint8{};
-		//	return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::TeamIndex);
-		//}
-	};
-
-	class AFortPawn : public AActor {
-	public:
-		AFortPlayerState* PlayerState() {
+		USceneComponent* GetRootComponent() {
 			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
-			return (AFortPlayerState*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerState));
-		}
-		//AFortWeapon* CurrentWeapon() {
-		//	if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
-		//	return (AFortWeapon*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::CurrentWeapon));
-		//}
-
-
-
-		static UClass* StaticClass()
-		{
-			static class UClass* Clss = nullptr;
-
-			if (!Clss)
-				Clss = UObject::FindClassFast(skCrypt("FortPawn").decrypt());
-
-			return Clss;
+			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
 		}
 	};
+
+
+
 
 	class USkinnedMeshComponent : public UObject
 	{
@@ -79,47 +53,84 @@ namespace SDK {
 		}
 	};
 
-	class ACharacter : public AFortPawn
-	{
+	class APawn : public AActor {
+	public:
+
+	};
+
+	class ACharacter : public APawn {
 	public:
 		USkeletalMeshComponent* Mesh() {
 			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
-			return (USkeletalMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Mesh));
+			return (USkeletalMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Character::Mesh));
+		}
+	};
+
+	class APlayerCameraManager : public UObject {
+	public:
+		SDK::FVector GetCameraLocation() {
+			if (!this) return SDK::FVector{};
+
+			struct {
+				SDK::FVector        return_value;
+			} params;
+
+			this->ProcessEvent(SDK::Cached::Functions::PlayerCameraManager::GetCameraLocation, &params);
+
+			return params.return_value;
 		}
 	};
 
 	class APlayerController : public UObject {
 	public:
-		//AFortPawn* AcknowledgedPawn() {
-		//	if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
-		//	return (AFortPawn*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::AcknowledgedPawn));
-		//}
-	};
+		APawn* AcknowledgedPawn() {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			return (APawn*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::AcknowledgedPawn));
+		}
 
-	class UGameViewportClient : public UObject {
-	public:
-		class UWorld* World() {
+		APlayerCameraManager* PlayerCameraManager() {
 			if (!this) return nullptr;
-			return (UWorld*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::World));
+			return (APlayerCameraManager*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::PlayerCameraManager));
 		}
 	};
 
-	class ULocalPlayer {
+	class UPlayer : public UObject {
 	public:
-		UGameViewportClient* ViewportClient() {
-			if (!this) return nullptr;
-			return (UGameViewportClient*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::LocalPlayer::ViewportClient));
-		}
-
 		APlayerController* PlayerController() {
 			if (!this) return nullptr;
-			return (APlayerController*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::LocalPlayer::PlayerController));
+			return (APlayerController*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Player::PlayerController));
+		}
+	};
+
+	class ULocalPlayer : public UPlayer {
+	public:
+
+	};
+
+	class UGameInstance : public AActor {
+	public:
+		TArray<ULocalPlayer*> LocalPlayers() {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return TArray<ULocalPlayer*>{};
+			return *(TArray<ULocalPlayer*>*)((uintptr_t)this + SDK::Cached::Offsets::GameInstance::LocalPlayers);
 		}
 	};
 
 	class UWorld : public UObject {
 	public:
 
+	};
+
+	class UGameViewportClient : public UObject {
+	public:
+		UWorld* World() {
+			if (!this) return nullptr;
+			return (UWorld*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::World));
+		}
+
+		UGameInstance* GameInstance() {
+			if (!this) return nullptr;
+			return (UGameInstance*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::GameInstance));
+		}
 	};
 
 	class UEngine : public UObject {
@@ -166,7 +177,7 @@ namespace SDK {
 			params.WorldContextObject = WorldContextObject;
 			params.ActorClass = ActorClass;
 
-			this->ProcessEvent(SDK::Cached::Functions::GetAllActorsOfClass, &params);
+			this->ProcessEvent(SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass, &params);
 
 			return params.OutActors;
 		}
@@ -184,6 +195,8 @@ namespace SDK {
 		}
 	};
 
+	static float GetGameVersion();
+
 	class UKismetSystemLibrary : public UObject
 	{
 	public:
@@ -194,10 +207,134 @@ namespace SDK {
 				FString return_value;
 			} params{};
 
-			this->ProcessEvent(SDK::Cached::Functions::GetEngineVersion, &params);
+			this->ProcessEvent(SDK::Cached::Functions::KismetSystemLibrary::GetEngineVersion, &params);
 
 			return params.return_value;
 		}
+
+		static bool LineTraceSingle(
+			class UObject* WorldContextObject,
+			const struct FVector& Start,
+			const struct FVector& End,
+			enum class ETraceTypeQuery TraceChannel,
+			bool bTraceComplex,
+			TArray<class AActor*>& ActorsToIgnore,
+			enum class EDrawDebugTrace DrawDebugType,
+			struct FHitResult* OutHit,
+			bool bIgnoreSelf,
+			const struct FLinearColor& TraceColor,
+			const struct FLinearColor& TraceHitColor,
+			float DrawTime) {
+			if (SDK::GetGameVersion() < 7.00) {
+				struct Params {
+					class UObject* WorldContextObject;
+					struct FVector                               Start;
+					struct FVector                               End;
+					enum class ETraceTypeQuery                   TraceChannel;
+					bool                                         bTraceComplex;
+					uint8                                        Pad_1977[0x6];
+					TArray<class AActor*>                        ActorsToIgnore;
+					enum class EDrawDebugTrace                   DrawDebugType;
+					uint8                                        Pad_1978[0x7];
+					struct FHitResult                            OutHit;
+					bool                                         bIgnoreSelf;
+					uint8                                        Pad_1979[0x3];
+					struct FLinearColor                          TraceColor;
+					struct FLinearColor                          TraceHitColor;
+					float                                        DrawTime;
+					bool                                         ReturnValue;
+					uint8                                        Pad_197A[0x7];
+				} params;
+
+				params.WorldContextObject = WorldContextObject;
+				params.Start = Start;
+				params.End = End;
+				params.TraceChannel = TraceChannel;
+				params.bTraceComplex = bTraceComplex;
+				params.ActorsToIgnore = ActorsToIgnore;
+				params.DrawDebugType = DrawDebugType;
+				params.bIgnoreSelf = bIgnoreSelf;
+				params.TraceColor = TraceColor;
+				params.TraceHitColor = TraceHitColor;
+				params.DrawTime = DrawTime;
+
+				StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle, &params);
+
+				if (OutHit != nullptr)
+					*OutHit = std::move(params.OutHit);
+
+				return params.ReturnValue;
+			}
+			else {
+				struct Params {
+					class UObject* WorldContextObject;
+					struct FVector                               Start;
+					struct FVector                               End;
+					enum class ETraceTypeQuery                   TraceChannel;
+					bool                                         bTraceComplex;
+					uint8                                        Pad_1977[0x6];
+					TArray<class AActor*>                        ActorsToIgnore;
+					enum class EDrawDebugTrace                   DrawDebugType;
+					uint8                                        Pad_1978[0x3];
+					struct FHitResult                            OutHit;
+					bool                                         bIgnoreSelf;
+					uint8                                        Pad_1979[0x3];
+					struct FLinearColor                          TraceColor;
+					struct FLinearColor                          TraceHitColor;
+					float                                        DrawTime;
+					bool                                         ReturnValue;
+					uint8                                        Pad_197A[0x3];
+				} params;
+
+				params.WorldContextObject = WorldContextObject;
+				params.Start = Start;
+				params.End = End;
+				params.TraceChannel = TraceChannel;
+				params.bTraceComplex = bTraceComplex;
+				params.ActorsToIgnore = ActorsToIgnore;
+				params.DrawDebugType = DrawDebugType;
+				params.bIgnoreSelf = bIgnoreSelf;
+				params.TraceColor = TraceColor;
+				params.TraceHitColor = TraceHitColor;
+				params.DrawTime = DrawTime;
+
+				StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle, &params);
+
+				if (OutHit != nullptr)
+					*OutHit = std::move(params.OutHit);
+
+				return params.ReturnValue;
+			}
+		}
+
+		static bool IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* Pawn) {
+			FHitResult Hit{};
+			TArray<AActor*> IgnoredActors;
+
+			IgnoredActors.Add(Pawn);
+
+			Hit.TraceStart = CameraPosition;
+			Hit.TraceEnd = TargetPosition;
+
+			bool bHitSomething = LineTraceSingle(
+				WorldContextObj,
+				CameraPosition,
+				TargetPosition,
+				static_cast<ETraceTypeQuery>(Config::test), //ETraceTypeQuery::TraceTypeQuery6
+				true,
+				IgnoredActors,
+				EDrawDebugTrace::None,
+				&Hit,
+				false,
+				FLinearColor(1.f, 0.f, 0.f, 1.f),
+				FLinearColor(1.f, 0.f, 0.f, 1.f),
+				10.f
+			);
+
+			return !(bHitSomething);
+		}
+
+
 
 		static UClass* StaticClass()
 		{
@@ -210,35 +347,16 @@ namespace SDK {
 		}
 	};
 
-	static float GetGameVersion() {
-		static float version;
-
-		if (!version) {
-			FString EngineVersion = reinterpret_cast<UKismetSystemLibrary*>(UKismetSystemLibrary::StaticClass())->GetEngineVersion();
-			std::string EngineVersionStr = EngineVersion.ToString();
-
-			size_t lastHyphenPos = EngineVersionStr.rfind('-');
-			std::string versionSubstring = EngineVersionStr.substr(lastHyphenPos + 1);
-			version = std::stof(versionSubstring);
-
-			if (!version) {
-				THROW_ERROR(skCrypt("Failed to determine game version!").decrypt(), true);
-			}
-		}
-
-		return version;
-	}
-
 	class UFont : public UObject {
 	public:
 		void SetFontSize(int32 NewFontSize) {
 			if (!SDK::IsValidPointer((uintptr_t)this)) return;
-			*(int32*)((uintptr_t)this + SDK::Cached::Offsets::LegacyFontSize) = NewFontSize;
+			*(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize) = NewFontSize;
 		}
 
 		int32 GetFontSize() {
 			if (!SDK::IsValidPointer((uintptr_t)this)) return 0;
-			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::LegacyFontSize);
+			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize);
 		}
 	};
 
@@ -277,7 +395,7 @@ namespace SDK {
 			params.Thickness = Thickness;
 			params.RenderColor = RenderColor;
 
-			this->ProcessEvent(SDK::Cached::Functions::K2_DrawLine, &params);
+			this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawLine, &params);
 		}
 
 		FVector2D K2_Project(FVector& WorldLocation) {
@@ -291,7 +409,7 @@ namespace SDK {
 
 			params.WorldLocation = WorldLocation;
 
-			this->ProcessEvent(SDK::Cached::Functions::K2_Project, &params);
+			this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_Project, &params);
 
 			if (params.return_value.Z > 0) {
 				return FVector2D(params.return_value.X, params.return_value.Y);
@@ -333,7 +451,7 @@ namespace SDK {
 				params.bOutlined = bOutlined;
 				params.OutlineColor = { 0.f, 0.f, 0.f, 1.f };
 
-				this->ProcessEvent(SDK::Cached::Functions::K2_DrawText, &params);
+				this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawText, & params);
 			}
 			else {
 				struct {
@@ -364,7 +482,7 @@ namespace SDK {
 				params.bOutlined = bOutlined;
 				params.OutlineColor = { 0.f, 0.f, 0.f, 1.f };
 
-				this->ProcessEvent(SDK::Cached::Functions::K2_DrawText, &params);
+				this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawText, &params);
 			}
 
 			reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->SetFontSize(OriginalFontSize);
@@ -381,7 +499,6 @@ namespace SDK {
 			return 1080;
 		}
 	};
-
 
 
 	static class UEngine* GetEngine()
@@ -407,6 +524,9 @@ namespace SDK {
 
 		return GEngine;
 	}
+	static class APlayerController* GetLocalController() {
+		return SDK::GetEngine()->GameViewport()->GameInstance()->LocalPlayers()[0]->PlayerController();
+	}
 	static class UWorld* GetWorld()
 	{
 		if (UEngine* Engine = GetEngine())
@@ -419,6 +539,25 @@ namespace SDK {
 
 		return nullptr;
 	}
+}
+
+static float SDK::GetGameVersion() {
+	static float version;
+
+	if (!version) {
+		FString EngineVersion = reinterpret_cast<UKismetSystemLibrary*>(UKismetSystemLibrary::StaticClass())->GetEngineVersion();
+		std::string EngineVersionStr = EngineVersion.ToString();
+
+		size_t lastHyphenPos = EngineVersionStr.rfind('-');
+		std::string versionSubstring = EngineVersionStr.substr(lastHyphenPos + 1);
+		version = std::stof(versionSubstring);
+
+		if (!version) {
+			THROW_ERROR(skCrypt("Failed to determine game version!").decrypt(), true);
+		}
+	}
+
+	return version;
 }
 
 #endif

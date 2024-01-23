@@ -3,6 +3,7 @@
 
 #include "../../SDK/SDK.h"
 #include "../../SDK/Classes/Engine_classes.h"
+#include "../../../Utilitys/Math.h"
 
 namespace Drawing {
 	inline SDK::UCanvas* TargetCanvas;
@@ -35,7 +36,7 @@ namespace Drawing {
 
 	inline void DrawCircle(SDK::FVector2D CirclePosition, int Radius, int NumSides, SDK::FLinearColor Color)
 	{
-		float PI = 3.1415927f;
+		float PI = M_PI;
 
 		float Step = PI * 2.0 / NumSides;
 		int Count = 0;

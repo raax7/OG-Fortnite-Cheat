@@ -8,28 +8,30 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 	if (!SDK::IsValidPointer(Canvas)) return;
 	SDK::UCanvas* Canvas_ = reinterpret_cast<SDK::UCanvas*>(Canvas);
 
+	// Player Cache (to avoid calling GetAllActorsOfClass every tick)
 	static SDK::TArray<SDK::AActor*> CachedPlayers;
+	{
+		auto currentTime = std::chrono::steady_clock::now();
+		double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(currentTime - lastTime).count();
 
-	auto currentTime = std::chrono::steady_clock::now();
-	double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(currentTime - lastTime).count();
+		if (elapsedTime >= intervalSeconds) {
+			lastTime = currentTime;
 
-	if (elapsedTime >= intervalSeconds) {
-		lastTime = currentTime;
-
-		CachedPlayers = SDK::UGameplayStatics::StaticClass()->GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPawn::StaticClass());
+			CachedPlayers = SDK::UGameplayStatics::StaticClass()->GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPawn::StaticClass());
+		}
 	}
 
 	for (int i = 0; i < CachedPlayers.Num(); i++) {
 		SDK::AActor*					Actor				= CachedPlayers[i];										if (!Actor) continue;
 		SDK::AFortPawn*					FortPawn			= reinterpret_cast<SDK::AFortPawn*>(Actor);				if (!FortPawn) continue;
 		SDK::AFortPlayerState*			FortPlayerState		= FortPawn->PlayerState();								//if (!FortPlayerState) continue;
-		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>(FortPawn);				if (!Character) continue;
+		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (!Character) continue;
 		SDK::USkeletalMeshComponent*	Mesh				= Character->Mesh();									if (!Mesh) continue;
 		
-		/*if (FortPawn == SDK::GetLocalController()->AcknowledgedPawn()) {
-			FVector Bone = Mesh->GetBonePosition(0);
-			Objects::local.Position = Bone;
-			Objects::local.TeamIndex = FortPlayerState->TeamIndex();
+		if (FortPawn == SDK::GetLocalController()->AcknowledgedPawn()) {
+			//FVector Bone = Mesh->GetBonePosition(0);
+			//Objects::local.Position = Bone;
+			//Objects::local.TeamIndex = FortPlayerState->TeamIndex();
 
 			/*std::cout << "Found Local" << std::endl;
 			SDK::UInputComponent* inp = SDK::GetLocalController()->EditInputComponent();
@@ -44,10 +46,10 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 						std::cout << "Input Bind Found " << inputbind.KeyEvent().Value << std::endl;
 					}
 				}
-			}
+			}*/
 
 			continue;
-		}*/
+		}
 
 		//if (FortPlayerState->TeamIndex() == Objects::local.TeamIndex) {
 		//	continue;
@@ -57,15 +59,12 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 
 		std::vector<SDK::FVector> BoneRegister(100);
 		std::vector<SDK::FVector2D> BoneRegister2D(100);
+		std::vector<bool> BoneVisibilities(100);
 
 		if (!Player::PopulateBones(Canvas_, Mesh, BoneRegister, BoneRegister2D)) continue;
+		Player::PopulateVisibilitys(FortPawn, BoneRegister, BoneVisibilities);
 
-		bool Visible = true;
-
-		//if (SDK::UKismetSystemLibrary::IsPositionVisible(SDK::GetWorld(), SDK::GetLocalController()->PlayerCam
-		// Manager()->GetCameraLocation(), BoneRegister[Bones::Head], FortPawn, FortPlayerState, FortPlayerState, FortPawn)) {
-		//	Visible = true;
-		//}
+		bool Visible = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::Head], FortPawn);
 
 		SDK::FLinearColor Colour = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
 		if (Visible)
@@ -101,7 +100,7 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 			}
 		}
 
-		float LeftRightOffset = (Right - Left) * 0.3; // added 0.1 to each
+		float LeftRightOffset = (Right - Left) * 0.3;
 		float TopBottomOffset = (Bottom - Top) * 0.22;
 
 		SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75));
@@ -122,6 +121,8 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 		for (const auto& pair : bonePairs) {
 			int boneID1 = pair.first;
 			int boneID2 = pair.second;
+
+			bool aboneisvisibletoplayer = false;
 
 			if (boneID1 < -1 || boneID1 >= 99 || boneID2 < -1 || boneID2 >= 99)
 				continue;
@@ -144,7 +145,13 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 				ScreenPos1 = Chest;
 			}
 			else
+			{
 				ScreenPos1 = BoneRegister2D[boneID1];
+
+				if (BoneVisibilities[boneID1]) {
+					aboneisvisibletoplayer = true;
+				}
+			}
 
 			if (boneID2 == Bones::Chest) {
 				if (Chest.X == -1 && Chest.Y == -1) {
@@ -162,7 +169,13 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 				ScreenPos2 = Chest;
 			}
 			else
+			{
 				ScreenPos2 = BoneRegister2D[boneID2];
+
+				if (BoneVisibilities[boneID2]) {
+					aboneisvisibletoplayer = true;
+				}
+			}
 
 			// REMOVE HARDCODED SIZE!!
 			// AND IMPROVE GENERALLY
@@ -173,14 +186,22 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 
 			boneVisible = true;
 
-			//if (Settings::SkeletonESP) {
+			if (aboneisvisibletoplayer) {
 				Canvas_->K2_DrawLine(
 					SDK::FVector2D(ScreenPos1.X, ScreenPos1.Y),
 					SDK::FVector2D(ScreenPos2.X, ScreenPos2.Y),
 					1,
 					SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f)
 				);
-			//}
+			}
+			else {
+				Canvas_->K2_DrawLine(
+					SDK::FVector2D(ScreenPos1.X, ScreenPos1.Y),
+					SDK::FVector2D(ScreenPos2.X, ScreenPos2.Y),
+					1,
+					SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f)
+				);
+			}
 		}
 
 

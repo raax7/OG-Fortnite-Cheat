@@ -4,6 +4,14 @@
 #include "CoreUObject_classes.h"
 
 namespace SDK {
+	// Forward Declarations
+	class TUObjectArray;
+	class Chunked_TUObjectArray;
+	class Fixed_TUObjectArray;
+	struct FUObjectItem;
+
+
+
 	struct FUObjectItem
 	{
 		class UObject* Object;

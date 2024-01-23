@@ -352,7 +352,8 @@ namespace RaaxGUI {
 		}
 
 		if (RaaxGUI::Window(L"ERA", &WindowPosition_, SDK::FVector2D(700, 450), Open)) {
-			RaaxGUI::SliderInt(L"test", &Config::test, 0, 1000);
+			RaaxGUI::SliderInt(L"test", &Config::test, 0, 34);
+			RaaxGUI::SliderInt(L"Weapon Max Distance", &Config::Visuals::Weapons::WeaponMaxDistance, 0, 300);
 		}
 	}
 }

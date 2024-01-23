@@ -1,7 +1,7 @@
 #ifndef COREUOBJECT_H
 #define COREUOBJECT_H
 
-#include <Windows.h>
+#include <vector>
 #include "Basic.h"
 #include "EngineFixups.h"
 #include "../../../Utilitys/Logger.h"
@@ -16,7 +16,29 @@ typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
+struct FunctionSearch {
+	std::string ClassName;
+	std::string FunctionName;
+	void** Function;
+};
+
+struct OffsetSearch {
+	std::string ClassName;
+	std::string PropertyName;
+	uintptr_t* Offset;
+};
+
 namespace SDK {
+	// Forward Declarations
+	class UObject;
+	class FField;
+	class FProperty;
+	class UStruct;
+	class UProperty;
+	class UClass;
+
+
+
 	class UObject
 	{
 	public:
@@ -42,6 +64,8 @@ namespace SDK {
 
 
 		static int32_t GetOffset(const std::string className, const std::string varName);
+		static int32_t GetPropertyOffset(UProperty* Property);
+		static int32_t GetPropertyOffset(FField* Field);
 
 		template<typename UEType = UObject>
 		static UEType* FindObject(const std::string& FullName, EClassCastFlags RequiredType = EClassCastFlags::None)
@@ -90,6 +114,70 @@ namespace SDK {
 		static class UClass* FindClassFast(const std::string& ClassName)
 		{
 			return FindObjectFast<class UClass>(ClassName, EClassCastFlags::Class);
+		}
+
+
+		static void SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
+			for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
+				UObject* Object = ObjectArray.GetByIndex(i);
+
+				if (!Object)
+					continue;
+
+				std::string ObjectName = Object->GetName();
+
+				if (!Functions.empty()) {
+					if (Object->HasTypeFlag(EClassCastFlags::Function)) {
+						for (auto it = Functions.begin(); it != Functions.end(); ) {
+							FunctionSearch& CurrentFunction = *it;
+
+							if (CurrentFunction.FunctionName == ObjectName) {
+
+								std::string combinedString = CurrentFunction.ClassName + "." + CurrentFunction.FunctionName;
+
+								std::string FullObjectName = Object->GetFullName();
+
+								if (FullObjectName.length() >= combinedString.length() &&
+									FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
+									*CurrentFunction.Function = Object;
+									it = Functions.erase(it);
+								}
+								else {
+									++it;
+								}
+							}
+							else {
+								++it;
+							}
+						}
+					}
+				}
+
+				if (!Offsets.empty()) {
+					for (auto it = Offsets.begin(); it != Offsets.end(); ) {
+						OffsetSearch& CurrentOffset = *it;
+
+						if (CurrentOffset.PropertyName == ObjectName) {
+							std::string combinedString = CurrentOffset.ClassName + "." + CurrentOffset.PropertyName;
+
+							std::string FullObjectName = Object->GetFullName();
+
+							if (FullObjectName.length() >= combinedString.length() &&
+								FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
+								UProperty* Property = reinterpret_cast<SDK::UProperty*>(Object);
+								*CurrentOffset.Offset = GetPropertyOffset(Property);
+								it = Offsets.erase(it);
+							}
+							else {
+								++it;
+							}
+						}
+						else {
+							++it;
+						}
+					}
+				}
+			}
 		}
 
 

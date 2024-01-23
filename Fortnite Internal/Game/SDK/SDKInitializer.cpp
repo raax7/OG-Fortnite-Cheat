@@ -1,0 +1,173 @@
+#include "SDKInitializer.h"
+
+void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange) {
+
+	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(VFTName) + skCrypt(" VFT index").decrypt());
+
+	uint8_t* StringRef = Memory::FindByStringInAllSections(SearchString);
+
+	EXTRA_DEBUG_LOG(skCrypt("Searching for VFT Index offset").decrypt());
+
+	for (int i = 0; !VFTIndex && i < PossibleSigs.size(); ++i) {
+		uint8_t* PatternAddress = reinterpret_cast<uint8_t*>(
+			Memory::FindPatternInRange(PossibleSigs[i], (StringRef), SearchRange, false, 0)
+			);
+
+		if (PatternAddress) {
+			DWORD Displacement = *reinterpret_cast<DWORD*>(PatternAddress + FindFirstWildCard(PossibleSigs[i]));
+			VFTIndex = Displacement / sizeof(uintptr_t);
+		}
+	}
+
+	PossibleSigs.clear();
+
+	if (VFTIndex) {
+		DEBUG_LOG(std::string(VFTName) + skCrypt(" VFT Index offset found: ").decrypt() + std::to_string(VFTIndex));
+	}
+	else {
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(VFTName) + skCrypt(" VFT Index!").decrypt(), true);
+	}
+}
+
+void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
+
+	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(FunctionName) + skCrypt(" function offset").decrypt());
+
+	uint8_t* StringRef = Memory::FindByStringInAllSections(SearchString);
+
+	EXTRA_DEBUG_LOG(skCrypt("Searching for function offset").decrypt());
+
+	for (int i = 0; !FunctionOffset && i < PossibleSigs.size(); ++i) {
+		FunctionOffset = reinterpret_cast<uintptr_t>(
+			Memory::FindPatternInRange(PossibleSigs[i], StringRef - SearchBytesBehind, SearchRange, true, -1)
+			) - SDK::GetBaseAddress();
+	}
+
+	PossibleSigs.clear();
+
+	if (FunctionOffset) {
+		DEBUG_LOG(std::string(FunctionName) + skCrypt(" function offset found: ").decrypt() + std::to_string(FunctionOffset));
+	}
+	else {
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" VFT Index!").decrypt(), true);
+	}
+}
+void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
+
+	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(FunctionName) + skCrypt(" function offset").decrypt());
+	EXTRA_DEBUG_LOG(skCrypt("Searching for string reference: ").decrypt() + std::string(SearchString));
+
+	uint8_t* StringRef = Memory::FindByStringInAllSections(SearchString);
+
+	EXTRA_DEBUG_LOG(skCrypt("Searching for function offset").decrypt());
+
+	for (int i = 0; !FunctionOffset && i < PossibleSigs.size(); ++i) {
+		FunctionOffset = reinterpret_cast<uintptr_t>(
+			Memory::FindPatternInRange(PossibleSigs[i], StringRef - SearchBytesBehind, SearchRange, true, -1)
+			) - SDK::GetBaseAddress();
+	}
+
+	PossibleSigs.clear();
+
+	if (FunctionOffset) {
+		DEBUG_LOG(std::string(FunctionName) + skCrypt(" function offset found: ").decrypt() + std::to_string(FunctionOffset));
+	}
+	else {
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" VFT Index!").decrypt(), true);
+	}
+}
+
+void SDKInitializer::InitPRIndex() {
+	InitVFTIndex(
+		"PostRender",
+		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ? 80 3D ? ? ? 02 00").decrypt(),
+		skCrypt("FF 90 ? ? ? ? 48 8D 0D ? ? ? ? E8").decrypt() }, skCrypt(L"STAT_HudTime").decrypt(),
+		SDK::Cached::VFT::PostRender,
+		0x400);
+}
+void SDKInitializer::InitPEIndex() {
+	InitVFTIndex(
+		"ProcessEvent",
+		std::vector<const char*>{ skCrypt("41 FF 91 ? ? ? ? E9 ? ? ? ? 80 3D ? ? ? ? ?").decrypt() },
+		skCrypt(L"FLatentActionManager::ProcessLatentActions: Could not find latent action resume point named '%s' on '%s' called by '%s'").decrypt(),
+		SDK::Cached::VFT::ProcessEvent,
+		0x400);
+}
+void SDKInitializer::InitGPVIndex() {
+	InitVFTIndex(
+		"GetPlayerViewpoint",
+		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ?").decrypt() },
+		skCrypt(L"STAT_VolumeStreamingTickTime").decrypt(),
+		SDK::Cached::VFT::GetPlayerViewpoint,
+		0x400);
+}
+void SDKInitializer::InitGVIndex() {
+	InitVFTIndex(
+		"GetViewpoint",
+		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ?").decrypt() },
+		skCrypt(L"STAT_CalcSceneView").decrypt(),
+		SDK::Cached::VFT::GetViewpoint,
+		0x400);
+}
+
+void SDKInitializer::InitAppendString() {
+	InitFunctionOffset(
+		skCrypt("AppendString").decrypt(),
+		std::vector<const char*>
+	{
+		skCrypt("48 8D ? ? 48 8D ? ? E8").decrypt(),
+			skCrypt("48 8D ? ? ? 48 8D ? ? E8").decrypt(),
+			skCrypt("48 8D ? ? 49 8B ? E8").decrypt(),
+			skCrypt("48 8D ? ? ? 49 8B ? E8").decrypt()
+	},
+		skCrypt("ForwardShadingQuality_").decrypt(),
+		SDK::AppendStringOffset,
+		0x60);
+}
+void SDKInitializer::InitGetBoneMatrix() {
+	InitFunctionOffset(
+		skCrypt("GetBoneMatrix").decrypt(),
+		std::vector<const char*> { skCrypt("45 33 C0 48 8D 55 ? 48 8B CB E8").decrypt() },
+		skCrypt(L"USkeletalMeshComponent::InitArticulated : Could not find root physics body: '%s'").decrypt(),
+		SDK::GetBoneMatrix,
+		0x300,
+		0x100);
+}
+
+void SDKInitializer::InitGObjects() {
+	EXTRA_DEBUG_LOG(skCrypt("Searching for GObjects...").decrypt());
+
+	SDK::UObject::ObjectArray.IsChunked = true;
+
+	uintptr_t TUObjectArray = Memory::PatternScan(
+		SDK::GetBaseAddress(),
+		skCrypt("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1").decrypt(),
+		7,
+		true
+	);
+
+	if (!SDK::IsValidPointer(TUObjectArray)) {
+		SDK::UObject::ObjectArray.IsChunked = false;
+
+		TUObjectArray = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 8B 05 ? ? ? ? 48 8D 14 C8 EB 02").decrypt(),
+			7,
+			true
+		);
+	}
+
+	if (SDK::UObject::ObjectArray.IsChunked) {
+		SDK::UObject::ObjectArray.ChunkedObjects = reinterpret_cast<SDK::Chunked_TUObjectArray*>(TUObjectArray);
+	}
+	else {
+		SDK::UObject::ObjectArray.FixedObjects = reinterpret_cast<SDK::Fixed_TUObjectArray*>(TUObjectArray);
+	}
+
+	if (SDK::IsValidPointer(TUObjectArray)) {
+		DEBUG_LOG(skCrypt("GObjects offset found: ").decrypt() + std::to_string(TUObjectArray - SDK::GetBaseAddress()));
+	}
+	else {
+		THROW_ERROR(skCrypt("Failed to find GObjects!").decrypt(), true);
+	}
+}

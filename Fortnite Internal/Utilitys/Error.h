@@ -1,13 +1,13 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#define SHOW_MESSAGE_BOX 1 // Toggles the display of the message boxes
-
 #include <Windows.h>
 #include <iostream>
 #include <string>
+
 #include "LazyImporter.h"
 #include "skCrypter.h"
+#include "../Globals.h"
 
 class ErrorManager {
 private:

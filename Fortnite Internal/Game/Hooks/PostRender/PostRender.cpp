@@ -9,6 +9,8 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	}
 
 	Drawing::TargetCanvas = reinterpret_cast<SDK::UCanvas*>(Canvas);
+
+	Actors::FortWeapon::Tick(Canvas);
 	Actors::FortPawn::Tick(Canvas);
 
 	RaaxGUI::Tick(Canvas);

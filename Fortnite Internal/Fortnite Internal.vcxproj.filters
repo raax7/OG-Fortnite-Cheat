@@ -20,6 +20,9 @@
     <ClCompile Include="Game\SDK\SDK.cpp">
       <Filter>Game\SDK</Filter>
     </ClCompile>
+    <ClCompile Include="Game\SDK\SDKInitializer.cpp">
+      <Filter>Game\SDK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -63,6 +66,9 @@
     </Filter>
     <Filter Include="Utilitys\SpoofCall">
       <UniqueIdentifier>{93a5adc5-d198-4b24-bd90-669e54a1eba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configs">
+      <UniqueIdentifier>{b79d47c0-2076-4f13-82e6-57536417a137}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -120,7 +126,19 @@
     <ClInclude Include="Game\Hooks\PostRender\Drawing.h">
       <Filter>Game\Hooks\PostRender</Filter>
     </ClInclude>
-    <ClInclude Include="Configs\Config.h" />
+    <ClInclude Include="Configs\Config.h">
+      <Filter>Configs</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="Game\SDK\SDKInitializer.h">
+      <Filter>Game\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\FortniteGame_Classes.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\Engine_structs.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Utilitys\SpoofCall\spoofinternal.asm">

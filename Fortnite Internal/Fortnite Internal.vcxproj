@@ -71,7 +71,8 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>powershell -ExecutionPolicy Bypass -File "$(SolutionDir)\Post-Build Scripts\ClearPathStrings.ps1" "$(TargetPath)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -105,6 +106,7 @@
     <ClCompile Include="Game\Hooks\PostRender\PostRender.cpp" />
     <ClCompile Include="Game\SDK\Classes\CoreUObject_functions.cpp" />
     <ClCompile Include="Game\SDK\SDK.cpp" />
+    <ClCompile Include="Game\SDK\SDKInitializer.cpp" />
     <ClCompile Include="Utilitys\SpoofCall\SpoofCall.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +120,10 @@
     <ClInclude Include="Game\Hooks\Hooks.h" />
     <ClInclude Include="Game\SDK\Classes\Engine_classes.h" />
     <ClInclude Include="Game\SDK\Classes\EngineFixups.h" />
+    <ClInclude Include="Game\SDK\Classes\Engine_structs.h" />
+    <ClInclude Include="Game\SDK\Classes\FortniteGame_Classes.h" />
+    <ClInclude Include="Game\SDK\SDKInitializer.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="Utilitys\LazyImporter.h" />
     <ClInclude Include="Utilitys\Logger.h" />
     <ClInclude Include="Utilitys\Math.h" />

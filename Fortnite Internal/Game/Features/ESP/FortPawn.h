@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "../../SDK/Classes/Engine_classes.h"
+#include "../../SDK/Classes/FortniteGame_classes.h"
 
 namespace Player {
 	namespace Bones {
@@ -71,6 +72,25 @@ namespace Player {
 		BoneRegister2D[Bones::Bottom]			= Canvas_->K2_Project(BoneRegister[Bones::Bottom]);
 
 		return true;
+	}
+
+	void PopulateVisibilitys(SDK::AFortPawn* FortPawn, std::vector<SDK::FVector>& BoneRegister, std::vector<bool>& BoneVisibilities) {
+		BoneVisibilities[Bones::Head] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::Head], FortPawn);
+		BoneVisibilities[Bones::ChestLeft] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::ChestLeft], FortPawn);
+		BoneVisibilities[Bones::ChestRight] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::ChestRight], FortPawn);
+		BoneVisibilities[Bones::LeftShoulder] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::LeftShoulder], FortPawn);
+		BoneVisibilities[Bones::RightShoulder] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::RightShoulder], FortPawn);
+		BoneVisibilities[Bones::LeftElbow] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::LeftElbow], FortPawn);
+		BoneVisibilities[Bones::RightElbow] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::RightElbow], FortPawn);
+		BoneVisibilities[Bones::LeftHand] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::LeftHand], FortPawn);
+		BoneVisibilities[Bones::RightHand] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::RightHand], FortPawn);
+		BoneVisibilities[Bones::LeftLeg] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::LeftLeg], FortPawn);
+		BoneVisibilities[Bones::RightLeg] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::RightLeg], FortPawn);
+		BoneVisibilities[Bones::LeftKnee] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::LeftKnee], FortPawn);
+		BoneVisibilities[Bones::RightKnee] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::RightKnee], FortPawn);
+		BoneVisibilities[Bones::LeftFoot] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::LeftFoot], FortPawn);
+		BoneVisibilities[Bones::RightFoot] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::RightFoot], FortPawn);
+		BoneVisibilities[Bones::Pelvis] = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::Pelvis], FortPawn);
 	}
 }
 

@@ -20,6 +20,8 @@ namespace SDK {
 	inline uintptr_t AppendStringOffset;
 	inline uintptr_t GetBoneMatrix;
 
+
+
 	template<class T>
 	class TArray
 	{
@@ -77,6 +79,35 @@ namespace SDK {
 		inline void ResetNum()
 		{
 			NumElements = 0;
+		}
+
+
+
+		inline void Add(const T& Element)
+		{
+			// Check if there is enough space
+			if (NumElements < MaxElements)
+			{
+				// Add the element to the array
+				Data[NumElements++] = Element;
+			}
+			else
+			{
+			}
+		}
+
+		// Add an overload for rvalue references
+		inline void Add(T&& Element)
+		{
+			// Check if there is enough space
+			if (NumElements < MaxElements)
+			{
+				// Add the element to the array
+				Data[NumElements++] = std::move(Element);
+			}
+			else
+			{
+			}
 		}
 	};
 
@@ -182,6 +213,42 @@ namespace SDK {
 		}
 	};
 
+	class FTextData
+	{
+	public:
+		uint8 Pad[0x28];
+		wchar_t* Name;
+		int32 Length;
+	};
+
+	class FText
+	{
+	public:
+		FTextData* Data;
+		uint8 Pad[0x10];
+
+		wchar_t* Get() const
+		{
+			if (Data)
+				return Data->Name;
+
+			return nullptr;
+		}
+
+		std::string ToString()
+		{
+			if (Data)
+			{
+				std::wstring Temp(Data->Name);
+				return std::string(Temp.begin(), Temp.end());
+			}
+
+			return "";
+		}
+	};
+
+
+
 	enum class EClassCastFlags : uint64_t
 	{
 		None				= 0x0000000000000000,
@@ -248,6 +315,7 @@ namespace SDK {
 	}
 
 
+
 	// In UE5, most structs use doubles (8 bytes) instead of floats (4 bytes)
 	struct FMatrix
 	{
@@ -294,6 +362,11 @@ namespace SDK {
 		FVector operator*(decltype(X) Scalar) const;
 
 		FVector operator/(decltype(X) Scalar) const;
+
+		inline float Distance(FVector v)
+		{
+			return float(sqrt(pow(v.X - X, 2.0) + pow(v.Y - Y, 2.0) + pow(v.Z - Z, 2.0)));
+		}
 	};
 
 	struct FVector2D
@@ -335,8 +408,6 @@ namespace SDK {
 
 		FVector2D operator/(decltype(X) Scalar) const;
 	};
-
-
 
 	struct FLinearColor
 	{

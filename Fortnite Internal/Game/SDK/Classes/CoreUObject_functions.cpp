@@ -147,6 +147,10 @@ namespace SDK {
 		}*/
 	}
 
+	int32_t UObject::GetPropertyOffset(UProperty* Property) {
+		return Property->Offset();
+	}
+
 	void UObject::ProcessEvent(void* fn, void* parms)
 	{
 		if (this == nullptr || fn == nullptr)

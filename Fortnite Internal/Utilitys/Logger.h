@@ -1,8 +1,6 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#define EXTRA_DEBUG_INFO 0
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -10,88 +8,89 @@
 #include <sstream>
 
 #include "Error.h"
+#include "../Globals.h"
 
 #if _DEBUG
 
 class Logger {
 private:
-    std::ofstream file;
+    std::ofstream File;
 
-    std::string getTimestamp() const {
-        time_t now = time(0);
-        struct tm timeinfo;
-        localtime_s(&timeinfo, &now);
-        char buffer[80];
-        strftime(buffer, sizeof(buffer), skCrypt("%Y-%m-%d %H:%M:%S").decrypt(), &timeinfo);
-        return buffer;
+    std::string GetTimestamp() const {
+        time_t Now = time(0);
+        struct tm TimeInfo;
+        localtime_s(&TimeInfo, &Now);
+        char Buffer[80];
+        strftime(Buffer, sizeof(Buffer), skCrypt("%Y-%m-%d %H:%M:%S").decrypt(), &TimeInfo);
+        return Buffer;
     }
 
-    std::string getFileName(const char* filePath) {
-        if (!filePath) {
+    std::string GetFileName(const char* FilePath) {
+        if (!FilePath) {
             return "";
         }
 
-        size_t lastSlash = std::string(filePath).find_last_of(skCrypt("/\\").decrypt());
-        return (lastSlash != std::string::npos) ?
-            std::string(filePath).substr(lastSlash + 1) :
-            std::string(filePath);
+        size_t LastSlash = std::string(FilePath).find_last_of(skCrypt("/\\").decrypt());
+        return (LastSlash != std::string::npos) ?
+            std::string(FilePath).substr(LastSlash + 1) :
+            std::string(FilePath);
     }
 
 public:
-    Logger(const std::string& fileNameWithPath) {
-        file.open(fileNameWithPath, std::ios::out | std::ios::app);
-        if (!file.is_open()) {
+    Logger(const std::string& FileNameWithPath) {
+        File.open(FileNameWithPath, std::ios::out | std::ios::app);
+        if (!File.is_open()) {
             // Display error
         }
         else {
-            file.seekp(0, std::ios::end);
-            if (!file.tellp() == 0) {
-                file << std::endl << std::endl << std::endl;
+            File.seekp(0, std::ios::end);
+            if (!File.tellp() == 0) {
+                File << std::endl << std::endl << std::endl;
             }
 
-            log<std::string>(skCrypt("--------------------- LOGGER STARTED ---------------------").decrypt(), nullptr, 0);
+            Log<std::string>(skCrypt("--------------------- LOGGER STARTED ---------------------").decrypt(), nullptr, 0);
         }
     }
 
     ~Logger() {
-        if (file.is_open()) {
-            file.close();
+        if (File.is_open()) {
+            File.close();
         }
     }
 
     template <typename T>
-    void log(const T& message, const char* filePath, int line) {
-        std::ostringstream logStream;
+    void Log(const T& Message, const char* FilePath, int Line) {
+        std::ostringstream LogStream;
 
-        std::string fileName = getFileName(filePath);
+        std::string FileName = GetFileName(FilePath);
 
-        if (!fileName.empty()) {
-            logStream << "[" << getTimestamp() << "] "
-                << "[" << fileName << ":" << line << "] "
-                << message;
+        if (!FileName.empty()) {
+            LogStream << skCrypt("[").decrypt() << GetTimestamp() << skCrypt("] ").decrypt()
+                << skCrypt("[").decrypt() << FileName << skCrypt(":").decrypt() << Line << skCrypt("] ").decrypt()
+                << Message;
         }
         else {
-            logStream << "[" << getTimestamp() << "] " << message;
+            LogStream << skCrypt("[").decrypt() << GetTimestamp() << skCrypt("] ").decrypt() << Message;
         }
 
-        file << logStream.str() << std::endl;
+        File << LogStream.str() << std::endl;
     }
 };
 
-inline Logger g_logger(skCrypt("C:\\Users\\Coby\\Desktop\\cheat.log").decrypt()); // Replace this file path with your desired path
+inline Logger logger(LOGGING_PATH); // Replace this file path with your desired path
 
-#define DEBUG_LOG(message) g_logger.log(message, __FILE__, __LINE__)
+#define DEBUG_LOG(Message) logger.Log(Message, __FILE__, __LINE__)
 #if EXTRA_DEBUG_INFO
-#define EXTRA_DEBUG_LOG(message) g_logger.log(message, __FILE__, __LINE__)
-#endif
+#define EXTRA_DEBUG_LOG(Message) logger.Log(Message, __FILE__, __LINE__)
+#endif // EXTRA_DEBUG_INFO
 #if !EXTRA_DEBUG_INFO
-#define EXTRA_DEBUG_LOG(message, file, line) ((void)0)
-#endif
-#endif
+#define EXTRA_DEBUG_LOG(Message, File, Line) ((void)0)
+#endif // !EXTRA_DEBUG_INFO
+#endif // _DEBUG
 
 #if !_DEBUG
-#define DEBUG_LOG(message, file, line) ((void)0)
-#define EXTRA_DEBUG_LOG(message, file, line) ((void)0)
-#endif
+#define DEBUG_LOG(Message, File, Line) ((void)0)
+#define EXTRA_DEBUG_LOG(Message, File, Line) ((void)0)
+#endif // !_DEBUG
 
-#endif
+#endif // LOGGER_H
