@@ -2,7 +2,7 @@
 <p align="center">
 	<img align="center" src="https://i.imgur.com/LbbSQUq.png" alt="Logo" width="235" height="140">
 </p>
-<p align="center">A Fortnite Internal cheat base that automatically gets all Offset and VTables for S3 to S10.</p>
+<p align="center">A Fortnite Internal cheat base that automatically gets all Offset and VTables for S3 to S15.</p>
 <p align="center">If you enjoy this, join the Discord and star the project!</p>
 <p align="center">
 	<a href="https://discord.gg/Hg5dTFP7jy">Discord Server</a> |
@@ -19,7 +19,7 @@
 ## Table of Contents
 
 <ol>
-    <li><a href="#about-winter-fn">About Winter-FN</a></li>
+    <li><a href="#about-somethingidk-fn">About somethingidk-FN</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#instructions">Instructions</a></li>
     <li><a href="#license">License</a></li>
@@ -27,10 +27,10 @@
 
 
 
-<!-- ABOUT WINTER-FN -->
-## About Winter-FN
+<!-- ABOUT somethingidk-FN -->
+## About somethingidk-FN
 
-Out the box, Winter-FN comes with some stand out features that make it the perfect base.
+Out the box, somethingidk-FN comes with some stand out features that make it the perfect base.
 - Automatic Offset and VTable updating
 - Return address spoofing (don't know who made it)
 - Compile time string encryption ([skCrypter](https://github.com/skadro-official/skCrypter))
