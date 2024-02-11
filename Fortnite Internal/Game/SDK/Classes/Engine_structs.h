@@ -1,6 +1,4 @@
-#ifndef ENGINE_STRUCTS_H
-#define ENGINE_STRUCTS_H
-
+#pragma once
 #include "Engine_classes.h"
 
 namespace SDK {
@@ -69,29 +67,34 @@ namespace SDK {
 		struct SDK::FVector							 TraceEnd;                                          // 0x4C(0xC)(NoDestructor, NativeAccessSpecifierPublic)
 		float                                        PenetrationDepth;                                  // 0x58(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		int32                                        Item;                                              // 0x5C(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		char										 PhysMaterial[0x8];                                 // 0x60(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		char										 Actor[0x8];                                        // 0x68(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		char										 Component[0x8];                                    // 0x70(0x8)(ExportObject, ZeroConstructor, InstancedReference, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		void*										 PhysMaterial;										// 0x60(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		void*										 Actor;												// 0x68(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		void*										 Component;											// 0x70(0x8)(ExportObject, ZeroConstructor, InstancedReference, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		SDK::FName                                   BoneName;                                          // 0x78(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		SDK::FName                                   MyBoneName;                                        // 0x80(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 	};
+
+	struct FMinimalViewInfo {
+	public:
+		// VALUES
+
+		void SetLocation(SDK::FVector NewLocation) {
+			if (!this) return;
+			*(SDK::FVector*)((uintptr_t)this + SDK::Cached::Offsets::MinimalViewInfo::Location) = NewLocation;
+		}
+
+		void SetRotation(SDK::FRotator NewRotation) {
+			if (!this) return;
+			*(SDK::FRotator*)((uintptr_t)this + SDK::Cached::Offsets::MinimalViewInfo::Rotation) = NewRotation;
+		}
+	};
+
+	enum class EStereoscopicPass
+	{
+		eSSP_FULL,
+		eSSP_LEFT_EYE,
+		eSSP_RIGHT_EYE,
+		eSSP_LEFT_EYE_SIDE,
+		eSSP_RIGHT_EYE_SIDE,
+	};
 }
-
-enum class EFortItemTier : uint8
-{
-	No_Tier = 0,
-	I = 1,
-	II = 2,
-	III = 3,
-	IV = 4,
-	V = 5,
-	VI = 6,
-	VII = 7,
-	VIII = 8,
-	IX = 9,
-	X = 10,
-	NumItemTierValues = 11,
-	EFortItemTier_MAX = 12,
-};
-
-#endif // ENGINE_STRUCTS_H

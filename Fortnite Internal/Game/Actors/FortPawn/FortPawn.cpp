@@ -1,93 +1,62 @@
 #include "../Actors.h"
 #include "../../SDK/SDK.h"
 #include "../../SDK/Classes/Engine_classes.h"
-#include "../../Features/ESP/FortPawn.h"
-#include "../../Hooks/PostRender/Drawing.h"
+#include "../../SDK/Classes/FortniteGame_structs.h"
+#include "../../Features/FortPawn/FortPawn.h"
+#include "../../Features/FortPawn/Bone.h"
+#include "../../../Hooks/Hooks.h"
+#include "../../../Utilities/Memory.h"
+#include "../../Features/Aimbot/Aimbot.h"
+#include "../../../Drawing/Drawing.h"
+#include "../../Features/Features.h"
 
-void Actors::FortPawn::Tick(uintptr_t Canvas) {
-	if (!SDK::IsValidPointer(Canvas)) return;
-	SDK::UCanvas* Canvas_ = reinterpret_cast<SDK::UCanvas*>(Canvas);
+void Actors::FortPawn::Tick() {
+	if (!SDK::GetLocalCanvas()) return;
 
-	// Player Cache (to avoid calling GetAllActorsOfClass every tick)
-	static SDK::TArray<SDK::AActor*> CachedPlayers;
-	{
-		auto currentTime = std::chrono::steady_clock::now();
-		double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(currentTime - lastTime).count();
+	bool SeenTarget = false;
 
-		if (elapsedTime >= intervalSeconds) {
-			lastTime = currentTime;
+	// move somwhere better later this is gay here
+	if (!SDK::GetLocalController()->AcknowledgedPawn()) localPlayer.TeamIndex = -1;
 
-			CachedPlayers = SDK::UGameplayStatics::StaticClass()->GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPawn::StaticClass());
-		}
-	}
+	for (auto it = CachedPlayers.begin(); it != CachedPlayers.end(); ++it) {
+		Actors::Caches::FortPawnCache& CurrentPlayer = *it;
 
-	for (int i = 0; i < CachedPlayers.Num(); i++) {
-		SDK::AActor*					Actor				= CachedPlayers[i];										if (!Actor) continue;
+		SDK::AActor*					Actor				= CurrentPlayer.FortPawn;								if (!Actor) continue;
 		SDK::AFortPawn*					FortPawn			= reinterpret_cast<SDK::AFortPawn*>(Actor);				if (!FortPawn) continue;
 		SDK::AFortPlayerState*			FortPlayerState		= FortPawn->PlayerState();								//if (!FortPlayerState) continue;
 		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (!Character) continue;
-		SDK::USkeletalMeshComponent*	Mesh				= Character->Mesh();									if (!Mesh) continue;
-		
+		CurrentPlayer.Mesh									= Character->Mesh();									if (!CurrentPlayer.Mesh) continue;
+
 		if (FortPawn == SDK::GetLocalController()->AcknowledgedPawn()) {
-			//FVector Bone = Mesh->GetBonePosition(0);
-			//Objects::local.Position = Bone;
-			//Objects::local.TeamIndex = FortPlayerState->TeamIndex();
-
-			/*std::cout << "Found Local" << std::endl;
-			SDK::UInputComponent* inp = SDK::GetLocalController()->EditInputComponent();
-			if (inp) {
-				std::cout << "Edit Input Component Valid" << std::endl;
-				SDK::TArray<SDK::FInputKeyBinding> inpbinds = inp->KeyBindings();
-				std::cout << "Input Size " << inpbinds.Num() << std::endl;
-
-				if (inpbinds.Num()) {
-					for (int jj = 0; jj < inpbinds.Num(); jj++) {
-						SDK::FInputKeyBinding inputbind = inpbinds[jj];
-						std::cout << "Input Bind Found " << inputbind.KeyEvent().Value << std::endl;
-					}
-				}
-			}*/
+			SDK::FVector Bone = CurrentPlayer.Mesh->GetBonePosition(0);
+			localPlayer.Position = Bone;
+			localPlayer.TeamIndex = CurrentPlayer.TeamIndex;
 
 			continue;
 		}
 
-		//if (FortPlayerState->TeamIndex() == Objects::local.TeamIndex) {
-		//	continue;
-		//}
+		if (CurrentPlayer.TeamIndex == localPlayer.TeamIndex) continue;
 
-
-
-		std::vector<SDK::FVector> BoneRegister(100);
-		std::vector<SDK::FVector2D> BoneRegister2D(100);
-		std::vector<bool> BoneVisibilities(100);
-
-		if (!Player::PopulateBones(Canvas_, Mesh, BoneRegister, BoneRegister2D)) continue;
-		Player::PopulateVisibilitys(FortPawn, BoneRegister, BoneVisibilities);
-
-		bool Visible = SDK::UKismetSystemLibrary::IsPositionVisible(FortPawn, SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation(), BoneRegister[Bones::Head], FortPawn);
-
-		SDK::FLinearColor Colour = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
-		if (Visible)
-			Colour = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
+		if (!Features::Aimbot::FortPawn::PopulateBones(CurrentPlayer)) continue;
+		Features::Aimbot::FortPawn::PopulateVisibilities(CurrentPlayer);
 
 		//if (FortPawn == Objects::target.Actor) {
 		//	Colour = SDK::FLinearColor(0.9f, 0.5f, 0.1f, 1.f);
 		//}
 
-		float Top = FLT_MAX;
-		float Bottom = FLT_MIN;
-		float Left = FLT_MAX;
-		float Right = FLT_MIN;
+		float Top		= FLT_MAX;
+		float Bottom	= FLT_MIN;
+		float Left		= FLT_MAX;
+		float Right		= FLT_MIN;
 
-		for (int i2 = 0; i2 < BoneRegister2D.size(); i2++) {
-			if (i2 == Bones::Bottom) continue;
+		for (int i2 = 0; i2 < CurrentPlayer.BoneRegister2D.size(); i2++) {
+			if (i2 == (int)Features::Aimbot::Bone::BoneID::Bottom) continue;
 
-			if (BoneRegister2D[i2].X && BoneRegister2D[i2].Y) {
-				SDK::FVector2D BonePos = BoneRegister2D[i2];
+			if (CurrentPlayer.BoneRegister2D[i2].X && CurrentPlayer.BoneRegister2D[i2].Y) {
+				SDK::FVector2D BonePos = CurrentPlayer.BoneRegister2D[i2];
 
-				// REMOVE HARDCODED SIZE!!
-				if (!BonePos.X > 0 && !BonePos.X < Canvas_->SizeX()) continue;
-				if (!BonePos.Y > 0 && !BonePos.Y < Canvas_->SizeY()) continue;
+				if (!(BonePos.X > 0) && !(BonePos.X < Game::ScreenWidth)) continue;
+				if (!(BonePos.Y > 0) && !(BonePos.Y < Game::ScreenHeight)) continue;
 
 				if (BonePos.Y < Top)
 					Top = BonePos.Y;
@@ -100,7 +69,8 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 			}
 		}
 
-		float LeftRightOffset = (Right - Left) * 0.3;
+		// Magic numbers for good box size
+		float LeftRightOffset = (Right - Left) * 0.36;
 		float TopBottomOffset = (Bottom - Top) * 0.22;
 
 		SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75));
@@ -108,113 +78,135 @@ void Actors::FortPawn::Tick(uintptr_t Canvas) {
 
 		SDK::FVector2D Chest(-1, -1);
 
-		//float DistanceFromLocal = Objects::local.Position.Distance(BoneRegister[Bones::Bottom]) / 100.f;
-		float DistanceFromLocal = 50.f;
-		float maxDistance = 150.0f;
-		float minFontSize = 10.0f;
-		float maxFontSize = 20.0f;
-		float fontSize = maxFontSize - (maxFontSize - minFontSize) * (DistanceFromLocal / maxDistance);
-		fontSize = (fontSize < minFontSize) ? minFontSize : ((fontSize > maxFontSize) ? maxFontSize : fontSize);
+		CurrentPlayer.DistanceFromLocal = localPlayer.Position.Distance(CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::Bottom]) / 100.f;
 
-		bool boneVisible = false;
+		// Hardcoded ma distance, should move to bone population for optimisation
+		if (CurrentPlayer.DistanceFromLocal > 500) continue;
 
-		for (const auto& pair : bonePairs) {
-			int boneID1 = pair.first;
-			int boneID2 = pair.second;
+		float MaxDistance = 150.0f;
+		float MinFontSize = 10.0f;
+		float MaxFontSize = 20.0f;
+		float FontSize = MaxFontSize - (MaxFontSize - MinFontSize) * (CurrentPlayer.DistanceFromLocal / MaxDistance);
+		FontSize = (FontSize < MinFontSize) ? MinFontSize : ((FontSize > MaxFontSize) ? MaxFontSize : FontSize);
 
-			bool aboneisvisibletoplayer = false;
+		bool BoneVisible = false;
 
-			if (boneID1 < -1 || boneID1 >= 99 || boneID2 < -1 || boneID2 >= 99)
-				continue;
+		for (const auto& Pair : Features::Aimbot::Bone::SkeletonBonePairs) {
+			int BoneIDs[2] = { (int)Pair.first, (int)Pair.second };
+			SDK::FVector2D ScreenPos[2];
 
-			SDK::FVector2D ScreenPos1, ScreenPos2;
+			bool BoneVisibleToPlayer = false;
+			bool IsValidPair = true;
 
-			if (boneID1 == Bones::Chest) {
-				if (Chest.X == -1 && Chest.Y == -1) {
-					SDK::FVector LeftChest = BoneRegister[Bones::ChestLeft];
-					SDK::FVector RightChest = BoneRegister[Bones::ChestRight];
+			for (int i = 0; i < 2; ++i) {
+				int BoneID = BoneIDs[i];
 
-					SDK::FVector Midpoint;
-					Midpoint.X = (LeftChest.X + RightChest.X) / 2.0f;
-					Midpoint.Y = (LeftChest.Y + RightChest.Y) / 2.0f;
-					Midpoint.Z = (LeftChest.Z + RightChest.Z) / 2.0f;
-
-					Chest = Canvas_->K2_Project(Midpoint);
+				if (BoneID < -1 || BoneID >= 99) {
+					IsValidPair = false;
+					break;
 				}
 
-				ScreenPos1 = Chest;
-			}
-			else
-			{
-				ScreenPos1 = BoneRegister2D[boneID1];
+				if (BoneID == (int)Features::Aimbot::Bone::BoneID::Chest) {
+					if (Chest.X == -1 && Chest.Y == -1) {
+						SDK::FVector LeftChest = CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::ChestLeft];
+						SDK::FVector RightChest = CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::ChestRight];
+						SDK::FVector Midpoint = { (LeftChest.X + RightChest.X) / 2.0f,
+												  (LeftChest.Y + RightChest.Y) / 2.0f,
+												  (LeftChest.Z + RightChest.Z) / 2.0f };
 
-				if (BoneVisibilities[boneID1]) {
-					aboneisvisibletoplayer = true;
-				}
-			}
+						Chest = SDK::Project(Midpoint);
+					}
 
-			if (boneID2 == Bones::Chest) {
-				if (Chest.X == -1 && Chest.Y == -1) {
-					SDK::FVector LeftChest = BoneRegister[Bones::ChestLeft];
-					SDK::FVector RightChest = BoneRegister[Bones::ChestRight];
-
-					SDK::FVector Midpoint;
-					Midpoint.X = (LeftChest.X + RightChest.X) / 2.0f;
-					Midpoint.Y = (LeftChest.Y + RightChest.Y) / 2.0f;
-					Midpoint.Z = (LeftChest.Z + RightChest.Z) / 2.0f;
-
-					Chest = Canvas_->K2_Project(Midpoint);
-				}
-
-				ScreenPos2 = Chest;
-			}
-			else
-			{
-				ScreenPos2 = BoneRegister2D[boneID2];
-
-				if (BoneVisibilities[boneID2]) {
-					aboneisvisibletoplayer = true;
-				}
-			}
-
-			// REMOVE HARDCODED SIZE!!
-			// AND IMPROVE GENERALLY
-			if (!(ScreenPos1.X > 0 && ScreenPos1.X < Canvas_->SizeX())) continue;
-			if (!(ScreenPos2.X > 0 && ScreenPos2.X < Canvas_->SizeX())) continue;
-			if (!(ScreenPos1.Y > 0 && ScreenPos1.Y < Canvas_->SizeY())) continue;
-			if (!(ScreenPos2.Y > 0 && ScreenPos2.Y < Canvas_->SizeY())) continue;
-
-			boneVisible = true;
-
-			if (aboneisvisibletoplayer) {
-				Canvas_->K2_DrawLine(
-					SDK::FVector2D(ScreenPos1.X, ScreenPos1.Y),
-					SDK::FVector2D(ScreenPos2.X, ScreenPos2.Y),
-					1,
-					SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f)
-				);
-			}
-			else {
-				Canvas_->K2_DrawLine(
-					SDK::FVector2D(ScreenPos1.X, ScreenPos1.Y),
-					SDK::FVector2D(ScreenPos2.X, ScreenPos2.Y),
-					1,
-					SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f)
-				);
-			}
-		}
-
-
-
-		if (boneVisible) {
-			//if (Settings::PlayerESP && Settings::BoxESP) {
-				if (DistanceFromLocal > 50) {
-					Drawing::DrawOutlinedCornerBox(bottomLeft.X, topRight.Y, (topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y), Colour, 1);
+					ScreenPos[i] = Chest;
 				}
 				else {
-					Drawing::DrawOutlinedCornerBox(bottomLeft.X, topRight.Y, (topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y), Colour, 2);
+					ScreenPos[i] = CurrentPlayer.BoneRegister2D[BoneID];
+
+					if (CurrentPlayer.BoneVisibilities[BoneID]) {
+						BoneVisibleToPlayer = true;
+					}
 				}
-			//}
+
+				// Validate screen positions
+				if (!Math::IsOnScreen(ScreenPos[i])) {
+					IsValidPair = false;
+					break;
+				}
+			}
+
+			if (!IsValidPair) {
+				continue;
+			}
+
+			BoneVisible = true;
+
+			if (Config::Visuals::Players::Skeleton) {
+				Drawing::Line(
+					SDK::FVector2D(ScreenPos[0].X, ScreenPos[0].Y),
+					SDK::FVector2D(ScreenPos[1].X, ScreenPos[1].Y),
+					1,
+					BoneVisibleToPlayer ? SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f) : SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f),
+					false
+				);
+			}
 		}
+
+		// Update any bone visibility
+		CurrentPlayer.AnyBoneVisible = false;
+		for (int i = 0; i < CurrentPlayer.BoneVisibilities.size(); i++) {
+			if (CurrentPlayer.BoneVisibilities[i]) {
+				CurrentPlayer.AnyBoneVisible = true;
+				break;
+			}
+		}
+
+		SDK::FLinearColor Colour = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
+		if (CurrentPlayer.AnyBoneVisible) {
+			Colour = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
+		}
+
+		if (BoneVisible){
+			if (Config::Visuals::Players::Enabled) {
+				if (Config::Visuals::Players::Box) {
+					if (CurrentPlayer.DistanceFromLocal > 50) {
+						Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 1, Colour, false);
+					}
+					else {
+						Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 2, Colour, false);
+					}
+				}
+
+				if (Config::Visuals::Players::Name) {
+					SDK::FVector2D PlayerNameTextSize = Drawing::TextSize(CurrentPlayer.PlayerName.ToWString().c_str(), FontSize);
+					SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(topRight.X - ((topRight.X / 2) - (bottomLeft.X / 2)), topRight.Y - PlayerNameTextSize.Y - 1);
+
+					Drawing::Text(CurrentPlayer.PlayerName.ToWString().c_str(), PlayerNameTextPos, FontSize, Colour, true, false, true);
+				}
+			}
+		}
+
+
+
+		// Aimbot
+		if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
+			if (CurrentPlayer.AnyBoneVisible && (!target.LocalInfo.IsTargeting || !target.GlobalInfo.TargetActor)) {
+				Features::Aimbot::Target PotentialNewTarget{};
+
+				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer);
+				target.SetTarget(PotentialNewTarget);
+			}
+			if (target.GlobalInfo.TargetActor == FortPawn) {
+				SeenTarget = true;
+
+				Features::Aimbot::PlayerTarget::UpdateTargetInfo(target, CurrentPlayer, AimbotCamera, FPSScale);
+				
+				Features::Aimbot::Aimbot::AimbotTarget(target);
+			}
+		}
+	}
+
+	if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer 
+		|| target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::FarPlayer) {
+		target.TargetTick(SeenTarget);
 	}
 }

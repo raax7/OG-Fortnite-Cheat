@@ -1,6 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
-
+#pragma once
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -10,13 +8,11 @@
 #include "Error.h"
 #include "../Globals.h"
 
-#if _DEBUG
-
 class Logger {
 private:
-    std::ofstream File;
+    static std::ofstream File;
 
-    std::string GetTimestamp() const {
+    static std::string GetTimestamp() {
         time_t Now = time(0);
         struct tm TimeInfo;
         localtime_s(&TimeInfo, &Now);
@@ -25,7 +21,7 @@ private:
         return Buffer;
     }
 
-    std::string GetFileName(const char* FilePath) {
+    static std::string GetFileName(const char* FilePath) {
         if (!FilePath) {
             return "";
         }
@@ -37,7 +33,7 @@ private:
     }
 
 public:
-    Logger(const std::string& FileNameWithPath) {
+    static void InitLogger(const std::string& FileNameWithPath) {
         File.open(FileNameWithPath, std::ios::out | std::ios::app);
         if (!File.is_open()) {
             // Display error
@@ -52,14 +48,8 @@ public:
         }
     }
 
-    ~Logger() {
-        if (File.is_open()) {
-            File.close();
-        }
-    }
-
     template <typename T>
-    void Log(const T& Message, const char* FilePath, int Line) {
+    static void Log(const T& Message, const char* FilePath, int Line) {
         std::ostringstream LogStream;
 
         std::string FileName = GetFileName(FilePath);
@@ -77,20 +67,18 @@ public:
     }
 };
 
-inline Logger logger(LOGGING_PATH); // Replace this file path with your desired path
+inline std::ofstream Logger::File;
 
-#define DEBUG_LOG(Message) logger.Log(Message, __FILE__, __LINE__)
-#if EXTRA_DEBUG_INFO
-#define EXTRA_DEBUG_LOG(Message) logger.Log(Message, __FILE__, __LINE__)
-#endif // EXTRA_DEBUG_INFO
-#if !EXTRA_DEBUG_INFO
-#define EXTRA_DEBUG_LOG(Message, File, Line) ((void)0)
-#endif // !EXTRA_DEBUG_INFO
+#ifdef _DEBUG
+    #define DEBUG_LOG(Message) Logger::Log(Message, __FILE__, __LINE__)
+    #if EXTRA_DEBUG_INFO
+        #define EXTRA_DEBUG_LOG(Message) Logger::Log(Message, __FILE__, __LINE__)
+    #endif // EXTRA_DEBUG_INFO
+
+    #if !EXTRA_DEBUG_INFO
+        #define EXTRA_DEBUG_LOG(Message, File, Line) ((void)0)
+    #endif // !EXTRA_DEBUG_INFO
+#else // _DEBUG
+    #define DEBUG_LOG(Message) ((void)0)
+    #define EXTRA_DEBUG_LOG(Message, File, Line) ((void)0)
 #endif // _DEBUG
-
-#if !_DEBUG
-#define DEBUG_LOG(Message, File, Line) ((void)0)
-#define EXTRA_DEBUG_LOG(Message, File, Line) ((void)0)
-#endif // !_DEBUG
-
-#endif // LOGGER_H

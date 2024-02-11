@@ -1,77 +1,28 @@
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
-
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
-!!! NO ONE PUSH RN IM WORKING ON UPDATE !!!
+releasing soon...
 
 
 
-<!-- LOGO -->
-<p align="center">
-	<img align="center" src="https://i.imgur.com/LbbSQUq.png" alt="Logo" width="235" height="140">
-</p>
-<p align="center">A Fortnite Internal cheat base that automatically gets all Offset and VTables for S3 to S15.</p>
-<p align="center">If you enjoy this, join the Discord and star the project!</p>
-<p align="center">
-	<a href="https://discord.gg/Hg5dTFP7jy">Discord Server</a> |
-	<a href="https://github.com/raax7/OG-Fortnite-Cheat/issues">Report an Issue</a>
-</p>
-<p align="center">
-    <img alt="Release" src="https://img.shields.io/github/v/release/raax7/OG-Fortnite-Cheat?color=blue&style=for-the-badge">
-    <img alt="Stars" src="https://img.shields.io/github/stars/raax7/OG-Fortnite-Cheat?color=blue&style=for-the-badge">
-</p>
+# OG-Fortnite-Cheat
+OG Fortnite cheat that works on all major OG Fortnite versions
 
+# Info
+This is the first fully open-source, auto-offset updating OG-FN cheat that works for all builds s0-s15!<br>
+A star would be appreciated as this is a big thing to release for free.<br>
+This cheat works very similarly to 1hack. (fuck 1hack)<br>
 
+# Injection Methods
+### Self-Injection method
+1.
 
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
+### Nova's awful anti-cheat bypass
+1. Open Nova and hold alt-tab
+2. When the admin request appears, ignore for now
+3. When in the lobby, use any injector
+4. After injecting, press YES on the admin request from Nova's anti-cheat
+<br>
+(dont use an injector like processhacker, that will get auto detected and force you to close your game by fortnite. any free github loadlibrary injector will work tho, just nothing fortnite itself detects by window name)
 
-<ol>
-    <li><a href="#about-somethingidk-fn">About somethingidk-FN</a></li>
-    <li><a href="#how-it-works">How it works</a></li>
-    <li><a href="#instructions">Instructions</a></li>
-    <li><a href="#license">License</a></li>
-</ol>
-
-
-
-<!-- ABOUT somethingidk-FN -->
-## About somethingidk-FN
-
-Out the box, somethingidk-FN comes with some stand out features that make it the perfect base.
-- Automatic Offset and VTable updating
-- Return address spoofing (don't know who made it)
-- Compile time string encryption ([skCrypter](https://github.com/skadro-official/skCrypter))
-- Windows API function hiding ([LazyImporter](https://github.com/JustasMasiulis/lazy_importer))
-
-
-
-<!-- HOW IT WORKS -->
-## How it works
-
-Depending on the build mode different things are enabled and disabled by default. Release is the safest to use with the least potential traces out of the box.
-
-#### At Compilation (release)
-- Release mode is stripped of all debug info
-- A post-build powershell script is run to clear any remaining path strings
-
-#### On Injection
-1. A thread is made using CreateThread (may be a detection vector depending on project), as to not crash by the process being suspended for too long
-2. Beep is called so the user knows the DLL was successfully injected
-3. GObjects is initalized using one of 2 signatures
-4. FName::AppendString...
-
-
-
-<!-- INSTRUCTIONS -->
-## Instructions
-
-
-
-<!-- LICENSE -->
-## License
-
-Do literally whatever you want. (aside from reuploading the source and claiming it as your own)
+# How It Works?
+The idea behind this is to use the way Unreal-Engine is built to create a cheat that is fully functional for all builds, automatically updatitng everything and using just 1 signature and a couple static offsets
+### The flow of initalization
+1. At the point of injection, the cheat uses one of the GObjects signatures to find the TUObjectArray. From here we loop through the objects untill we find the UKismetSystemLibrary then

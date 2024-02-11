@@ -1,6 +1,3 @@
-#ifndef SPOOF_CALL_H
-#define SPOOF_CALL_H
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -122,5 +119,3 @@ static inline auto spoof_call(Ret(*fn)(Args...), Args... args) -> Ret
 	using mapper = detail::argument_remapper<sizeof...(Args), void>;
 	return mapper::template do_call<Ret, Args...>((const void*)&detail::_spoofer_stub, &p, args...);
 }
-
-#endif

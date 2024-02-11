@@ -1,10 +1,9 @@
-#ifndef COREUOBJECT_H
-#define COREUOBJECT_H
-
+#pragma once
 #include <vector>
 #include "Basic.h"
 #include "EngineFixups.h"
-#include "../../../Utilitys/Logger.h"
+#include "../../Game.h"
+#include "../../../Utilities/Logger.h"
 
 typedef __int8 int8;
 typedef __int16 int16;
@@ -16,6 +15,11 @@ typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
+enum class OffsetType {
+	Class = 0,
+	Struct = 1,
+};
+
 struct FunctionSearch {
 	std::string ClassName;
 	std::string FunctionName;
@@ -26,6 +30,7 @@ struct OffsetSearch {
 	std::string ClassName;
 	std::string PropertyName;
 	uintptr_t* Offset;
+	OffsetType Type;
 };
 
 namespace SDK {
@@ -63,9 +68,8 @@ namespace SDK {
 		std::string GetFullName() const;
 
 
-		static int32_t GetOffset(const std::string className, const std::string varName);
 		static int32_t GetPropertyOffset(UProperty* Property);
-		static int32_t GetPropertyOffset(FField* Field);
+		static int32_t GetPropertyOffset(FField* Field, std::string PropertyName);
 
 		template<typename UEType = UObject>
 		static UEType* FindObject(const std::string& FullName, EClassCastFlags RequiredType = EClassCastFlags::None)
@@ -117,68 +121,7 @@ namespace SDK {
 		}
 
 
-		static void SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
-			for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
-				UObject* Object = ObjectArray.GetByIndex(i);
-
-				if (!Object)
-					continue;
-
-				std::string ObjectName = Object->GetName();
-
-				if (!Functions.empty()) {
-					if (Object->HasTypeFlag(EClassCastFlags::Function)) {
-						for (auto it = Functions.begin(); it != Functions.end(); ) {
-							FunctionSearch& CurrentFunction = *it;
-
-							if (CurrentFunction.FunctionName == ObjectName) {
-
-								std::string combinedString = CurrentFunction.ClassName + "." + CurrentFunction.FunctionName;
-
-								std::string FullObjectName = Object->GetFullName();
-
-								if (FullObjectName.length() >= combinedString.length() &&
-									FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
-									*CurrentFunction.Function = Object;
-									it = Functions.erase(it);
-								}
-								else {
-									++it;
-								}
-							}
-							else {
-								++it;
-							}
-						}
-					}
-				}
-
-				if (!Offsets.empty()) {
-					for (auto it = Offsets.begin(); it != Offsets.end(); ) {
-						OffsetSearch& CurrentOffset = *it;
-
-						if (CurrentOffset.PropertyName == ObjectName) {
-							std::string combinedString = CurrentOffset.ClassName + "." + CurrentOffset.PropertyName;
-
-							std::string FullObjectName = Object->GetFullName();
-
-							if (FullObjectName.length() >= combinedString.length() &&
-								FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
-								UProperty* Property = reinterpret_cast<SDK::UProperty*>(Object);
-								*CurrentOffset.Offset = GetPropertyOffset(Property);
-								it = Offsets.erase(it);
-							}
-							else {
-								++it;
-							}
-						}
-						else {
-							++it;
-						}
-					}
-				}
-			}
-		}
+		static void SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets);
 
 
 		bool IsA(class UClass* Clss) const;
@@ -186,28 +129,24 @@ namespace SDK {
 
 
 
-	class FField {
+	class FField
+	{
 	public:
-		class FField* Next() {
-			if (!this) return nullptr;
-			return (FField*)(*(uintptr_t*)((uintptr_t)this + 0x20));
-		}
-
-		FName Name() {
-			if (!this) {
-				DEBUG_LOG("BLAH BLAH BLAH");
-				return FName{};
-			}
-			return (FName)(*(uintptr_t*)((uintptr_t)this + 0x28));
-		}
+		void*										 Vft;                                               // (0x00[0x08]) NOT AUTO-GENERATED PROPERTY
+		void*										 Class;                                             // (0x08[0x08]) NOT AUTO-GENERATED PROPERTY
+		char										 Owner[0x10];                                       // (0x10[0x10]) NOT AUTO-GENERATED PROPERTY
+		FField*										 Next;                                              // (0x20[0x08]) NOT AUTO-GENERATED PROPERTY
+		FName                                        Name;                                              // (0x28[0x10]) NOT AUTO-GENERATED PROPERTY
+		int32                                        Flags;                                             // (0x38[0x04]) NOT AUTO-GENERATED PROPERTY
 	};
 
-	class FProperty : public FField {
+	class FProperty : public FField
+	{
 	public:
-		int32 Offset() {
-			if (!this) return 0;
-			return *(int32*)((uintptr_t)this + 0x4C);
-		}
+		int32                                        ElementSize;                                       // (0x3C[0x04]) NOT AUTO-GENERATED PROPERTY
+		uint64                                       PropertyFlags;                                     // (0x40[0x08]) NOT AUTO-GENERATED PROPERTY
+		uint8                                        Pad_417D[0x4];                                     // Fixing Size After Last (Predefined) Property  [ Dumper-7 ]
+		int32                                        Offset;                                            // (0x4C[0x04]) NOT AUTO-GENERATED PROPERTY
 	};
 
 	class UStruct : public UObject {
@@ -251,5 +190,3 @@ namespace SDK {
 		}
 	};
 }
-
-#endif

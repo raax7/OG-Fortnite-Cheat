@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
+    <ProjectConfiguration Include="Debug_ImGui|x64">
+      <Configuration>Debug_ImGui</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
+    <ProjectConfiguration Include="Debug_Engine|x64">
+      <Configuration>Debug_Engine</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_ImGui|x64">
+      <Configuration>Release_ImGui</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Engine|x64">
+      <Configuration>Release_Engine</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -18,18 +26,31 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Engine|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ImGui|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Engine|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ImGui|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -37,33 +58,53 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug_Engine|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ImGui|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release_Engine|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_ImGui|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Engine|x64'">
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
     <TargetName>$(ProjectName)1</TargetName>
     <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ImGui|x64'">
+    <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
+    <TargetName>$(ProjectName)1</TargetName>
+    <GenerateManifest>true</GenerateManifest>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Engine|x64'">
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
     <TargetName>$(ProjectName)1</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ImGui|x64'">
+    <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
+    <TargetName>$(ProjectName)1</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Engine|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;FORTNITEINTERNAL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;FORTNITEINTERNAL_EXPORTS;_WINDOWS;_USRDLL;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <UndefinePreprocessorDefinitions>USE_IMGUI</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,18 +116,42 @@
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ImGui|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;FORTNITEINTERNAL_EXPORTS;_WINDOWS;_USRDLL;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Engine|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;FORTNITEINTERNAL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;FORTNITEINTERNAL_EXPORTS;_WINDOWS;_USRDLL;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <UndefinePreprocessorDefinitions>USE_IMGUI</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,45 +164,84 @@
       <Command>powershell -ExecutionPolicy Bypass -File "$(SolutionDir)\Post-Build Scripts\ClearPathStrings.ps1" "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_ImGui|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;FORTNITEINTERNAL_EXPORTS;_WINDOWS;_USRDLL;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>powershell -ExecutionPolicy Bypass -File "$(SolutionDir)\Post-Build Scripts\ClearPathStrings.ps1" "$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Drawing\Drawing.cpp" />
+    <ClCompile Include="Drawing\Menu\MenuInput.cpp" />
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="Game\Actors\BuildingWeakSpot\BuildingWeakSpot.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\Actors\Actors.cpp" />
     <ClCompile Include="Game\Actors\FortPawn\FortPawn.cpp" />
     <ClCompile Include="Game\Actors\FortWeapon\FortWeapon.cpp" />
-    <ClCompile Include="Game\Hooks\PostRender\PostRender.cpp" />
+    <ClCompile Include="Hooks\GetPlayerViewpoint\GetPlayerViewpoint.cpp.cpp" />
+    <ClCompile Include="Hooks\GetViewpoint\GetViewpoint.cpp" />
+    <ClCompile Include="Hooks\Hooks.cpp" />
     <ClCompile Include="Game\SDK\Classes\CoreUObject_functions.cpp" />
     <ClCompile Include="Game\SDK\SDK.cpp" />
     <ClCompile Include="Game\SDK\SDKInitializer.cpp" />
-    <ClCompile Include="Utilitys\SpoofCall\SpoofCall.cpp" />
+    <ClCompile Include="Drawing\Menu\Menu.cpp" />
+    <ClCompile Include="Hooks\PostRender\PostRender.cpp" />
+    <ClCompile Include="Utilities\SpoofCall\SpoofCall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configs\Config.h" />
-    <ClInclude Include="Game\Hooks\PostRender\Drawing.h" />
-    <ClInclude Include="Game\Features\ESP\FortPawn.h" />
+    <ClInclude Include="Configs\ConfigTypes.h" />
+    <ClInclude Include="Drawing\Drawing.h" />
+    <ClInclude Include="Drawing\Menu\MenuInput.h" />
+    <ClInclude Include="Game\Actors\ActorCache.h" />
+    <ClInclude Include="Game\Features\Aimbot\Aimbot.h" />
+    <ClInclude Include="Game\Features\FortPawn\Bone.h" />
+    <ClInclude Include="Game\Features\Features.h" />
+    <ClInclude Include="Game\SDK\Classes\FortniteGame_structs.h" />
+    <ClInclude Include="Hooks\Hooks.h" />
+    <ClInclude Include="Game\Features\FortPawn\FortPawn.h" />
     <ClInclude Include="Game\Actors\Actors.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Game\SDK\Classes\Basic.h" />
     <ClInclude Include="Game\SDK\Classes\CoreUObject_classes.h" />
-    <ClInclude Include="Game\Hooks\Hooks.h" />
     <ClInclude Include="Game\SDK\Classes\Engine_classes.h" />
     <ClInclude Include="Game\SDK\Classes\EngineFixups.h" />
     <ClInclude Include="Game\SDK\Classes\Engine_structs.h" />
     <ClInclude Include="Game\SDK\Classes\FortniteGame_Classes.h" />
     <ClInclude Include="Game\SDK\SDKInitializer.h" />
     <ClInclude Include="Globals.h" />
-    <ClInclude Include="Utilitys\LazyImporter.h" />
-    <ClInclude Include="Utilitys\Logger.h" />
-    <ClInclude Include="Utilitys\Math.h" />
-    <ClInclude Include="Game\Hooks\PostRender\Menu.h" />
+    <ClInclude Include="Drawing\Menu\Menu.h" />
+    <ClInclude Include="Utilities\Error.h" />
+    <ClInclude Include="Utilities\LazyImporter.h" />
+    <ClInclude Include="Utilities\Logger.h" />
+    <ClInclude Include="Utilities\Math.h" />
+    <ClInclude Include="Utilities\Memory.h" />
+    <ClInclude Include="Utilities\skCrypter.h" />
     <ClInclude Include="Game\SDK\SDK.h" />
     <ClInclude Include="Game\Features\Aimbot\Target.h" />
-    <ClInclude Include="Utilitys\Error.h" />
-    <ClInclude Include="Utilitys\Memory.h" />
-    <ClInclude Include="Utilitys\skCrypter.h" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Utilitys\SpoofCall\spoofinternal.asm">
-      <FileType>Document</FileType>
-    </MASM>
+    <MASM Include="Utilities\SpoofCall\spoofinternal.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

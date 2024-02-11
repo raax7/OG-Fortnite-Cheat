@@ -1,13 +1,24 @@
-#ifndef MENU_H
-#define MENU_H
+﻿#pragma once
+#include <Windows.h>
+
+// NEW MENU CLASS
+
+class Menu {
+public:
+	static inline bool Opened;
+	static inline bool Resized;
+};
+
+
+
 
 #include <Windows.h>
-#include "../../SDK/SDK.h"
-#include "../../SDK/Classes/Basic.h"
-#include "../../SDK/Classes/CoreUObject_classes.h"
-#include "../../../Configs/Config.h"
-#include "../../SDK/Classes/Engine_classes.h"
-#include "Drawing.h"
+#include "../../Game/SDK/SDK.h"
+#include "../../Game/SDK/Classes/Basic.h"
+#include "../../Game/SDK/Classes/CoreUObject_classes.h"
+#include "../../Configs/Config.h"
+#include "../../Game/SDK/Classes/Engine_classes.h"
+#include "../Drawing.h"
 
 namespace Input {
 	inline SDK::FVector2D MousePos;
@@ -151,8 +162,8 @@ namespace RaaxGUI {
 		Offset = SDK::FVector2D(WindowPosition_->X, Style::GrabBarSize + WindowPosition_->Y);
 		OriginalOffset = Offset;
 
-		Drawing::FilledRect(SDK::FVector2D(WindowPosition_->X, WindowPosition_->Y), WindowSize, Colors::Window_Background);
-		Drawing::FilledRect(SDK::FVector2D(WindowPosition_->X, WindowPosition_->Y), SDK::FVector2D(WindowSize.X, Style::GrabBarSize), Colors::Window_Header);
+		Drawing::FilledRect(SDK::FVector2D(WindowPosition_->X, WindowPosition_->Y), WindowSize, Colors::Window_Background, false);
+		Drawing::FilledRect(SDK::FVector2D(WindowPosition_->X, WindowPosition_->Y), SDK::FVector2D(WindowSize.X, Style::GrabBarSize), Colors::Window_Header, false);
 
 		SDK::FVector2D TextPos = SDK::FVector2D{ WindowPosition_->X + Style::GrabBarPadding.X, WindowPosition_->Y + (Style::GrabBarPadding.Y / 2) };
 		float TextSize = (Style::GrabBarSize - Style::GrabBarPadding.Y - Style::GrabBarPadding.Y - Style::GrabBarPadding.Y);
@@ -184,10 +195,10 @@ namespace RaaxGUI {
 			}
 
 			if (Input::LeftClickDown && IsInZone) {
-				Drawing::FilledRect(CheckBoxPosition, SDK::FVector2D(Style::CheckBoxSize, Style::CheckBoxSize), Colors::Checkbox_Clicked);
+				Drawing::FilledRect(CheckBoxPosition, SDK::FVector2D(Style::CheckBoxSize, Style::CheckBoxSize), Colors::Checkbox_Clicked, false);
 			}
 			else {
-				Drawing::FilledRect(CheckBoxPosition, SDK::FVector2D(Style::CheckBoxSize, Style::CheckBoxSize), Colors::Checkbox_Hovered);
+				Drawing::FilledRect(CheckBoxPosition, SDK::FVector2D(Style::CheckBoxSize, Style::CheckBoxSize), Colors::Checkbox_Hovered, false);
 			}
 
 			if (Input::LeftClickReleased && !Input::LeftClickReleasedRegistered && ElementHoveredOnClick == CheckBoxName) {
@@ -197,11 +208,11 @@ namespace RaaxGUI {
 			}
 		}
 		else {
-			Drawing::FilledRect(CheckBoxPosition, SDK::FVector2D(Style::CheckBoxSize, Style::CheckBoxSize), Colors::Checkbox_Idle);
+			Drawing::FilledRect(CheckBoxPosition, SDK::FVector2D(Style::CheckBoxSize, Style::CheckBoxSize), Colors::Checkbox_Idle, false);
 		}
 
 		if (*CheckBoxValue) {
-			Drawing::FilledRect(SDK::FVector2D(CheckBoxPosition.X + 5, CheckBoxPosition.Y + 5), SDK::FVector2D(Style::CheckBoxSize - 10, Style::CheckBoxSize - 10), Colors::Checkbox_Enabled);
+			Drawing::FilledRect(SDK::FVector2D(CheckBoxPosition.X + 5, CheckBoxPosition.Y + 5), SDK::FVector2D(Style::CheckBoxSize - 10, Style::CheckBoxSize - 10), Colors::Checkbox_Enabled, false);
 		}
 
 		SDK::FVector2D TextPos = SDK::FVector2D{ CheckBoxPosition.X + Style::CheckBoxSize + 4, CheckBoxPosition.Y };
@@ -260,12 +271,12 @@ namespace RaaxGUI {
 		Drawing::Text(SliderName, SDK::FVector2D(SliderPosition.X, SliderPosition.Y - 15), 10.f, Colors::Text, false, false, true);
 
 		// Draw the slider background (idle state).
-		Drawing::FilledRect(SliderPosition, SliderSize, Colors::Slider_Idle);
+		Drawing::FilledRect(SliderPosition, SliderSize, Colors::Slider_Idle, false);
 
 		// Draw the slider progress.
-		Drawing::FilledRect(SliderPosition, SDK::FVector2D(SliderButtonPosition - SliderPosition.X, SliderSize.Y), Colors::Slider_Progress);
+		Drawing::FilledRect(SliderPosition, SDK::FVector2D(SliderButtonPosition - SliderPosition.X, SliderSize.Y), Colors::Slider_Progress, false);
 
-		Drawing::FilledRect(SDK::FVector2D(SliderButtonPosition - 2.5f, SliderPosition.Y - 2.5f), SDK::FVector2D(5.0f, SliderSize.Y + 5.0f), Colors::Slider_Button);
+		Drawing::FilledRect(SDK::FVector2D(SliderButtonPosition - 2.5f, SliderPosition.Y - 2.5f), SDK::FVector2D(5.0f, SliderSize.Y + 5.0f), Colors::Slider_Button, false);
 
 		// Add the text representation of the value
 		wchar_t valueStr[64];
@@ -322,12 +333,12 @@ namespace RaaxGUI {
 		Drawing::Text(SliderName, SDK::FVector2D(SliderPosition.X, SliderPosition.Y - 15), 10.f, Colors::Text, false, false, true);
 
 		// Draw the slider background (idle state).
-		Drawing::FilledRect(SliderPosition, SliderSize, Colors::Slider_Idle);
+		Drawing::FilledRect(SliderPosition, SliderSize, Colors::Slider_Idle, false);
 
 		// Draw the slider progress.
-		Drawing::FilledRect(SliderPosition, SDK::FVector2D(SliderButtonPosition - SliderPosition.X, SliderSize.Y), Colors::Slider_Progress);
+		Drawing::FilledRect(SliderPosition, SDK::FVector2D(SliderButtonPosition - SliderPosition.X, SliderSize.Y), Colors::Slider_Progress, false);
 
-		Drawing::FilledRect(SDK::FVector2D(SliderButtonPosition - 2.5f, SliderPosition.Y - 2.5f), SDK::FVector2D(5.0f, SliderSize.Y + 5.0f), Colors::Slider_Button);
+		Drawing::FilledRect(SDK::FVector2D(SliderButtonPosition - 2.5f, SliderPosition.Y - 2.5f), SDK::FVector2D(5.0f, SliderSize.Y + 5.0f), Colors::Slider_Button, false);
 
 		// Add the text representation of the value
 		wchar_t valueStr[64];
@@ -343,19 +354,101 @@ namespace RaaxGUI {
 	inline bool Open = true;
 	inline SDK::FVector2D WindowPosition_ = SDK::FVector2D(100, 100);
 
-	inline void Tick(uintptr_t Canvas) {
-		Drawing::TargetCanvas = reinterpret_cast<SDK::UCanvas*>(Canvas);
+	inline void Tick() {
 		Input::updateInput();
 
 		if (GetAsyncKeyState(VK_INSERT) & 1) {
 			Open = !Open;
 		}
 
-		if (RaaxGUI::Window(L"ERA", &WindowPosition_, SDK::FVector2D(700, 450), Open)) {
-			RaaxGUI::SliderInt(L"test", &Config::test, 0, 34);
-			RaaxGUI::SliderInt(L"Weapon Max Distance", &Config::Visuals::Weapons::WeaponMaxDistance, 0, 300);
+		if (RaaxGUI::Window(L"​Charles FN​", &WindowPosition_, SDK::FVector2D(700, 650), Open)) {
+			//RaaxGUI::SliderInt(L"test", &Config::test2, 0, 30);
+			//RaaxGUI::SliderFloat(L"test return", &Config::testfloat, 0, 1000);
+			//RaaxGUI::SliderInt(L"test ammo", &Config::test2, 0, 1000);
+
+			//if (GetAsyncKeyState(VK_RIGHT) & 1) {
+			//	Config::test2 += 1;
+			//}
+			//else if (GetAsyncKeyState(VK_LEFT) & 1) {
+			//	Config::test2 -= 1;
+			//}
+
+			//if (GetAsyncKeyState(VK_DOWN) & 1) {
+			//	Config::testfloat += 1.f;
+			//}
+			//else if (GetAsyncKeyState(VK_UP) & 1) {
+			//	Config::testfloat -= 1.f;
+			//}
+
+			//RaaxGUI::SliderInt(L"​test​", &Config::test, 0, 3);
+
+			//RaaxGUI::Combobox(L"Options", SDK::FVector2D(100, 20), &myComboValue, { L"Option1", L"Option2", L"Option3" });
+			//RaaxGUI::Combobox(L"Options", std::vector<std::wstring>(3) = { L"Option1", L"Option2", L"Option3" }, &myComboValue, SDK::FVector2D(100, 20));
+
+			RaaxGUI::CheckBox(L"​​​​R​​a​​​​p​​i​​​​​​​​d​ ​f​i​​​r​​​e​ ​s​e​​​x​​", &Config::rapidfiresex);
+
+			RaaxGUI::CheckBox(L"​A​i​m​b​o​t", &Config::Aimbot::Enabled);
+			if (Config::Aimbot::Enabled) {
+				RaaxGUI::CheckBox(L"Silent Aim", &Config::Aimbot::SilentAim);
+				if (Config::Aimbot::SilentAim) {
+					RaaxGUI::CheckBox(L"Show Silent Rotations", &Config::Aimbot::ShowSilentRotations);
+					RaaxGUI::CheckBox(L"Use AimKey for Silent", &Config::Aimbot::UseAimKeyForSilent);
+				}
+
+				RaaxGUI::SliderInt(L"​F​O​V​ ​S​i​z​e​", &Config::Aimbot::Standard::FOV, 0, 1000);
+				RaaxGUI::SliderFloat(L"​S​m​o​o​t​h​i​n​g​", &Config::Aimbot::Standard::Smoothing, 1, 25);
+
+				RaaxGUI::CheckBox(L"​C​l​o​s​e​ ​A​i​m​", &Config::Aimbot::CloseAim::Enabled);
+				if (Config::Aimbot::CloseAim::Enabled) {
+					RaaxGUI::SliderInt(L"​C​l​o​s​e​ ​F​O​V​ ​S​i​z​e​", &Config::Aimbot::CloseAim::FOV, 0, 1000);
+					RaaxGUI::SliderFloat(L"​C​l​o​s​e​ ​S​m​o​​o​t​h​i​n​g​", &Config::Aimbot::CloseAim::Smoothing, 1, 25);
+					RaaxGUI::SliderInt(L"​C​l​o​s​e​ ​R​a​n​g​e​ ​(​M​)​", &Config::Aimbot::CloseAim::Range, 1, 25);
+				}
+
+				RaaxGUI::CheckBox(L"​​W​e​​a​k​​s​​p​​o​t​ ​A​i​m​", &Config::Aimbot::Weakspot::Enabled);
+				if (Config::Aimbot::Weakspot::Enabled) {
+					RaaxGUI::SliderInt(L"​​W​e​a​​ks​p​o​t ​F​O​V​ ​S​i​z​e​", &Config::Aimbot::Weakspot::FOV, 0, 1000);
+					RaaxGUI::SliderFloat(L"​​​W​​e​a​k​​s​po​t​​​ ​S​m​o​​o​t​h​i​n​g​", &Config::Aimbot::Weakspot::Smoothing, 1, 25);
+				}
+			}
+
+			//RaaxGUI::SliderFloat(L"testf", &Config::testfloat, 0, 1);
+			//RaaxGUI::SliderFloat(L"testf2", &Config::testfloat2, 0, 1);
+			RaaxGUI::CheckBox(L"​P​l​a​y​e​r​ ​​E​S​P​", &Config::Visuals::Players::Enabled);
+			if (Config::Visuals::Players::Enabled) {
+				RaaxGUI::CheckBox(L"​P​l​a​y​​er ​​B​​o​​x", &Config::Visuals::Players::Box);
+				RaaxGUI::CheckBox(L"​P​l​a​y​e​r​ ​S​k​e​l​e​t​on​", &Config::Visuals::Players::Skeleton);
+				RaaxGUI::CheckBox(L"​P​l​a​y​e​r​ ​N​a​m​e​", &Config::Visuals::Players::Name);
+				//RaaxGUI::CheckBox(L"​​Pl​a​ye​r​ ​D​is​t​a​n​c​e​", &Config::Visuals::Players::Distance);
+				//RaaxGUI::CheckBox(L"​P​l​a​y​e​r​ ​W​e​a​p​o​n​", &Config::Visuals::Players::Weapon);
+			}
+
+			//RaaxGUI::CheckBox(L"​W​e​a​p​o​n​ ​E​S​P​", &Config::Visuals::Weapons::Enabled);
+			//if (Config::Visuals::Weapons::Enabled) {
+			//	RaaxGUI::SliderInt(L"​W​e​a​p​o​n​ ​M​a​x​ ​D​i​s​t​a​n​c​e​", &Config::Visuals::Weapons::WeaponMaxDistance, 0, 300);
+			//}
+
+
+			RaaxGUI::Offset.X += 300;
+			RaaxGUI::Offset.Y = OriginalOffset.Y;
+
+			RaaxGUI::CheckBox(L"​​​​Ultra Fast Pickaxe", &Config::Exploits::SilentGun::Enabled);
+			RaaxGUI::SliderFloat(L"Speed M​ultip​lier​", &Config::Exploits::RapidFire::SpeedMultiplier, 0, 15);
+
+			//RaaxGUI::CheckBox(L"​​​​S​​i​​​l​​e​​n​​​​t​​ ​​G​​​​u​​​​n​​​​​​​", &Config::Exploits::SilentGun::Enabled);
+
+			//RaaxGUI::CheckBox(L"​​​R​a​​pi​​d​ ​​​​F​i​​​r​​​​​​​​e", &Config::Exploits::RapidFire::Enabled);
+			//RaaxGUI::SliderFloat(L"Speed M​ultip​lier​ ​(​5 ​is​ i​n​sta​n​​t)​​​", &Config::Exploits::RapidFire::SpeedMultiplier, 0, 5);
+			//RaaxGUI::CheckBox(L"I​​ns​​t​a​​n​​t​ ​R​e​l​​o​a​​​d​​​​​", &Config::Exploits::InstantReload::Enabled);
+			//RaaxGUI::SliderFloat(L"​S​​p​e​​​e​​d ​M​​ul​t​​​i​p​​l​ie​r​​ (​​​5​ ​i​​s​ ​i​​n​s​t​an​​t​)​​​", &Config::Exploits::InstantReload::SpeedMultiplier, 0, 5);
+
+			//RaaxGUI::CheckBox(L"​​T​r​i​g​​ge​​r​ ​B​o​t​", &Config::Aimbot::TriggerBot::Enabled);
+			//if (Config::Aimbot::TriggerBot::Enabled) {
+			//	RaaxGUI::CheckBox(L"​N​o​ ​V​​i​s-​C​h​ec​k​ ​o​n​ ​T​B​ ​t​a​r​g​e​t​s​", &Config::Aimbot::TriggerBot::DisableVisibleCheck);
+			//	RaaxGUI::SliderInt(L"​T​B​ ​F​O​V​", &Config::Aimbot::TriggerBot::FOV, 0, 1000);
+			//	RaaxGUI::SliderInt(L"​R​a​n​g​e​", &Config::Aimbot::TriggerBot::Range, 0, 300);
+			//	//RaaxGUI::Combobox(L"​T​B​ ​T​y​p​e​", std::vector<std::wstring>(3) = { L"​H​o​l​d​", L"​T​o​g​g​l​e​​" }, &Config::Aimbot::TriggerBot::TriggerBotType, SDK::FVector2D(100, 20));
+			//}
 		}
 	}
 }
-
-#endif

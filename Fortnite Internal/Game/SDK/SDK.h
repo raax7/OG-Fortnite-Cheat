@@ -1,8 +1,12 @@
-#ifndef SDK_H
-#define SDK_H
-
+#pragma once
 #include <Windows.h>
 #include "Classes/CoreUObject_classes.h"
+
+struct Camera {
+	SDK::FVector Position;
+	SDK::FRotator Rotation;
+	float FOV;
+};
 
 namespace SDK {
 	namespace Cached {
@@ -25,6 +29,10 @@ namespace SDK {
 
 			namespace Pawn {
 				inline uintptr_t PlayerState;
+			}
+
+			namespace FortPawn {
+				inline uintptr_t CurrentWeapon;
 			}
 
 			namespace Font {
@@ -51,6 +59,11 @@ namespace SDK {
 			namespace PlayerController {
 				inline uintptr_t AcknowledgedPawn;
 				inline uintptr_t PlayerCameraManager;
+				inline uintptr_t MyHUD;
+			}
+
+			namespace HUD {
+				inline uintptr_t Canvas;
 			}
 
 			namespace FortItemEntry {
@@ -59,6 +72,10 @@ namespace SDK {
 
 			namespace FortPickup {
 				inline uintptr_t PrimaryPickupItemEntry;
+			}
+
+			namespace FortWeapon {
+				inline uintptr_t WeaponData;
 			}
 
 			namespace FortItemDefinition {
@@ -76,6 +93,19 @@ namespace SDK {
 
 			namespace FortPlayerStateAthena {
 				inline uintptr_t TeamIndex;
+			}
+
+			namespace BuildingWeakSpot {
+				inline uintptr_t WeakSpotInfoBitField;
+			}
+
+			namespace MinimalViewInfo {
+				inline uintptr_t Location;
+				inline uintptr_t Rotation;
+			}
+
+			namespace FortMeleeWeaponStats {
+				inline uintptr_t SwingPlaySpeed;
 			}
 		}
 
@@ -99,13 +129,14 @@ namespace SDK {
 			namespace PlayerCameraManager {
 				inline void* GetCameraLocation;
 				inline void* GetCameraRotation;
+				inline void* GetFOVAngle;
 			}
 
 			namespace PlayerController {
 				inline void* ClientSetRotation;
 			}
 
-			namespace FortPlayerState {
+			namespace PlayerState {
 				inline void* GetPlayerName;
 			}
 
@@ -123,9 +154,10 @@ namespace SDK {
 			return false;
 		}
 
-		if (LI_FN(IsBadWritePtr).safe_cached()(&Address, 8)) {
-			return false;
-		}
+		// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obselete win api func
+		//if (LI_FN(IsBadWritePtr).safe_cached()(&Address, 8)) {
+		//	return false;
+		//}
 
 		return true;
 	}
@@ -136,5 +168,3 @@ namespace SDK {
 
 	void Init();
 }
-
-#endif

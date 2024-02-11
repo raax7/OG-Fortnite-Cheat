@@ -1,6 +1,4 @@
-#ifndef ERROR_H
-#define ERROR_H
-
+#pragma once
 #include <Windows.h>
 #include <iostream>
 #include <string>
@@ -11,23 +9,23 @@
 
 class ErrorManager {
 private:
-    std::string getFileName(const char* filePath) {
-        if (!filePath) {
+    static std::string GetFileName(const char* FilePath) {
+        if (!FilePath) {
             return "";
         }
 
-        size_t lastSlash = std::string(filePath).find_last_of(skCrypt("/\\").decrypt());
-        return (lastSlash != std::string::npos) ?
-            std::string(filePath).substr(lastSlash + 1) :
-            std::string(filePath);
+        size_t LastSlash = std::string(FilePath).find_last_of(skCrypt("/\\").decrypt());
+        return (LastSlash != std::string::npos) ?
+            std::string(FilePath).substr(LastSlash + 1) :
+            std::string(FilePath);
     }
 public:
-    void error(std::string message, bool close, const char* filePath, int line) {
+    static void error(std::string message, bool close, const char* filePath, int line) {
 #if SHOW_MESSAGE_BOX
         std::string errorMessageInfo;
         std::string errorMessage;
 
-        std::string fileName = getFileName(filePath);
+        std::string fileName = GetFileName(filePath);
 
         if (!fileName.empty()) {
             errorMessageInfo = close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n").decrypt() + fileName + skCrypt(":").decrypt() + std::to_string(line) + skCrypt("\n\n").decrypt();
@@ -51,8 +49,4 @@ public:
     }
 };
 
-inline ErrorManager g_ErrorManager;
-
-#define THROW_ERROR(message, close) g_ErrorManager.error(message, close, __FILE__, __LINE__)
-
-#endif
+#define THROW_ERROR(message, close) ErrorManager::error(message, close, __FILE__, __LINE__)

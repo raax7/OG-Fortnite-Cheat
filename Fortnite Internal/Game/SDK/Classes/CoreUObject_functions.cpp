@@ -1,154 +1,32 @@
 #include "../SDK.h"
 #include "CoreUObject_classes.h"
-#include "../../../Utilitys/Logger.h"
+#include "../../../Utilities/Logger.h"
 
 namespace SDK {
 	TUObjectArray UObject::ObjectArray;
 
 	int32_t UClass::DefaultObjectOffset;
 	int32_t UClass::CastFlagsOffset;
-
 	int32_t UStruct::SuperOffset;
-
 	int32_t UProperty::OffsetOffset;
 
 
 
-	int32_t UObject::GetOffset(const std::string className, const std::string varName) {
-		// OFFSET FINDING TYPE 1
-		std::string combinedString = className + "." + varName;
-
-		for (int i = 0; i < ObjectArray.Num(); ++i)
-		{
-			UObject* Object = ObjectArray.GetByIndex(i);
-
-			if (!Object)
-				continue;
-
-			std::string objName = Object->GetFullName();
-
-			if (objName.length() < combinedString.length())
-				continue;
-
-			if (objName.substr(objName.length() - combinedString.length()) == combinedString) {
-				UProperty* property = reinterpret_cast<SDK::UProperty*>(Object);
-				return property->Offset();
-			}
-		}
-
-		return 0;
-
-
-
-
-
-		/*SDK::UClass* Class = reinterpret_cast<SDK::UClass*>(SDK::UObject::FindObject("Class Engine.Engine"));
-		DEBUG_LOG("Class Offset: " + std::to_string(*reinterpret_cast<uintptr_t*>(Class) - SDK::BaseAddress));
-		DEBUG_LOG("Class Name: " + Class->GetFullName());
-
-		FField* CurrentProperty = Class->ChildProperties();
-		if (!CurrentProperty) {
-			DEBUG_LOG("!!! NO CHILD PROPERTIES !!!");
-			return NULL;
-		}
-
-		DEBUG_LOG("CurrentProperty First Offset: " + std::to_string(*reinterpret_cast<uintptr_t*>(CurrentProperty) - SDK::BaseAddress));
-
-		int PropertyCount = 0;
-
-		for (CurrentProperty;
-			!IsBadReadPtr((LPVOID)CurrentProperty,(UINT_PTR)8);
-			CurrentProperty = CurrentProperty->Next()) {
-			DEBUG_LOG("CurrentProperty Offset: " + std::to_string(*reinterpret_cast<uintptr_t*>(CurrentProperty) - SDK::BaseAddress));
-
-			//FName Name = CurrentProperty->Name();
-			//if (!Name || IsBadReadPtr((LPVOID)Name, (UINT_PTR)8)) {
-			//	DEBUG_LOG("!!! NAME IS BAD POINTER !!!");
-			//	continue;
-			//}
-
-			DEBUG_LOG("Defined FName");
-			//DEBUG_LOG("ComparisonIndex: " + Name.ComparisonIndex);
-			//DEBUG_LOG("Number: " + Name.Number);
-			//DEBUG_LOG("Name String: " + Name.ToString());
-
-			PropertyCount++;
-		}
-
-		DEBUG_LOG("Property Count: " + std::to_string(PropertyCount));
-
-		return NULL; //Return NULL if checked all properties of the class.
-
-
-
-
-
-		// OFFSET FINDING TYPE 2
-		for (int i = 0; i < ObjectArray.Num(); ++i)
-		{
-			UObject* Object = ObjectArray.GetByIndex(i);
-
-			if (!Object)
-				continue;
-
-			std::string objName = Object->GetName();
-
-			bool found = false;
-			if (objName.find("Engine") != std::string::npos) {
-				found = true;
-				DEBUG_LOG("found - " + objName);
-			}
-
-			if (objName != className) {
-				if (found) {
-					DEBUG_LOG("found but not it - " + objName);
-				}
-
-				continue;
-			}
-
-			return NULL; //Return NULL if checked all properties of the class.
-
-
-
-
-
-			UClass* ObjecAsClass = reinterpret_cast<UClass*>(Object);
-
-			FField* ChildProperties = ObjecAsClass->ChildProperties();
-			if (!ChildProperties) DEBUG_LOG("no child prop");
-			if (ChildProperties) DEBUG_LOG("yes child prop - " + std::to_string(reinterpret_cast<uintptr_t>(ChildProperties)));
-			FField* Property = ChildProperties->Next();
-			if (!Property) DEBUG_LOG("no Property");
-			if (Property) DEBUG_LOG("yes Property - " + std::to_string(reinterpret_cast<uintptr_t>(ChildProperties)));
-
-			while (true) {
-				DEBUG_LOG("Property!!: " + std::to_string(reinterpret_cast<uintptr_t>(Property)));
-				DEBUG_LOG("calling name");
-				FName name = Property->Name();
-				DEBUG_LOG("called name");
-				DEBUG_LOG("prop: " + name.ToString());
-
-				if (Property->Name().ToString() == varName) {
-					DEBUG_LOG("equels: " + Property->Name().ToString());
-					return reinterpret_cast<FProperty*>(Property)->Offset();
-				}
-
-				Property = Property->Next();
-				if (!Property) {
-					DEBUG_LOG("no prop, leaving: " + std::to_string(reinterpret_cast<uintptr_t>(Property)));
-					break;
-				}
-
-				DEBUG_LOG("");
-			}
-
-			DEBUG_LOG("left!!");
-		}*/
-	}
-
 	int32_t UObject::GetPropertyOffset(UProperty* Property) {
 		return Property->Offset();
+	}
+	int32_t UObject::GetPropertyOffset(FField* Field, std::string PropertyName) {
+		FField* CurrentField = Field;
+
+		do {
+			if (CurrentField->Name.ToString() == PropertyName) {
+				return reinterpret_cast<FProperty*>(CurrentField)->Offset;
+			}
+
+			CurrentField = CurrentField->Next;
+		} while (CurrentField);
+
+		return 0;
 	}
 
 	void UObject::ProcessEvent(void* fn, void* parms)
@@ -192,6 +70,124 @@ namespace SDK {
 		}
 
 		return "None";
+	}
+
+	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
+		for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
+			UObject* Object = ObjectArray.GetByIndex(i);
+
+			if (!Object)
+				continue;
+
+			std::string ObjectName = Object->GetName();
+
+			if (ObjectName.empty())
+				continue;
+
+			if (!Functions.empty()) {
+				if (Object->HasTypeFlag(EClassCastFlags::Function)) {
+					for (auto it = Functions.begin(); it != Functions.end(); ) {
+						FunctionSearch& CurrentFunction = *it;
+
+						if (CurrentFunction.FunctionName == ObjectName) {
+
+							std::string combinedString = CurrentFunction.ClassName + "." + CurrentFunction.FunctionName;
+
+							std::string FullObjectName = Object->GetFullName();
+
+							if (FullObjectName.length() >= combinedString.length() &&
+								FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
+								*CurrentFunction.Function = Object;
+								it = Functions.erase(it);
+							}
+							else {
+								++it;
+							}
+						}
+						else {
+							++it;
+						}
+					}
+				}
+			}
+
+			if (!Offsets.empty()) {
+				for (auto it = Offsets.begin(); it != Offsets.end();) {
+					OffsetSearch& CurrentOffset = *it;
+
+					if (Game::GameVersion >= 12.00) {
+						// In later UE4 versions, they changed how they manage child variables, so we add "Default__" to the beginning of the class name
+						// to find the default object of the class. There is no default object for structs, so we just use the class name
+						std::string DefaultName;
+						if (CurrentOffset.Type == OffsetType::Class) {
+							DefaultName = skCrypt("Default__").decrypt() + CurrentOffset.ClassName;
+						}
+						else {
+							DefaultName = CurrentOffset.ClassName;
+						}
+
+						if (ObjectName == DefaultName) {
+							FField* ChildProperties = Object->Class->ChildProperties();
+
+							if (!ChildProperties) {
+								continue;
+							}
+
+							int32 Offset = GetPropertyOffset(ChildProperties, CurrentOffset.PropertyName);
+
+							if (Offset) {
+								DEBUG_LOG("Found property: " + CurrentOffset.PropertyName + " - " + std::to_string(Offset) + " - " + ObjectName);
+								*CurrentOffset.Offset = Offset;
+								it = Offsets.erase(it);
+							}
+							else {
+								++it;
+							}
+						}
+						else {
+							++it;
+						}
+					}
+					else {
+						if (CurrentOffset.PropertyName == ObjectName) {
+							std::string combinedString = CurrentOffset.ClassName + "." + CurrentOffset.PropertyName;
+
+							std::string FullObjectName = Object->GetFullName();
+
+							if (FullObjectName.length() >= combinedString.length() &&
+								FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
+								UProperty* Property = reinterpret_cast<SDK::UProperty*>(Object);
+								*CurrentOffset.Offset = GetPropertyOffset(Property);
+								it = Offsets.erase(it);
+							}
+							else {
+								++it;
+							}
+						}
+						else {
+							++it;
+						}
+					}
+				}
+			}
+		}
+
+		if (!Offsets.empty()) {
+			std::string OffsetsNotFoundStr = skCrypt("Offsets not found: ").decrypt();
+			for (auto& Offset : Offsets) {
+				OffsetsNotFoundStr += Offset.ClassName + skCrypt(".").decrypt() + Offset.PropertyName + skCrypt("\n").decrypt();
+			}
+
+			THROW_ERROR(skCrypt("One or more offsets were not found!\n").decrypt() + OffsetsNotFoundStr, false);
+		}
+		if (!Functions.empty()) {
+			std::string FunctionsNotFoundStr = skCrypt("Functions not found: ").decrypt();
+			for (auto& Function : Functions) {
+				FunctionsNotFoundStr += Function.ClassName + skCrypt(".").decrypt() + Function.FunctionName + skCrypt("\n").decrypt();
+			}
+
+			THROW_ERROR(skCrypt("One or more functions were not found!").decrypt() + FunctionsNotFoundStr, false);
+		}
 	}
 
 	bool UObject::IsA(class UClass* Clss) const

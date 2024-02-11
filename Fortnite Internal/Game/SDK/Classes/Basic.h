@@ -1,10 +1,10 @@
-#ifndef BASIC_H
-#define BASIC_H
-
+#pragma once
 #include <Windows.h>
 #include <string>
-#include "CoreUObject_classes.h"
-#include "../../../Utilitys/skCrypter.h"
+#include "../../../Utilities/skCrypter.h"
+#ifdef USE_IMGUI
+#include "../../../Drawing/ImGui/imgui.h"
+#endif
 
 typedef __int8 int8;
 typedef __int16 int16;
@@ -19,6 +19,7 @@ typedef unsigned __int64 uint64;
 namespace SDK {
 	inline uintptr_t AppendStringOffset;
 	inline uintptr_t GetBoneMatrix;
+	inline uintptr_t LineTraceSingle;
 
 
 
@@ -172,7 +173,7 @@ namespace SDK {
 		// GetRawString - returns an unedited string as the engine uses it
 		inline std::string GetRawString() const
 		{
-			if (!this) return skCrypt("None").decrypt();
+			if (!this) return skCrypt("").decrypt();
 			if (!SDK::AppendStringOffset) return skCrypt("AppendString not found").decrypt() + std::to_string(SDK::AppendStringOffset);
 
 			thread_local FString TempString(1024);
@@ -355,17 +356,101 @@ namespace SDK {
 			return X != Other.X || Y != Other.Y || Z != Other.Z;
 		}
 
-		FVector operator+(const FVector& Other) const;
+		FVector operator+(const FVector& Other) const
+		{
+			return FVector(X + Other.X, Y + Other.Y, Z + Other.Z);
+		}
 
-		FVector operator-(const FVector& Other) const;
+		FVector operator-(const FVector& Other) const
+		{
+			return FVector(X - Other.X, Y - Other.Y, Z - Other.Z);
+		}
 
-		FVector operator*(decltype(X) Scalar) const;
+		FVector operator*(decltype(X) Scalar) const
+		{
+			return FVector(X * Scalar, Y * Scalar, Z * Scalar);
+		}
 
-		FVector operator/(decltype(X) Scalar) const;
+		FVector operator/(decltype(X) Scalar) const
+		{
+			if (Scalar != 0.0)
+			{
+				return FVector(X / Scalar, Y / Scalar, Z / Scalar);
+			}
+			else
+			{
+				return FVector();
+			}
+		}
 
 		inline float Distance(FVector v)
 		{
 			return float(sqrt(pow(v.X - X, 2.0) + pow(v.Y - Y, 2.0) + pow(v.Z - Z, 2.0)));
+		}
+
+		float Dot(const FVector& Other) const {
+			return X * Other.X + Y * Other.Y + Z * Other.Z;
+		}
+	};
+
+	struct FRotator
+	{
+	public:
+		float                                        Pitch;                                              // 0x0(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		float                                        Yaw;                                                // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		float                                        Roll;                                               // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+
+		inline FRotator()
+			: Pitch(0.0), Yaw(0.0), Roll(0.0)
+		{
+		}
+
+		inline FRotator(decltype(Pitch) Value)
+			: Pitch(Value), Yaw(Value), Roll(Value)
+		{
+		}
+
+		inline FRotator(decltype(Pitch) pitch, decltype(Yaw) yaw, decltype(Roll) roll)
+			: Pitch(pitch), Yaw(yaw), Roll(roll)
+		{
+		}
+
+		inline bool operator==(const FRotator& Other) const
+		{
+			return Pitch == Other.Pitch && Yaw == Other.Yaw && Roll == Other.Roll;
+		}
+
+		inline bool operator!=(const FRotator& Other) const
+		{
+			return Pitch != Other.Pitch || Yaw != Other.Yaw || Roll != Other.Roll;
+		}
+
+		FRotator operator+(const FRotator& Other) const;
+
+		FRotator operator-(const FRotator& Other) const;
+
+		FRotator operator*(decltype(Pitch) Scalar) const;
+
+		FRotator operator/(decltype(Pitch) Scalar) const {
+			return FRotator(Pitch / Scalar, Yaw / Scalar, Roll / Scalar);
+		}
+
+
+
+		// Distance function to calculate the angular distance between two Pitch values
+		inline float GetPitchDistance(const FRotator& Other) const
+		{
+			float DeltaPitch = std::abs(Pitch - Other.Pitch);
+			DeltaPitch = fmod(DeltaPitch + 180.0f, 360.0f) - 180.0f;
+			return DeltaPitch;
+		}
+
+		// Distance function to calculate the angular distance between two Yaw values
+		inline float GetYawDistance(const FRotator& Other) const
+		{
+			float DeltaYaw = std::abs(Yaw - Other.Yaw);
+			DeltaYaw = fmod(DeltaYaw + 180.0f, 360.0f) - 180.0f;
+			return DeltaYaw;
 		}
 	};
 
@@ -407,6 +492,13 @@ namespace SDK {
 		FVector2D operator*(decltype(X) Scalar) const;
 
 		FVector2D operator/(decltype(X) Scalar) const;
+
+#ifdef USE_IMGUI
+		inline operator ImVec2() const
+		{
+			return ImVec2(X, Y);
+		}
+#endif
 	};
 
 	struct FLinearColor
@@ -416,7 +508,15 @@ namespace SDK {
 		float                                        G;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		float                                        B;                                                 // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		float                                        A;                                                 // 0xC(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	
+		inline FLinearColor()
+			: R(0.0f), G(0.0f), B(0.0f), A(1.0f) 
+		{
+		}
+
+		inline FLinearColor(float InR, float InG, float InB, float InA)
+			: R(InR), G(InG), B(InB), A(InA)
+		{
+		}
 	};
 }
-
-#endif

@@ -5,7 +5,6 @@
 // Without their open source dumper I wouldn't have been able to do this
 
 #include <Windows.h>
-#include <psapi.h>
 #include <vector>
 #include <string>
 

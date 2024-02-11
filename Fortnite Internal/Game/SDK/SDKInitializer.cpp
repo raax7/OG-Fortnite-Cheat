@@ -1,7 +1,6 @@
 #include "SDKInitializer.h"
 
 void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange) {
-
 	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(VFTName) + skCrypt(" VFT index").decrypt());
 
 	uint8_t* StringRef = Memory::FindByStringInAllSections(SearchString);
@@ -30,7 +29,6 @@ void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> 
 }
 
 void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
-
 	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(FunctionName) + skCrypt(" function offset").decrypt());
 
 	uint8_t* StringRef = Memory::FindByStringInAllSections(SearchString);
@@ -53,7 +51,6 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 	}
 }
 void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
-
 	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(FunctionName) + skCrypt(" function offset").decrypt());
 	EXTRA_DEBUG_LOG(skCrypt("Searching for string reference: ").decrypt() + std::string(SearchString));
 
@@ -79,7 +76,7 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 
 void SDKInitializer::InitPRIndex() {
 	InitVFTIndex(
-		"PostRender",
+		skCrypt("PostRender").decrypt(),
 		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ? 80 3D ? ? ? 02 00").decrypt(),
 		skCrypt("FF 90 ? ? ? ? 48 8D 0D ? ? ? ? E8").decrypt() }, skCrypt(L"STAT_HudTime").decrypt(),
 		SDK::Cached::VFT::PostRender,
@@ -87,7 +84,7 @@ void SDKInitializer::InitPRIndex() {
 }
 void SDKInitializer::InitPEIndex() {
 	InitVFTIndex(
-		"ProcessEvent",
+		skCrypt("ProcessEvent").decrypt(),
 		std::vector<const char*>{ skCrypt("41 FF 91 ? ? ? ? E9 ? ? ? ? 80 3D ? ? ? ? ?").decrypt() },
 		skCrypt(L"FLatentActionManager::ProcessLatentActions: Could not find latent action resume point named '%s' on '%s' called by '%s'").decrypt(),
 		SDK::Cached::VFT::ProcessEvent,
@@ -95,7 +92,7 @@ void SDKInitializer::InitPEIndex() {
 }
 void SDKInitializer::InitGPVIndex() {
 	InitVFTIndex(
-		"GetPlayerViewpoint",
+		skCrypt("GetPlayerViewpoint").decrypt(),
 		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ?").decrypt() },
 		skCrypt(L"STAT_VolumeStreamingTickTime").decrypt(),
 		SDK::Cached::VFT::GetPlayerViewpoint,
@@ -103,7 +100,7 @@ void SDKInitializer::InitGPVIndex() {
 }
 void SDKInitializer::InitGVIndex() {
 	InitVFTIndex(
-		"GetViewpoint",
+		skCrypt("GetViewpoint").decrypt(),
 		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ?").decrypt() },
 		skCrypt(L"STAT_CalcSceneView").decrypt(),
 		SDK::Cached::VFT::GetViewpoint,
@@ -116,9 +113,9 @@ void SDKInitializer::InitAppendString() {
 		std::vector<const char*>
 	{
 		skCrypt("48 8D ? ? 48 8D ? ? E8").decrypt(),
-			skCrypt("48 8D ? ? ? 48 8D ? ? E8").decrypt(),
-			skCrypt("48 8D ? ? 49 8B ? E8").decrypt(),
-			skCrypt("48 8D ? ? ? 49 8B ? E8").decrypt()
+		skCrypt("48 8D ? ? ? 48 8D ? ? E8").decrypt(),
+		skCrypt("48 8D ? ? 49 8B ? E8").decrypt(),
+		skCrypt("48 8D ? ? ? 49 8B ? E8").decrypt()
 	},
 		skCrypt("ForwardShadingQuality_").decrypt(),
 		SDK::AppendStringOffset,
@@ -132,6 +129,16 @@ void SDKInitializer::InitGetBoneMatrix() {
 		SDK::GetBoneMatrix,
 		0x300,
 		0x100);
+}
+void SDKInitializer::InitLineTraceSingle() {
+	SDK::LineTraceSingle = Memory::PatternScan(
+		SDK::GetBaseAddress(),
+		skCrypt("48 8B 43 20 48 8D 4D E0 0F 10 45 C0 44 0F B6 8D ? ? ? ? 48 85 C0 0F 10 4D D0 4C 8D 45 A0 40 0F 95 C7 66 0F 7F 45 ? 48 8D 55 B0 F2 0F 10 45 ? 48 03 F8 8B 45 88 F2 0F 11 45 ? F2 0F 10 45 ? 89 45 A8 8B 45 98 F2 0F 11 45 ? F3 0F 10 44 24 ? F3 0F 11 44 24 ? 48 89 4C 24 ? 48 8D 4D F0 48 89 4C 24 ? 48 8B 4C 24 ? 44 88 7C 24 ? 48 89 74 24 ? 89 45 B8 0F B6 85 ? ? ? ? 89 44 24 30 4C 89 74 24 ? 44 88 64 24 ? 48 89 7B 20 66 0F 7F 4D ? E8").decrypt(),
+		155, // magic number, will improve pattern scanning function later
+		true
+	);
+
+	DEBUG_LOG(skCrypt("LineTraceSingle function offset found: ").decrypt() + std::to_string(SDK::LineTraceSingle - SDK::GetBaseAddress()));
 }
 
 void SDKInitializer::InitGObjects() {
