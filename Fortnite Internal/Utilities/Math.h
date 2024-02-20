@@ -7,28 +7,28 @@
 
 namespace Math {
 	inline float GetDistance2D(float x1, float y1, float x2, float y2) {
-		return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+		return (float)sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
 	}
 
-	inline float Interpolate(float value, float inputMin, float inputMax, float outputMin, float outputMax) {
-		return outputMin + (outputMax - outputMin) * ((value - inputMin) / (inputMax - inputMin));
+	inline float Interpolate(float Value, float InputMin, float InputMax, float OutputMin, float OutputMax) {
+		return OutputMin + (OutputMax - OutputMin) * ((Value - InputMin) / (InputMax - InputMin));
 	}
 
-	inline float Clamp(float value, float minValue, float maxValue) {
-		return (value < minValue) ? minValue : ((value > maxValue) ? maxValue : value);
+	inline float Clamp(float Value, float MinValue, float MaxValue) {
+		return (Value < MinValue) ? MinValue : ((Value > MaxValue) ? MaxValue : Value);
 	}
 
-	inline SDK::FRotator CalculateRotationAngles(SDK::FVector cameraPosition, SDK::FVector itemPosition) {
-		SDK::FVector direction = itemPosition - cameraPosition;
+	inline SDK::FRotator CalculateRotationAngles(SDK::FVector CameraPosition, SDK::FVector TargetPosition) {
+		SDK::FVector Direction = TargetPosition - CameraPosition;
 
-		float yaw = atan2(direction.Y, direction.X) * 180.0f / M_PI;
+		float Yaw = (float)(atan2(Direction.Y, Direction.X) * 180.f / M_PI);
 
-		float horizontalDistance = sqrt(direction.X * direction.X + direction.Y * direction.Y);
-		float pitch = atan2(direction.Z, horizontalDistance) * 180.0f / M_PI;
+		float HorizontalDistance = (float)(sqrt(Direction.X * Direction.X + Direction.Y * Direction.Y));
+		float Pitch = (float)(atan2(Direction.Z, HorizontalDistance) * 180.f / M_PI);
 
-		SDK::FVector rotationAngles = { pitch, yaw, 0.0f };
+		SDK::FVector RotationAngles = { Pitch, Yaw, 0.f };
 
-		return SDK::FRotator(rotationAngles.X, rotationAngles.Y, rotationAngles.Z);
+		return SDK::FRotator(RotationAngles.X, RotationAngles.Y, RotationAngles.Z);
 	}
 
 	inline SDK::FRotator NormalizeAxis(SDK::FRotator Rotation) {
@@ -51,8 +51,8 @@ namespace Math {
 	}
 
 	inline bool IsOnScreen(const SDK::FVector2D& Position) {
-		bool OnScreenX = (Position.X >= 0.0f) && (Position.X <= Game::ScreenWidth);
-		bool OnScreenY = (Position.Y >= 0.0f) && (Position.Y <= Game::ScreenHeight);
+		bool OnScreenX = (Position.X >= 0.f) && (Position.X <= Game::ScreenWidth);
+		bool OnScreenY = (Position.Y >= 0.f) && (Position.Y <= Game::ScreenHeight);
 
 		return OnScreenX && OnScreenY;
 	}

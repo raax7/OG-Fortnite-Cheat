@@ -3,12 +3,14 @@
 
 // Huge thanks to Dumper-7 for making this possible
 // Without their open source dumper I wouldn't have been able to do this
+// Pretty much all of this is pasted from Dumper-7, so make sure to star their repository
 
 #include <Windows.h>
 #include <vector>
 #include <string>
 
 namespace Memory {
+	// The worlds gayest pattern scanner. Improve later
 	inline uintptr_t PatternScan(uintptr_t pModuleBaseAddress, const char* sSignature, int pIndex, bool sRelativeAdr = false) {
 		static auto patternToByte = [](const char* pattern) { auto bytes = std::vector<int>{}; const auto start = const_cast<char*>(pattern); const auto end = const_cast<char*>(pattern) + strlen(pattern); for (auto current = start; current < end; ++current) { if (*current == '?') { ++current; if (*current == '?') ++current; bytes.push_back(-1); } else bytes.push_back(strtoul((const char*)current, &current, 16)); } return bytes; };
 
@@ -39,6 +41,10 @@ namespace Memory {
 
 		return NULL;
 	}
+
+
+
+	// Everything below is from Dumper-7
 
 	inline bool IsInProcessRange(uintptr_t Address)
 	{
@@ -78,7 +84,7 @@ namespace Memory {
 				if (bRelative)
 				{
 					if (Offset == -1)
-						Offset = PatternLength;
+						Offset = (uint32_t)PatternLength;
 
 					Address = ((Address + Offset + 4) + *(int32_t*)(Address + Offset));
 				}
@@ -131,7 +137,7 @@ namespace Memory {
 		uint8_t* SearchStart = (uint8_t*)ImageBase;
 		DWORD SearchRange = SizeOfImage;
 
-		for (int i = 0; i < SearchRange; i++)
+		for (int i = 0; i < (int)SearchRange; i++)
 		{
 			if ((SearchStart[i] == uint8_t(0x4C) || SearchStart[i] == uint8_t(0x48)) && SearchStart[i + 1] == uint8_t(0x8D))
 			{
@@ -186,6 +192,41 @@ namespace Memory {
 		}
 		return HighestFoundOffset;
 	}
+
+	static bool IsBadReadPtr(void* p)
+	{
+		MEMORY_BASIC_INFORMATION mbi;
+
+		if (LI_FN(VirtualQuery).safe()(p, &mbi, sizeof(mbi)))
+		{
+			constexpr DWORD mask = (PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+			bool b = !(mbi.Protect & mask);
+			if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS))
+				b = true;
+
+			return b;
+		}
+
+		return true;
+	};
+
+	template<bool bCheckForVft = true>
+	inline int32_t GetValidPointerOffset(uint8_t* ObjA, uint8_t* ObjB, int32_t StartingOffset, int32_t MaxOffset)
+	{
+		if (IsBadReadPtr(ObjA) || IsBadReadPtr(ObjB))
+			return -1;
+
+		for (int j = StartingOffset; j <= MaxOffset; j += 0x8)
+		{
+			const bool bIsAValid = !IsBadReadPtr(*reinterpret_cast<void**>(ObjA + j)) && (bCheckForVft ? !IsBadReadPtr(**reinterpret_cast<void***>(ObjA + j)) : true);
+			const bool bIsBValid = !IsBadReadPtr(*reinterpret_cast<void**>(ObjB + j)) && (bCheckForVft ? !IsBadReadPtr(**reinterpret_cast<void***>(ObjB + j)) : true);
+
+			if (bIsAValid && bIsBValid)
+				return j;
+		}
+
+		return -1;
+	};
 }
 
 #endif

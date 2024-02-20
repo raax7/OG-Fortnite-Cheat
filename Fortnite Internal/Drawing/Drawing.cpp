@@ -17,15 +17,15 @@ void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPosition
 void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
 	SDK::FString FString(RenderText);
 
-	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, FontSize, RenderColor, CenteredX, CenteredY, Outlined);
+	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, (int32)FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
 SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	SDK::FString FString(RenderText);
 
-	return SDK::GetLocalCanvas()->K2_TextSize(FString, FontSize);
+	return SDK::GetLocalCanvas()->K2_TextSize(FString, (int32)FontSize);
 }
 void Drawing::Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined) {
-	float Step = M_PI * 2.0 / Segments;
+	float Step = (float)(M_PI * 2.f / Segments);
 	int Count = 0;
 	SDK::FVector2D V[128];
 

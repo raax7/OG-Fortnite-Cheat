@@ -5,16 +5,6 @@
 #include "../../../Hooks/Hooks.h"
 #include "../../../Drawing/Drawing.h"
 
-using paramss = void(*)(uintptr_t this_);
-inline paramss hookedOriginal = nullptr;
-
-void hooked(uintptr_t this_) {
-	std::string test = "CALLED! - ";
-
-	DEBUG_LOG(test);
-	return;
-}
-
 void Actors::FortWeapon::Tick() {
 	if (!Config::Visuals::Weapons::Enabled) return;
 

@@ -97,4 +97,11 @@ namespace SDK {
 		eSSP_LEFT_EYE_SIDE,
 		eSSP_RIGHT_EYE_SIDE,
 	};
+
+	struct FKey
+	{
+	public:
+		class FName KeyName;
+		uint8 Pad_1196[0x10];
+	};
 }

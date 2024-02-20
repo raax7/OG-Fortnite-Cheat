@@ -35,6 +35,7 @@ struct OffsetSearch {
 
 namespace SDK {
 	// Forward Declarations
+
 	class UObject;
 	class FField;
 	class FProperty;
@@ -152,6 +153,7 @@ namespace SDK {
 	class UStruct : public UObject {
 	public:
 		static int32_t SuperOffset;
+		static int32_t ChildPropertiesOffset;
 
 		class UStruct* Super() {
 			if (!this) return nullptr;
@@ -160,7 +162,7 @@ namespace SDK {
 
 		class FField* ChildProperties() {
 			if (!this) return nullptr;
-			return (FField*)(*(uintptr_t*)((uintptr_t)this + 0x50));
+			return (FField*)(*(uintptr_t*)((uintptr_t)this + ChildPropertiesOffset));
 		}
 	};
 

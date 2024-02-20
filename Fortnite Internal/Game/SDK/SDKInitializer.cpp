@@ -121,6 +121,14 @@ void SDKInitializer::InitAppendString() {
 		SDK::AppendStringOffset,
 		0x60);
 }
+void SDKInitializer::InitFNameConstructor() {
+	InitFunctionOffset(
+		skCrypt("FName Constructor").decrypt(),
+		std::vector<const char*> { skCrypt("E8").decrypt() },
+		skCrypt(L"CanvasObject").decrypt(),
+		SDK::FNameConstructorOffset,
+		0x32);
+}
 void SDKInitializer::InitGetBoneMatrix() {
 	InitFunctionOffset(
 		skCrypt("GetBoneMatrix").decrypt(),

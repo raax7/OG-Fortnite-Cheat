@@ -2,9 +2,6 @@
 #include <Windows.h>
 #include <string>
 #include "../../../Utilities/skCrypter.h"
-#ifdef USE_IMGUI
-#include "../../../Drawing/ImGui/imgui.h"
-#endif
 
 typedef __int8 int8;
 typedef __int16 int16;
@@ -18,6 +15,7 @@ typedef unsigned __int64 uint64;
 
 namespace SDK {
 	inline uintptr_t AppendStringOffset;
+	inline uintptr_t FNameConstructorOffset;
 	inline uintptr_t GetBoneMatrix;
 	inline uintptr_t LineTraceSingle;
 
@@ -86,28 +84,17 @@ namespace SDK {
 
 		inline void Add(const T& Element)
 		{
-			// Check if there is enough space
 			if (NumElements < MaxElements)
 			{
-				// Add the element to the array
 				Data[NumElements++] = Element;
-			}
-			else
-			{
 			}
 		}
 
-		// Add an overload for rvalue references
 		inline void Add(T&& Element)
 		{
-			// Check if there is enough space
 			if (NumElements < MaxElements)
 			{
-				// Add the element to the array
 				Data[NumElements++] = std::move(Element);
-			}
-			else
-			{
 			}
 		}
 	};
@@ -121,7 +108,7 @@ namespace SDK {
 
 		inline FString(const wchar_t* WChar)
 		{
-			MaxElements = NumElements = *WChar ? std::wcslen(WChar) + 1 : 0;
+			MaxElements = NumElements = *WChar ? (int32)std::wcslen(WChar) + 1 : 0;
 
 			if (NumElements)
 			{
@@ -159,6 +146,26 @@ namespace SDK {
 	class FName
 	{
 	public:
+		FName()
+			: ComparisonIndex(0), Number(0)
+		{
+		}
+
+		FName(const wchar_t* Name)
+			: ComparisonIndex(0), Number(0)
+		{
+			if (this == nullptr || SDK::FNameConstructorOffset == 0x0) return;
+
+			static void(*FNameConstructor)(const FName*, const wchar_t*, bool) = nullptr;
+
+			if (!FNameConstructor)
+				FNameConstructor = reinterpret_cast<void(*)(const FName*, const wchar_t*, bool)>(uintptr_t(*(uintptr_t*)(__readgsqword(0x60) + 0x10)) + SDK::FNameConstructorOffset);
+
+			FNameConstructor(this, Name, true);
+
+			return;
+		}
+	public:
 		// Members of FName - depending on configuration [WITH_CASE_PRESERVING_NAME | FNAME_OUTLINE_NUMBER]
 		int32 ComparisonIndex;
 		int32 Number;
@@ -173,8 +180,7 @@ namespace SDK {
 		// GetRawString - returns an unedited string as the engine uses it
 		inline std::string GetRawString() const
 		{
-			if (!this) return skCrypt("").decrypt();
-			if (!SDK::AppendStringOffset) return skCrypt("AppendString not found").decrypt() + std::to_string(SDK::AppendStringOffset);
+			if (this == nullptr || SDK::AppendStringOffset == 0x0) return skCrypt("").decrypt();
 
 			thread_local FString TempString(1024);
 			static void(*AppendString)(const FName*, FString&) = nullptr;
@@ -437,20 +443,18 @@ namespace SDK {
 
 
 
-		// Distance function to calculate the angular distance between two Pitch values
-		inline float GetPitchDistance(const FRotator& Other) const
-		{
-			float DeltaPitch = std::abs(Pitch - Other.Pitch);
-			DeltaPitch = fmod(DeltaPitch + 180.0f, 360.0f) - 180.0f;
-			return DeltaPitch;
+		/*
+		* @brief Calculate the angular distance between two Pitch values
+		*/
+		inline float GetPitchDistance(const FRotator& Other) const {
+			return (float)(fmod(std::abs(Pitch - Other.Pitch) + 180.0, 360.0) - 180.0);
 		}
 
-		// Distance function to calculate the angular distance between two Yaw values
-		inline float GetYawDistance(const FRotator& Other) const
-		{
-			float DeltaYaw = std::abs(Yaw - Other.Yaw);
-			DeltaYaw = fmod(DeltaYaw + 180.0f, 360.0f) - 180.0f;
-			return DeltaYaw;
+		/*
+		* @brief Calculate the angular distance between two Yaw values
+		*/
+		inline float GetYawDistance(const FRotator& Other) const {
+			return (float)(fmod(std::abs(Yaw - Other.Yaw) + 180.0, 360.0) - 180.0);
 		}
 	};
 
@@ -487,18 +491,14 @@ namespace SDK {
 
 		FVector2D operator+(const FVector2D& Other) const;
 
-		FVector2D operator-(const FVector2D& Other) const;
+		FVector2D operator-(const FVector2D& Other) const
+		{
+			return FVector2D(X - Other.X, Y - Other.Y);
+		}
 
 		FVector2D operator*(decltype(X) Scalar) const;
 
 		FVector2D operator/(decltype(X) Scalar) const;
-
-#ifdef USE_IMGUI
-		inline operator ImVec2() const
-		{
-			return ImVec2(X, Y);
-		}
-#endif
 	};
 
 	struct FLinearColor

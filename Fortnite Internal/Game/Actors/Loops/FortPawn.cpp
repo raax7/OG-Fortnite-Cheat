@@ -70,10 +70,10 @@ void Actors::FortPawn::Tick() {
 		}
 
 		// Magic numbers for good box size
-		float LeftRightOffset = (Right - Left) * 0.36;
-		float TopBottomOffset = (Bottom - Top) * 0.22;
+		float LeftRightOffset = (Right - Left) * 0.36f;
+		float TopBottomOffset = (Bottom - Top) * 0.22f;
 
-		SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75));
+		SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75f));
 		SDK::FVector2D topRight(Right + LeftRightOffset, Top - TopBottomOffset);
 
 		SDK::FVector2D Chest(-1, -1);
@@ -81,7 +81,7 @@ void Actors::FortPawn::Tick() {
 		CurrentPlayer.DistanceFromLocal = localPlayer.Position.Distance(CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::Bottom]) / 100.f;
 
 		// Hardcoded ma distance, should move to bone population for optimisation
-		if (CurrentPlayer.DistanceFromLocal > 500) continue;
+		if (CurrentPlayer.DistanceFromLocal > 500.f) continue;
 
 		float MaxDistance = 150.0f;
 		float MinFontSize = 10.0f;

@@ -8,143 +8,66 @@
 
 namespace Features {
 	namespace Aimbot {
-		/*
-		* @brief Represents an AActor target
-		*/
+		// Represents an AActor target
 		class Target {
 		public:
-			/*
-			* @brief The type of the target (Affects the priority of the target)
-			*/
+			// The type of the target (Affects the priority of the target)
 			enum class TargetType {
-				ClosePlayer = 0,
-				FarPlayer = 1,
-				Weakspot = 2,
-				Other = 3,
+				ClosePlayer		= 0,
+				FarPlayer		= 1,
+				Weakspot		= 2,
+				Other			= 3,
 
-				TargetType_MAX = 4,
+				TargetType_MAX	= 4,
 			};
 		private:
-			/*
-			* @brief Information about the target, not relative to any player
-			*/
+			// Information about the target, not relative to any player
 			struct GlobalTargetInfo {
-				/*
-				* @brief Cached info about the FortPawn's BoneRegisters, etc (only if used if the target is a player)
-				*/
-				Actors::Caches::FortPawnCache PawnCache = Actors::Caches::FortPawnCache();
+				// FortPawn only information
+				Actors::Caches::FortPawnCache PawnCache = Actors::Caches::FortPawnCache();	// Cached info about the FortPawn's BoneRegisters, etc (only if used if the target is a FortPawn)
 
-				/*
-				* @brief The type of the target (Affects the priority of the target)
-				*/
-				TargetType Type = TargetType::TargetType_MAX;
+				// General information
+				TargetType Type = TargetType::TargetType_MAX;								// The type of the target (Affects the priority of the target)
 
-				/*
-				* @brief The target actor
-				*/
-				SDK::AActor* TargetActor = nullptr;
+				// The target actor information
+				SDK::AActor* TargetActor = nullptr;											// The target actor
+				SDK::FVector TargetActorPosition = SDK::FVector(0, 0, 0);					// The position of the actors's root component
+				SDK::FVector2D TargetActorPosition2D = SDK::FVector2D(0, 0);				// The position of the actors's root component on the screen
 
-				/*
-				* @brief The position of the actors's root component
-				*/
-				SDK::FVector TargetActorPosition = SDK::FVector(0, 0, 0);
-
-				/*
-				* @brief The position of the actors's root component on the screen
-				*/
-				SDK::FVector2D TargetActorPosition2D = SDK::FVector2D(0, 0);
-
-				/*
-				* @brief The position of the target's bone
-				*/
-				SDK::FVector TargetBonePosition = SDK::FVector(0, 0, 0);
-
-				/*
-				* @brief The position of the target's bone on the screen
-				*/
-				SDK::FVector2D TargetBonePosition2D = SDK::FVector2D(0, 0);
-
-				/*
-				* @brief The bone ID of the target bone
-				*/
-				Bone::BoneID TargetBoneId = Bone::BoneID::None;
+				// The target's bone information
+				// If the target doesn't have a bone, then the bone position will be the same as the actor position
+				SDK::FVector TargetBonePosition = SDK::FVector(0, 0, 0);					// The position of the target's bone
+				SDK::FVector2D TargetBonePosition2D = SDK::FVector2D(0, 0);					// The position of the target's bone on the screen
+				Bone::BoneID TargetBoneId = Bone::BoneID::None;								// The bone id of the target (only if used if the target is a FortPawn)
 			};
 
-			/*
-			* @brief Information about the target, relative to the local player
-			*/
+			// Information about the target, relative to the local player
 			struct LocalTargetInfo {
-				// Set to float max so that any target will be less than this
-				/*
-				* @brief The distance from the crosshair in pixels
-				*/
-				float DistanceFromCrosshair = FLT_MAX;
+				// Target distance information
+				float DistanceFromCrosshair = FLT_MAX;										// The distance from the crosshair in pixels
+				float DistanceFromPlayer = FLT_MAX;											// The distance from the local player in meters
+				float SmartTargetingDistance = FLT_MAX;										// The physical distance and the crosshair distance combined (hence smart targeting)
 
-				/*
-				* @brief The distance between the local player and the target (From rootcomponent)
-				*/
-				float DistanceFromPlayer = FLT_MAX;
+				// Aimbot information
+				bool IsTargeting = false;													// Is the local player currently aimbotting the target
 
-				/*
-				* @brief The physical distance and the crosshair distance combined (hence smart targeting)
-				*/
-				float SmartTargetingDistance = FLT_MAX;
+				SDK::FRotator TargetRotation = SDK::FRotator(0, 0, 0);						// The target rotation to aimbot the target
+				SDK::FRotator TargetRotationWithSmooth = SDK::FRotator(0, 0, 0);			// The target rotation to aimbot the target with smoothing applied
+				SDK::FRotator TargetRotationChange = SDK::FRotator(0, 0, 0);				// The current rotation change required to achieve the target rotation
 
-
-
-				/*
-				* @brief Is the local player currently holding down the aim key
-				*/
-				bool IsTargeting = false;
-
-
-				/*
-				* @brief The target rotation to aimbot the target
-				*/
-				SDK::FRotator TargetRotation = SDK::FRotator(0, 0, 0);
-
-				/*
-				* @brief The target rotation to aimbot the target with smoothing applied
-				*/
-				SDK::FRotator TargetRotationWithSmooth = SDK::FRotator(0, 0, 0);
-
-				/*
-				* @brief The current rotation change required to achieve the target rotation
-				*/
-				SDK::FRotator TargetRotationChange = SDK::FRotator(0, 0, 0);
-
-
-
-				/*
-				* @brief The current FOV size, NOT adjusted for the screen size
-				*/
-				float CurrentFOVSize = 0;
-
-				/*
-				* @brief The current FOV size, adjusted for the screen size
-				*/
-				float CurrentRealFOVSize = 0;
-
-				/*
-				* @brief The current smoothing
-				*/
-				float CurrentSmoothing = 0;
+				int CurrentFOVSize = 0;														// The current FOV size, NOT adjusted for the screen size
+				int CurrentRealFOVSize = 0;													// The current FOV size, adjusted for the screen size
+				float CurrentSmoothing = 0;													// The current smoothing
 			};
 		public:
-			/*
-			* @brief Information about the target, not relative to any player
-			*/
-			GlobalTargetInfo GlobalInfo{};
-
-			/*
-			* @brief Information about the target, relative to the local player
-			*/
-			LocalTargetInfo LocalInfo{};
+			// Target information
+			GlobalTargetInfo GlobalInfo{};		// Information about the target, not relative to any player
+			LocalTargetInfo LocalInfo{};		// Information about the target, relative to the local player
 		private:
 			/*
 			* @brief Update the FOV, smoothing and type of the target
 			*/
-			void UpdateLocalInfoAndType(Target& TargetToUpdate) {
+			virtual void UpdateLocalInfoAndType(Target& TargetToUpdate) {
 				switch (TargetToUpdate.GlobalInfo.Type) {
 				case TargetType::ClosePlayer:
 					TargetToUpdate.LocalInfo.CurrentFOVSize = Config::Aimbot::CloseAim::FOV;
@@ -180,7 +103,7 @@ namespace Features {
 			/*
 			* @brief Reset the target data to default values
 			*/
-			void ResetTarget() {
+			virtual void ResetTarget() {
 				// Reset the global info
 				{
 					GlobalInfo.Type = TargetType::TargetType_MAX;
@@ -214,7 +137,7 @@ namespace Features {
 			*
 			* @param SeenTargetLastFrame - Was the target seen this frame
 			*/
-			void TargetTick(bool SeenTargetThisFrame) {
+			virtual void TargetTick(bool SeenTargetThisFrame) {
 				if (!SeenTargetThisFrame || LocalInfo.DistanceFromCrosshair > LocalInfo.CurrentRealFOVSize || GlobalInfo.TargetActor == nullptr) {
 					// Resets if:
 					// - The target wasn't seen this frame
@@ -231,7 +154,7 @@ namespace Features {
 			*
 			* @param PotentialTarget - The potential new target
 			*/
-			bool ShouldSetTarget(Target PotentialTarget) {
+			virtual bool ShouldSetTarget(Target PotentialTarget) {
 				if (PotentialTarget.LocalInfo.DistanceFromCrosshair > PotentialTarget.LocalInfo.CurrentRealFOVSize) {
 					// If the player is outside of the FOV circle, then don't update the target
 					return false;
@@ -289,7 +212,7 @@ namespace Features {
 			* @param NewTarget - The new target to set
 			* @param ForceSetTarget - Should the target be set regardless
 			*/
-			void SetTarget(Target NewTarget, bool ForceSetTarget = false) {
+			virtual void SetTarget(Target NewTarget, bool ForceSetTarget = false) {
 				UpdateLocalInfoAndType(NewTarget);
 
 				if (ForceSetTarget) {
@@ -307,9 +230,7 @@ namespace Features {
 
 
 
-		/*
-		* @brief Represents a player target, inherits from Target and adds functions for dealing with player targets
-		*/
+		// Represents a player target, inherits from Target and adds functions for dealing with player targets
 		class PlayerTarget : public Target {
 		public:
 			/*
@@ -329,7 +250,7 @@ namespace Features {
 				Target.GlobalInfo.TargetBoneId = Bone::FindBestBone(Bone::BoneID::Head, TargetCache);
 
 				// Update local information
-				Target.LocalInfo.DistanceFromCrosshair = Math::GetDistance2D(TargetCache.BoneRegister2D[(int)Target.GlobalInfo.TargetBoneId].X, TargetCache.BoneRegister2D[(int)Target.GlobalInfo.TargetBoneId].Y, SDK::GetLocalCanvas()->SizeX() / 2, SDK::GetLocalCanvas()->SizeY() / 2);
+				Target.LocalInfo.DistanceFromCrosshair = Math::GetDistance2D(TargetCache.BoneRegister2D[(int)Target.GlobalInfo.TargetBoneId].X, TargetCache.BoneRegister2D[(int)Target.GlobalInfo.TargetBoneId].Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
 				Target.LocalInfo.DistanceFromPlayer = TargetCache.DistanceFromLocal;
 				Target.LocalInfo.SmartTargetingDistance = Target.LocalInfo.DistanceFromCrosshair + Target.LocalInfo.DistanceFromPlayer;
 
@@ -367,9 +288,7 @@ namespace Features {
 			}
 		};
 
-		/*
-		* @brief Represents a building weak spot target, inherits from Target and adds functions for dealing with building weak spot targets
-		*/
+		// Represents a building weak spot target, inherits from Target and adds functions for dealing with building weak spot targets
 		class WeakSpotTarget : public Target {
 		public:
 			/*
@@ -396,7 +315,7 @@ namespace Features {
 				Target.GlobalInfo.TargetBonePosition2D = RootComponentPosition2D;
 
 				// Update local information
-				Target.LocalInfo.DistanceFromCrosshair = Math::GetDistance2D(RootComponentPosition2D.X, RootComponentPosition2D.Y, SDK::GetLocalCanvas()->SizeX() / 2, SDK::GetLocalCanvas()->SizeY() / 2);
+				Target.LocalInfo.DistanceFromCrosshair = Math::GetDistance2D(RootComponentPosition2D.X, RootComponentPosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
 				Target.LocalInfo.DistanceFromPlayer = 0;
 				Target.LocalInfo.SmartTargetingDistance = Target.LocalInfo.DistanceFromCrosshair + Target.LocalInfo.DistanceFromPlayer;
 

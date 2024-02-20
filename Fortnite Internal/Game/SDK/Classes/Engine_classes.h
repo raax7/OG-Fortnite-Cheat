@@ -190,6 +190,72 @@ namespace SDK {
 
 			return;
 		}
+
+		bool WasInputKeyJustReleased(FKey& Key) {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+			struct {
+				FKey Key;
+				bool return_value;
+				uint8 Pad_9D1[0x7];
+			} params{};
+
+			params.Key = Key;
+
+			this->ProcessEvent(SDK::Cached::Functions::PlayerController::WasInputKeyJustReleased, &params);
+
+			return params.return_value;
+		}
+
+		bool WasInputKeyJustPressed(FKey& Key) {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+			struct {
+				FKey Key;
+				bool return_value;
+				uint8 Pad_9D1[0x7];
+			} params{};
+
+			params.Key = Key;
+
+			this->ProcessEvent(SDK::Cached::Functions::PlayerController::WasInputKeyJustPressed, &params);
+
+			return params.return_value;
+		}
+
+		bool IsInputKeyDown(FKey& Key) {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+			struct {
+				FKey Key;
+				bool return_value;
+				uint8 Pad_9D1[0x7];
+			} params{};
+
+			params.Key = Key;
+
+			this->ProcessEvent(SDK::Cached::Functions::PlayerController::IsInputKeyDown, &params);
+
+			return params.return_value;
+		}
+
+		bool GetMousePosition(float* LocationX, float* LocationY) {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+			struct {
+				float LocationX;
+				float LocationY;
+				bool return_value;
+				uint8 Pad_9D4[0x3];
+			} params{};
+
+			this->ProcessEvent(SDK::Cached::Functions::PlayerController::GetMousePosition, &params);
+
+			*LocationX = params.LocationX;
+			*LocationY = params.LocationY;
+
+			return params.return_value;
+		}
 	};
 
 	class UPlayer : public UObject {
@@ -259,6 +325,7 @@ namespace SDK {
 
 			return Clss;
 		}
+
 		static UEngine* GetDefaultObj()
 		{
 			static class UEngine* Default = nullptr;
@@ -441,14 +508,14 @@ namespace SDK {
 				FVector2D			ScreenPositionB;
 				float               Thickness;
 				FLinearColor        RenderColor;
-			} params3;
+			} params{};
 
-			params3.ScreenPositionA = ScreenPositionA;
-			params3.ScreenPositionB = ScreenPositionB;
-			params3.Thickness = Thickness;
-			params3.RenderColor = RenderColor;
+			params.ScreenPositionA = ScreenPositionA;
+			params.ScreenPositionB = ScreenPositionB;
+			params.Thickness = Thickness;
+			params.RenderColor = RenderColor;
 
-			this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawLine, &params3);
+			this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawLine, &params);
 		}
 
 		FVector2D K2_Project(FVector& WorldLocation) {
@@ -598,22 +665,26 @@ namespace SDK {
 
 	/*
 	* @brief Find the current local player instance
+	* 
+	* @return The current local player instance
 	*/
 	static class ULocalPlayer* GetLocalPlayer() {
 		return SDK::GetEngine()->GameViewport()->GameInstance()->LocalPlayers()[0];
 	}
 
 	/*
-	* @brief Find the current canvas instance
+	* @brief Find the current APlayerController instance
+	* 
+	* @return The current APlayerController instance
 	*/
 	static class APlayerController* GetLocalController() {
 		return GetLocalPlayer()->PlayerController();
 	}
 
 	/*
-	* @brief Find the current canvas instance
+	* @brief Find the current Canvas instance
 	*
-	* @return The current canvas instance
+	* @return The current Canvas instance
 	*/
 	static class UCanvas* GetLocalCanvas() {
 		return reinterpret_cast<UCanvas*>(Game::CurrentCanvas);

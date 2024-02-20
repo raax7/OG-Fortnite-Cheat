@@ -3,42 +3,6 @@
 #include "../../Game.h"
 #include "../../../Utilities/Math.h"
 
-inline SDK::FVector2D ProjectWorldToScreen(SDK::FVector WorldLocation, SDK::FVector CameraLocation, SDK::FRotator CameraRotation, float CameraFOV)
-{
-	SDK::FVector2D Screenlocation = SDK::FVector2D(0, 0);
-
-	float radPitch = (CameraRotation.Pitch * float(M_PI) / 180.f);
-	float radYaw = (CameraRotation.Yaw * float(M_PI) / 180.f);
-	float radRoll = (CameraRotation.Roll * float(M_PI) / 180.f);
-
-	float SP = sinf(radPitch);
-	float CP = cosf(radPitch);
-	float SY = sinf(radYaw);
-	float CY = cosf(radYaw);
-	float SR = sinf(radRoll);
-	float CR = cosf(radRoll);
-
-	SDK::FVector vAxisX, vAxisY, vAxisZ;
-	vAxisX = SDK::FVector(CP * CY, CP * SY, SP);
-	vAxisY = SDK::FVector(SR * SP * CY - CR * SY, SR * SP * SY + CR * CY, -SR * CP);
-	vAxisZ = SDK::FVector(-(CR * SP * CY + SR * SY), CY * SR - CR * SP * SY, CR * CP);
-
-	SDK::FVector vDelta = WorldLocation - CameraLocation;
-	SDK::FVector vTransformed = SDK::FVector(vDelta.Dot(vAxisY), vDelta.Dot(vAxisZ), vDelta.Dot(vAxisX));
-
-	if (vTransformed.Z < 1.f)
-		vTransformed.Z = 1.f;
-
-	float FovAngle = CameraFOV;
-	float ScreenCenterX = (float)Game::ScreenWidth / 2.0f; // REMOVE HARD CODED
-	float ScreenCenterY = (float)Game::ScreenHeight / 2.0f; // REMOVE HARD CODED
-
-	Screenlocation.X = ScreenCenterX + vTransformed.X * (ScreenCenterX / tan(FovAngle * (float)M_PI / 360.f)) / vTransformed.Z;
-	Screenlocation.Y = ScreenCenterY - vTransformed.Y * (ScreenCenterX / tan(FovAngle * (float)M_PI / 360.f)) / vTransformed.Z;
-
-	return Screenlocation;
-}
-
 namespace SDK {
 	// Forward Declarations
 

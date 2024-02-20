@@ -93,7 +93,7 @@ static inline auto spoof_call(Ret(*fn)(Args...), Args... args) -> Ret
 		const auto sections = IMAGE_FIRST_SECTION(nt);
 		const auto num_sections = nt->FileHeader.NumberOfSections;
 
-		constexpr char section_name[5]{ '.', 't', 'e', 'x', 't' };
+		constexpr char section_name[5]{ skCrypt(".").decrypt(), skCrypt("t").decrypt(), skCrypt("e").decrypt(), skCrypt("x").decrypt(), skCrypt("t").decrypt() };
 		const auto     section = std::find_if(sections, sections + num_sections, [&](const auto& s) {
 			return std::equal(s.Name, s.Name + 5, section_name);
 			});

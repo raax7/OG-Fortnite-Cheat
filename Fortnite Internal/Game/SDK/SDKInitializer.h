@@ -28,6 +28,7 @@ private:
 		}
 
 		THROW_ERROR(skCrypt("Failed to extract first wildcard!").decrypt(), true);
+		return 0;
 	}
 
 	/*
@@ -65,45 +66,34 @@ private:
 	 */
 	static void InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange = 0x600, int SearchBytesBehind = 0x0);
 public:
-	/*
-	* @brief Update the GObject offset (for finding UObjects)
-	*/
+	/* @brief Update the GObject offset (for finding UObjects) */
 	static void InitGObjects();
 
-	/*
-	* @brief Update the AppendString function offset (for converting FNames to strings)
-	*/
+	/* @brief Update the AppendString function offset (for converting FNames to strings) */
 	static void InitAppendString();
 
-	/*
-	* @brief Update the GetBoneMatrix function offset (for getting bone positions of a mesh)
-	*/
+	/* @brief Update the FNameConstructor function offset (for creating FNames) */
+	static void InitFNameConstructor();
+
+	/* @brief Update the GetBoneMatrix function offset (for getting bone positions of a mesh) */
 	static void InitGetBoneMatrix();
 
-	/*
-	* @brief Update the LineTraceSingle function offset (for visible check)
-	*/
+	/* @brief Update the LineTraceSingle function offset (for visible check) */
 	static void InitLineTraceSingle();
 
-	/*
-	* @brief Update the PostRender VFT index (for engine rendering)
-	*/
+
+	/* @brief Update the PostRender VFT index (for engine rendering) */
 	static void InitPRIndex();
 
-	/*
-	* @brief Update the PostRender VFT index (for calling UFunctions)
-	*/
+	/* @brief Update the PostRender VFT index (for calling UFunctions) */
 	static void InitPEIndex();
 
-	/*
-	* @brief Update the GetPlayerViewpoint VFT index (for SilentAim)
-	*/
+	/* @brief Update the GetPlayerViewpoint VFT index (for SilentAim) */
 	static void InitGPVIndex();
 
-	/*
-	* @brief Update the GetViewpoint VFT index (for SilentAim)
-	*/
+	/* @brief Update the GetViewpoint VFT index (for SilentAim) */
 	static void InitGVIndex();
+
 
 	// CREDITS TO: Dumper-7
 	static int32_t FindCastFlagsOffset() {
@@ -134,5 +124,13 @@ public:
 		}
 
 		return Memory::FindOffset(infos);
+	}
+	// CREDITS TO: Dumper-7
+	static int32_t FindChildPropertiesOffset()
+	{
+		uint8* ObjA = (uint8*)SDK::UObject::FindObjectFast("Color");
+		uint8* ObjB = (uint8*)SDK::UObject::FindObjectFast("Guid");
+
+		return Memory::GetValidPointerOffset(ObjA, ObjB, SDK::UStruct::SuperOffset + 0x10, 0x80);
 	}
 };

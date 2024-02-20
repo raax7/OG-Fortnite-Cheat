@@ -2,12 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Entry.cpp" />
-    <ClCompile Include="Game\Actors\FortPawn\FortPawn.cpp">
-      <Filter>Game\Actors\FortPawn</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Actors\FortWeapon\FortWeapon.cpp">
-      <Filter>Game\Actors\FortWeapon</Filter>
-    </ClCompile>
     <ClCompile Include="Game\SDK\Classes\CoreUObject_functions.cpp">
       <Filter>Game\SDK\Classes</Filter>
     </ClCompile>
@@ -23,17 +17,42 @@
     <ClCompile Include="Game\Actors\Actors.cpp">
       <Filter>Game\Actors</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\Menu\Menu.cpp">
+    <ClCompile Include="Drawing\Drawing.cpp">
       <Filter>Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\Drawing.cpp" />
-    <ClCompile Include="Hooks\Hooks.cpp" />
-    <ClCompile Include="Hooks\PostRender\PostRender.cpp" />
-    <ClCompile Include="Game\Game.cpp" />
-    <ClCompile Include="Drawing\Menu\MenuInput.cpp" />
-    <ClCompile Include="Game\Actors\BuildingWeakSpot\BuildingWeakSpot.cpp" />
-    <ClCompile Include="Hooks\GetViewpoint\GetViewpoint.cpp" />
-    <ClCompile Include="Hooks\GetPlayerViewpoint\GetPlayerViewpoint.cpp.cpp" />
+    <ClCompile Include="Drawing\RaaxGUI\RaaxGUI.cpp">
+      <Filter>Drawing\RaaxGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\RaaxGUI\RaaxGUIInput.cpp">
+      <Filter>Drawing\RaaxGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Actors\Loops\FortWeapon.cpp">
+      <Filter>Game\Actors\Loops</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Actors\Loops\FortPawn.cpp">
+      <Filter>Game\Actors\Loops</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Actors\Loops\BuildingWeakSpot.cpp">
+      <Filter>Game\Actors\Loops</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Hooks.cpp">
+      <Filter>Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\PostRender.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\GetPlayerViewpoint.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\GetViewpoint.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Input\Input.cpp">
+      <Filter>Game\Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -48,29 +67,14 @@
     <Filter Include="Game\Actors">
       <UniqueIdentifier>{d802ad55-8734-4574-9bf5-34010fd226d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Actors\FortPawn">
-      <UniqueIdentifier>{12e2d2a0-d7e8-4f98-898b-61eafd11b20f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Actors\FortWeapon">
-      <UniqueIdentifier>{390778b7-3924-4a70-b606-b25cd666deed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Features">
       <UniqueIdentifier>{79abcb8d-25db-429f-89e6-878225a3bb30}</UniqueIdentifier>
     </Filter>
     <Filter Include="Game\Features\Aimbot">
       <UniqueIdentifier>{3faf4059-0cad-4eb7-8a46-b57cb403d5b6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Features\ESP">
-      <UniqueIdentifier>{c7195b69-6869-4b49-8a00-440ea8ff337f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Features\Exploits">
       <UniqueIdentifier>{afe9484f-1487-41bc-aa48-0f4137b79942}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Hooks">
-      <UniqueIdentifier>{8cfac435-a4b6-4529-a8fc-649d92427076}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Hooks\PostRender">
-      <UniqueIdentifier>{78de8245-297c-4324-b342-442ff6057ac7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Configs">
       <UniqueIdentifier>{b79d47c0-2076-4f13-82e6-57536417a137}</UniqueIdentifier>
@@ -84,14 +88,23 @@
     <Filter Include="Drawing">
       <UniqueIdentifier>{e0950f03-5579-4101-9077-b538a01bdd1b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Drawing\Engine">
+    <Filter Include="Game\Actors\Loops">
+      <UniqueIdentifier>{042f96ca-9bce-43c7-9195-5d67f678d6f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features\FortPawn">
+      <UniqueIdentifier>{c7195b69-6869-4b49-8a00-440ea8ff337f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Input">
+      <UniqueIdentifier>{2dbf881b-214c-4ce7-ae61-4b4f2654c8c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks">
+      <UniqueIdentifier>{f5b32b98-c5ec-4318-99b3-af98dbeacf21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\Callbacks">
+      <UniqueIdentifier>{2bd6d239-dafc-4d6b-92a1-090a7d6dd5b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Drawing\RaaxGUI">
       <UniqueIdentifier>{cf03b6bf-0d0d-49c1-afdb-4b5e64336048}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Drawing\ImGui">
-      <UniqueIdentifier>{a7d33b04-858f-4f12-9cf9-18995052f1e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Drawing\ImGui\Hook">
-      <UniqueIdentifier>{68564416-34e2-4e66-88c7-e7f5d61d937c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -120,7 +133,7 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Features\FortPawn\FortPawn.h">
-      <Filter>Game\Features\ESP</Filter>
+      <Filter>Game\Features\FortPawn</Filter>
     </ClInclude>
     <ClInclude Include="Configs\Config.h">
       <Filter>Configs</Filter>
@@ -134,9 +147,6 @@
     </ClInclude>
     <ClInclude Include="Game\SDK\Classes\Engine_structs.h">
       <Filter>Game\SDK\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Features\FortPawn\Bone.h">
-      <Filter>Game\Features\Aimbot</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\skCrypter.h">
       <Filter>Utilities</Filter>
@@ -156,17 +166,39 @@
     <ClInclude Include="Utilities\Memory.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\Menu\Menu.h">
+    <ClInclude Include="Configs\ConfigTypes.h">
+      <Filter>Configs</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\Drawing.h">
       <Filter>Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\Drawing.h" />
-    <ClInclude Include="Hooks\Hooks.h" />
-    <ClInclude Include="Configs\ConfigTypes.h" />
-    <ClInclude Include="Drawing\Menu\MenuInput.h" />
-    <ClInclude Include="Game\Features\Aimbot\Aimbot.h" />
-    <ClInclude Include="Game\Actors\ActorCache.h" />
-    <ClInclude Include="Game\SDK\Classes\FortniteGame_structs.h" />
-    <ClInclude Include="Game\Features\Features.h" />
+    <ClInclude Include="Drawing\RaaxGUI\RaaxGUI.h">
+      <Filter>Drawing\RaaxGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\RaaxGUI\RaaxGUIInput.h">
+      <Filter>Drawing\RaaxGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\FortPawn\Bone.h">
+      <Filter>Game\Features\FortPawn</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\Aimbot\Aimbot.h">
+      <Filter>Game\Features\Aimbot</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\Features.h">
+      <Filter>Game\Features</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SDK\Classes\FortniteGame_structs.h">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\Hooks.h">
+      <Filter>Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Actors\ActorCache.h">
+      <Filter>Game\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Input\Input.h">
+      <Filter>Game\Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Utilities\SpoofCall\spoofinternal.asm">

@@ -3,9 +3,7 @@
 #include "../Game/SDK/Classes/Basic.h"
 #include "../Game/SDK/Classes/Engine_classes.h"
 
-/*
-* @brief A wrapper for drawing functions
-*/
+// A wrapper for drawing functions
 class Drawing {
 public:
 	/*

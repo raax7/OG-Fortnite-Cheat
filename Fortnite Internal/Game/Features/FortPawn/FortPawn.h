@@ -9,6 +9,7 @@
 
 namespace Features {
 	namespace Aimbot {
+		// Helper functions for FortPawns
 		class FortPawn {
 		public:
 			/*

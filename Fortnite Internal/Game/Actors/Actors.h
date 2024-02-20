@@ -7,7 +7,7 @@
 
 struct LocalPlayer {
 	SDK::FVector Position;
-	int TeamIndex;
+	int TeamIndex{};
 };
 
 namespace Actors {
@@ -16,7 +16,7 @@ namespace Actors {
 
 		inline std::vector<Actors::Caches::FortPawnCache> CachedPlayers;
 
-		inline const float IntervalSeconds = 0.25;
+		inline const float IntervalSeconds = 0.25f;
 		inline std::chrono::steady_clock::time_point LastTime = std::chrono::steady_clock::now();
 	}
 
@@ -25,7 +25,7 @@ namespace Actors {
 
 		inline SDK::TArray<SDK::AActor*> CachedWeapons;
 
-		inline const float IntervalSeconds = 0.25;
+		inline const float IntervalSeconds = 0.25f;
 		inline std::chrono::steady_clock::time_point LastTime = std::chrono::steady_clock::now();
 	}
 
@@ -34,7 +34,7 @@ namespace Actors {
 
 		inline SDK::TArray<SDK::AActor*> CachedBuildingWeakSpot;
 
-		inline const float IntervalSeconds = 0.10;
+		inline const float IntervalSeconds = 0.10f;
 		inline std::chrono::steady_clock::time_point LastTime = std::chrono::steady_clock::now();
 	}
 

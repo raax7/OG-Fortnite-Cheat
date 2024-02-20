@@ -20,30 +20,34 @@ private:
             std::string(FilePath);
     }
 public:
-    static void error(std::string message, bool close, const char* filePath, int line) {
+    static void error(std::string Message, bool Close, const char* FilePath, int Line) {
 #if SHOW_MESSAGE_BOX
-        std::string errorMessageInfo;
-        std::string errorMessage;
+        std::string ErrorMessageInfo;
+        std::string ErrorMessage;
 
-        std::string fileName = GetFileName(filePath);
+        std::string FileName = GetFileName(FilePath);
 
-        if (!fileName.empty()) {
-            errorMessageInfo = close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n").decrypt() + fileName + skCrypt(":").decrypt() + std::to_string(line) + skCrypt("\n\n").decrypt();
+        if (!FileName.empty()) {
+#if _DEBUG
+            ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
+#else
+            ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n").decrypt() + FileName + skCrypt(":").decrypt() + std::to_string(Line) + skCrypt("\n\n").decrypt();
+#endif
         }
         else {
-            errorMessageInfo = close ? skCrypt("A fatal error has occurred!\n\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
+            ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
         }
 
-        errorMessage = errorMessageInfo + message;
+        ErrorMessage = ErrorMessageInfo + Message;
 
-        LI_FN(MessageBoxA).safe()(NULL, errorMessage.c_str(), skCrypt("Error!").decrypt(), MB_ICONERROR);
+        LI_FN(MessageBoxA).safe()(NULL, ErrorMessage.c_str(), skCrypt("Error!").decrypt(), MB_ICONERROR);
 #endif
-        errorMessage.clear();
-        errorMessageInfo.clear();
-        fileName.clear();
-        message.clear();
+        ErrorMessage.clear();
+        ErrorMessageInfo.clear();
+        FileName.clear();
+        Message.clear();
 
-        if (close) {
+        if (Close) {
             exit(0);
         }
     }

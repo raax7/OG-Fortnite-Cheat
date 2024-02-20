@@ -7,15 +7,11 @@
 
 namespace Features {
     namespace Aimbot {
-        /*
-        * @brief Stores the BoneID enum. Also used to determine the best bone to aim at based on the bone hierarchy and visibilities
-        */
+        // Stores the BoneID enum. Also used to determine the best bone to aim at based on the bone hierarchy and visibilities
         class Bone {
         public:
-            /*
-            * @brief Represents the bone IDs of a FortPawn
-            */
-            static enum class BoneID : int {
+            // Represents the bone IDs of a FortPawn
+            enum class BoneID : int {
                 Head = 66,
                 Neck = 64,
 
@@ -45,14 +41,10 @@ namespace Features {
                 None = 0,
             };
         private:
-            /*
-            * @brief The order of the bone hierarchy, used to determine which bone to aim at based on the visibilities of the bones
-            */
+            // The order of the bone hierarchy, used to determine which bone to aim at based on the visibilities of the bones
             static const std::vector<std::pair<BoneID, BoneID>> BoneHierarchyOrder;
         public:
-            /*
-            * @brief The pairs of bones that are connected to each other in the player skeleton
-            */
+            // The pairs of bones that are connected to each other in the player skeleton
             static const std::vector<std::pair<BoneID, BoneID>> SkeletonBonePairs;
         public:
             /*
@@ -64,8 +56,8 @@ namespace Features {
             * @param BoneID2 - The ID of the second bone
             */
             static BoneID ChooseBasedOnPreference(SDK::FVector2D Bone1, SDK::FVector2D Bone2, BoneID BoneID1, BoneID BoneID2) {
-                float Bone1Distance = Math::GetDistance2D(Bone1.X, Bone1.Y, Game::ScreenWidth / 2, Game::ScreenHeight / 2);
-                float Bone2Distance = Math::GetDistance2D(Bone2.X, Bone2.Y, Game::ScreenWidth / 2, Game::ScreenHeight / 2);
+                float Bone1Distance = Math::GetDistance2D(Bone1.X, Bone1.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
+                float Bone2Distance = Math::GetDistance2D(Bone2.X, Bone2.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
 
                 if (Bone1Distance < Bone2Distance) return BoneID1;
                 return BoneID2;

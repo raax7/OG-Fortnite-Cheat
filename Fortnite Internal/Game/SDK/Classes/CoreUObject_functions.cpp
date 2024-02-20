@@ -8,6 +8,7 @@ namespace SDK {
 	int32_t UClass::DefaultObjectOffset;
 	int32_t UClass::CastFlagsOffset;
 	int32_t UStruct::SuperOffset;
+	int32_t UStruct::ChildPropertiesOffset;
 	int32_t UProperty::OffsetOffset;
 
 
@@ -73,6 +74,8 @@ namespace SDK {
 	}
 
 	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
+		DEBUG_LOG(skCrypt("Setting up objects...").decrypt());
+
 		for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
 			UObject* Object = ObjectArray.GetByIndex(i);
 
@@ -116,7 +119,7 @@ namespace SDK {
 					OffsetSearch& CurrentOffset = *it;
 
 					if (Game::GameVersion >= 12.00) {
-						// In later UE4 versions, they changed how they manage child variables, so we add "Default__" to the beginning of the class name
+						// In later UE4 versions, they changed how they manage UProperty variables, so we add "Default__" to the beginning of the class name
 						// to find the default object of the class. There is no default object for structs, so we just use the class name
 						std::string DefaultName;
 						if (CurrentOffset.Type == OffsetType::Class) {
@@ -130,13 +133,13 @@ namespace SDK {
 							FField* ChildProperties = Object->Class->ChildProperties();
 
 							if (!ChildProperties) {
+								++it;
 								continue;
 							}
 
 							int32 Offset = GetPropertyOffset(ChildProperties, CurrentOffset.PropertyName);
 
 							if (Offset) {
-								DEBUG_LOG("Found property: " + CurrentOffset.PropertyName + " - " + std::to_string(Offset) + " - " + ObjectName);
 								*CurrentOffset.Offset = Offset;
 								it = Offsets.erase(it);
 							}
@@ -173,7 +176,7 @@ namespace SDK {
 		}
 
 		if (!Offsets.empty()) {
-			std::string OffsetsNotFoundStr = skCrypt("Offsets not found: ").decrypt();
+			std::string OffsetsNotFoundStr = skCrypt("Offsets not found:\n").decrypt();
 			for (auto& Offset : Offsets) {
 				OffsetsNotFoundStr += Offset.ClassName + skCrypt(".").decrypt() + Offset.PropertyName + skCrypt("\n").decrypt();
 			}
@@ -181,13 +184,15 @@ namespace SDK {
 			THROW_ERROR(skCrypt("One or more offsets were not found!\n").decrypt() + OffsetsNotFoundStr, false);
 		}
 		if (!Functions.empty()) {
-			std::string FunctionsNotFoundStr = skCrypt("Functions not found: ").decrypt();
+			std::string FunctionsNotFoundStr = skCrypt("Functions not found:\n").decrypt();
 			for (auto& Function : Functions) {
 				FunctionsNotFoundStr += Function.ClassName + skCrypt(".").decrypt() + Function.FunctionName + skCrypt("\n").decrypt();
 			}
 
 			THROW_ERROR(skCrypt("One or more functions were not found!").decrypt() + FunctionsNotFoundStr, false);
 		}
+
+		DEBUG_LOG(skCrypt("Setup objects!").decrypt());
 	}
 
 	bool UObject::IsA(class UClass* Clss) const

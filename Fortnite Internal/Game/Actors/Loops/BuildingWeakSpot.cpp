@@ -7,16 +7,16 @@
 #include "../../Features/Aimbot/Aimbot.h"
 
 void Actors::BuildingWeakSpot::Tick() {
-	if (!SDK::GetLocalCanvas()) return;
+	if (SDK::GetLocalCanvas() == nullptr) return;
 
 	bool SeenTarget = false;
 
 	for (int i = 0; i < CachedBuildingWeakSpot.Num(); i++) {
-		if (!Config::Aimbot::Weakspot::Enabled) break;
+		if (Config::Aimbot::Weakspot::Enabled == false) break;
 
 		// ADD CHECK FOR IF CURRENT WEAPON IS A GUN OR A PICKAXE
 		//if (reinterpret_cast<SDK::AFortPawn*>(SDK::GetLocalController()->AcknowledgedPawn())->CurrentWeapon()) break;
-		if (!CachedBuildingWeakSpot.IsValidIndex(i)) continue;
+		if (CachedBuildingWeakSpot.IsValidIndex(i) == false) continue;
 
 		SDK::AActor* Actor = CachedBuildingWeakSpot[i];									if (!Actor) continue;
 		SDK::ABuildingWeakSpot* WeakSpot = static_cast<SDK::ABuildingWeakSpot*>(Actor);	if (!WeakSpot) continue;
@@ -29,12 +29,13 @@ void Actors::BuildingWeakSpot::Tick() {
 		if (WeakSpot->GetWeakSpotInfo() & 0x4 && !(WeakSpot->GetWeakSpotInfo() & 0x2) && !(WeakSpot->GetWeakSpotInfo() & 0x1)) {
 			// Aimbot
 			if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
-				if ((!target.LocalInfo.IsTargeting || !target.GlobalInfo.TargetActor)) {
+				if ((target.LocalInfo.IsTargeting == false || target.GlobalInfo.TargetActor == nullptr)) {
 					Features::Aimbot::Target PotentialNewTarget{};
 
 					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot);
 					target.SetTarget(PotentialNewTarget);
 				}
+
 				if (target.GlobalInfo.TargetActor == WeakSpot) {
 					SeenTarget = true;
 

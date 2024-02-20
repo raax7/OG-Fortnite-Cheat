@@ -2,11 +2,13 @@
 #include <Windows.h>
 
 namespace Game {
-	inline float GameVersion;
-	inline int ScreenWidth;
-	inline int ScreenHeight;
+	inline float GameVersion		= 0.f;
+	inline int ScreenWidth			= 0;
+	inline int ScreenHeight			= 0;
 
-	inline uintptr_t CurrentCanvas;
+	inline unsigned __int64 CurrentFrame = 0;
+
+	inline uintptr_t CurrentCanvas	= 0x0;
 
 	void DrawCallback();
 }

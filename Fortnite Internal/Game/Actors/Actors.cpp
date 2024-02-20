@@ -3,13 +3,13 @@
 #include "../SDK/Classes/FortniteGame_Classes.h"
 
 void Actors::Tick() {
-	if (!SDK::GetLocalCanvas()) return;
+	if (SDK::GetLocalCanvas() == nullptr) return;
 
 	// Adjust FOV for screen resolution
-	Config::Aimbot::CloseAim::RealFOV = static_cast<float>(Config::Aimbot::CloseAim::FOV) * (static_cast<float>(SDK::GetLocalCanvas()->SizeY()) / 1080.0f);
-	Config::Aimbot::Standard::RealFOV = static_cast<float>(Config::Aimbot::Standard::FOV) * (static_cast<float>(SDK::GetLocalCanvas()->SizeY()) / 1080.0f);
-	Config::Aimbot::Weakspot::RealFOV = static_cast<float>(Config::Aimbot::Weakspot::FOV) * (static_cast<float>(SDK::GetLocalCanvas()->SizeY()) / 1080.0f);
-	Config::Aimbot::TriggerBot::RealFOV = static_cast<float>(Config::Aimbot::TriggerBot::FOV) * (static_cast<float>(SDK::GetLocalCanvas()->SizeY()) / 1080.0f);
+	Config::Aimbot::CloseAim::RealFOV = Config::Aimbot::CloseAim::FOV * ((float)(Game::ScreenHeight) / 1080.f);
+	Config::Aimbot::Standard::RealFOV = Config::Aimbot::Standard::FOV * ((float)(Game::ScreenHeight) / 1080.f);
+	Config::Aimbot::Weakspot::RealFOV = Config::Aimbot::Weakspot::FOV * ((float)(Game::ScreenHeight) / 1080.f);
+	Config::Aimbot::TriggerBot::RealFOV = Config::Aimbot::TriggerBot::FOV * ((float)(Game::ScreenHeight) / 1080.f);
 
 	// Update FPS scale
 	{
@@ -34,7 +34,7 @@ void Actors::Tick() {
 			AimbotCamera.FOV = RealCamera.FOV;
 
 			if (Config::Aimbot::SilentAim) {
-				if (!Config::Aimbot::UseAimKeyForSilent || Config::Aimbot::UseAimKeyForSilent && target.LocalInfo.IsTargeting) {
+				if (Config::Aimbot::UseAimKeyForSilent == false || Config::Aimbot::UseAimKeyForSilent && target.LocalInfo.IsTargeting) {
 					AimbotCamera.Rotation = target.LocalInfo.TargetRotationWithSmooth;
 
 					// Account for if the players actual rotation is closer than the silent aim rotation (so silent aim can't throw for you)
@@ -64,10 +64,10 @@ void Actors::Tick() {
 			if (Config::Aimbot::ShowAimLine && Config::Aimbot::Enabled) {
 				if (target.GlobalInfo.TargetActor) {
 					if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2, Game::ScreenHeight / 2), SDK::FVector2D(target.GlobalInfo.TargetBonePosition2D.X, target.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(target.GlobalInfo.TargetBonePosition2D.X, target.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 					}
 					else {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2, Game::ScreenHeight / 2), SDK::FVector2D(target.GlobalInfo.TargetBonePosition2D.X, target.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(target.GlobalInfo.TargetBonePosition2D.X, target.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 					}
 				}
 			}
@@ -79,25 +79,25 @@ void Actors::Tick() {
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowFOV && Config::Aimbot::Enabled) {
 				if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer) {
-					Drawing::Circle(SDK::FVector2D(SDK::GetLocalCanvas()->SizeX() / 2, SDK::GetLocalCanvas()->SizeY() / 2), Config::Aimbot::CloseAim::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::CloseAim::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 				}
 				else if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-					Drawing::Circle(SDK::FVector2D(SDK::GetLocalCanvas()->SizeX() / 2, SDK::GetLocalCanvas()->SizeY() / 2), Config::Aimbot::Weakspot::RealFOV, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Weakspot::RealFOV, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 				}
 				else {
-					Drawing::Circle(SDK::FVector2D(SDK::GetLocalCanvas()->SizeX() / 2, SDK::GetLocalCanvas()->SizeY() / 2), Config::Aimbot::Standard::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Standard::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 				}
 			}
 
 			if (Config::Aimbot::TriggerBot::ShowFOV && Config::Aimbot::TriggerBot::Enabled) {
-				Drawing::Circle(SDK::FVector2D(SDK::GetLocalCanvas()->SizeX() / 2, SDK::GetLocalCanvas()->SizeY() / 2), Config::Aimbot::TriggerBot::RealFOV, 32, SDK::FLinearColor(0.75f, 0.25f, 0.75f, 1.f), true);
+				Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::TriggerBot::RealFOV, 32, SDK::FLinearColor(0.75f, 0.25f, 0.75f, 1.f), true);
 			}
 		}
 	}
 
 	// Update local player
 	{
-		if (!SDK::GetLocalController()->AcknowledgedPawn()->GetRootComponent()) {
+		if (SDK::GetLocalController()->AcknowledgedPawn()->GetRootComponent() == nullptr) {
 			localPlayer.Position = SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation();
 			localPlayer.TeamIndex = -1;
 		}
@@ -105,7 +105,7 @@ void Actors::Tick() {
 }
 
 void Actors::UpdateCaches() {
-	if (!SDK::GetLocalCanvas()) return;
+	if (SDK::GetLocalCanvas() == nullptr) return;
 
 	auto CurrentTime = std::chrono::steady_clock::now();
 

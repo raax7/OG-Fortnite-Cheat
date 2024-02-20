@@ -2,33 +2,37 @@
 
 #include "Game/SDK/SDK.h"
 #include "Hooks/Hooks.h"
+#include "Drawing/RaaxGUI/RaaxGUI.h"
 
 #include "Globals.h"
 
 // TO-DO:
-// - Convert all input to be got through Unreal Engine functions
-// - Convert menu to use indexes instead of strings for items
-// - Convert menu to a class
-// - Add a runtime string encryption and decryption system
-// - Add a check for if a player is inside the FOV (even not visible) and if so, don't aimbot weakspots
+// - Convert menu to a class (ONGOING)
+// - Add a pickaxe check for weakspot aimbot
 // - Convert FOV size to camera degrees instead of pixels
-// - Add a batch line processor for betting line outlne handling
+// - Add a batch line processor for better line outlne handling
+// - Fix struct offset grabbing not working on new UProperty handling
 
 // NOTES:
 // GetWeaponStats VFT: UFortItemDefinition[0xD0]
 
 VOID Main() {
+    // TEMPORARY, REMOVE LATER!!!
+    srand(time(0));
+    // TEMPORARY, REMOVE LATER!!!
+
     // Beep to notify that the cheat has been injected
     LI_FN(Beep).safe()(500, 500);
 
+#ifdef _DEBUG
     // Init logger (REPLACE WITH YOUR OWN PATH)
     Logger::InitLogger(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log").decrypt());
+#endif // _DEBUG
 
-    // Init base address, GObjects, function addresses, offsets etc
-    SDK::Init();
+    SDK::Init();    // Init base address, GObjects, function addresses, offsets etc
+    Hooks::Init();  // Init hooks
 
-    // Init hooks
-    Hooks::Init();
+    RaaxGUI::InitContext(); // Init menu
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,

@@ -31,7 +31,7 @@ namespace Config {
 			inline bool ShowFOV = false;
 			inline int FOV = 175;
 			inline int RealFOV;
-			inline int Range = 10.f;
+			inline float Range = 10.f;
 
 			inline int TriggerBotType = 0;
 			// 0: hold

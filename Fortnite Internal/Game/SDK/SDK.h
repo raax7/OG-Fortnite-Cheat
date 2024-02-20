@@ -59,7 +59,6 @@ namespace SDK {
 			namespace PlayerController {
 				inline uintptr_t AcknowledgedPawn;
 				inline uintptr_t PlayerCameraManager;
-				inline uintptr_t MyHUD;
 			}
 
 			namespace HUD {
@@ -100,8 +99,8 @@ namespace SDK {
 			}
 
 			namespace MinimalViewInfo {
-				inline uintptr_t Location;
-				inline uintptr_t Rotation;
+				inline uintptr_t Location = 0x0;
+				inline uintptr_t Rotation = 0xC;
 			}
 
 			namespace FortMeleeWeaponStats {
@@ -133,7 +132,11 @@ namespace SDK {
 			}
 
 			namespace PlayerController {
+				inline void* WasInputKeyJustReleased;
+				inline void* WasInputKeyJustPressed;
+				inline void* IsInputKeyDown;
 				inline void* ClientSetRotation;
+				inline void* GetMousePosition;
 			}
 
 			namespace PlayerState {

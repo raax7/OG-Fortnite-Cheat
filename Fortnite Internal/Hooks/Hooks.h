@@ -5,20 +5,9 @@
 namespace Hooks {
 	class VFTHook {
 	private:
-		/*
-		* @brief The virtual function table
-		*/
-		void** VFT;
-
-		/*
-		* @brief The index of the virtual function
-		*/
-		uintptr_t VFTIndex;
-
-		/*
-		* @brief The original function
-		*/
-		void* Original;
+		void** VFT;				// The virtual function table
+		uintptr_t VFTIndex;		// The index of the virtual function
+		void* Original;			// The original function
 	public:
 		/*
 		* @brief Hook a virtual function
@@ -64,6 +53,16 @@ namespace Hooks {
 			LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection).safe();
 		}
 	};
+
+	// TEST PROCESS EVENT
+	namespace ProcessEvent {
+		using ProcessEventParams = void(*)(void* this_, void* Function, void* Params);
+		inline ProcessEventParams ProcessEventOriginal = nullptr;
+
+		void ProcessEvent(void* this_, void* Function, void* Params);
+
+		inline Hooks::VFTHook* Hook;
+	}
 
 	namespace PostRender {
 		using PostRenderParams = void(*)(uintptr_t this_, uintptr_t Canvas);

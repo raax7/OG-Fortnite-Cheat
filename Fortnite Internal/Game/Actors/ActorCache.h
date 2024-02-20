@@ -9,13 +9,13 @@ namespace Actors {
 		* @brief Cache for FortPaws, stores information like bone registeres, distance, visibilities, etc
 		*/
 		struct FortPawnCache {
-			SDK::AFortPawn* FortPawn;
-			SDK::USkeletalMeshComponent* Mesh;
+			SDK::AFortPawn*					FortPawn = nullptr;
+			SDK::USkeletalMeshComponent*	Mesh = nullptr;
 
-			int								TeamIndex;
+			int								TeamIndex{};
 			SDK::FString					PlayerName;
 
-			float							DistanceFromLocal;
+			float							DistanceFromLocal{};
 			bool							AnyBoneVisible;
 
 			std::vector<SDK::FVector>		BoneRegister;
