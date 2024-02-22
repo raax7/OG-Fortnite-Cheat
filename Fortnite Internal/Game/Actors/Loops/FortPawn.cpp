@@ -1,14 +1,16 @@
 #include "../Actors.h"
-#include "../../SDK/SDK.h"
+
 #include "../../SDK/Classes/Engine_classes.h"
-#include "../../SDK/Classes/FortniteGame_structs.h"
-#include "../../Features/FortPawn/FortPawn.h"
-#include "../../Features/FortPawn/Bone.h"
-#include "../../../Hooks/Hooks.h"
-#include "../../../Utilities/Memory.h"
-#include "../../Features/Aimbot/Aimbot.h"
+
 #include "../../../Drawing/Drawing.h"
-#include "../../Features/Features.h"
+#include "../../../Configs/Config.h"
+
+#include "../../Features/FortPawnHelper/Bone.h"
+#include "../../Features/FortPawnHelper/FortPawnHelper.h"
+#include "../../Features/Aimbot/Aimbot.h"
+
+#include "../../../Utilities/Math.h"
+#include "../../Game.h"
 
 void Actors::FortPawn::Tick() {
 	if (!SDK::GetLocalCanvas()) return;
@@ -16,7 +18,7 @@ void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
 
 	// move somwhere better later this is gay here
-	if (!SDK::GetLocalController()->AcknowledgedPawn()) localPlayer.TeamIndex = -1;
+	if (!SDK::GetLocalController()->AcknowledgedPawn()) LocalPawnCache.TeamIndex = INT_FAST8_MAX;
 
 	for (auto it = CachedPlayers.begin(); it != CachedPlayers.end(); ++it) {
 		Actors::Caches::FortPawnCache& CurrentPlayer = *it;
@@ -29,16 +31,18 @@ void Actors::FortPawn::Tick() {
 
 		if (FortPawn == SDK::GetLocalController()->AcknowledgedPawn()) {
 			SDK::FVector Bone = CurrentPlayer.Mesh->GetBonePosition(0);
-			localPlayer.Position = Bone;
-			localPlayer.TeamIndex = CurrentPlayer.TeamIndex;
+			LocalPawnCache.Position = Bone;
+			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
 			continue;
 		}
 
-		if (CurrentPlayer.TeamIndex == localPlayer.TeamIndex) continue;
+		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
 
-		if (!Features::Aimbot::FortPawn::PopulateBones(CurrentPlayer)) continue;
-		Features::Aimbot::FortPawn::PopulateVisibilities(CurrentPlayer);
+		if (!Features::FortPawnHelper::PopulateBones(CurrentPlayer)) continue;
+		Features::FortPawnHelper::PopulateVisibilities(CurrentPlayer);
+
+		std::vector<SDK::FName> BoneNames(100);
 
 		//if (FortPawn == Objects::target.Actor) {
 		//	Colour = SDK::FLinearColor(0.9f, 0.5f, 0.1f, 1.f);
@@ -50,7 +54,7 @@ void Actors::FortPawn::Tick() {
 		float Right		= FLT_MIN;
 
 		for (int i2 = 0; i2 < CurrentPlayer.BoneRegister2D.size(); i2++) {
-			if (i2 == (int)Features::Aimbot::Bone::BoneID::Bottom) continue;
+			if (i2 == Features::FortPawnHelper::Bone::None) continue;
 
 			if (CurrentPlayer.BoneRegister2D[i2].X && CurrentPlayer.BoneRegister2D[i2].Y) {
 				SDK::FVector2D BonePos = CurrentPlayer.BoneRegister2D[i2];
@@ -76,11 +80,9 @@ void Actors::FortPawn::Tick() {
 		SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75f));
 		SDK::FVector2D topRight(Right + LeftRightOffset, Top - TopBottomOffset);
 
-		SDK::FVector2D Chest(-1, -1);
+		CurrentPlayer.DistanceFromLocal = LocalPawnCache.Position.Distance(CurrentPlayer.BoneRegister[Features::FortPawnHelper::Bone::Root]) / 100.f;
 
-		CurrentPlayer.DistanceFromLocal = localPlayer.Position.Distance(CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::Bottom]) / 100.f;
-
-		// Hardcoded ma distance, should move to bone population for optimisation
+		// Hardcoded max distance, should move to bone population for optimisation
 		if (CurrentPlayer.DistanceFromLocal > 500.f) continue;
 
 		float MaxDistance = 150.0f;
@@ -91,7 +93,7 @@ void Actors::FortPawn::Tick() {
 
 		bool BoneVisible = false;
 
-		for (const auto& Pair : Features::Aimbot::Bone::SkeletonBonePairs) {
+		for (const auto& Pair : Features::FortPawnHelper::Bone::SkeletonBonePairs) {
 			int BoneIDs[2] = { (int)Pair.first, (int)Pair.second };
 			SDK::FVector2D ScreenPos[2];
 
@@ -106,25 +108,10 @@ void Actors::FortPawn::Tick() {
 					break;
 				}
 
-				if (BoneID == (int)Features::Aimbot::Bone::BoneID::Chest) {
-					if (Chest.X == -1 && Chest.Y == -1) {
-						SDK::FVector LeftChest = CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::ChestLeft];
-						SDK::FVector RightChest = CurrentPlayer.BoneRegister[(int)Features::Aimbot::Bone::BoneID::ChestRight];
-						SDK::FVector Midpoint = { (LeftChest.X + RightChest.X) / 2.0f,
-												  (LeftChest.Y + RightChest.Y) / 2.0f,
-												  (LeftChest.Z + RightChest.Z) / 2.0f };
+				ScreenPos[i] = CurrentPlayer.BoneRegister2D[BoneID];
 
-						Chest = SDK::Project(Midpoint);
-					}
-
-					ScreenPos[i] = Chest;
-				}
-				else {
-					ScreenPos[i] = CurrentPlayer.BoneRegister2D[BoneID];
-
-					if (CurrentPlayer.BoneVisibilities[BoneID]) {
-						BoneVisibleToPlayer = true;
-					}
+				if (CurrentPlayer.BoneVisibilities[BoneID]) {
+					BoneVisibleToPlayer = true;
 				}
 
 				// Validate screen positions
@@ -189,24 +176,30 @@ void Actors::FortPawn::Tick() {
 
 		// Aimbot
 		if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
-			if (CurrentPlayer.AnyBoneVisible && (!target.LocalInfo.IsTargeting || !target.GlobalInfo.TargetActor)) {
+			if (CurrentPlayer.AnyBoneVisible && (!MainTarget.LocalInfo.IsTargeting || !MainTarget.GlobalInfo.TargetActor)) {
 				Features::Aimbot::Target PotentialNewTarget{};
 
 				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer);
-				target.SetTarget(PotentialNewTarget);
+				MainTarget.SetTarget(PotentialNewTarget);
 			}
-			if (target.GlobalInfo.TargetActor == FortPawn) {
-				SeenTarget = true;
 
-				Features::Aimbot::PlayerTarget::UpdateTargetInfo(target, CurrentPlayer, AimbotCamera, FPSScale);
-				
-				Features::Aimbot::Aimbot::AimbotTarget(target);
+			if (MainTarget.GlobalInfo.TargetActor == FortPawn) {
+				if (CurrentPlayer.AnyBoneVisible == false) {
+					MainTarget.ResetTarget();
+				}
+				else {
+					SeenTarget = true;
+
+					Features::Aimbot::PlayerTarget::UpdateTargetInfo(MainTarget, CurrentPlayer, AimbotCamera, FPSScale);
+
+					Features::Aimbot::AimbotTarget(MainTarget);
+				}
 			}
 		}
 	}
 
-	if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer 
-		|| target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::FarPlayer) {
-		target.TargetTick(SeenTarget);
+	if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer
+		|| MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::FarPlayer) {
+		MainTarget.TargetTick(SeenTarget);
 	}
 }

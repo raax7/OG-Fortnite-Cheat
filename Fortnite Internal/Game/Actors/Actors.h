@@ -1,23 +1,20 @@
 #pragma once
 #include <Windows.h>
 #include <chrono>
-#include "../SDK/SDK.h"
+
 #include "../Features/Aimbot/Target.h"
 #include "ActorCache.h"
 
-struct LocalPlayer {
-	SDK::FVector Position;
-	int TeamIndex{};
-};
-
 namespace Actors {
+	// Actor Loops
+
 	namespace FortPawn {
 		void Tick();
 
 		inline std::vector<Actors::Caches::FortPawnCache> CachedPlayers;
 
 		inline const float IntervalSeconds = 0.25f;
-		inline std::chrono::steady_clock::time_point LastTime = std::chrono::steady_clock::now();
+		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
 	namespace FortWeapon {
@@ -26,7 +23,7 @@ namespace Actors {
 		inline SDK::TArray<SDK::AActor*> CachedWeapons;
 
 		inline const float IntervalSeconds = 0.25f;
-		inline std::chrono::steady_clock::time_point LastTime = std::chrono::steady_clock::now();
+		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
 	namespace BuildingWeakSpot {
@@ -35,22 +32,26 @@ namespace Actors {
 		inline SDK::TArray<SDK::AActor*> CachedBuildingWeakSpot;
 
 		inline const float IntervalSeconds = 0.10f;
-		inline std::chrono::steady_clock::time_point LastTime = std::chrono::steady_clock::now();
+		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
 
-	inline Features::Aimbot::Target target{};
-	inline Camera RealCamera;
-	inline Camera AimbotCamera;
-	inline LocalPlayer localPlayer;
+
+	// Cache
+
+	inline Features::Aimbot::Target MainTarget;
 
 
-	inline SDK::FVector OriginalPosition;
-	inline SDK::FRotator OriginalRotation;
+
+	// FPS Scaling
+
+	inline std::chrono::high_resolution_clock::time_point LastAimbotFrameTime;
+	inline float FPSScale;
+
+
+
+	// Functions
 
 	void Tick();
 	void UpdateCaches();
-
-	inline std::chrono::high_resolution_clock::time_point lastAimbotFrameTime;
-	inline float FPSScale;
 }

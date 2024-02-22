@@ -1,9 +1,7 @@
 #pragma once
-#include "../Globals.h"
 #include "../Game/SDK/Classes/Basic.h"
-#include "../Game/SDK/Classes/Engine_classes.h"
 
-// A wrapper for drawing functions
+/* A wrapper for drawing functions */
 class Drawing {
 public:
 	/*
@@ -18,7 +16,20 @@ public:
 	static void Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
-	* @brief Draws text on the screen
+	* @brief Overloaded function for drawing text on the screen (char*)
+	*
+	* @param RenderText - The text to draw
+	* @param ScreenPosition - The position of the text
+	* @param FontSize - The size of the text
+	* @param RenderColor - The color of the text
+	* @param CenteredX - Whether or not the text should be centered on the X axis
+	* @param CenteredY - Whether or not the text should be centered on the Y axis
+	* @param Outlined - Whether or not the text should be outlined
+	*/
+	static void Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined);
+
+	/*
+	* @brief Overloaded function for drawing text on the screen (wchar_t*)
 	* 
 	* @param RenderText - The text to draw
 	* @param ScreenPosition - The position of the text

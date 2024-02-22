@@ -1,8 +1,11 @@
 #include "Game.h"
-#include "Actors/Actors.h"
+
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
-#include "../Drawing/RaaxGUI/RaaxGUIInput.h"
+
+#include "Actors/Actors.h"
 #include "../Game/Input/Input.h"
+#include "../Utilities/Logger.h"
+#include "../Drawing/Drawing.h"
 
 bool test = false;
 bool TOGGLEWINDOW = true;
@@ -34,20 +37,19 @@ void Game::DrawCallback() {
 		DEBUG_LOG("END");
 	}
 
-
 	RaaxGUI::NewFrame();
 
-	RaaxGUI::BeginWindow(skCrypt("Raax").decrypt(), &test, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
+	RaaxGUI::BeginWindow(skCrypt("Raax").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
 	RaaxGUI::EndWindow();
 
-	RaaxGUI::BeginWindow(skCrypt("Rgggaax").decrypt(), &test, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
+	RaaxGUI::BeginWindow(skCrypt("Rgggaax").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
 	RaaxGUI::EndWindow();
 
-	RaaxGUI::BeginWindow(skCrypt("Raax33").decrypt(), &test, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
+	RaaxGUI::BeginWindow(skCrypt("Raax33").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
 	RaaxGUI::EndWindow();
 
 	if (TOGGLEWINDOW) {
-		RaaxGUI::BeginWindow(skCrypt("Raax3gdfgfg3").decrypt(), &test, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
+		RaaxGUI::BeginWindow(skCrypt("Raax3gdfgfg3").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
 		RaaxGUI::EndWindow();
 	}
 
@@ -59,5 +61,12 @@ void Game::DrawCallback() {
 
 	if (Input::WasKeyJustReleased(Input::KeyName::F2)) {
 		TOGGLEWINDOW = !TOGGLEWINDOW;
+	}
+
+
+
+
+	if (Input::WasKeyJustReleased(Input::KeyName::F5)) {
+		void* test = SDK::GetLocalPlayer();
 	}
 }

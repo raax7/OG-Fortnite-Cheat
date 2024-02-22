@@ -1,15 +1,26 @@
 #pragma once
 #include "../SDK.h"
-#include "Engine_classes.h"
-#include "FortniteGame_structs.h"
-#include "Basic.h"
+#include "FortniteGame_Structs.h"
+
+#include "Engine_Classes.h"
+
+typedef __int8 int8;
+typedef __int16 int16;
+typedef __int32 int32;
+typedef __int64 int64;
+
+typedef unsigned __int8 uint8;
+typedef unsigned __int16 uint16;
+typedef unsigned __int32 uint32;
+typedef unsigned __int64 uint64;
 
 namespace SDK {
+	// Classes
+
 	class UFortWeaponItemDefinition : public UObject {
 	public:
 
 	};
-
 	class UFortItemDefinition : public UObject {
 	public:
 		// VALUES
@@ -29,7 +40,6 @@ namespace SDK {
 		//	return *(EFortItemType*)((uintptr_t)this + SDK::Cached::Offsets::FortItemDefinition::ItemType);
 		//}
 	};
-
 	class FFortItemEntry : public UObject {
 	public:
 		// VALUES
@@ -39,7 +49,6 @@ namespace SDK {
 			return (UFortItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortItemEntry::ItemDefinition));
 		}
 	};
-
 	class AFortPickup : public AActor {
 	public:
 		// VALUES
@@ -53,17 +62,8 @@ namespace SDK {
 
 		// STATIC FUNCTIONS
 
-		static UClass* StaticClass()
-		{
-			static class UClass* Clss = nullptr;
-
-			if (!Clss)
-				Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortPickup").decrypt());
-
-			return Clss;
-		}
+		static UClass* StaticClass();
 	};
-
 	class AFortWeapon : public AActor {
 	public:
 		// VALUES
@@ -82,17 +82,8 @@ namespace SDK {
 
 		// FUNCTIONS
 
-		FFortBaseWeaponStats* WeaponStats() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
-			auto VFT = *reinterpret_cast<void***>(this);
-
-			// The VFT index has only been 0xD0 across all versions ive checked, so no need to auto get
-			if (VFT != nullptr && VFT[0xD0] != nullptr) {
-				return reinterpret_cast<FFortBaseWeaponStats*(*)(void*)>(VFT[0xD0])(this);
-			}
-		}
+		FFortBaseWeaponStats* WeaponStats();
 	};
-
 	class AFortPlayerState : public APlayerState {
 	public:
 		// VALUES
@@ -102,7 +93,6 @@ namespace SDK {
 			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex);
 		}
 	};
-
 	class AFortPawn : public APawn {
 	public:
 		// VALUES
@@ -121,17 +111,8 @@ namespace SDK {
 
 		// STATIC FUNCTIONS
 
-		static UClass* StaticClass()
-		{
-			static class UClass* Clss = nullptr;
-
-			if (!Clss)
-				Clss = UObject::FindClassFast(skCrypt("FortPawn").decrypt());
-
-			return Clss;
-		}
+		static UClass* StaticClass();
 	};
-
 	class ABuildingWeakSpot : public AActor {
 	public:
 		// VALUES
@@ -145,14 +126,6 @@ namespace SDK {
 
 		// STATIC FUNCTIONS
 
-		static UClass* StaticClass()
-		{
-			static class UClass* Clss = nullptr;
-
-			if (!Clss)
-				Clss = UObject::FindClassFast(skCrypt("BuildingWeakSpot").decrypt());
-
-			return Clss;
-		}
+		static UClass* StaticClass();
 	};
 }

@@ -1,9 +1,10 @@
 #include "../Actors.h"
-#include "../../SDK/SDK.h"
+
 #include "../../SDK/Classes/Engine_classes.h"
 #include "../../SDK/Classes/FortniteGame_classes.h"
-#include "../../../Hooks/Hooks.h"
+
 #include "../../../Drawing/Drawing.h"
+#include "../../../Configs/Config.h"
 
 void Actors::FortWeapon::Tick() {
 	if (!Config::Visuals::Weapons::Enabled) return;

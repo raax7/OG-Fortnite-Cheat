@@ -1,5 +1,7 @@
-#include "../SDK.h"
 #include "CoreUObject_classes.h"
+
+#include "../SDK.h"
+#include "../../Game.h"
 #include "../../../Utilities/Logger.h"
 
 namespace SDK {

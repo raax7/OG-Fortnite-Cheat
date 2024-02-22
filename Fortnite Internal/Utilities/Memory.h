@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+#include "LazyImporter.h"
+
 namespace Memory {
 	// The worlds gayest pattern scanner. Improve later
 	inline uintptr_t PatternScan(uintptr_t pModuleBaseAddress, const char* sSignature, int pIndex, bool sRelativeAdr = false) {
@@ -227,6 +229,45 @@ namespace Memory {
 
 		return -1;
 	};
+
+	inline bool IsFunctionRet(uint8_t* Address)
+	{
+		int Align = 0x10 - (uintptr_t(Address) % 0x10);
+		//if (Opcode == RET && (OpcodeBefore is a POP opcode || OpcodeTwoBefore is a different POP Opcode)
+		return Address[0] == 0xC3 && Address[Align] == 0x40 && ((Address[-1] >= 0x58 && Address[-1] <= 0x5F) || (Address[-2] == 0x41 && (Address[-1] >= 0x58 && Address[-1] <= 0x5F)));
+	}
+
+	inline uint8_t* FindFunctionEnd(uint8_t* Address)
+	{
+		if (!Address)
+			return nullptr;
+
+		int Align = 0x10 - (uintptr_t(Address) % 0x10);
+
+		for (int i = 0; i < 0xFFFF; i++)
+		{
+			if (IsFunctionRet(Address + i))
+			{
+				return Address + i;
+			}
+			if ((uintptr_t(Address + i) % 0x10 == 0) && (Address[i] == 0x40 && (Address[i + 1] >= 0x50 && Address[i + 1] <= 0x57) && (Address[i + 2] >= 0x50 && Address[i + 2] <= 0x57)))
+			{
+				return Address + i;
+			}
+		}
+
+		return nullptr;
+	}
+
+	inline uintptr_t FindNextFunctionStart(uint8_t* Address)
+	{
+		if (!Address)
+			return 0x0;
+
+		uintptr_t FuncEnd = (uintptr_t)FindFunctionEnd(Address);
+
+		return FuncEnd % 0x10 != 0 ? FuncEnd + (0x10 - (FuncEnd % 0x10)) : FuncEnd;
+	}
 }
 
 #endif

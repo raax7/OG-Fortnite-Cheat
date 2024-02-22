@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include "../../Game/SDK/SDK.h"
+#include "../skCrypter.h"
 
 namespace detail
 {

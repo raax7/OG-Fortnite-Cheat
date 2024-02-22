@@ -1,12 +1,32 @@
 #include "SDK.h"
+#include "SDKInitializer.h"
+
+#include "../../Globals.h"
+
 #include "../../Utilities/Logger.h"
 #include "../../Utilities/skCrypter.h"
 #include "Classes/CoreUObject_classes.h"
 #include "Classes/Engine_classes.h"
-#include "SDKInitializer.h"
-#include "../../Globals.h"
-#include "../Game.h"
+
 #include "../Input/Input.h"
+#include "../Features/FortPawnHelper/Bone.h"
+
+bool SDK::IsValidPointer(uintptr_t Address) {
+	if (!Address) {
+		return false;
+	}
+
+	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obselete win api func
+	//if (LI_FN(IsBadWritePtr).safe_cached()(&Address, 8)) {
+	//	return false;
+	//}
+
+	return true;
+}
+
+uintptr_t SDK::GetBaseAddress() {
+	return *(uintptr_t*)(__readgsqword(0x60) + 0x10);
+}
 
 void SDK::Init() {
 	DEBUG_LOG(skCrypt("Initializing SDK...").decrypt());
@@ -19,7 +39,6 @@ void SDK::Init() {
 		// Init Functions
 		SDKInitializer::InitAppendString();
 		SDKInitializer::InitFNameConstructor();
-		SDKInitializer::InitGetBoneMatrix();
 		SDKInitializer::InitLineTraceSingle();
 
 		// Init VFT Indexes
@@ -48,9 +67,12 @@ void SDK::Init() {
 				true);
 		}
 
-		Game::GameVersion = SDK::GetGameVersion();
-
 		DEBUG_LOG(skCrypt("Game Version: ").decrypt() + std::to_string(GetGameVersion()));
+
+		// TEMP
+		if (GetGameVersion() >= 12.00) {
+			THROW_ERROR(skCrypt("Season 12+ will encounter an error in a few seconds! However the cheat will still work fine, press OK.").decrypt(), false);
+		}
 	}
 
 	// Init Cached Objects
@@ -72,7 +94,7 @@ void SDK::Init() {
 			FunctionSearch { skCrypt("KismetSystemLibrary").decrypt(),	skCrypt("LineTraceSingle").decrypt(),			&SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle },
 			FunctionSearch { skCrypt("PlayerState").decrypt(),			skCrypt("GetPlayerName").decrypt(),				&SDK::Cached::Functions::PlayerState::GetPlayerName },
 			FunctionSearch { skCrypt("SkinnedMeshComponent").decrypt(),	skCrypt("GetBoneName").decrypt(),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName },
-			FunctionSearch { skCrypt("SceneComponent").decrypt(),		skCrypt("GetSocketLocation").decrypt(),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketTransform },
+			FunctionSearch { skCrypt("SceneComponent").decrypt(),		skCrypt("GetSocketLocation").decrypt(),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation },
 		};
 
 		std::vector<OffsetSearch> Offsets{
@@ -109,6 +131,7 @@ void SDK::Init() {
 	}
 
 	Input::Init();
+	Features::FortPawnHelper::Bone::Init();
 
 	DEBUG_LOG(skCrypt("SDK Initialized!").decrypt());
 

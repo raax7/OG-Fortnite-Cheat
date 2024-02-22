@@ -1,9 +1,20 @@
 #pragma once
-#include "Engine_classes.h"
+#include "../SDK.h"
+
+#include "Basic.h"
+
+typedef __int8 int8;
+typedef __int16 int16;
+typedef __int32 int32;
+typedef __int64 int64;
+
+typedef unsigned __int8 uint8;
+typedef unsigned __int16 uint16;
+typedef unsigned __int32 uint32;
+typedef unsigned __int64 uint64;
 
 namespace SDK {
-	enum class ETraceTypeQuery : uint8
-	{
+	enum class ETraceTypeQuery : uint8 {
 		TraceTypeQuery1 = 0,
 		TraceTypeQuery2 = 1,
 		TraceTypeQuery3 = 2,
@@ -40,8 +51,7 @@ namespace SDK {
 		ETraceTypeQuery_MAX = 33,
 	};
 
-	enum class EDrawDebugTrace : uint8
-	{
+	enum class EDrawDebugTrace : uint8 {
 		None = 0,
 		ForOneFrame = 1,
 		ForDuration = 2,
@@ -49,8 +59,7 @@ namespace SDK {
 		EDrawDebugTrace_MAX = 4,
 	};
 
-	struct FHitResult
-	{
+	struct FHitResult {
 	public:
 		uint8                                        bBlockingHit : 1;                                  // Mask: 0x1, PropSize: 0x10x0(0x1)(NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		uint8                                        bStartPenetrating : 1;                             // Mask: 0x2, PropSize: 0x10x0(0x1)(NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)

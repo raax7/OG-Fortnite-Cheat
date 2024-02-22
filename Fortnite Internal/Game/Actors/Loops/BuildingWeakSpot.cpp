@@ -1,10 +1,9 @@
 #include "../Actors.h"
-#include "../../SDK/SDK.h"
+
 #include "../../SDK/Classes/Engine_classes.h"
-#include "../../../Drawing/Drawing.h"
-#include "../../../Hooks/Hooks.h"
-#include "../../../Utilities/Memory.h"
+
 #include "../../Features/Aimbot/Aimbot.h"
+#include "../../../Configs/Config.h"
 
 void Actors::BuildingWeakSpot::Tick() {
 	if (SDK::GetLocalCanvas() == nullptr) return;
@@ -22,32 +21,32 @@ void Actors::BuildingWeakSpot::Tick() {
 		SDK::ABuildingWeakSpot* WeakSpot = static_cast<SDK::ABuildingWeakSpot*>(Actor);	if (!WeakSpot) continue;
 
 		SDK::FVector RootPosition = Actor->GetRootComponent()->GetPosition();
-		float DistanceFromLocal = localPlayer.Position.Distance(RootPosition) / 100.f;
+		float DistanceFromLocal = LocalPawnCache.Position.Distance(RootPosition) / 100.f;
 
 		if (DistanceFromLocal > 5) continue;
 
 		if (WeakSpot->GetWeakSpotInfo() & 0x4 && !(WeakSpot->GetWeakSpotInfo() & 0x2) && !(WeakSpot->GetWeakSpotInfo() & 0x1)) {
 			// Aimbot
 			if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
-				if ((target.LocalInfo.IsTargeting == false || target.GlobalInfo.TargetActor == nullptr)) {
+				if ((MainTarget.LocalInfo.IsTargeting == false || MainTarget.GlobalInfo.TargetActor == nullptr)) {
 					Features::Aimbot::Target PotentialNewTarget{};
 
 					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot);
-					target.SetTarget(PotentialNewTarget);
+					MainTarget.SetTarget(PotentialNewTarget);
 				}
 
-				if (target.GlobalInfo.TargetActor == WeakSpot) {
+				if (MainTarget.GlobalInfo.TargetActor == WeakSpot) {
 					SeenTarget = true;
 
-					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(target, WeakSpot, AimbotCamera, FPSScale);
+					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(MainTarget, WeakSpot, AimbotCamera, FPSScale);
 
-					Features::Aimbot::Aimbot::AimbotTarget(target);
+					Features::Aimbot::AimbotTarget(MainTarget);
 				}
 			}
 		}
 	}
 
-	if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-		target.TargetTick(SeenTarget);
+	if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
+		MainTarget.TargetTick(SeenTarget);
 	}
 }

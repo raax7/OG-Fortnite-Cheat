@@ -1,5 +1,8 @@
 #include "Input.h"
 
+#include "../Game.h"
+#include "../../Utilities/Logger.h"
+
 inline Input::KeysCache Input::Keys;
 inline Input::MouseCache Input::Mouse;
 
@@ -391,7 +394,7 @@ bool Input::WasKeyJustPressed(KeyName Key) {
 }
 
 void Input::Init() {
-	DEBUG_LOG(skCrypt("Initializing input system").decrypt());
+	DEBUG_LOG(skCrypt("Initializing input system...").decrypt());
 
 	// Init KeyNames
 	{

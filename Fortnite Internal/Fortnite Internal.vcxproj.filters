@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Entry.cpp" />
-    <ClCompile Include="Game\SDK\Classes\CoreUObject_functions.cpp">
+    <ClCompile Include="Game\SDK\Classes\CoreUObject_Functions.cpp">
       <Filter>Game\SDK\Classes</Filter>
     </ClCompile>
     <ClCompile Include="Game\SDK\SDK.cpp">
@@ -53,6 +53,12 @@
     <ClCompile Include="Game\Input\Input.cpp">
       <Filter>Game\Input</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Features\FortPawnHelper\FortPawnHelper.cpp" />
+    <ClCompile Include="Game\Features\Aimbot\Target.cpp" />
+    <ClCompile Include="Game\Features\Aimbot\Aimbot.cpp" />
+    <ClCompile Include="Game\SDK\Classes\Engine_Functions.cpp" />
+    <ClCompile Include="Game\SDK\Classes\FortniteGame_Functions.cpp" />
+    <ClCompile Include="Game\Features\FortPawnHelper\Bone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -114,7 +120,7 @@
     <ClInclude Include="Game\SDK\Classes\Basic.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Game\SDK\Classes\CoreUObject_classes.h">
+    <ClInclude Include="Game\SDK\Classes\CoreUObject_Classes.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
     <ClInclude Include="Game\Actors\Actors.h">
@@ -123,7 +129,7 @@
     <ClInclude Include="Game\Features\Aimbot\Target.h">
       <Filter>Game\Features\Aimbot</Filter>
     </ClInclude>
-    <ClInclude Include="Game\SDK\Classes\Engine_classes.h">
+    <ClInclude Include="Game\SDK\Classes\Engine_Classes.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
     <ClInclude Include="Game\SDK\Classes\EngineFixups.h">
@@ -132,7 +138,7 @@
     <ClInclude Include="Game\Game.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\FortPawn\FortPawn.h">
+    <ClInclude Include="Game\Features\FortPawnHelper\FortPawnHelper.h">
       <Filter>Game\Features\FortPawn</Filter>
     </ClInclude>
     <ClInclude Include="Configs\Config.h">
@@ -145,7 +151,7 @@
     <ClInclude Include="Game\SDK\Classes\FortniteGame_Classes.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Game\SDK\Classes\Engine_structs.h">
+    <ClInclude Include="Game\SDK\Classes\Engine_Structs.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\skCrypter.h">
@@ -178,16 +184,13 @@
     <ClInclude Include="Drawing\RaaxGUI\RaaxGUIInput.h">
       <Filter>Drawing\RaaxGUI</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\FortPawn\Bone.h">
-      <Filter>Game\Features\FortPawn</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Features\Aimbot\Aimbot.h">
       <Filter>Game\Features\Aimbot</Filter>
     </ClInclude>
     <ClInclude Include="Game\Features\Features.h">
       <Filter>Game\Features</Filter>
     </ClInclude>
-    <ClInclude Include="Game\SDK\Classes\FortniteGame_structs.h">
+    <ClInclude Include="Game\SDK\Classes\FortniteGame_Structs.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
     <ClInclude Include="Hooks\Hooks.h">
@@ -199,6 +202,7 @@
     <ClInclude Include="Game\Input\Input.h">
       <Filter>Game\Input</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Features\FortPawnHelper\Bone.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Utilities\SpoofCall\spoofinternal.asm">

@@ -14,10 +14,10 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 namespace SDK {
-	inline uintptr_t AppendStringOffset;
-	inline uintptr_t FNameConstructorOffset;
-	inline uintptr_t GetBoneMatrix;
-	inline uintptr_t LineTraceSingle;
+	inline uintptr_t AppendStringOffset = 0x0;
+	inline uintptr_t FNameConstructorOffset = 0x0;
+	inline uintptr_t GetBoneMatrix = 0x0;
+	inline uintptr_t LineTraceSingle = 0x0;
 
 
 
@@ -81,6 +81,8 @@ namespace SDK {
 		}
 
 
+
+		// CUSTOM FUNCTIONS
 
 		inline void Add(const T& Element)
 		{
@@ -146,6 +148,8 @@ namespace SDK {
 	class FName
 	{
 	public:
+		// CUSTOM FUNCTIONS
+
 		FName()
 			: ComparisonIndex(0), Number(0)
 		{
@@ -489,7 +493,10 @@ namespace SDK {
 			return X != Other.X || Y != Other.Y;
 		}
 
-		FVector2D operator+(const FVector2D& Other) const;
+		FVector2D operator+(const FVector2D& Other) const
+		{
+			return FVector2D(X + Other.X, Y + Other.Y);
+		}
 
 		FVector2D operator-(const FVector2D& Other) const
 		{
@@ -499,6 +506,11 @@ namespace SDK {
 		FVector2D operator*(decltype(X) Scalar) const;
 
 		FVector2D operator/(decltype(X) Scalar) const;
+
+		inline float Distance(FVector2D v)
+		{
+			return float(sqrt(pow(v.X - X, 2.0) + pow(v.Y - Y, 2.0)));
+		}
 	};
 
 	struct FLinearColor

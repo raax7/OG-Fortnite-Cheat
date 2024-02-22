@@ -1,9 +1,9 @@
-#include <string>
-#include <locale>
-#include <codecvt>
-#include <string>
-
 #include "Drawing.h"
+
+#include "../Game/SDK/Classes/Engine_Classes.h"
+
+#include <string>
+#include <string>
 #include "../Utilities/Math.h"
 
 void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
@@ -13,6 +13,13 @@ void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPosition
 	}
 
 	SDK::GetLocalCanvas()->K2_DrawLine(ScreenPositionA, ScreenPositionB, Thickness, RenderColor);
+}
+void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
+	int WideStrLength = MultiByteToWideChar(CP_UTF8, 0, RenderText, -1, nullptr, 0);
+	std::wstring WideString(WideStrLength, L'\0');
+	MultiByteToWideChar(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
+
+	Text(WideString.c_str(), ScreenPosition, FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
 void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
 	SDK::FString FString(RenderText);

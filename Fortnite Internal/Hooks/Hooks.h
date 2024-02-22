@@ -1,8 +1,12 @@
 #pragma once
 #include <Windows.h>
-#include "../Game/SDK/Classes/FortniteGame_classes.h"
+
+#include "../Game/SDK/Classes/Basic.h"
+#include "../Game/SDK/Classes/Engine_Structs.h"
 
 namespace Hooks {
+	// Virtual Function Table Hook
+
 	class VFTHook {
 	private:
 		void** VFT;				// The virtual function table
@@ -18,51 +22,17 @@ namespace Hooks {
 		* @param Hook The hook function
 		*/
 		template <typename T>
-		VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void* Hook) {
-			DEBUG_LOG(skCrypt("Create VFTHook called").decrypt());
-
-			DWORD OldProtection{};
-			LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection).safe();
-
-			Original = reinterpret_cast<T>(VFT[VFTIndex]);
-			VFT[VFTIndex] = Hook;
-
-			LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection).safe();
-
-			this->VFT = VFT;
-			this->VFTIndex = VFTIndex;
-			this->Original = Original;
-		}
+		VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void* Hook);
 
 		/*
 		* @brief Revert the VFT hook back to the original function
 		*/
-		~VFTHook() {
-			DEBUG_LOG(skCrypt("Destroy VFTHook called").decrypt());
-
-			if (!VFT || !Original) {
-				DEBUG_LOG(skCrypt("Failed to destroy hook! VFT or Original is nullptr").decrypt());
-				return;
-			}
-
-			DWORD OldProtection{};
-			LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection).safe();
-
-			VFT[VFTIndex] = Original;
-
-			LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection).safe();
-		}
+		~VFTHook();
 	};
 
-	// TEST PROCESS EVENT
-	namespace ProcessEvent {
-		using ProcessEventParams = void(*)(void* this_, void* Function, void* Params);
-		inline ProcessEventParams ProcessEventOriginal = nullptr;
 
-		void ProcessEvent(void* this_, void* Function, void* Params);
 
-		inline Hooks::VFTHook* Hook;
-	}
+	// Hooks
 
 	namespace PostRender {
 		using PostRenderParams = void(*)(uintptr_t this_, uintptr_t Canvas);
@@ -70,7 +40,7 @@ namespace Hooks {
 
 		void PostRender(uintptr_t this_, uintptr_t Canvas);
 
-		inline Hooks::VFTHook* Hook;
+		inline Hooks::VFTHook* Hook = nullptr;
 	}
 
 	namespace GetPlayerViewpoint {
@@ -79,9 +49,9 @@ namespace Hooks {
 
 		void GetPlayerViewpoint(void* this_, SDK::FVector* Location, SDK::FRotator* Rotation);
 
-		inline SDK::APlayerController* PlayerControllerHooked = nullptr;
+		inline void* PlayerControllerHooked = nullptr;
 
-		inline Hooks::VFTHook* Hook;
+		inline Hooks::VFTHook* Hook = nullptr;
 	}
 
 	namespace GetViewpoint {
@@ -90,53 +60,14 @@ namespace Hooks {
 
 		void GetViewpoint(void* this_, SDK::FMinimalViewInfo* OutViewInfo, SDK::EStereoscopicPass StereoPass);
 
-		inline SDK::ULocalPlayer* LocalPlayerHooked = nullptr;
+		inline void* LocalPlayerHooked = nullptr;
 
-		inline Hooks::VFTHook* Hook;
+		inline Hooks::VFTHook* Hook = nullptr;
 	}
 
 
 
-	namespace ReloadSpeed {
-		using ReloadSpeedParams = float(*)(void*);
-		inline ReloadSpeedParams ReloadSpeedOriginal = nullptr;
-
-		float ReloadSpeed(void*);
-
-		inline SDK::AFortWeapon* WeaponHooked = nullptr;
-
-		inline Hooks::VFTHook* Hook;
-	}
-
-	namespace FiringRate {
-		using FiringRateParams = float(*)(void*);
-		inline FiringRateParams FiringRateOriginal = nullptr;
-
-		float FiringRate(void*);
-
-		inline SDK::AFortWeapon* WeaponHooked = nullptr;
-
-		inline Hooks::VFTHook* Hook;
-	}
-
-	namespace SilentGun {
-		using SilentGunParams = void(*)(void*);
-		inline SilentGunParams SilentGunOriginal1 = nullptr;
-		inline SilentGunParams SilentGunOriginal2 = nullptr;
-		inline SilentGunParams SilentGunOriginal3 = nullptr;
-
-		void SilentGun1(void*);
-		void SilentGun2(void*);
-		void SilentGun3(void*);
-
-		inline SDK::AFortWeapon* WeaponHooked1 = nullptr;
-		inline SDK::AFortWeapon* WeaponHooked2 = nullptr;
-		inline SDK::AFortWeapon* WeaponHooked3 = nullptr;
-
-		inline Hooks::VFTHook* Hook1;
-		inline Hooks::VFTHook* Hook2;
-		inline Hooks::VFTHook* Hook3;
-	}
+	// Functions
 
 	void Init();
 	void Tick();

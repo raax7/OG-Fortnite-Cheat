@@ -1,6 +1,25 @@
 #include "SDKInitializer.h"
 
-void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange) {
+#include "../../Utilities/Logger.h"
+
+void SDKInitializer::WalkVFT(const char* TargetFunctionName, void** VFT, void* TargetFunction, uintptr_t& VFTIndex, int SearchRange) {
+	EXTRA_DEBUG_LOG(skCrypt("Walking VFT searching for ").decrypt() + std::string(TargetFunctionName) + skCrypt(" VFT index").decrypt());
+
+	for (int i = 0; !VFTIndex && i < SearchRange; ++i) {
+		if (VFT[i] == TargetFunction) {
+			VFTIndex = i;
+			break;
+		}
+	}
+
+	if (VFTIndex) {
+		DEBUG_LOG(std::string(TargetFunctionName) + skCrypt(" VFT index found: ").decrypt() + std::to_string(VFTIndex));
+	}
+	else {
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(TargetFunctionName) + skCrypt(" VFT index!").decrypt(), false);
+	}
+}
+void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange, int SearchBytesBehind) {
 	EXTRA_DEBUG_LOG(skCrypt("Searching for ").decrypt() + std::string(VFTName) + skCrypt(" VFT index").decrypt());
 
 	uint8_t* StringRef = Memory::FindByStringInAllSections(SearchString);
@@ -9,7 +28,7 @@ void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> 
 
 	for (int i = 0; !VFTIndex && i < PossibleSigs.size(); ++i) {
 		uint8_t* PatternAddress = reinterpret_cast<uint8_t*>(
-			Memory::FindPatternInRange(PossibleSigs[i], (StringRef), SearchRange, false, 0)
+			Memory::FindPatternInRange(PossibleSigs[i], (StringRef - SearchBytesBehind), SearchRange, false, 0)
 			);
 
 		if (PatternAddress) {
@@ -24,7 +43,7 @@ void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> 
 		DEBUG_LOG(std::string(VFTName) + skCrypt(" VFT Index offset found: ").decrypt() + std::to_string(VFTIndex));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(VFTName) + skCrypt(" VFT Index!").decrypt(), true);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(VFTName) + skCrypt(" VFT Index!").decrypt(), false);
 	}
 }
 
@@ -38,16 +57,17 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 	for (int i = 0; !FunctionOffset && i < PossibleSigs.size(); ++i) {
 		FunctionOffset = reinterpret_cast<uintptr_t>(
 			Memory::FindPatternInRange(PossibleSigs[i], StringRef - SearchBytesBehind, SearchRange, true, -1)
-			) - SDK::GetBaseAddress();
+			);
 	}
 
 	PossibleSigs.clear();
 
 	if (FunctionOffset) {
+		FunctionOffset -= SDK::GetBaseAddress();
 		DEBUG_LOG(std::string(FunctionName) + skCrypt(" function offset found: ").decrypt() + std::to_string(FunctionOffset));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" VFT Index!").decrypt(), true);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" function offset!").decrypt(), false);
 	}
 }
 void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
@@ -61,24 +81,25 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 	for (int i = 0; !FunctionOffset && i < PossibleSigs.size(); ++i) {
 		FunctionOffset = reinterpret_cast<uintptr_t>(
 			Memory::FindPatternInRange(PossibleSigs[i], StringRef - SearchBytesBehind, SearchRange, true, -1)
-			) - SDK::GetBaseAddress();
+			);
 	}
 
 	PossibleSigs.clear();
 
 	if (FunctionOffset) {
+		FunctionOffset -= SDK::GetBaseAddress();
 		DEBUG_LOG(std::string(FunctionName) + skCrypt(" function offset found: ").decrypt() + std::to_string(FunctionOffset));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" VFT Index!").decrypt(), true);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" function offset!").decrypt(), false);
 	}
 }
 
 void SDKInitializer::InitPRIndex() {
 	InitVFTIndex(
 		skCrypt("PostRender").decrypt(),
-		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ? 80 3D ? ? ? 02 00").decrypt(),
-		skCrypt("FF 90 ? ? ? ? 48 8D 0D ? ? ? ? E8").decrypt() }, skCrypt(L"STAT_HudTime").decrypt(),
+		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ? 80 3D ? ? ? 02 00").decrypt(), skCrypt("FF 90 ? ? ? ? 48 8D 0D ? ? ? ? E8").decrypt(), skCrypt("FF 90 ? ? ? ? 48 8B 4D 28 E8 ? ? ? ?").decrypt(), skCrypt("FF 90 ? ? ? ? 48 8B").decrypt() },
+		skCrypt(L"STAT_HudTime").decrypt(),
 		SDK::Cached::VFT::PostRender,
 		0x400);
 }
@@ -89,6 +110,16 @@ void SDKInitializer::InitPEIndex() {
 		skCrypt(L"FLatentActionManager::ProcessLatentActions: Could not find latent action resume point named '%s' on '%s' called by '%s'").decrypt(),
 		SDK::Cached::VFT::ProcessEvent,
 		0x400);
+
+	if (SDK::Cached::VFT::ProcessEvent) return;
+
+	// DOESNT WORK ON SOME VERSIONS
+
+	uint8_t* StringRef = Memory::FindByStringInAllSections(skCrypt(L"Accessed None").decrypt());
+	uintptr_t NextFunctionStart = Memory::FindNextFunctionStart(StringRef);
+	DEBUG_LOG(skCrypt("ProcessEvent function start found: ").decrypt() + std::to_string(NextFunctionStart - SDK::GetBaseAddress()));
+
+	SDKInitializer::WalkVFT(skCrypt("ProcessEvent").decrypt(), SDK::UObject::ObjectArray.GetByIndex(0)->Vft, reinterpret_cast<void*>(NextFunctionStart), SDK::Cached::VFT::ProcessEvent, 0x150);
 }
 void SDKInitializer::InitGPVIndex() {
 	InitVFTIndex(
@@ -128,15 +159,6 @@ void SDKInitializer::InitFNameConstructor() {
 		skCrypt(L"CanvasObject").decrypt(),
 		SDK::FNameConstructorOffset,
 		0x32);
-}
-void SDKInitializer::InitGetBoneMatrix() {
-	InitFunctionOffset(
-		skCrypt("GetBoneMatrix").decrypt(),
-		std::vector<const char*> { skCrypt("45 33 C0 48 8D 55 ? 48 8B CB E8").decrypt() },
-		skCrypt(L"USkeletalMeshComponent::InitArticulated : Could not find root physics body: '%s'").decrypt(),
-		SDK::GetBoneMatrix,
-		0x300,
-		0x100);
 }
 void SDKInitializer::InitLineTraceSingle() {
 	SDK::LineTraceSingle = Memory::PatternScan(

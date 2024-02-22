@@ -1,10 +1,13 @@
 #pragma once
 #include "SDK.h"
-#include "../../Utilities/Memory.h"
 
-/*
-* @brief This class is used to initialize the SDK by updating the offsets and VFT indicies
-*/
+#include "Classes/CoreUObject_Classes.h"
+
+#include "../../Utilities/Error.h"
+#include "../../Utilities/Memory.h"
+#include "../../Utilities/skCrypter.h"
+
+/* This class is used to initialize the SDK by updating the offsets and VFT indicies */
 class SDKInitializer {
 private:
 	/*
@@ -39,8 +42,9 @@ private:
 	 * @param SearchString - The search string (wide character) used to find the address
 	 * @param VFTIndex - Reference to the variable that will store the found VFT index
 	 * @param SearchRange - The range of bytes to search for the pattern
+	 * @param SearchBytesBehind - The amount of bytes behind the search string to start scanning
 	 */
-	static void InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange);
+	static void InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange, int SearchBytesBehind = 0x0);
 
 	/*
 	 * @brief Initializes a Function offset using a search string and ranged pattern scanning (Overload 1)
@@ -65,6 +69,17 @@ private:
 	 * @param SearchBytesBehind - The amount of bytes behind the search string to start scanning
 	 */
 	static void InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange = 0x600, int SearchBytesBehind = 0x0);
+
+	/*
+	* @brief Walks a VFT (Virtual Function Table) searching for a specific function
+	*
+	* @param TargetFunctionName - The name of the function to search for
+	* @param VFT - The VFT to walk
+	* @param SearchFunction - The search function used to find the address
+	* @param VFTIndex - Reference to the variable that will store the found VFT index
+	* @param SearchRange - The range of bytes to search for the pattern
+	*/
+	static void WalkVFT(const char* TargetFunctionName, void** VFT, void* TargetFunction, uintptr_t& VFTIndex, int SearchRange);
 public:
 	/* @brief Update the GObject offset (for finding UObjects) */
 	static void InitGObjects();
@@ -74,9 +89,6 @@ public:
 
 	/* @brief Update the FNameConstructor function offset (for creating FNames) */
 	static void InitFNameConstructor();
-
-	/* @brief Update the GetBoneMatrix function offset (for getting bone positions of a mesh) */
-	static void InitGetBoneMatrix();
 
 	/* @brief Update the LineTraceSingle function offset (for visible check) */
 	static void InitLineTraceSingle();

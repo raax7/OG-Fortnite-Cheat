@@ -1,7 +1,7 @@
-#ifndef MATH_H
-#define MATH_H
-
+#pragma once
 #include <Windows.h>
+
+#include "../Game/Game.h"
 
 #define M_PI 3.14159265358979323
 
@@ -57,5 +57,3 @@ namespace Math {
 		return OnScreenX && OnScreenY;
 	}
 }
-
-#endif

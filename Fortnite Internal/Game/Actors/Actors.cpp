@@ -1,6 +1,11 @@
 #include "Actors.h"
-#include "../../Drawing/Drawing.h"
+
 #include "../SDK/Classes/FortniteGame_Classes.h"
+
+#include "../Features/Aimbot/Target.h"
+#include "../../Drawing/Drawing.h"
+#include "../../Configs/Config.h"
+#include "../Game.h"
 
 void Actors::Tick() {
 	if (SDK::GetLocalCanvas() == nullptr) return;
@@ -14,8 +19,8 @@ void Actors::Tick() {
 	// Update FPS scale
 	{
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - lastAimbotFrameTime).count();
-		lastAimbotFrameTime = currentTime;
+		float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - LastAimbotFrameTime).count();
+		LastAimbotFrameTime = currentTime;
 
 		float targetFrameTime = 1.0f / 60.0f; // Targeting 60 FPS frame time
 
@@ -26,34 +31,34 @@ void Actors::Tick() {
 	{
 		SDK::APlayerCameraManager* CameraManager = SDK::GetLocalController()->PlayerCameraManager();
 		if (SDK::IsValidPointer((uintptr_t)CameraManager)) {
-			RealCamera.Position = CameraManager->GetCameraLocation();
-			RealCamera.Rotation = CameraManager->GetCameraRotation();
-			RealCamera.FOV = CameraManager->GetFOVAngle();
+			MainCamera.Position = CameraManager->GetCameraLocation();
+			MainCamera.Rotation = CameraManager->GetCameraRotation();
+			MainCamera.FOV = CameraManager->GetFOVAngle();
 
-			AimbotCamera.Position = RealCamera.Position;
-			AimbotCamera.FOV = RealCamera.FOV;
+			AimbotCamera.Position = MainCamera.Position;
+			AimbotCamera.FOV = MainCamera.FOV;
 
 			if (Config::Aimbot::SilentAim) {
-				if (Config::Aimbot::UseAimKeyForSilent == false || Config::Aimbot::UseAimKeyForSilent && target.LocalInfo.IsTargeting) {
-					AimbotCamera.Rotation = target.LocalInfo.TargetRotationWithSmooth;
+				if (Config::Aimbot::UseAimKeyForSilent == false || Config::Aimbot::UseAimKeyForSilent && MainTarget.LocalInfo.IsTargeting) {
+					AimbotCamera.Rotation = MainTarget.LocalInfo.TargetRotationWithSmooth;
 
 					// Account for if the players actual rotation is closer than the silent aim rotation (so silent aim can't throw for you)
-					float SilentPitchDistance = AimbotCamera.Rotation.GetPitchDistance(target.LocalInfo.TargetRotation);
-					float SilentYawDistance = AimbotCamera.Rotation.GetYawDistance(target.LocalInfo.TargetRotation);
+					float SilentPitchDistance = AimbotCamera.Rotation.GetPitchDistance(MainTarget.LocalInfo.TargetRotation);
+					float SilentYawDistance = AimbotCamera.Rotation.GetYawDistance(MainTarget.LocalInfo.TargetRotation);
 
-					float RealPitchDistance = RealCamera.Rotation.GetPitchDistance(target.LocalInfo.TargetRotation);
-					float RealYawDistance = RealCamera.Rotation.GetYawDistance(target.LocalInfo.TargetRotation);
+					float RealPitchDistance = MainCamera.Rotation.GetPitchDistance(MainTarget.LocalInfo.TargetRotation);
+					float RealYawDistance = MainCamera.Rotation.GetYawDistance(MainTarget.LocalInfo.TargetRotation);
 
 					if (RealPitchDistance < SilentPitchDistance) {
-						AimbotCamera.Rotation.Pitch = RealCamera.Rotation.Pitch;
+						AimbotCamera.Rotation.Pitch = MainCamera.Rotation.Pitch;
 					}
 					if (RealYawDistance < SilentYawDistance) {
-						AimbotCamera.Rotation.Yaw = RealCamera.Rotation.Yaw;
+						AimbotCamera.Rotation.Yaw = MainCamera.Rotation.Yaw;
 					}
 				}
 			}
 			else {
-				AimbotCamera.Rotation = RealCamera.Rotation;
+				AimbotCamera.Rotation = MainCamera.Rotation;
 			}
 		}
 	}
@@ -62,12 +67,12 @@ void Actors::Tick() {
 	{
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowAimLine && Config::Aimbot::Enabled) {
-				if (target.GlobalInfo.TargetActor) {
-					if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(target.GlobalInfo.TargetBonePosition2D.X, target.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+				if (MainTarget.GlobalInfo.TargetActor) {
+					if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
+						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(MainTarget.GlobalInfo.TargetBonePosition2D.X, MainTarget.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 					}
 					else {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(target.GlobalInfo.TargetBonePosition2D.X, target.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(MainTarget.GlobalInfo.TargetBonePosition2D.X, MainTarget.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 					}
 				}
 			}
@@ -78,10 +83,10 @@ void Actors::Tick() {
 	{
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowFOV && Config::Aimbot::Enabled) {
-				if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer) {
+				if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer) {
 					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::CloseAim::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 				}
-				else if (target.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
+				else if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
 					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Weakspot::RealFOV, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 				}
 				else {
@@ -98,12 +103,11 @@ void Actors::Tick() {
 	// Update local player
 	{
 		if (SDK::GetLocalController()->AcknowledgedPawn()->GetRootComponent() == nullptr) {
-			localPlayer.Position = SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation();
-			localPlayer.TeamIndex = -1;
+			LocalPawnCache.Position = SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation();
+			LocalPawnCache.TeamIndex = INT_FAST8_MAX;
 		}
 	}
 }
-
 void Actors::UpdateCaches() {
 	if (SDK::GetLocalCanvas() == nullptr) return;
 
@@ -111,10 +115,10 @@ void Actors::UpdateCaches() {
 
 	// Player Cache (to avoid calling GetAllActorsOfClass every tick)
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortPawn::LastTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortPawn::LastCacheTime).count();
 
 		if (ElapsedTime >= FortPawn::IntervalSeconds) {
-			FortPawn::LastTime = CurrentTime;
+			FortPawn::LastCacheTime = CurrentTime;
 
 			SDK::TArray<SDK::AActor*> ReturnArray = SDK::UGameplayStatics::StaticClass()->GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPawn::StaticClass());
 
@@ -139,10 +143,10 @@ void Actors::UpdateCaches() {
 
 	// Weapon Cache (to avoid calling GetAllActorsOfClass every tick)
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortWeapon::LastTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortWeapon::LastCacheTime).count();
 
 		if (ElapsedTime >= FortWeapon::IntervalSeconds) {
-			FortWeapon::LastTime = CurrentTime;
+			FortWeapon::LastCacheTime = CurrentTime;
 
 			FortWeapon::CachedWeapons = SDK::UGameplayStatics::StaticClass()->GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPickup::StaticClass());
 		}
@@ -150,10 +154,10 @@ void Actors::UpdateCaches() {
 
 	// Weakspot Cache (to avoid calling GetAllActorsOfClass every tick)
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - BuildingWeakSpot::LastTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - BuildingWeakSpot::LastCacheTime).count();
 
 		if (ElapsedTime >= BuildingWeakSpot::IntervalSeconds) {
-			BuildingWeakSpot::LastTime = CurrentTime;
+			BuildingWeakSpot::LastCacheTime = CurrentTime;
 
 			BuildingWeakSpot::CachedBuildingWeakSpot = SDK::UGameplayStatics::StaticClass()->GetAllActorsOfClass(SDK::GetWorld(), SDK::ABuildingWeakSpot::StaticClass());
 		}

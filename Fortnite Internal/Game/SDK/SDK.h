@@ -1,12 +1,5 @@
 #pragma once
 #include <Windows.h>
-#include "Classes/CoreUObject_classes.h"
-
-struct Camera {
-	SDK::FVector Position;
-	SDK::FRotator Rotation;
-	float FOV;
-};
 
 namespace SDK {
 	namespace Cached {
@@ -145,29 +138,13 @@ namespace SDK {
 
 			namespace SkinnedMeshComponent {
 				inline void* GetBoneName;
-				inline void* GetSocketTransform;
+				inline void* GetSocketLocation;
 			}
-
-			inline uintptr_t GetBoneMatrix;
 		}
 	}
 
-	inline bool IsValidPointer(uintptr_t Address) {
-		if (!Address) {
-			return false;
-		}
-
-		// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obselete win api func
-		//if (LI_FN(IsBadWritePtr).safe_cached()(&Address, 8)) {
-		//	return false;
-		//}
-
-		return true;
-	}
-
-	inline uintptr_t GetBaseAddress() {
-		return *(uintptr_t*)(__readgsqword(0x60) + 0x10);
-	}
+	bool IsValidPointer(uintptr_t Address);
+	uintptr_t GetBaseAddress();
 
 	void Init();
 }
