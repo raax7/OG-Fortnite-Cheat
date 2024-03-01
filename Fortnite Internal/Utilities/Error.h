@@ -22,21 +22,21 @@ private:
 public:
     static void error(std::string Message, bool Close, const char* FilePath, int Line) {
 #if SHOW_MESSAGE_BOX
-        std::string ErrorMessageInfo;
-        std::string ErrorMessage;
+        std::string ErrorMessageInfo = "";
+        std::string ErrorMessage = "";
 
+#if _DEBUG
         std::string FileName = GetFileName(FilePath);
 
         if (!FileName.empty()) {
-#if _DEBUG
-            ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
-#else
             ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n").decrypt() + FileName + skCrypt(":").decrypt() + std::to_string(Line) + skCrypt("\n\n").decrypt();
-#endif
         }
         else {
             ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
         }
+#else
+        ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
+#endif
 
         ErrorMessage = ErrorMessageInfo + Message;
 
@@ -44,7 +44,9 @@ public:
 #endif
         ErrorMessage.clear();
         ErrorMessageInfo.clear();
+#if _DEBUG
         FileName.clear();
+#endif
         Message.clear();
 
         if (Close) {
@@ -53,4 +55,8 @@ public:
     }
 };
 
+#if _DEBUG
 #define THROW_ERROR(message, close) ErrorManager::error(message, close, __FILE__, __LINE__)
+#else
+#define THROW_ERROR(message, close) ErrorManager::error(message, close, "", 0)
+#endif

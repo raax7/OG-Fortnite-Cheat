@@ -34,6 +34,8 @@ namespace SDK {
 			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
 			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
 		}
+
+		bool K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics);
 	};
 	class USkeletalMeshComponent : public UObject {
 	public:
@@ -98,6 +100,8 @@ namespace SDK {
 
 		void ClientSetRotation(FRotator& NewRotation, bool bResetCamera);
 
+		void SetControlRotation(FRotator NewRotation);
+
 		bool WasInputKeyJustReleased(FKey& Key);
 
 		bool WasInputKeyJustPressed(FKey& Key);
@@ -145,6 +149,12 @@ namespace SDK {
 			if (!this) return nullptr;
 			return (UGameInstance*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::GameInstance));
 		}
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
 	};
 	class UEngine : public UObject {
 	public:
@@ -202,6 +212,20 @@ namespace SDK {
 
 		static UClass* StaticClass();
 	};
+	class UKismetMathLibrary : public UObject {
+	public:
+		// FUNCTIONS
+
+		FVector GetForwardVector(const FRotator& InRot);
+
+		FRotator FindLookAtRotation(struct FVector Start, struct FVector Target);
+	
+
+
+		// STATIC FUNCTIONS
+
+		static UKismetMathLibrary* StaticClass();
+	};
 	class UFont : public UObject {
 	public:
 		// VALUES
@@ -242,7 +266,7 @@ namespace SDK {
 
 		void K2_DrawLine(const FVector2D& ScreenPositionA, const FVector2D& ScreenPositionB, float Thickness, const FLinearColor& RenderColor);
 
-		FVector2D K2_Project(FVector& WorldLocation);
+		FVector K2_Project(FVector& WorldLocation);
 
 		void K2_DrawText(FString& RenderText, FVector2D ScreenPosition, int32 FontSize, FLinearColor RenderColor, bool bCentreX, bool bCentreY, bool bOutlined);
 
@@ -258,9 +282,17 @@ namespace SDK {
 	*
 	* @param WorldLocation - The world location to project
 	*
-	* @return The projected location
+	* @return The projected location as FVector2D (without Z)
 	*/
 	FVector2D Project(FVector& WorldLocation);
+	/*
+	* @brief Wrapper for K2_Project
+	*
+	* @param WorldLocation - The world location to project
+	*
+	* @return The projected location as FVector (with Z)
+	*/
+	FVector Project3D(FVector& WorldLocation);
 	/*
 	* @brief Wrapper for LineTraceSingle
 	*
@@ -272,7 +304,7 @@ namespace SDK {
 	*
 	* @return Whether the line trace hit something
 	*/
-	bool IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore);
+	bool IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore = nullptr, SDK::AActor* ActorToIgnore2 = nullptr);
 	/*
 	* @brief Get the game version
 	*
@@ -291,6 +323,12 @@ namespace SDK {
 	* @return The current APlayerController instance
 	*/
 	APlayerController* GetLocalController();
+	/*
+	* @brief Find the local player pawn
+	* 
+	* @return The local player pawn
+	*/
+	APawn* GetLocalPawn();
 	/*
 	* @brief Find the current Canvas instance
 	*

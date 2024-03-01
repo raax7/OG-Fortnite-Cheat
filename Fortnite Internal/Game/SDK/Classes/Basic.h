@@ -1,6 +1,10 @@
 #pragma once
 #include <Windows.h>
 #include <string>
+
+#include "../SDK.h"
+
+#include "../../../Utilities/SpoofCall/SpoofCall.h"
 #include "../../../Utilities/skCrypter.h"
 
 typedef __int8 int8;
@@ -14,13 +18,6 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 namespace SDK {
-	inline uintptr_t AppendStringOffset = 0x0;
-	inline uintptr_t FNameConstructorOffset = 0x0;
-	inline uintptr_t GetBoneMatrix = 0x0;
-	inline uintptr_t LineTraceSingle = 0x0;
-
-
-
 	template<class T>
 	class TArray
 	{
@@ -148,8 +145,6 @@ namespace SDK {
 	class FName
 	{
 	public:
-		// CUSTOM FUNCTIONS
-
 		FName()
 			: ComparisonIndex(0), Number(0)
 		{
@@ -158,14 +153,15 @@ namespace SDK {
 		FName(const wchar_t* Name)
 			: ComparisonIndex(0), Number(0)
 		{
-			if (this == nullptr || SDK::FNameConstructorOffset == 0x0) return;
+			if (this == nullptr || SDK::Cached::Functions::FNameConstructor == 0x0) return;
 
-			static void(*FNameConstructor)(const FName*, const wchar_t*, bool) = nullptr;
-
-			if (!FNameConstructor)
-				FNameConstructor = reinterpret_cast<void(*)(const FName*, const wchar_t*, bool)>(uintptr_t(*(uintptr_t*)(__readgsqword(0x60) + 0x10)) + SDK::FNameConstructorOffset);
-
-			FNameConstructor(this, Name, true);
+			using FNameConstructorParams = void(*)(FName*, const wchar_t*, bool);
+			static auto OriginalFNameConstructor = reinterpret_cast<FNameConstructorParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::FNameConstructor);
+			
+			if (!OriginalFNameConstructor) OriginalFNameConstructor = reinterpret_cast<FNameConstructorParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::FNameConstructor);
+			
+			OriginalFNameConstructor(this, Name, true);
+			//spoof_call<void>(OriginalFNameConstructor, this, Name, true);
 
 			return;
 		}
@@ -184,15 +180,17 @@ namespace SDK {
 		// GetRawString - returns an unedited string as the engine uses it
 		inline std::string GetRawString() const
 		{
-			if (this == nullptr || SDK::AppendStringOffset == 0x0) return skCrypt("").decrypt();
+			if (this == nullptr || SDK::Cached::Functions::AppendString == 0x0) return skCrypt("").decrypt();
 
 			thread_local FString TempString(1024);
-			static void(*AppendString)(const FName*, FString&) = nullptr;
 
-			if (!AppendString)
-				AppendString = reinterpret_cast<void(*)(const FName*, FString&)>(uintptr_t(*(uintptr_t*)(__readgsqword(0x60) + 0x10)) + SDK::AppendStringOffset);
+			using AppendStringParams = void(*)(FName*, FString*);
+			static auto OriginalAppendString = reinterpret_cast<AppendStringParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::AppendString);
 
-			AppendString(this, TempString);
+			if (!OriginalAppendString) OriginalAppendString = reinterpret_cast<AppendStringParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::AppendString);
+
+			OriginalAppendString(const_cast<SDK::FName*>(this), &TempString);
+			//spoof_call<void>(OriginalAppendString, const_cast<SDK::FName*>(this), &TempString);
 
 			std::string OutputString = TempString.ToString();
 			TempString.ResetNum();
@@ -260,6 +258,53 @@ namespace SDK {
 
 
 
+	enum class EFunctionFlags : uint32
+	{
+		None = 0x00000000,
+
+		Final = 0x00000001,
+		RequiredAPI = 0x00000002,
+		BlueprintAuthorityOnly = 0x00000004,
+		BlueprintCosmetic = 0x00000008,
+		Net = 0x00000040,
+		NetReliable = 0x00000080,
+		NetRequest = 0x00000100,
+		Exec = 0x00000200,
+		Native = 0x00000400,
+		Event = 0x00000800,
+		NetResponse = 0x00001000,
+		Static = 0x00002000,
+		NetMulticast = 0x00004000,
+		UbergraphFunction = 0x00008000,
+		MulticastDelegate = 0x00010000,
+		Public = 0x00020000,
+		Private = 0x00040000,
+		Protected = 0x00080000,
+		Delegate = 0x00100000,
+		NetServer = 0x00200000,
+		HasOutParms = 0x00400000,
+		HasDefaults = 0x00800000,
+		NetClient = 0x01000000,
+		DLLImport = 0x02000000,
+		BlueprintCallable = 0x04000000,
+		BlueprintEvent = 0x08000000,
+		BlueprintPure = 0x10000000,
+		EditorOnly = 0x20000000,
+		Const = 0x40000000,
+		NetValidate = 0x80000000,
+
+		AllFlags = 0xFFFFFFFF,
+	};
+	inline bool operator&(EFunctionFlags Left, EFunctionFlags Right)
+	{
+		using CastFlagsType = std::underlying_type<EFunctionFlags>::type;
+		return (static_cast<CastFlagsType>(Left) & static_cast<CastFlagsType>(Right)) == static_cast<CastFlagsType>(Right);
+	}
+	inline constexpr SDK::EFunctionFlags operator|(SDK::EFunctionFlags Left, SDK::EFunctionFlags Right)
+	{
+		return (SDK::EFunctionFlags)((std::underlying_type<SDK::EFunctionFlags>::type)(Left) | (std::underlying_type<SDK::EFunctionFlags>::type)(Right));
+	}
+
 	enum class EClassCastFlags : uint64_t
 	{
 		None				= 0x0000000000000000,
@@ -314,7 +359,6 @@ namespace SDK {
 		SetProperty			= 0x0000800000000000,
 		EnumProperty		= 0x0001000000000000,
 	};
-
 	inline bool operator&(EClassCastFlags Left, EClassCastFlags Right)
 	{
 		using CastFlagsType = std::underlying_type<EClassCastFlags>::type;
@@ -328,6 +372,7 @@ namespace SDK {
 
 
 	// In UE5, most structs use doubles (8 bytes) instead of floats (4 bytes)
+
 	struct FMatrix
 	{
 	public:
@@ -393,13 +438,102 @@ namespace SDK {
 			}
 		}
 
+
+
+		float operator|(const FVector& V) const
+		{
+			return X * V.X + Y * V.Y + Z * V.Z;
+		}
+
+		FVector operator-() const
+		{
+			return FVector(-X, -Y, -Z);
+		}
+
+		FVector operator^ (const FVector& V) const
+		{
+			return FVector
+			(
+				Y * V.Z - Z * V.Y,
+				Z * V.X - X * V.Z,
+				X * V.Y - Y * V.X
+			);
+		}
+
 		inline float Distance(FVector v)
 		{
 			return float(sqrt(pow(v.X - X, 2.0) + pow(v.Y - Y, 2.0) + pow(v.Z - Z, 2.0)));
 		}
 
-		float Dot(const FVector& Other) const {
+		inline float Dot(const FVector& Other) const {
 			return X * Other.X + Y * Other.Y + Z * Other.Z;
+		}
+
+		bool Normalize(float Tolerance = 1.e-8f);
+	};
+
+	struct FQuat
+	{
+	public:
+		float                                        X;                                                 // 0x0(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		float                                        Y;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		float                                        Z;                                                 // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		float                                        W;                                                 // 0xC(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	
+		FQuat()
+			: X(0.0), Y(0.0), Z(0.0), W(0.0)
+		{
+		}
+
+		FQuat(const struct FRotator& R);
+
+		FQuat(const FMatrix& Matrix)
+		{
+			float Trace = Matrix.M[0][0] + Matrix.M[1][1] + Matrix.M[2][2] + 1.0f;
+			float S = 0.0f;
+
+			if (Trace > 0.0f)
+			{
+				S = 0.5f / sqrt(Trace);
+				W = 0.25f / S;
+				X = (Matrix.M[1][2] - Matrix.M[2][1]) * S;
+				Y = (Matrix.M[2][0] - Matrix.M[0][2]) * S;
+				Z = (Matrix.M[0][1] - Matrix.M[1][0]) * S;
+			}
+			else
+			{
+				if (Matrix.M[0][0] > Matrix.M[1][1] && Matrix.M[0][0] > Matrix.M[2][2])
+				{
+					S = 2.0f * sqrt(1.0f + Matrix.M[0][0] - Matrix.M[1][1] - Matrix.M[2][2]);
+					W = (Matrix.M[1][2] - Matrix.M[2][1]) / S;
+					X = 0.25f * S;
+					Y = (Matrix.M[1][0] + Matrix.M[0][1]) / S;
+					Z = (Matrix.M[2][0] + Matrix.M[0][2]) / S;
+				}
+				else if (Matrix.M[1][1] > Matrix.M[2][2])
+				{
+					S = 2.0f * sqrt(1.0f + Matrix.M[1][1] - Matrix.M[0][0] - Matrix.M[2][2]);
+					W = (Matrix.M[2][0] - Matrix.M[0][2]) / S;
+					X = (Matrix.M[1][0] + Matrix.M[0][1]) / S;
+					Y = 0.25f * S;
+					Z = (Matrix.M[2][1] + Matrix.M[1][2]) / S;
+				}
+				else
+				{
+					S = 2.0f * sqrt(1.0f + Matrix.M[2][2] - Matrix.M[0][0] - Matrix.M[1][1]);
+					W = (Matrix.M[0][1] - Matrix.M[1][0]) / S;
+					X = (Matrix.M[2][0] + Matrix.M[0][2]) / S;
+					Y = (Matrix.M[2][1] + Matrix.M[1][2]) / S;
+					Z = 0.25f * S;
+				}
+			}
+		}
+
+		FVector RotateVector(FVector V) const;
+
+		inline FVector GetForwardVector() const
+		{
+			return RotateVector(FVector(1.f, 0.f, 0.f));
 		}
 	};
 
@@ -435,31 +569,49 @@ namespace SDK {
 			return Pitch != Other.Pitch || Yaw != Other.Yaw || Roll != Other.Roll;
 		}
 
-		FRotator operator+(const FRotator& Other) const;
+		FRotator operator+(const FRotator& Other) const
+		{
+			return FRotator(Pitch + Other.Pitch, Yaw + Other.Yaw, Roll + Other.Roll);
+		}
 
-		FRotator operator-(const FRotator& Other) const;
+		FRotator operator-(const FRotator& Other) const
+		{
+			return FRotator(Pitch - Other.Pitch, Yaw - Other.Yaw, Roll - Other.Roll);
+		}
 
-		FRotator operator*(decltype(Pitch) Scalar) const;
+		FRotator operator*(decltype(Pitch) Scalar) const
+		{
+			return FRotator(Pitch * Scalar, Yaw * Scalar, Roll * Scalar);
+		}
 
-		FRotator operator/(decltype(Pitch) Scalar) const {
+		FRotator operator/(decltype(Pitch) Scalar) const
+		{
 			return FRotator(Pitch / Scalar, Yaw / Scalar, Roll / Scalar);
 		}
 
-
-
-		/*
-		* @brief Calculate the angular distance between two Pitch values
-		*/
 		inline float GetPitchDistance(const FRotator& Other) const {
-			return (float)(fmod(std::abs(Pitch - Other.Pitch) + 180.0, 360.0) - 180.0);
+			float delta = fmod(Pitch - Other.Pitch, 360.0);
+			while (delta > 180.0) {
+				delta -= 360.0;
+			}
+			while (delta < -180.0) {
+				delta += 360.0;
+			}
+			return delta;
 		}
 
-		/*
-		* @brief Calculate the angular distance between two Yaw values
-		*/
 		inline float GetYawDistance(const FRotator& Other) const {
-			return (float)(fmod(std::abs(Yaw - Other.Yaw) + 180.0, 360.0) - 180.0);
+			float delta = fmod(Yaw - Other.Yaw, 360.0);
+			while (delta > 180.0) {
+				delta -= 360.0;
+			}
+			while (delta < -180.0) {
+				delta += 360.0;
+			}
+			return delta;
 		}
+
+		inline FVector Vector() const;
 	};
 
 	struct FVector2D
@@ -503,9 +655,15 @@ namespace SDK {
 			return FVector2D(X - Other.X, Y - Other.Y);
 		}
 
-		FVector2D operator*(decltype(X) Scalar) const;
+		FVector2D operator*(decltype(X) Scalar) const
+		{
+			return FVector2D(X * Scalar, Y * Scalar);
+		}
 
-		FVector2D operator/(decltype(X) Scalar) const;
+		FVector2D operator/(decltype(X) Scalar) const
+		{
+			return FVector2D(X / Scalar, Y / Scalar);
+		}
 
 		inline float Distance(FVector2D v)
 		{

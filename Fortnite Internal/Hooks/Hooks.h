@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <mutex>
 
 #include "../Game/SDK/Classes/Basic.h"
 #include "../Game/SDK/Classes/Engine_Structs.h"

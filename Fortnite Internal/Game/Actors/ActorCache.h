@@ -17,6 +17,7 @@ namespace Actors {
 
 			float							DistanceFromLocal{};
 			bool							AnyBoneVisible;
+			bool							IsOnScreen;
 
 			std::vector<SDK::FVector>		BoneRegister;
 			std::vector<SDK::FVector2D>		BoneRegister2D;
@@ -28,12 +29,12 @@ namespace Actors {
 
 	struct LocalCache {
 		SDK::FVector Position;
-		uint8_t TeamIndex;
+		uint8_t TeamIndex = UINT8_MAX;
 	};
 	struct CameraCache {
 		SDK::FVector Position;
 		SDK::FRotator Rotation;
-		float FOV;
+		float FOV = 0.f;
 	};
 
 

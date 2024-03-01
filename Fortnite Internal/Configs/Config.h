@@ -5,7 +5,7 @@
 namespace Config {
 	inline bool rapidfiresex = false;
 
-	inline int test = 5;
+	inline float test = 0;
 	inline int test2 = 5;
 	inline float testfloat = 0.5;
 	inline float testfloat2 = 0;
@@ -14,7 +14,6 @@ namespace Config {
 		inline bool Enabled = true;
 
 		inline bool SilentAim = false;
-		inline bool ShowSilentRotations = false;
 		inline bool UseAimKeyForSilent = false;
 
 		inline bool ShowAimLine = true;
@@ -30,7 +29,6 @@ namespace Config {
 			inline bool DisableVisibleCheck = false;
 			inline bool ShowFOV = false;
 			inline int FOV = 175;
-			inline int RealFOV;
 			inline float Range = 10.f;
 
 			inline int TriggerBotType = 0;
@@ -42,23 +40,20 @@ namespace Config {
 
 		namespace CloseAim {
 			inline bool Enabled = true;
-			inline int FOV = 400;
-			inline int RealFOV;
+			inline int FOV = 30;
 			inline float Smoothing = 4.f;
 			inline int Range = 15;
 		}
 
 		namespace Standard {
 			inline bool Enabled = true;
-			inline int FOV = 175;
-			inline int RealFOV;
+			inline float FOV = 20;
 			inline float Smoothing = 8.f;
 		}
 
 		namespace Weakspot {
 			inline bool Enabled = true;
-			inline int FOV = 300;
-			inline int RealFOV;
+			inline int FOV = 40;
 			inline float Smoothing = 1.5f;
 		}
 	}

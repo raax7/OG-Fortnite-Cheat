@@ -31,14 +31,14 @@ void Actors::BuildingWeakSpot::Tick() {
 				if ((MainTarget.LocalInfo.IsTargeting == false || MainTarget.GlobalInfo.TargetActor == nullptr)) {
 					Features::Aimbot::Target PotentialNewTarget{};
 
-					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot);
+					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot, AimbotCamera);
 					MainTarget.SetTarget(PotentialNewTarget);
 				}
 
 				if (MainTarget.GlobalInfo.TargetActor == WeakSpot) {
 					SeenTarget = true;
 
-					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(MainTarget, WeakSpot, AimbotCamera, FPSScale);
+					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(MainTarget, WeakSpot, MainCamera, AimbotCamera, FPSScale);
 
 					Features::Aimbot::AimbotTarget(MainTarget);
 				}

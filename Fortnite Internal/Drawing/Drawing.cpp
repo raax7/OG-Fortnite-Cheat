@@ -32,21 +32,29 @@ SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	return SDK::GetLocalCanvas()->K2_TextSize(FString, (int32)FontSize);
 }
 void Drawing::Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined) {
-	float Step = (float)(M_PI * 2.f / Segments);
-	int Count = 0;
-	SDK::FVector2D V[128];
+	if (Segments < 3) {
+		// Ensure there's a minimum number of segments to form a rudimentary circle
+		Segments = 3;
+	}
 
-	for (float a = 0; a < M_PI * 2.0; a += Step) {
-		float X1 = Radius * cos(a) + ScreenPosition.X;
-		float Y1 = Radius * sin(a) + ScreenPosition.Y;
-		float X2 = Radius * cos(a + Step) + ScreenPosition.X;
-		float Y2 = Radius * sin(a + Step) + ScreenPosition.Y;
-		V[Count].X = X1;
-		V[Count].Y = Y1;
-		V[Count + 1].X = X2;
-		V[Count + 1].Y = Y2;
+	float AngleStep = (2.f * M_PI) / static_cast<float>(Segments);
+	SDK::FVector2D PreviousPoint = SDK::FVector2D(
+		Radius * cos(0) + ScreenPosition.X,
+		Radius * sin(0) + ScreenPosition.Y
+	);
 
-		Line(SDK::FVector2D{ V[Count].X, V[Count].Y }, SDK::FVector2D{ X2, Y2 }, 1.0f, RenderColor, Outlined);
+	for (int SegmentCount = 1; SegmentCount <= Segments; SegmentCount++) {
+		// Calculate the x and y coordinates for the next point
+		SDK::FVector2D CurrentPoint = SDK::FVector2D(
+			Radius * cos(AngleStep * SegmentCount) + ScreenPosition.X,
+			Radius * sin(AngleStep * SegmentCount) + ScreenPosition.Y
+		);
+
+		// Draw a line from the previous point to the current one
+		Line(PreviousPoint, CurrentPoint, 1.0f, RenderColor, Outlined);
+
+		// Update the previous point for the next iteration
+		PreviousPoint = CurrentPoint;
 	}
 }
 void Drawing::FilledRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined) {

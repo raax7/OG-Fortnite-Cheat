@@ -78,9 +78,9 @@ inline std::ofstream Logger::File;
 #endif // EXTRA_DEBUG_INFO
 
 #if !EXTRA_DEBUG_INFO
-    #define EXTRA_DEBUG_LOG(Message, __FILE__, __LINE__) ((void)0)
+    #define EXTRA_DEBUG_LOG(Message) ((void)0)
         #endif // !EXTRA_DEBUG_INFO
     #else // _DEBUG
         #define DEBUG_LOG(Message) ((void)0)
-        #define EXTRA_DEBUG_LOG(Message, __FILE__, __LINE__) ((void)0)
+        #define EXTRA_DEBUG_LOG(Message) ((void)0)
 #endif // _DEBUG

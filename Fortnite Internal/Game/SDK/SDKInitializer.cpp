@@ -1,5 +1,7 @@
 #include "SDKInitializer.h"
 
+#include "../SDK/Classes/Engine_classes.h"
+
 #include "../../Utilities/Logger.h"
 
 void SDKInitializer::WalkVFT(const char* TargetFunctionName, void** VFT, void* TargetFunction, uintptr_t& VFTIndex, int SearchRange) {
@@ -16,7 +18,7 @@ void SDKInitializer::WalkVFT(const char* TargetFunctionName, void** VFT, void* T
 		DEBUG_LOG(std::string(TargetFunctionName) + skCrypt(" VFT index found: ").decrypt() + std::to_string(VFTIndex));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(TargetFunctionName) + skCrypt(" VFT index!").decrypt(), false);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(TargetFunctionName) + skCrypt(" VFT index!").decrypt(), CRASH_ON_ERROR);
 	}
 }
 void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange, int SearchBytesBehind) {
@@ -43,7 +45,7 @@ void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> 
 		DEBUG_LOG(std::string(VFTName) + skCrypt(" VFT Index offset found: ").decrypt() + std::to_string(VFTIndex));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(VFTName) + skCrypt(" VFT Index!").decrypt(), false);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(VFTName) + skCrypt(" VFT Index!").decrypt(), CRASH_ON_ERROR);
 	}
 }
 
@@ -67,7 +69,7 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 		DEBUG_LOG(std::string(FunctionName) + skCrypt(" function offset found: ").decrypt() + std::to_string(FunctionOffset));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" function offset!").decrypt(), false);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" function offset!").decrypt(), CRASH_ON_ERROR);
 	}
 }
 void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
@@ -91,33 +93,99 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 		DEBUG_LOG(std::string(FunctionName) + skCrypt(" function offset found: ").decrypt() + std::to_string(FunctionOffset));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" function offset!").decrypt(), false);
+		THROW_ERROR(skCrypt("Failed to find ").decrypt() + std::string(FunctionName) + skCrypt(" function offset!").decrypt(), CRASH_ON_ERROR);
 	}
 }
 
 void SDKInitializer::InitPRIndex() {
-	InitVFTIndex(
-		skCrypt("PostRender").decrypt(),
-		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ? 80 3D ? ? ? 02 00").decrypt(), skCrypt("FF 90 ? ? ? ? 48 8D 0D ? ? ? ? E8").decrypt(), skCrypt("FF 90 ? ? ? ? 48 8B 4D 28 E8 ? ? ? ?").decrypt(), skCrypt("FF 90 ? ? ? ? 48 8B").decrypt() },
-		skCrypt(L"STAT_HudTime").decrypt(),
-		SDK::Cached::VFT::PostRender,
-		0x400);
+	void** Vft = nullptr;
+
+	for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++)
+	{
+		SDK::UObject* Obj = SDK::UObject::ObjectArray.GetByIndex(i);
+
+		if (!Obj)
+			continue;
+
+		if (Obj->IsA(SDK::UGameViewportClient::StaticClass()) && !Obj->IsDefaultObject())
+		{
+			Vft = static_cast<SDK::UEngine*>(Obj)->Vft;
+			break;
+		}
+	}
+
+	if (!Vft) {
+		THROW_ERROR(skCrypt("Failed to find VFT for UGameViewportClient!").decrypt(), false);
+	}
+
+	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
+	{
+		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+		if (*Address == 0xE9)
+		{
+			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
+
+			if (Memory::IsInProcessRange(uintptr_t(Ret)))
+				return Ret;
+		}
+
+		return reinterpret_cast<uint8_t*>(FunctionPtr);
+	};
+
+	for (int i = 0; i < 0x150; i++)
+	{
+		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
+			continue;
+
+		if (Memory::FindPatternInRange({ 0x80, 0xB9, 0x88, 0x00, 0x00, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x30))
+		{
+			// PostRender is always 1 index before DrawTransition
+			SDK::Cached::VFT::PostRender = i;
+			DEBUG_LOG(skCrypt("PostRender VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::PostRender));
+
+			return;
+		}
+	}
+
+	if (!SDK::Cached::VFT::PostRender) {
+		THROW_ERROR(skCrypt("Failed to find PostRender VFT index!").decrypt(), CRASH_ON_ERROR);
+	}
 }
 void SDKInitializer::InitPEIndex() {
-	InitVFTIndex(
-		skCrypt("ProcessEvent").decrypt(),
-		std::vector<const char*>{ skCrypt("41 FF 91 ? ? ? ? E9 ? ? ? ? 80 3D ? ? ? ? ?").decrypt() },
-		skCrypt(L"FLatentActionManager::ProcessLatentActions: Could not find latent action resume point named '%s' on '%s' called by '%s'").decrypt(),
-		SDK::Cached::VFT::ProcessEvent,
-		0x400);
+	void** Vft = SDK::UObject::ObjectArray.GetByIndex(0)->Vft;
 
-	if (SDK::Cached::VFT::ProcessEvent) return;
+	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
+	{
+		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+		if (*Address == 0xE9)
+		{
+			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
 
-	// DOESNT WORK ON SOME VERSIONS
+			if (Memory::IsInProcessRange(uintptr_t(Ret)))
+				return Ret;
+		}
+
+		return reinterpret_cast<uint8_t*>(FunctionPtr);
+	};
+
+	for (int i = 0; i < 0x150; i++)
+	{
+		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
+			break;
+
+		if (Memory::FindPatternInRange({ 0xF7, -0x1, SDK::UFunction::FunctionFlags, 0x0, 0x0, 0x0, 0x0, 0x04, 0x0, 0x0 }, Resolve32BitRelativeJump(Vft[i]), 0x400)
+			&& Memory::FindPatternInRange({ 0xF7, -0x1, SDK::UFunction::FunctionFlags, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0 }, Resolve32BitRelativeJump(Vft[i]), 0x400))
+		{
+			SDK::Cached::VFT::ProcessEvent = i;
+			DEBUG_LOG(skCrypt("ProcessEvent VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::ProcessEvent));
+			return;
+		}
+	}
+
+
 
 	uint8_t* StringRef = Memory::FindByStringInAllSections(skCrypt(L"Accessed None").decrypt());
 	uintptr_t NextFunctionStart = Memory::FindNextFunctionStart(StringRef);
-	DEBUG_LOG(skCrypt("ProcessEvent function start found: ").decrypt() + std::to_string(NextFunctionStart - SDK::GetBaseAddress()));
 
 	SDKInitializer::WalkVFT(skCrypt("ProcessEvent").decrypt(), SDK::UObject::ObjectArray.GetByIndex(0)->Vft, reinterpret_cast<void*>(NextFunctionStart), SDK::Cached::VFT::ProcessEvent, 0x150);
 }
@@ -149,7 +217,7 @@ void SDKInitializer::InitAppendString() {
 		skCrypt("48 8D ? ? ? 49 8B ? E8").decrypt()
 	},
 		skCrypt("ForwardShadingQuality_").decrypt(),
-		SDK::AppendStringOffset,
+		SDK::Cached::Functions::AppendString,
 		0x60);
 }
 void SDKInitializer::InitFNameConstructor() {
@@ -157,18 +225,33 @@ void SDKInitializer::InitFNameConstructor() {
 		skCrypt("FName Constructor").decrypt(),
 		std::vector<const char*> { skCrypt("E8").decrypt() },
 		skCrypt(L"CanvasObject").decrypt(),
-		SDK::FNameConstructorOffset,
+		SDK::Cached::Functions::FNameConstructor,
 		0x32);
 }
 void SDKInitializer::InitLineTraceSingle() {
-	SDK::LineTraceSingle = Memory::PatternScan(
+	SDK::Cached::Functions::LineTraceSingle = Memory::PatternScan(
 		SDK::GetBaseAddress(),
 		skCrypt("48 8B 43 20 48 8D 4D E0 0F 10 45 C0 44 0F B6 8D ? ? ? ? 48 85 C0 0F 10 4D D0 4C 8D 45 A0 40 0F 95 C7 66 0F 7F 45 ? 48 8D 55 B0 F2 0F 10 45 ? 48 03 F8 8B 45 88 F2 0F 11 45 ? F2 0F 10 45 ? 89 45 A8 8B 45 98 F2 0F 11 45 ? F3 0F 10 44 24 ? F3 0F 11 44 24 ? 48 89 4C 24 ? 48 8D 4D F0 48 89 4C 24 ? 48 8B 4C 24 ? 44 88 7C 24 ? 48 89 74 24 ? 89 45 B8 0F B6 85 ? ? ? ? 89 44 24 30 4C 89 74 24 ? 44 88 64 24 ? 48 89 7B 20 66 0F 7F 4D ? E8").decrypt(),
 		155, // magic number, will improve pattern scanning function later
 		true
 	);
 
-	DEBUG_LOG(skCrypt("LineTraceSingle function offset found: ").decrypt() + std::to_string(SDK::LineTraceSingle - SDK::GetBaseAddress()));
+	if (!SDK::Cached::Functions::LineTraceSingle) {
+		SDK::Cached::Functions::LineTraceSingle = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("4C 39 6B 20 4C 8D 45 A0 F2 0F 10 45 ? 48 8D 55 B0 44 0F B6 8D ? ? ? ? 49 8B C5 48 8B 4C 24 ? 0F 95 C0 48 01 43 20 8B 45 88 44 88 74 24 ? F2 0F 11 45 ? F2 0F 10 45 ? 89 45 A8 8B 45 98 48 89 7C 24 ? 48 89 74 24 ? 89 45 B8 F2 0F 11 45 ? 44 88 7C 24 ? E8 ? ? ? ?").decrypt(),
+			92, // magic number, will improve pattern scanning function later
+			true
+		);
+	}
+
+	if (!SDK::Cached::Functions::LineTraceSingle) {
+		THROW_ERROR(skCrypt("Failed to find LineTraceSingle!").decrypt(), CRASH_ON_ERROR);
+	}
+
+	SDK::Cached::Functions::LineTraceSingle -= SDK::GetBaseAddress();
+
+	DEBUG_LOG(skCrypt("LineTraceSingle function offset found: ").decrypt() + std::to_string(SDK::Cached::Functions::LineTraceSingle));
 }
 
 void SDKInitializer::InitGObjects() {
@@ -205,6 +288,6 @@ void SDKInitializer::InitGObjects() {
 		DEBUG_LOG(skCrypt("GObjects offset found: ").decrypt() + std::to_string(TUObjectArray - SDK::GetBaseAddress()));
 	}
 	else {
-		THROW_ERROR(skCrypt("Failed to find GObjects!").decrypt(), true);
+		THROW_ERROR(skCrypt("Failed to find GObjects!").decrypt(), CRASH_ON_ERROR);
 	}
 }

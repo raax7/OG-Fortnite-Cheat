@@ -34,7 +34,7 @@ const inline std::vector<std::pair<Features::FortPawnHelper::Bone::BoneID, Featu
     {Chest,           Pelvis},
 };
 
-Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::ChooseBasedOnPreference(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2) {
+Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2) {
     float Bone1Distance = Math::GetDistance2D(BonePosition1.X, BonePosition1.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
     float Bone2Distance = Math::GetDistance2D(BonePosition2.X, BonePosition2.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
 
@@ -51,7 +51,7 @@ Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestB
         BoneID RightBone = BonePair.second;
 
         if (FortPawnCache.BoneVisibilities[LeftBone] && FortPawnCache.BoneVisibilities[RightBone]) {
-            return ChooseBasedOnPreference(FortPawnCache.BoneRegister2D[LeftBone], FortPawnCache.BoneRegister2D[RightBone], LeftBone, RightBone);
+            return FindClosestBoneBetweenTwo(FortPawnCache.BoneRegister2D[LeftBone], FortPawnCache.BoneRegister2D[RightBone], LeftBone, RightBone);
         }
 
         if (FortPawnCache.BoneVisibilities[LeftBone]) {

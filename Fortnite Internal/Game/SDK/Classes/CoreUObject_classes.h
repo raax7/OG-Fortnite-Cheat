@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+
 #include "Basic.h"
 #include "EngineFixups.h"
 
@@ -65,8 +66,8 @@ namespace SDK {
 		std::string GetFullName() const;
 
 
-		static int32_t GetPropertyOffset(UProperty* Property);
-		static int32_t GetPropertyOffset(FField* Field, std::string PropertyName);
+		static uint32_t GetPropertyOffset(UProperty* Property);
+		static uint32_t GetPropertyOffset(FField* Field, std::string PropertyName);
 
 		template<typename UEType = UObject>
 		static UEType* FindObject(const std::string& FullName, EClassCastFlags RequiredType = EClassCastFlags::None)
@@ -186,5 +187,10 @@ namespace SDK {
 			if (!this) return nullptr;
 			return (UObject*)(*(uintptr_t*)((uintptr_t)this + DefaultObjectOffset));
 		}
+	};
+
+	class UFunction : public UStruct {
+	public:
+		static int32_t FunctionFlags;
 	};
 }

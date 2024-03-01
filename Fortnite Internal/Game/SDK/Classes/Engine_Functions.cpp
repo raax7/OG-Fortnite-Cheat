@@ -2,11 +2,29 @@
 
 #include "CoreUObject_classes.h"
 
+#include "../../../Utilities/SpoofCall/SpoofCall.h"
 #include "../../../Utilities/Error.h"
 #include "../../Features/FortPawnHelper/Bone.h"
 #include "../../Game.h"
 
 // Classes
+
+bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics) {
+	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+	struct {
+		FRotator NewRotation;
+		bool bTeleportPhysics;
+		bool return_value;
+	} params_K2_SetActorRotation{};
+
+	params_K2_SetActorRotation.NewRotation = NewRotation;
+	params_K2_SetActorRotation.bTeleportPhysics = bTeleportPhysics;
+
+	this->ProcessEvent(SDK::Cached::Functions::Actor::K2_SetActorRotation, &params_K2_SetActorRotation);
+
+	return params_K2_SetActorRotation.return_value;
+}
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
 	if (!SDK::IsValidPointer((uintptr_t)this)) return FName{};
@@ -100,6 +118,19 @@ void SDK::APlayerController::ClientSetRotation(FRotator& NewRotation, bool bRese
 
 	return;
 }
+void SDK::APlayerController::SetControlRotation(FRotator NewRotation) {
+	if (!SDK::IsValidPointer((uintptr_t)this)) return;
+
+	struct {
+		FRotator NewRotation;
+	} params_SetControlRotation{};
+
+	params_SetControlRotation.NewRotation = NewRotation;
+
+	this->ProcessEvent(SDK::Cached::Functions::PlayerController::SetControlRotation, &params_SetControlRotation);
+
+	return;
+}
 bool SDK::APlayerController::WasInputKeyJustReleased(FKey& Key) {
 	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
 
@@ -163,6 +194,14 @@ bool SDK::APlayerController::GetMousePosition(float* LocationX, float* LocationY
 	return params_GetMousePosition.return_value;
 }
 
+SDK::UClass* SDK::UGameViewportClient::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(skCrypt("GameViewportClient").decrypt());
+
+	return Clss;
+}
 SDK::UClass* SDK::UEngine::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -217,31 +256,25 @@ SDK::FString SDK::UKismetSystemLibrary::GetEngineVersion() {
 	return params_GetEngineVersion.return_value;
 }
 bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObject, const struct FVector& Start, const struct FVector& End, enum class ETraceTypeQuery TraceChannel, bool bTraceComplex, TArray<class AActor*>& ActorsToIgnore, enum class EDrawDebugTrace DrawDebugType, struct FHitResult* OutHit, bool bIgnoreSelf, const struct FLinearColor& TraceColor, const struct FLinearColor& TraceHitColor, float DrawTime) {
-	return reinterpret_cast<bool(*)
-		(UObject * WorldContextObject,
-			FVector Start,
-			FVector End,
-			ETraceTypeQuery TraceChannel,
-			bool bTraceComplex,
-			TArray<class AActor*> ActorsToIgnore,
-			EDrawDebugTrace DrawDebugType,
-			FHitResult OutHit, bool bIgnoreSelf,
-			FLinearColor TraceColor,
-			FLinearColor TraceHitColor,
-			float DrawTime
-			)>(SDK::LineTraceSingle)(
-				WorldContextObject,
-				Start,
-				End,
-				TraceChannel,
-				true,
-				ActorsToIgnore,
-				EDrawDebugTrace::None,
-				{},
-				true,
-				{},
-				{},
-				0.f);
+	using LineTraceSingleParams = bool(*)(UObject* WorldContextObject,
+		FVector Start,
+		FVector End,
+		ETraceTypeQuery TraceChannel,
+		bool bTraceComplex,
+		TArray<class AActor*> ActorsToIgnore,
+		EDrawDebugTrace DrawDebugType,
+		FHitResult OutHit,
+		bool bIgnoreSelf,
+		FLinearColor TraceColor,
+		FLinearColor TraceHitColor,
+		float DrawTime);
+	static LineTraceSingleParams OriginalLineTraceSingle;
+
+	if (!OriginalLineTraceSingle) OriginalLineTraceSingle = reinterpret_cast<LineTraceSingleParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::LineTraceSingle);
+
+	// Calling through spoof_call doesn't work here. Most likely because some parameters are passed by reference
+
+	return OriginalLineTraceSingle(WorldContextObject, Start, End, TraceChannel, true, ActorsToIgnore, EDrawDebugTrace::None, {}, true, SDK::FLinearColor(), SDK::FLinearColor(), 0.f);
 }
 SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -250,6 +283,47 @@ SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 		Clss = UObject::FindClassFast(skCrypt("KismetSystemLibrary").decrypt());
 
 	return Clss;
+}
+
+SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
+	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector{};
+
+	struct {
+		FRotator InRot;
+
+		FVector return_value;
+	} params_GetForwardVector{};
+
+	params_GetForwardVector.InRot = InRot;
+
+	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetForwardVector, &params_GetForwardVector);
+
+	return params_GetForwardVector.return_value;
+}
+SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, struct FVector Target) {
+	if (!SDK::IsValidPointer((uintptr_t)this)) return FRotator{};
+
+	struct {
+		FVector Start;
+		FVector Target;
+
+		FRotator return_value;
+	} params_FindLookAtRotation{};
+
+	params_FindLookAtRotation.Start = Start;
+	params_FindLookAtRotation.Target = Target;
+
+	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation, &params_FindLookAtRotation);
+
+	return params_FindLookAtRotation.return_value;
+}
+SDK::UKismetMathLibrary* SDK::UKismetMathLibrary::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(skCrypt("KismetMathLibrary").decrypt());
+
+	return reinterpret_cast<UKismetMathLibrary*>(Clss);
 }
 
 SDK::UFont* SDK::Roboto::StaticFont() {
@@ -279,8 +353,8 @@ void SDK::UCanvas::K2_DrawLine(const FVector2D& ScreenPositionA, const FVector2D
 
 	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawLine, &params_K2_DrawLine);
 }
-SDK::FVector2D SDK::UCanvas::K2_Project(FVector& WorldLocation) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector2D{};
+SDK::FVector SDK::UCanvas::K2_Project(FVector& WorldLocation) {
+	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector();
 
 	struct {
 		FVector WorldLocation;
@@ -292,11 +366,7 @@ SDK::FVector2D SDK::UCanvas::K2_Project(FVector& WorldLocation) {
 
 	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_Project, &params_K2_Project);
 
-	if (params_K2_Project.return_value.Z > 0) {
-		return FVector2D(params_K2_Project.return_value.X, params_K2_Project.return_value.Y);
-	}
-
-	return FVector2D(0, 0);
+	return params_K2_Project.return_value;
 }
 void SDK::UCanvas::K2_DrawText(FString& RenderText, FVector2D ScreenPosition, int32 FontSize, FLinearColor RenderColor, bool bCentreX, bool bCentreY, bool bOutlined) {
 	if (!SDK::IsValidPointer((uintptr_t)this)) return;
@@ -403,13 +473,23 @@ SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 }
 
 SDK::FVector2D SDK::Project(FVector& WorldLocation) {
-	return reinterpret_cast<SDK::UCanvas*>(Game::CurrentCanvas)->K2_Project(WorldLocation);
+	SDK::FVector ScreenLocation = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
+
+	if (ScreenLocation.Z > 0.f) {
+		return SDK::FVector2D(ScreenLocation.X, ScreenLocation.Y);
+	}
+
+	return SDK::FVector2D(-1.f, -1.f);
 }
-bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore) {
+SDK::FVector SDK::Project3D(FVector& WorldLocation) {
+	return SDK::GetLocalCanvas()->K2_Project(WorldLocation);
+}
+bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};
 	TArray<AActor*> IgnoredActors;
 
-	IgnoredActors.Add(ActorToIgnore);
+	if (ActorToIgnore) IgnoredActors.Add(ActorToIgnore);
+	if (ActorToIgnore2) IgnoredActors.Add(ActorToIgnore2);
 
 	Hit.TraceStart = CameraPosition;
 	Hit.TraceEnd = TargetPosition;
@@ -423,7 +503,7 @@ bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPositio
 		IgnoredActors,
 		EDrawDebugTrace::None,
 		&Hit,
-		false,
+		true,
 		FLinearColor(0.f, 0.f, 0.f, 0.f),
 		FLinearColor(0.f, 0.f, 0.f, 0.f),
 		0.f
@@ -452,6 +532,9 @@ SDK::ULocalPlayer* SDK::GetLocalPlayer() {
 }
 SDK::APlayerController* SDK::GetLocalController() {
 	return SDK::GetLocalPlayer()->PlayerController();
+}
+SDK::APawn* SDK::GetLocalPawn() {
+	return GetLocalController()->AcknowledgedPawn();
 }
 SDK::UCanvas* SDK::GetLocalCanvas() {
 	return reinterpret_cast<UCanvas*>(Game::CurrentCanvas);

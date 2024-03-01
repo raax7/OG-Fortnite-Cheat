@@ -2,13 +2,14 @@
 
 #include "../../../Utilities/Math.h"
 #include "../../../Configs/Config.h"
+
 #include "../FortPawnHelper/Bone.h"
 
 void Features::Aimbot::Target::UpdateLocalInfoAndType(Target& TargetToUpdate) {
 	switch (TargetToUpdate.GlobalInfo.Type) {
 	case TargetType::ClosePlayer:
-		TargetToUpdate.LocalInfo.CurrentFOVSize = Config::Aimbot::CloseAim::FOV;
-		TargetToUpdate.LocalInfo.CurrentRealFOVSize = Config::Aimbot::CloseAim::RealFOV;
+		TargetToUpdate.LocalInfo.CurrentFOVSizePixels = (float)Config::Aimbot::CloseAim::FOV * Game::PixelsPerDegree;
+		TargetToUpdate.LocalInfo.CurrentFOVSizeDegrees = Config::Aimbot::CloseAim::FOV;
 		TargetToUpdate.LocalInfo.CurrentSmoothing = Config::Aimbot::CloseAim::Smoothing;
 
 		if (TargetToUpdate.LocalInfo.DistanceFromPlayer > Config::Aimbot::CloseAim::Range || !Config::Aimbot::CloseAim::Enabled) {
@@ -16,8 +17,8 @@ void Features::Aimbot::Target::UpdateLocalInfoAndType(Target& TargetToUpdate) {
 		}
 		break;
 	case TargetType::FarPlayer:
-		TargetToUpdate.LocalInfo.CurrentFOVSize = Config::Aimbot::Standard::FOV;
-		TargetToUpdate.LocalInfo.CurrentRealFOVSize = Config::Aimbot::Standard::RealFOV;
+		TargetToUpdate.LocalInfo.CurrentFOVSizePixels = (float)Config::Aimbot::Standard::FOV * Game::PixelsPerDegree;
+		TargetToUpdate.LocalInfo.CurrentFOVSizeDegrees = Config::Aimbot::Standard::FOV;
 		TargetToUpdate.LocalInfo.CurrentSmoothing = Config::Aimbot::Standard::Smoothing;
 
 		if (TargetToUpdate.LocalInfo.DistanceFromPlayer <= Config::Aimbot::CloseAim::Range && Config::Aimbot::CloseAim::Enabled) {
@@ -25,13 +26,13 @@ void Features::Aimbot::Target::UpdateLocalInfoAndType(Target& TargetToUpdate) {
 		}
 		break;
 	case TargetType::Weakspot:
-		TargetToUpdate.LocalInfo.CurrentFOVSize = Config::Aimbot::Weakspot::FOV;
-		TargetToUpdate.LocalInfo.CurrentRealFOVSize = Config::Aimbot::Weakspot::RealFOV;
+		TargetToUpdate.LocalInfo.CurrentFOVSizePixels = (float)Config::Aimbot::Weakspot::FOV * Game::PixelsPerDegree;
+		TargetToUpdate.LocalInfo.CurrentFOVSizeDegrees = Config::Aimbot::Weakspot::FOV;
 		TargetToUpdate.LocalInfo.CurrentSmoothing = Config::Aimbot::Weakspot::Smoothing;
 		break;
 	case TargetType::Other:
-		TargetToUpdate.LocalInfo.CurrentFOVSize = Config::Aimbot::Standard::FOV;
-		TargetToUpdate.LocalInfo.CurrentRealFOVSize = Config::Aimbot::Standard::RealFOV;
+		TargetToUpdate.LocalInfo.CurrentFOVSizePixels = (float)Config::Aimbot::Standard::FOV * Game::PixelsPerDegree;
+		TargetToUpdate.LocalInfo.CurrentFOVSizeDegrees = Config::Aimbot::Standard::FOV;
 		TargetToUpdate.LocalInfo.CurrentSmoothing = Config::Aimbot::Standard::Smoothing;
 		break;
 	}
@@ -39,7 +40,7 @@ void Features::Aimbot::Target::UpdateLocalInfoAndType(Target& TargetToUpdate) {
 void Features::Aimbot::Target::ResetTarget() {
 	// Reset the global info
 	{
-		GlobalInfo.Type = TargetType::TargetType_MAX;
+		GlobalInfo.Type = TargetType::NONE;
 
 		GlobalInfo.TargetActor = nullptr;
 
@@ -54,30 +55,68 @@ void Features::Aimbot::Target::ResetTarget() {
 	// Reset the local info
 	{
 		// Set to float max so that any target will be less than this
-		LocalInfo.DistanceFromCrosshair = FLT_MAX;
+		LocalInfo.DistanceFromCrosshairDegrees = FLT_MAX;
+		LocalInfo.DistanceFromCrosshairPixels = FLT_MAX;
 		LocalInfo.DistanceFromPlayer = FLT_MAX;
 		LocalInfo.SmartTargetingDistance = FLT_MAX;
 
 		LocalInfo.IsTargeting = false;
+		LocalInfo.IsOnScreen = false;
+
 		LocalInfo.TargetRotation = SDK::FRotator(0, 0, 0);
 		LocalInfo.TargetRotationChange = SDK::FRotator(0, 0, 0);
+
+		LocalInfo.CurrentFOVSizePixels = 0;
+		LocalInfo.CurrentFOVSizeDegrees = 0;
+		LocalInfo.CurrentSmoothing = 0.f;
 	}
 }
 void Features::Aimbot::Target::TargetTick(bool SeenTargetThisFrame) {
-	if (!SeenTargetThisFrame || LocalInfo.DistanceFromCrosshair > LocalInfo.CurrentRealFOVSize || GlobalInfo.TargetActor == nullptr) {
-		// Resets if:
-		// - The target wasn't seen this frame
-		// - The target is outside of the FOV circle
-		// - The target pointer is null
-		ResetTarget();
-	}
+	// Resets if:
+	// - The target wasn't seen this frame
+	// - The target is outside of the FOV circle in pixels and is on the screen
+	// - The target is outside of the FOV circle in degrees and is NOT on the screen
+	// - The target pointer is null
 
 	UpdateLocalInfoAndType(*this);
+
+	if (LocalInfo.IsOnScreen) {
+		if (LocalInfo.DistanceFromCrosshairPixels > LocalInfo.CurrentFOVSizePixels) {
+			// If the player is on the screen and outside of the FOV circle in pixels, then don't update the target
+			ResetTarget();
+		}
+	}
+	else {
+		if (LocalInfo.DistanceFromCrosshairDegrees > LocalInfo.CurrentFOVSizeDegrees) {
+			// If the player is on the screen and outside of the FOV circle in degrees, then don't update the target
+			ResetTarget();
+		}
+	}
+
+	if (!SeenTargetThisFrame || GlobalInfo.TargetActor == nullptr) {
+		ResetTarget();
+		return;
+	}
 }
 bool Features::Aimbot::Target::ShouldSetTarget(Target PotentialTarget) {
-	if (PotentialTarget.LocalInfo.DistanceFromCrosshair > PotentialTarget.LocalInfo.CurrentRealFOVSize) {
-		// If the player is outside of the FOV circle, then don't update the target
-		return false;
+	// Long reason to why we have to do this goofy method, but it's pretty much because the player camera isn't first person
+	// and our calculate rotation angles function doesn't take that into account.
+	// So we have to do this goofy method to simulate the distance from the crosshair in degrees. It's not perfect, but it's good enough and not noticeable.
+
+	// Update the info so that we use the correct FOV size for verifying if we should update the target
+	UpdateLocalInfoAndType(PotentialTarget);
+
+	if (PotentialTarget.LocalInfo.IsOnScreen) {
+		if (PotentialTarget.LocalInfo.DistanceFromCrosshairPixels > PotentialTarget.LocalInfo.CurrentFOVSizePixels) {
+			// If the player is on the screen and outside of the FOV circle in pixels, then don't update the target
+			return false;
+		}
+	}
+	else {
+		if (PotentialTarget.LocalInfo.DistanceFromCrosshairDegrees > PotentialTarget.LocalInfo.CurrentFOVSizeDegrees) {
+			// If the player is on the screen and outside of the FOV circle in degrees, then don't update the target
+			return false;
+		}
 	}
 
 	if (PotentialTarget.GlobalInfo.Type > GlobalInfo.Type) {
@@ -94,32 +133,31 @@ bool Features::Aimbot::Target::ShouldSetTarget(Target PotentialTarget) {
 			// If we are targeting, then don't update
 			return false;
 		}
-		else {
-			float CurrentDistance;
-			float PotentialTargetDistance;
 
-			// Get the distance based off the target distance types
-			switch (Config::Aimbot::TargettingType) {
-			case ConfigTypes::AimbotType::Smart:
-				CurrentDistance = LocalInfo.SmartTargetingDistance;
-				PotentialTargetDistance = PotentialTarget.LocalInfo.SmartTargetingDistance;
-				break;
-			case ConfigTypes::AimbotType::Crosshair:
-				CurrentDistance = LocalInfo.DistanceFromCrosshair;
-				PotentialTargetDistance = PotentialTarget.LocalInfo.DistanceFromCrosshair;
-				break;
-			case ConfigTypes::AimbotType::Distance:
-				CurrentDistance = LocalInfo.DistanceFromPlayer;
-				PotentialTargetDistance = PotentialTarget.LocalInfo.DistanceFromPlayer;
-				break;
-			default:
-				return false;
-			}
+		float CurrentDistance;
+		float PotentialTargetDistance;
 
-			if (PotentialTargetDistance < CurrentDistance) {
-				// If the potential new target distance is less than the current target distance, then update the target
-				return true;
-			}
+		// Get the distance based off the target distance types
+		switch (Config::Aimbot::TargettingType) {
+		case ConfigTypes::AimbotType::Smart:
+			CurrentDistance = LocalInfo.SmartTargetingDistance;
+			PotentialTargetDistance = PotentialTarget.LocalInfo.SmartTargetingDistance;
+			break;
+		case ConfigTypes::AimbotType::Crosshair:
+			CurrentDistance = LocalInfo.DistanceFromCrosshairDegrees;
+			PotentialTargetDistance = PotentialTarget.LocalInfo.DistanceFromCrosshairDegrees;
+			break;
+		case ConfigTypes::AimbotType::Distance:
+			CurrentDistance = LocalInfo.DistanceFromPlayer;
+			PotentialTargetDistance = PotentialTarget.LocalInfo.DistanceFromPlayer;
+			break;
+		default:
+			return false;
+		}
+
+		if (PotentialTargetDistance < CurrentDistance) {
+			// If the potential new target distance is less than the current target distance, then update the target
+			return true;
 		}
 	}
 
@@ -132,23 +170,16 @@ void Features::Aimbot::Target::SetTarget(Target NewTarget, bool ForceSetTarget) 
 		*this = NewTarget;
 		return;
 	}
-	else {
-		if (ShouldSetTarget(NewTarget)) {
-			*this = NewTarget;
-			return;
-		}
+	else if (ShouldSetTarget(NewTarget)) {
+		*this = NewTarget;
+		return;
 	}
 }
 
-void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& Camera, const float FPSScale) {
+void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& MainCamera, const Actors::CameraCache& AimbotCamera, const float FPSScale) {
 	// Update global information
 	Target.GlobalInfo.TargetActor = TargetCache.FortPawn;
 	Target.GlobalInfo.TargetBoneId = Features::FortPawnHelper::Bone::FindBestBone(Features::FortPawnHelper::Bone::Head, TargetCache);
-
-	// Update local information
-	Target.LocalInfo.DistanceFromCrosshair = Math::GetDistance2D(TargetCache.BoneRegister2D[(int)Target.GlobalInfo.TargetBoneId].X, TargetCache.BoneRegister2D[(int)Target.GlobalInfo.TargetBoneId].Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
-	Target.LocalInfo.DistanceFromPlayer = TargetCache.DistanceFromLocal;
-	Target.LocalInfo.SmartTargetingDistance = Target.LocalInfo.DistanceFromCrosshair + Target.LocalInfo.DistanceFromPlayer;
 
 	// Determine target type
 	Target.GlobalInfo.Type = (Target.LocalInfo.DistanceFromPlayer <= Config::Aimbot::CloseAim::Range && Config::Aimbot::CloseAim::Enabled) ? Target::TargetType::ClosePlayer : Target::TargetType::FarPlayer;
@@ -159,6 +190,15 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 	Target.GlobalInfo.TargetBonePosition = TargetCache.BoneRegister[Target.GlobalInfo.TargetBoneId];
 	Target.GlobalInfo.TargetBonePosition2D = TargetCache.BoneRegister2D[Target.GlobalInfo.TargetBoneId];
 
+	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetBonePosition);
+
+	// Update local information
+	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
+	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetBonePosition2D.X, Target.GlobalInfo.TargetBonePosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
+	Target.LocalInfo.DistanceFromPlayer = TargetCache.DistanceFromLocal;
+	Target.LocalInfo.SmartTargetingDistance = Target.LocalInfo.DistanceFromCrosshairDegrees + Target.LocalInfo.DistanceFromPlayer;
+	Target.LocalInfo.IsOnScreen = TargetCache.IsOnScreen;
+
 	// Apply FPS scaling for smoothing
 	if (FPSScale) {
 		float AimbotSpeed;
@@ -168,24 +208,27 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 		else {
 			AimbotSpeed = Target.LocalInfo.CurrentSmoothing * FPSScale;
 		}
-		Target.LocalInfo.TargetRotation = Math::CalculateRotationAngles(Camera.Position, TargetCache.BoneRegister[(int)Target.GlobalInfo.TargetBoneId]);
+		Target.LocalInfo.TargetRotation = TargetCameraRotation;
 
 		// Calculate smoothed rotation
-		Target.LocalInfo.TargetRotationChange = SDK::FRotator(Target.LocalInfo.TargetRotation.Pitch - Camera.Rotation.Pitch, Target.LocalInfo.TargetRotation.Yaw - Camera.Rotation.Yaw, 0.f);
+		Target.LocalInfo.TargetRotationChange = SDK::FRotator(Target.LocalInfo.TargetRotation.Pitch - AimbotCamera.Rotation.Pitch, Target.LocalInfo.TargetRotation.Yaw - AimbotCamera.Rotation.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationChange = Math::NormalizeAxis(Target.LocalInfo.TargetRotationChange);
 
 		SDK::FRotator RotationAfterSmooth = Target.LocalInfo.TargetRotationChange / AimbotSpeed;
 		RotationAfterSmooth = Math::NormalizeAxis(RotationAfterSmooth);
 
-		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(Camera.Rotation.Pitch + RotationAfterSmooth.Pitch, Camera.Rotation.Yaw + RotationAfterSmooth.Yaw, 0.f);
+		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(AimbotCamera.Rotation.Pitch + RotationAfterSmooth.Pitch, AimbotCamera.Rotation.Yaw + RotationAfterSmooth.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationWithSmooth = Math::NormalizeAxis(Target.LocalInfo.TargetRotationWithSmooth);
 		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(Target.LocalInfo.TargetRotationWithSmooth.Pitch, Target.LocalInfo.TargetRotationWithSmooth.Yaw, 0.f); // 0 on the roll so the camera doesn't get stuck tilted
 	}
 }
 
-void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::CameraCache& Camera, const float FPSScale) {
+void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::CameraCache& MainCamera, const Actors::CameraCache& AimbotCamera, const float FPSScale) {
 	// Update global information
 	Target.GlobalInfo.TargetActor = WeakSpot;
+
+	// Set target type
+	Target.GlobalInfo.Type = Target::TargetType::Weakspot;
 
 	// Update positions
 	SDK::FVector RootComponentPosition = WeakSpot->GetRootComponent()->GetPosition();
@@ -196,13 +239,14 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 	Target.GlobalInfo.TargetBonePosition = RootComponentPosition;
 	Target.GlobalInfo.TargetBonePosition2D = RootComponentPosition2D;
 
-	// Update local information
-	Target.LocalInfo.DistanceFromCrosshair = Math::GetDistance2D(RootComponentPosition2D.X, RootComponentPosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
-	Target.LocalInfo.DistanceFromPlayer = 0;
-	Target.LocalInfo.SmartTargetingDistance = Target.LocalInfo.DistanceFromCrosshair + Target.LocalInfo.DistanceFromPlayer;
+	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetBonePosition);
 
-	// Determine target type
-	Target.GlobalInfo.Type = Target::TargetType::Weakspot;
+	// Update local information
+	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
+	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetActorPosition2D.X, Target.GlobalInfo.TargetActorPosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
+	Target.LocalInfo.DistanceFromPlayer = Actors::LocalPawnCache.Position.Distance(Target.GlobalInfo.TargetActorPosition) / 100.f;
+	Target.LocalInfo.SmartTargetingDistance = Target.LocalInfo.DistanceFromCrosshairDegrees + Target.LocalInfo.DistanceFromPlayer;
+	Target.LocalInfo.IsOnScreen = Math::IsOnScreen(Target.GlobalInfo.TargetActorPosition2D);
 
 	// Apply FPS scaling for smoothing
 	if (FPSScale) {
@@ -213,16 +257,16 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 		else {
 			AimbotSpeed = Target.LocalInfo.CurrentSmoothing * FPSScale;
 		}
-		Target.LocalInfo.TargetRotation = Math::CalculateRotationAngles(Camera.Position, RootComponentPosition);
+		Target.LocalInfo.TargetRotation = TargetCameraRotation;
 
 		// Calculate smoothed rotation
-		Target.LocalInfo.TargetRotationChange = SDK::FRotator(Target.LocalInfo.TargetRotation.Pitch - Camera.Rotation.Pitch, Target.LocalInfo.TargetRotation.Yaw - Camera.Rotation.Yaw, 0.f);
+		Target.LocalInfo.TargetRotationChange = SDK::FRotator(Target.LocalInfo.TargetRotation.Pitch - AimbotCamera.Rotation.Pitch, Target.LocalInfo.TargetRotation.Yaw - AimbotCamera.Rotation.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationChange = Math::NormalizeAxis(Target.LocalInfo.TargetRotationChange);
 
 		SDK::FRotator RotationAfterSmooth = Target.LocalInfo.TargetRotationChange / AimbotSpeed;
 		RotationAfterSmooth = Math::NormalizeAxis(RotationAfterSmooth);
 
-		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(Camera.Rotation.Pitch + RotationAfterSmooth.Pitch, Camera.Rotation.Yaw + RotationAfterSmooth.Yaw, 0.f);
+		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(AimbotCamera.Rotation.Pitch + RotationAfterSmooth.Pitch, AimbotCamera.Rotation.Yaw + RotationAfterSmooth.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationWithSmooth = Math::NormalizeAxis(Target.LocalInfo.TargetRotationWithSmooth);
 		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(Target.LocalInfo.TargetRotationWithSmooth.Pitch, Target.LocalInfo.TargetRotationWithSmooth.Yaw, 0.f); // 0 on the roll so the camera doesn't get stuck tilted
 	}

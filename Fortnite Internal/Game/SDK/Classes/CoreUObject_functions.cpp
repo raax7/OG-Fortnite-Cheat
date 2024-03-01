@@ -3,6 +3,7 @@
 #include "../SDK.h"
 #include "../../Game.h"
 #include "../../../Utilities/Logger.h"
+#include "../../../Utilities/SpoofCall/SpoofCall.h"
 
 namespace SDK {
 	TUObjectArray UObject::ObjectArray;
@@ -12,13 +13,14 @@ namespace SDK {
 	int32_t UStruct::SuperOffset;
 	int32_t UStruct::ChildPropertiesOffset;
 	int32_t UProperty::OffsetOffset;
+	int32_t UFunction::FunctionFlags;
 
 
 
-	int32_t UObject::GetPropertyOffset(UProperty* Property) {
+	uint32_t UObject::GetPropertyOffset(UProperty* Property) {
 		return Property->Offset();
 	}
-	int32_t UObject::GetPropertyOffset(FField* Field, std::string PropertyName) {
+	uint32_t UObject::GetPropertyOffset(FField* Field, std::string PropertyName) {
 		FField* CurrentField = Field;
 
 		do {
@@ -32,15 +34,17 @@ namespace SDK {
 		return 0;
 	}
 
-	void UObject::ProcessEvent(void* fn, void* parms)
+	void UObject::ProcessEvent(void* FN, void* Params)
 	{
-		if (this == nullptr || fn == nullptr)
+		if (this == nullptr || FN == nullptr)
 			return;
 
-		auto vtable = *reinterpret_cast<void***>(this);
-		if (vtable != nullptr && vtable[SDK::Cached::VFT::ProcessEvent] != nullptr)
+		if (this->Vft != nullptr && this->Vft[SDK::Cached::VFT::ProcessEvent] != nullptr)
 		{
-			reinterpret_cast<void(*)(void*, void*, void*)>(vtable[SDK::Cached::VFT::ProcessEvent])(this, fn, parms);
+			using ProcessEventParams = void(*)(UObject*, void*, void*);
+			auto OriginalProcessEvent = reinterpret_cast<ProcessEventParams>(this->Vft[SDK::Cached::VFT::ProcessEvent]);
+			OriginalProcessEvent(this, FN, Params);
+			//spoof_call<void>(OriginalProcessEvent, this, FN, Params);
 		}
 	}
 
@@ -76,6 +80,57 @@ namespace SDK {
 	}
 
 	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
+#if 0
+		for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
+			UObject* Object = ObjectArray.GetByIndex(i);
+
+			if (!Object)
+				continue;
+
+			if (Object->IsDefaultObject() || Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct)) {
+				SDK::UStruct* ObjectStruct = Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct) ? ((SDK::UStruct*)Object) : Object->Class;
+
+				std::string ObjectName = ObjectStruct->Name.ToString();
+
+				for (FunctionSearch& Function : Functions) {
+					if (*Function.Function || !ObjectName.ends_with(Function.className))
+						continue;
+
+					SDK::UField* child = ObjectStruct->Children;
+					while (child) {
+						if (child->Name.ToString() == Function.childName) {
+							*Function.Function = child;
+						}
+
+						child = child->Next;
+					}
+				}
+
+				for (Offset_& offset : Offsets) {
+					if (*offset.pOffset || !ObjectName.ends_with(offset.className))
+						continue;
+
+					SDK::FField* child = ObjectStruct->ChildProperties;
+					while (child) {
+						if (child->Name.ToString() == offset.propertyName) {
+							*offset.pOffset = ((SDK::FProperty*)child)->Offset;
+							if (offset.pMask && !*offset.pMask) {
+								*offset.pMask = ((SDK::FBoolProperty*)child)->FieldMask;
+							}
+						}
+
+						child = child->Next;
+					}
+				}
+
+				for (Class_& class_ : Classes) {
+					if (!*class_.pAddress && ObjectName == class_.className)
+						*class_.pAddress = (uintptr_t)ObjectStruct;
+				}
+			}
+		}
+#endif
+
 		DEBUG_LOG(skCrypt("Setting up objects...").decrypt());
 
 		for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
@@ -139,7 +194,7 @@ namespace SDK {
 								continue;
 							}
 
-							int32 Offset = GetPropertyOffset(ChildProperties, CurrentOffset.PropertyName);
+							uint32_t Offset = GetPropertyOffset(ChildProperties, CurrentOffset.PropertyName);
 
 							if (Offset) {
 								*CurrentOffset.Offset = Offset;

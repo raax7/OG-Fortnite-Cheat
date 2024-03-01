@@ -1,11 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <iomanip>
+#pragma once
 #include <algorithm>
-#include <windows.h>
+#include <Windows.h>
 
 #include "../../Game/SDK/SDK.h"
+
 #include "../skCrypter.h"
 
 namespace detail
@@ -13,7 +11,7 @@ namespace detail
 	extern "C" void* _spoofer_stub();
 
 	template <typename Ret, typename... Args>
-	static inline auto shellcode_stub_helper(
+	inline auto shellcode_stub_helper(
 		const void* shell,
 		Args... args
 	) -> Ret
@@ -33,7 +31,7 @@ namespace detail
 			typename Fourth,
 			typename... Pack
 		>
-		static auto do_call(const void* shell, void* shell_param, First first, Second second,
+		static inline auto do_call(const void* shell, void* shell_param, First first, Second second,
 			Third third, Fourth fourth, Pack... pack) -> Ret
 		{
 			return shellcode_stub_helper< Ret, First, Second, Third, Fourth, void*, void*, Pack... >(shell, first, second, third, fourth, shell_param, nullptr, pack...);
@@ -50,7 +48,7 @@ namespace detail
 			typename Third = void*,
 			typename Fourth = void*
 		>
-		static auto do_call(
+		static inline auto do_call(
 			const void* shell,
 			void* shell_param,
 			First first = First{},
@@ -80,11 +78,8 @@ namespace detail
 	};
 }
 
-
-
 template <typename Ret, typename... Args>
-static inline auto spoof_call(Ret(*fn)(Args...), Args... args) -> Ret
-{
+inline auto spoof_call(Ret(*fn)(Args...), Args... args) -> Ret {
 	static const void* jmprbx = nullptr;
 	if (!jmprbx) {
 
@@ -94,7 +89,7 @@ static inline auto spoof_call(Ret(*fn)(Args...), Args... args) -> Ret
 		const auto sections = IMAGE_FIRST_SECTION(nt);
 		const auto num_sections = nt->FileHeader.NumberOfSections;
 
-		constexpr char section_name[5]{ skCrypt(".").decrypt(), skCrypt("t").decrypt(), skCrypt("e").decrypt(), skCrypt("x").decrypt(), skCrypt("t").decrypt() };
+		const char* section_name = { skCrypt(".text").decrypt()};
 		const auto     section = std::find_if(sections, sections + num_sections, [&](const auto& s) {
 			return std::equal(s.Name, s.Name + 5, section_name);
 			});

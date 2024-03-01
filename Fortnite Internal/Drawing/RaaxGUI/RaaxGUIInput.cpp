@@ -3,19 +3,6 @@
 #include "../../Utilities/Logger.h"
 #include "../../Game/Input/Input.h"
 
-SDK::FVector2D RaaxGUIInput::MousePosition = SDK::FVector2D();
-SDK::FVector2D RaaxGUIInput::MousePositionOnClicked = SDK::FVector2D();
-
-RaaxGUI::Window* RaaxGUIInput::ResizingWindow = nullptr;
-SDK::FVector2D RaaxGUIInput::ResizingWindowOffset = SDK::FVector2D();
-SDK::FVector2D RaaxGUIInput::ResizingWindowOriginal = SDK::FVector2D();
-SDK::FVector2D RaaxGUIInput::ResizingWindowSize = SDK::FVector2D();
-
-RaaxGUI::Window* RaaxGUIInput::DraggingWindow = nullptr;
-SDK::FVector2D RaaxGUIInput::DraggingWindowOffset = SDK::FVector2D();
-SDK::FVector2D RaaxGUIInput::DraggingWindowOriginal = SDK::FVector2D();
-SDK::FVector2D RaaxGUIInput::DraggingWindowPosition = SDK::FVector2D();
-
 void RaaxGUIInput::SetResizingWindow(RaaxGUI::Window* Window) {
 	RaaxGUIInput::ResizingWindow = Window;
 	RaaxGUIInput::ResizingWindowOffset = RaaxGUIInput::MousePosition - Window->Position;
@@ -55,6 +42,8 @@ void RaaxGUIInput::ProcessResizingWindow() {
 	SDK::FVector2D PotentialNewSize = SDK::FVector2D();
 
 	switch (ResizingWindow->CurrentResizeDirection) {
+// TODO: Fix resizing
+#if 0
 	case RaaxGUI::ResizeDirection::TopLeft:
 		PotentialNewPosition = MousePosition - ResizingWindowOffset;
 		PotentialNewSize = ResizingWindowSize + (ResizingWindowOriginal - MousePosition);
@@ -62,6 +51,8 @@ void RaaxGUIInput::ProcessResizingWindow() {
 		ResizingWindow->FixWindowPosition(PotentialNewPosition);
 		ResizingWindow->FixWindowSize(PotentialNewSize);
 
+		ResizingWindow->Position = PotentialNewPosition;
+		ResizingWindow->Size = PotentialNewSize;
 		break;
 	case RaaxGUI::ResizeDirection::TopRight:
 		PotentialNewPosition = SDK::FVector2D(ResizingWindowOriginal.X, MousePosition.Y - ResizingWindowOffset.Y);
@@ -69,6 +60,9 @@ void RaaxGUIInput::ProcessResizingWindow() {
 
 		ResizingWindow->FixWindowPosition(PotentialNewPosition);
 		ResizingWindow->FixWindowSize(PotentialNewSize);
+
+		ResizingWindow->Position = PotentialNewPosition;
+		ResizingWindow->Size = PotentialNewSize;
 
 		break;
 	case RaaxGUI::ResizeDirection::BottomLeft:
@@ -78,11 +72,17 @@ void RaaxGUIInput::ProcessResizingWindow() {
 		ResizingWindow->FixWindowPosition(PotentialNewPosition);
 		ResizingWindow->FixWindowSize(PotentialNewSize);
 
+		ResizingWindow->Position = PotentialNewPosition;
+		ResizingWindow->Size = PotentialNewSize;
+
 		break;
+#endif
 	case RaaxGUI::ResizeDirection::BottomRight:
 		PotentialNewSize = MousePosition - ResizingWindowOriginal;
 
 		ResizingWindow->FixWindowSize(PotentialNewSize);
+
+		ResizingWindow->Size = PotentialNewSize;
 
 		break;
 	}
@@ -93,46 +93,43 @@ void RaaxGUIInput::Tick() {
 
 	// Handle window order and dragging
 	if (Input::IsKeyDown(Input::KeyName::LeftMouseButton)) {
-		if (DraggingWindow) {
-			ProcessDraggingWindow();
-		}
-		else if (ResizingWindow) {
-			ProcessResizingWindow();
-		}
-		else if (Input::WasKeyJustPressed(Input::KeyName::LeftMouseButton)) {
-			std::vector ReverseWindowsTemp = RaaxGUI::GetContext()->Windows;
+		if (Input::WasKeyJustPressed(Input::KeyName::LeftMouseButton)) {
+			std::vector ReverseWindowsTemp = RaaxGUI::GetContext()->RenderQue.Windows;
 			std::reverse(ReverseWindowsTemp.begin(), ReverseWindowsTemp.end());
 
 			for (auto Window : ReverseWindowsTemp) {
 				if (Window->Open) {
 					if (Window->IsInResizeBounds(MousePosition)) {
-						DEBUG_LOG(skCrypt("Found window to move up 2").decrypt());
-						Window->OnClick();
+						Window->OnClickBegin(MousePosition);
 
 						SetResizingWindow(Window);
+
+						ClickedWindow = Window;
+
 						break;
 					}
 					else if (Window->IsInMenuBounds(MousePosition)) {
-						DEBUG_LOG(skCrypt("Found window to move up").decrypt());
-						Window->OnClick();
+						Window->OnClickBegin(MousePosition);
 
-						if (Window->IsInDragBounds(MousePosition)) {
+						if (Window->ShouldDrag(MousePosition)) {
 							SetDraggingWindow(Window);
-							break;
 						}
+
+						ClickedWindow = Window;
+
+						break;
 					}
 				}
 			}
 		}
+		else {
+			if (DraggingWindow) ProcessDraggingWindow();
+			if (ResizingWindow) ProcessResizingWindow();
+		}
 	}
 	else {
-		if (DraggingWindow) {
-			DEBUG_LOG(skCrypt("Clearing dragging window").decrypt());
-			ClearDraggingWindow();
-		}
-		if (ResizingWindow) {
-			DEBUG_LOG(skCrypt("Clearing resizing window").decrypt());
-			ClearResizingWindow();
-		}
+		if (DraggingWindow) ClearDraggingWindow();
+		if (ResizingWindow) ClearResizingWindow();
+		if (ClickedWindow) ClickedWindow->OnClickEnd();
 	}
 }

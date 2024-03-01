@@ -5,7 +5,6 @@
 #include "../../../Configs/Config.h"
 
 void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
-	// CONVERT TO ENGINE KEY DETECTION
 	if (Input::IsKeyDown(Input::KeyName::RightMouseButton)) {
 		TargetToAimot.LocalInfo.IsTargeting = true;
 
@@ -15,11 +14,5 @@ void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
 	}
 	else {
 		TargetToAimot.LocalInfo.IsTargeting = false;
-	}
-
-	if (TargetToAimot.GlobalInfo.Type == Target::TargetType::ClosePlayer || TargetToAimot.GlobalInfo.Type == Target::TargetType::FarPlayer) {
-		//if (TargetToAimot.GlobalInfo.PawnCache.AnyBoneVisible == false) {
-		//	TargetToAimot.ResetTarget();
-		//}
 	}
 }

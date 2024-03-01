@@ -5,6 +5,7 @@
 
 void Hooks::GetPlayerViewpoint::GetPlayerViewpoint(void* this_, SDK::FVector* Location, SDK::FRotator* Rotation) {
 	GetPlayerViewpointOriginal(this_, Location, Rotation);
+	//spoof_call<void>(GetPlayerViewpointOriginal, this_, Location, Rotation);
 
 	if (!Config::Aimbot::SilentAim) return;
 	if (!Actors::MainTarget.LocalInfo.IsTargeting && Config::Aimbot::UseAimKeyForSilent) return;

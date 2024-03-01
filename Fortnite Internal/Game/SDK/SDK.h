@@ -102,6 +102,10 @@ namespace SDK {
 		}
 
 		namespace Functions {
+			namespace Actor {
+				inline void* K2_SetActorRotation;
+			}
+
 			namespace Canvas {
 				inline void* K2_DrawLine;
 				inline void* K2_DrawText;
@@ -112,6 +116,11 @@ namespace SDK {
 			namespace KismetSystemLibrary {
 				inline void* GetEngineVersion;
 				inline void* LineTraceSingle;
+			}
+
+			namespace KismetMathLibrary {
+				inline void* FindLookAtRotation;
+				inline void* GetForwardVector;
 			}
 
 			namespace GameplayStatics {
@@ -129,6 +138,7 @@ namespace SDK {
 				inline void* WasInputKeyJustPressed;
 				inline void* IsInputKeyDown;
 				inline void* ClientSetRotation;
+				inline void* SetControlRotation;
 				inline void* GetMousePosition;
 			}
 
@@ -140,6 +150,10 @@ namespace SDK {
 				inline void* GetBoneName;
 				inline void* GetSocketLocation;
 			}
+
+			inline uintptr_t AppendString = 0x0;
+			inline uintptr_t FNameConstructor = 0x0;
+			inline uintptr_t LineTraceSingle = 0x0;
 		}
 	}
 

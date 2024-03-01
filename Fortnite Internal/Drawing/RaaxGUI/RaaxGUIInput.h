@@ -1,31 +1,33 @@
 #pragma once
-#include <Windows.h>
-#include <string>
-#include "../../Game/SDK/Classes/Basic.h"
 #include "RaaxGUI.h"
 
-class RaaxGUIInput {
-public:
-	static SDK::FVector2D MousePosition;
-	static SDK::FVector2D MousePositionOnClicked;
+#include "../../Game/SDK/Classes/Basic.h"
 
-	static RaaxGUI::Window* ResizingWindow;
-	static SDK::FVector2D ResizingWindowOffset;
-	static SDK::FVector2D ResizingWindowOriginal;
-	static SDK::FVector2D ResizingWindowSize;
+namespace RaaxGUIInput {
+	inline SDK::FVector2D MousePosition;
+	inline SDK::FVector2D MousePositionOnClicked;
 
-	static RaaxGUI::Window* DraggingWindow;
-	static SDK::FVector2D DraggingWindowOffset;
-	static SDK::FVector2D DraggingWindowOriginal;
-	static SDK::FVector2D DraggingWindowPosition;
-public:
-	static void SetResizingWindow(RaaxGUI::Window* Window);
-	static void ClearResizingWindow();
-	static void ProcessResizingWindow();
+	inline RaaxGUI::Window* ClickedWindow;
 
-	static void SetDraggingWindow(RaaxGUI::Window* Window);
-	static void ClearDraggingWindow();
-	static void ProcessDraggingWindow();
+	inline RaaxGUI::Window* ResizingWindow;
+	inline SDK::FVector2D ResizingWindowOffset;
+	inline SDK::FVector2D ResizingWindowOriginal;
+	inline SDK::FVector2D ResizingWindowSize;
 
-	static void Tick();
+	inline RaaxGUI::Window* DraggingWindow;
+	inline SDK::FVector2D DraggingWindowOffset;
+	inline SDK::FVector2D DraggingWindowOriginal;
+	inline SDK::FVector2D DraggingWindowPosition;
+
+
+
+	void SetResizingWindow(RaaxGUI::Window* Window);
+	void ClearResizingWindow();
+	void ProcessResizingWindow();
+
+	void SetDraggingWindow(RaaxGUI::Window* Window);
+	void ClearDraggingWindow();
+	void ProcessDraggingWindow();
+
+	void Tick();
 };

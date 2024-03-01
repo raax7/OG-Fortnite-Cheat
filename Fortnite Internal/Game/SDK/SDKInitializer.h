@@ -138,11 +138,28 @@ public:
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
-	static int32_t FindChildPropertiesOffset()
-	{
+	static int32_t FindChildPropertiesOffset() {
 		uint8* ObjA = (uint8*)SDK::UObject::FindObjectFast("Color");
 		uint8* ObjB = (uint8*)SDK::UObject::FindObjectFast("Guid");
 
 		return Memory::GetValidPointerOffset(ObjA, ObjB, SDK::UStruct::SuperOffset + 0x10, 0x80);
+	}
+	// CREDITS TO: Dumper-7
+	static int32_t FindFunctionFlagsOffset() {
+		std::vector<std::pair<void*, SDK::EFunctionFlags>> Infos;
+
+		Infos.push_back({ SDK::UObject::FindObjectFast("WasInputKeyJustPressed"), SDK::EFunctionFlags::Final | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public | SDK::EFunctionFlags::BlueprintCallable | SDK::EFunctionFlags::BlueprintPure | SDK::EFunctionFlags::Const });
+		Infos.push_back({ SDK::UObject::FindObjectFast("ToggleSpeaking"), SDK::EFunctionFlags::Exec | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public });
+		Infos.push_back({ SDK::UObject::FindObjectFast("SwitchLevel"), SDK::EFunctionFlags::Exec | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public });
+
+		int32 Ret = Memory::FindOffset(Infos);
+
+		if (Ret == 0x28)
+		{
+			for (auto& [_, Flags] : Infos)
+				Flags = Flags | SDK::EFunctionFlags::RequiredAPI;
+		}
+
+		return Memory::FindOffset(Infos);
 	}
 };

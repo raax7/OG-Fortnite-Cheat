@@ -1,25 +1,29 @@
 #include <Windows.h>
+#include <cstdlib>
 
-#include "Game/SDK/SDK.h"
-#include "Hooks/Hooks.h"
 #include "Drawing/RaaxGUI/RaaxGUI.h"
 #include "Game/Input/Input.h"
+#include "Game/SDK/SDK.h"
+#include "Hooks/Hooks.h"
+
+#include "Utilities/LazyImporter.h"
 
 #include "Globals.h"
+#include "Utilities/Logger.h"
 
 // TO-DO:
 // - Convert menu to a class (ONGOING)
 // - Add a pickaxe check for weakspot aimbot
-// - Convert FOV size to camera degrees instead of pixels
+// - Convert FOV size to camera degrees instead of pixelss
 // - Add a batch line processor for better line outlne handling
 // - Fix struct offset grabbing not working on new UProperty handling
 // - Add a proper config system
-// - Move all class functions to a BLANK_function.cpp file
 // - Test font size with float UFont::ScalingFactor
-// - Convert GetBoneLocation to use GetSocketLocation instead of GetBoneMatrix (incase InitArticulate is thunked out)
 // - Add a PCH
 // - Make everything in Memory.h my own code (no pasting)
+// - Fix spoof_call on LineTraceSingle
 
+// IMPORTANT - Fix buffer overflow with optimisations enabled in compiler settings. (/02) (on FindObjectFast)
 
 // NOTES:
 // GetWeaponStats VFT: UFortItemDefinition[0xD0]
@@ -48,11 +52,11 @@ VOID UnloadThread() {
 #endif // UNLOAD_THREAD
 
 VOID Main() {
-    // Seed random
-    LI_FN(srand).safe()(time(NULL));
-
     // Beep to notify that the cheat has been injected
     LI_FN(Beep).safe()(500, 500);
+
+    // Seed random
+    LI_FN(srand).safe()(time(NULL));
 
 #ifdef _DEBUG
     // Init logger (REPLACE WITH YOUR OWN PATH)
@@ -81,11 +85,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
     {
-#if CREATE_THREAD
+#if INIT_THREAD
         LI_FN(CreateThread).safe()(nullptr, 0, (LPTHREAD_START_ROUTINE)Main, nullptr, 0, nullptr);
-#else // SHOULD_CREATE_THREAD
+#else
         Main();
-#endif // !SHOULD_CREATE_THREAD
+#endif // INIT_THREAD
         break;
     }
     case DLL_THREAD_ATTACH:

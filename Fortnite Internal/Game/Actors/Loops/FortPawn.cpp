@@ -11,6 +11,7 @@
 
 #include "../../../Utilities/Math.h"
 #include "../../Game.h"
+#include "../../../Utilities/Logger.h"
 
 void Actors::FortPawn::Tick() {
 	if (!SDK::GetLocalCanvas()) return;
@@ -29,7 +30,7 @@ void Actors::FortPawn::Tick() {
 		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (!Character) continue;
 		CurrentPlayer.Mesh									= Character->Mesh();									if (!CurrentPlayer.Mesh) continue;
 
-		if (FortPawn == SDK::GetLocalController()->AcknowledgedPawn()) {
+		if (FortPawn == SDK::GetLocalPawn()) {
 			SDK::FVector Bone = CurrentPlayer.Mesh->GetBonePosition(0);
 			LocalPawnCache.Position = Bone;
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
@@ -39,104 +40,23 @@ void Actors::FortPawn::Tick() {
 
 		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
 
-		if (!Features::FortPawnHelper::PopulateBones(CurrentPlayer)) continue;
+		bool DidPopulate2D = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
 		Features::FortPawnHelper::PopulateVisibilities(CurrentPlayer);
 
-		std::vector<SDK::FName> BoneNames(100);
+		CurrentPlayer.IsOnScreen = false;
 
-		//if (FortPawn == Objects::target.Actor) {
-		//	Colour = SDK::FLinearColor(0.9f, 0.5f, 0.1f, 1.f);
-		//}
+		for (int i = 0; i < CurrentPlayer.BoneRegister2D.size(); i++) {
+			if (CurrentPlayer.BoneRegister2D[i] == 0 && CurrentPlayer.BoneRegister2D[i] == 0) continue;
 
-		float Top		= FLT_MAX;
-		float Bottom	= FLT_MIN;
-		float Left		= FLT_MAX;
-		float Right		= FLT_MIN;
-
-		for (int i2 = 0; i2 < CurrentPlayer.BoneRegister2D.size(); i2++) {
-			if (i2 == Features::FortPawnHelper::Bone::None) continue;
-
-			if (CurrentPlayer.BoneRegister2D[i2].X && CurrentPlayer.BoneRegister2D[i2].Y) {
-				SDK::FVector2D BonePos = CurrentPlayer.BoneRegister2D[i2];
-
-				if (!(BonePos.X > 0) && !(BonePos.X < Game::ScreenWidth)) continue;
-				if (!(BonePos.Y > 0) && !(BonePos.Y < Game::ScreenHeight)) continue;
-
-				if (BonePos.Y < Top)
-					Top = BonePos.Y;
-				if (BonePos.Y > Bottom)
-					Bottom = BonePos.Y;
-				if (BonePos.X < Left)
-					Left = BonePos.X;
-				if (BonePos.X > Right)
-					Right = BonePos.X;
+			if (Math::IsOnScreen(CurrentPlayer.BoneRegister2D[i])) {
+				CurrentPlayer.IsOnScreen = true;
 			}
 		}
-
-		// Magic numbers for good box size
-		float LeftRightOffset = (Right - Left) * 0.36f;
-		float TopBottomOffset = (Bottom - Top) * 0.22f;
-
-		SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75f));
-		SDK::FVector2D topRight(Right + LeftRightOffset, Top - TopBottomOffset);
 
 		CurrentPlayer.DistanceFromLocal = LocalPawnCache.Position.Distance(CurrentPlayer.BoneRegister[Features::FortPawnHelper::Bone::Root]) / 100.f;
 
 		// Hardcoded max distance, should move to bone population for optimisation
 		if (CurrentPlayer.DistanceFromLocal > 500.f) continue;
-
-		float MaxDistance = 150.0f;
-		float MinFontSize = 10.0f;
-		float MaxFontSize = 20.0f;
-		float FontSize = MaxFontSize - (MaxFontSize - MinFontSize) * (CurrentPlayer.DistanceFromLocal / MaxDistance);
-		FontSize = (FontSize < MinFontSize) ? MinFontSize : ((FontSize > MaxFontSize) ? MaxFontSize : FontSize);
-
-		bool BoneVisible = false;
-
-		for (const auto& Pair : Features::FortPawnHelper::Bone::SkeletonBonePairs) {
-			int BoneIDs[2] = { (int)Pair.first, (int)Pair.second };
-			SDK::FVector2D ScreenPos[2];
-
-			bool BoneVisibleToPlayer = false;
-			bool IsValidPair = true;
-
-			for (int i = 0; i < 2; ++i) {
-				int BoneID = BoneIDs[i];
-
-				if (BoneID < -1 || BoneID >= 99) {
-					IsValidPair = false;
-					break;
-				}
-
-				ScreenPos[i] = CurrentPlayer.BoneRegister2D[BoneID];
-
-				if (CurrentPlayer.BoneVisibilities[BoneID]) {
-					BoneVisibleToPlayer = true;
-				}
-
-				// Validate screen positions
-				if (!Math::IsOnScreen(ScreenPos[i])) {
-					IsValidPair = false;
-					break;
-				}
-			}
-
-			if (!IsValidPair) {
-				continue;
-			}
-
-			BoneVisible = true;
-
-			if (Config::Visuals::Players::Skeleton) {
-				Drawing::Line(
-					SDK::FVector2D(ScreenPos[0].X, ScreenPos[0].Y),
-					SDK::FVector2D(ScreenPos[1].X, ScreenPos[1].Y),
-					1,
-					BoneVisibleToPlayer ? SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f) : SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f),
-					false
-				);
-			}
-		}
 
 		// Update any bone visibility
 		CurrentPlayer.AnyBoneVisible = false;
@@ -147,39 +67,128 @@ void Actors::FortPawn::Tick() {
 			}
 		}
 
-		SDK::FLinearColor Colour = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
-		if (CurrentPlayer.AnyBoneVisible) {
-			Colour = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
-		}
+		if (DidPopulate2D) {
+			//if (FortPawn == Objects::target.Actor) {
+			//	Colour = SDK::FLinearColor(0.9f, 0.5f, 0.1f, 1.f);
+			//}
 
-		if (BoneVisible){
-			if (Config::Visuals::Players::Enabled) {
-				if (Config::Visuals::Players::Box) {
-					if (CurrentPlayer.DistanceFromLocal > 50) {
-						Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 1, Colour, false);
+			float Top		= FLT_MAX;
+			float Bottom	= FLT_MIN;
+			float Left		= FLT_MAX;
+			float Right		= FLT_MIN;
+
+			for (int i2 = 0; i2 < CurrentPlayer.BoneRegister2D.size(); i2++) {
+				if (i2 == Features::FortPawnHelper::Bone::None) continue;
+
+				if (CurrentPlayer.BoneRegister2D[i2].X && CurrentPlayer.BoneRegister2D[i2].Y) {
+					SDK::FVector2D BonePos = CurrentPlayer.BoneRegister2D[i2];
+
+					if (!(BonePos.X > 0) && !(BonePos.X < Game::ScreenWidth)) continue;
+					if (!(BonePos.Y > 0) && !(BonePos.Y < Game::ScreenHeight)) continue;
+
+					if (BonePos.Y < Top)
+						Top = BonePos.Y;
+					if (BonePos.Y > Bottom)
+						Bottom = BonePos.Y;
+					if (BonePos.X < Left)
+						Left = BonePos.X;
+					if (BonePos.X > Right)
+						Right = BonePos.X;
+				}
+			}
+
+			// Magic numbers for good box size
+			float LeftRightOffset = (Right - Left) * 0.36f;
+			float TopBottomOffset = (Bottom - Top) * 0.22f;
+
+			SDK::FVector2D bottomLeft(Left - LeftRightOffset, Bottom + (TopBottomOffset * 0.75f));
+			SDK::FVector2D topRight(Right + LeftRightOffset, Top - TopBottomOffset);
+
+			float MaxDistance = 150.0f;
+			float MinFontSize = 10.0f;
+			float MaxFontSize = 20.0f;
+			float FontSize = MaxFontSize - (MaxFontSize - MinFontSize) * (CurrentPlayer.DistanceFromLocal / MaxDistance);
+			FontSize = (FontSize < MinFontSize) ? MinFontSize : ((FontSize > MaxFontSize) ? MaxFontSize : FontSize);
+
+			bool BoneVisible = false;
+
+			for (const auto& Pair : Features::FortPawnHelper::Bone::SkeletonBonePairs) {
+				int BoneIDs[2] = { (int)Pair.first, (int)Pair.second };
+				SDK::FVector2D ScreenPos[2];
+
+				bool BoneVisibleToPlayer = false;
+				bool IsValidPair = true;
+
+				for (int i = 0; i < 2; ++i) {
+					int BoneID = BoneIDs[i];
+
+					if (BoneID < -1 || BoneID >= 99) {
+						IsValidPair = false;
+						break;
 					}
-					else {
-						Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 2, Colour, false);
+
+					ScreenPos[i] = CurrentPlayer.BoneRegister2D[BoneID];
+
+					if (CurrentPlayer.BoneVisibilities[BoneID]) {
+						BoneVisibleToPlayer = true;
+					}
+
+					// Validate screen positions
+					if (!Math::IsOnScreen(ScreenPos[i])) {
+						IsValidPair = false;
+						break;
 					}
 				}
 
-				if (Config::Visuals::Players::Name) {
-					SDK::FVector2D PlayerNameTextSize = Drawing::TextSize(CurrentPlayer.PlayerName.ToWString().c_str(), FontSize);
-					SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(topRight.X - ((topRight.X / 2) - (bottomLeft.X / 2)), topRight.Y - PlayerNameTextSize.Y - 1);
+				if (!IsValidPair) {
+					continue;
+				}
 
-					Drawing::Text(CurrentPlayer.PlayerName.ToWString().c_str(), PlayerNameTextPos, FontSize, Colour, true, false, true);
+				BoneVisible = true;
+
+				if (Config::Visuals::Players::Skeleton) {
+					Drawing::Line(
+						SDK::FVector2D(ScreenPos[0].X, ScreenPos[0].Y),
+						SDK::FVector2D(ScreenPos[1].X, ScreenPos[1].Y),
+						1,
+						BoneVisibleToPlayer ? SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f) : SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f),
+						false
+					);
+				}
+			}
+
+			SDK::FLinearColor Colour = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
+			if (CurrentPlayer.AnyBoneVisible) {
+				Colour = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
+			}
+
+			if (BoneVisible){
+				if (Config::Visuals::Players::Enabled) {
+					if (Config::Visuals::Players::Box) {
+						if (CurrentPlayer.DistanceFromLocal > 50) {
+							Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 1, Colour, false);
+						}
+						else {
+							Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 2, Colour, false);
+						}
+					}
+
+					if (Config::Visuals::Players::Name) {
+						SDK::FVector2D PlayerNameTextSize = Drawing::TextSize(CurrentPlayer.PlayerName.ToWString().c_str(), FontSize);
+						SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(topRight.X - ((topRight.X / 2) - (bottomLeft.X / 2)), topRight.Y - PlayerNameTextSize.Y - 1);
+
+						Drawing::Text(CurrentPlayer.PlayerName.ToWString().c_str(), PlayerNameTextPos, FontSize, Colour, true, false, true);
+					}
 				}
 			}
 		}
-
-
 
 		// Aimbot
 		if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (CurrentPlayer.AnyBoneVisible && (!MainTarget.LocalInfo.IsTargeting || !MainTarget.GlobalInfo.TargetActor)) {
 				Features::Aimbot::Target PotentialNewTarget{};
 
-				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer);
+				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer, AimbotCamera);
 				MainTarget.SetTarget(PotentialNewTarget);
 			}
 
@@ -190,7 +199,7 @@ void Actors::FortPawn::Tick() {
 				else {
 					SeenTarget = true;
 
-					Features::Aimbot::PlayerTarget::UpdateTargetInfo(MainTarget, CurrentPlayer, AimbotCamera, FPSScale);
+					Features::Aimbot::PlayerTarget::UpdateTargetInfo(MainTarget, CurrentPlayer, MainCamera, AimbotCamera, FPSScale);
 
 					Features::Aimbot::AimbotTarget(MainTarget);
 				}

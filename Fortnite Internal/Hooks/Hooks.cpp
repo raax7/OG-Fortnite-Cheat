@@ -12,16 +12,18 @@ Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void*
 	DEBUG_LOG(skCrypt("Create VFTHook called").decrypt());
 
 	DWORD OldProtection{};
-	LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection).safe();
+	LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
 
 	Original = reinterpret_cast<T>(VFT[VFTIndex]);
 	VFT[VFTIndex] = Hook;
 
-	LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection).safe();
+	LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
 
 	this->VFT = VFT;
 	this->VFTIndex = VFTIndex;
 	this->Original = Original;
+
+	DEBUG_LOG(skCrypt("Hooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
 }
 Hooks::VFTHook::~VFTHook() {
 	DEBUG_LOG(skCrypt("Destroy VFTHook called").decrypt());
@@ -32,16 +34,18 @@ Hooks::VFTHook::~VFTHook() {
 	}
 
 	DWORD OldProtection{};
-	LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection).safe();
+	LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
 
 	VFT[VFTIndex] = Original;
 
-	LI_FN(VirtualProtect, &VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection).safe();
+	LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
+
+	DEBUG_LOG(skCrypt("Unhooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
 }
 
 void Hooks::Init() {
 	PostRender::Hook = new Hooks::VFTHook(
-		*(void***)(SDK::GetEngine()->GameViewport()),
+		SDK::GetEngine()->GameViewport()->Vft,
 		SDK::Cached::VFT::PostRender,
 		Hooks::PostRender::PostRenderOriginal,
 		Hooks::PostRender::PostRender);

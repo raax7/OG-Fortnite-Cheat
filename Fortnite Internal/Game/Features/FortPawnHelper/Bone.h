@@ -2,11 +2,11 @@
 #include <vector>
 #include "../../SDK/Classes/Basic.h"
 
-#include "../../Actors/Actors.h"
+#include "../../Actors/ActorCache.h"
 
 namespace Features {
     namespace FortPawnHelper {
-        /* @brief Stores the BoneID enum and is used in aimbot to calculate target bone */
+        /* Stores the BoneID enum and is used in aimbot to calculate target bone */
         class Bone {
         public:
             /* Represents the bone names of a FortPawn */
@@ -35,40 +35,42 @@ namespace Features {
 
                 SDK::FName Root;
                 SDK::FName None;
-            };;
+            };
 
             /* The bone names of a FortPawn */
             static BoneNames Names;
 
-            /* Represents the bone IDs of a FortPawn */
+            /* Represents the bone IDs of a FortPawn (THE ORDER OF THE ENUM AFFECTS VARIOUS FUNCTIONS, AVOID CHANGING ORDER) */
             enum BoneID_ : uint8_t {
                 Head = 1,           // "head"
                 Neck = 2,           // "neck_01"
 
-                // There is no chest bone, so this is a dummy value used for the hierarchy, chest should be calculated based on left and right chest bones
-                Chest = 3,          // none
-
-                LeftShoulder = 4,   // "upperarm_l"
-                LeftElbow = 5,	    // "lowerarm_l"
-                LeftHand = 6,	    // "Hand_L"
-                RightShoulder = 7,  // "upperarm_r"
-                RightElbow = 8,	    // "lowerarm_r"
-                RightHand = 9,	    // "hand_r"
-
-                LeftLeg = 10,	    // "thigh_l"
-                LeftKnee = 11,	    // "calf_l"
-                LeftFoot = 12,	    // "foot_l"
-                RightLeg = 13,	    // "thigh_r"
-                RightKnee = 14,	    // "calf_r"
-                RightFoot = 15,	    // "foot_r"
-
-                Pelvis = 16,	        // "pelvis"
-
                 // Bottom contains the root component position. We have two with the same value for code readability
-                Root = 17,          // "Root"
+                Root = 3,           // "Root"
 
-                ChestLeft = 18,
-                ChestRight = 19,
+                ChestLeft = 4,	    // "clavicle_l"
+                ChestRight = 5,    // "clavicle_r"
+
+                // There is no chest bone, so this is a dummy value used for the hierarchy, chest should be calculated based on left and right chest bones
+                Chest = 6,          // none
+
+                LeftShoulder = 7,   // "upperarm_l"
+                LeftElbow = 8,	    // "lowerarm_l"
+                LeftHand = 9,	    // "Hand_L"
+                RightShoulder = 10,  // "upperarm_r"
+                RightElbow = 11,	    // "lowerarm_r"
+                RightHand = 12,	    // "hand_r"
+
+                LeftLeg = 13,	    // "thigh_l"
+                LeftKnee = 14,	    // "calf_l"
+                LeftFoot = 15,	    // "foot_l"
+                RightLeg = 16,	    // "thigh_r"
+                RightKnee = 17,	    // "calf_r"
+                RightFoot = 18,	    // "foot_r"
+
+                Pelvis = 19,	    // "pelvis"
+
+                MAX = 20,           // Max value for looping
 
                 None = 0,		    // "None"
             };
@@ -89,7 +91,7 @@ namespace Features {
             * @param BoneID1 - The ID of the first bone
             * @param BoneID2 - The ID of the second bone
             */
-            static BoneID ChooseBasedOnPreference(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2);
+            static BoneID FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2);
 
             /*
             * @brief Find the best bone to aim at based on the bone hierarchy and visibilities
@@ -108,7 +110,7 @@ namespace Features {
             */
             static SDK::FName GetBoneName(BoneID BoneID);
 
-            /* @brief Initiate bone FNames for GetSocketLocation */
+            /* Initiate bone FNames for GetSocketLocation */
             static void Init();
         };
     }

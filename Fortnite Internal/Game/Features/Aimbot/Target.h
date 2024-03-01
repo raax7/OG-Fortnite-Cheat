@@ -9,19 +9,20 @@ namespace Features {
 		class Target {
 		public:
 			// The type of the target (Affects the priority of the target)
+			// The lower number, the higher the priority
 			enum class TargetType {
 				ClosePlayer = 0,
 				FarPlayer = 1,
 				Weakspot = 2,
 				Other = 3,
 
-				TargetType_MAX = 4,
+				NONE = 4,
 			};
 		private:
 			// Information about the target, not relative to any player
 			struct GlobalTargetInfo {
 				// General information
-				TargetType Type = TargetType::TargetType_MAX;								// The type of the target (Affects the priority of the target)
+				TargetType Type = TargetType::NONE;											// The type of the target (Affects the priority of the target)
 
 				// The target actor information
 				SDK::AActor* TargetActor = nullptr;											// The target actor
@@ -37,20 +38,23 @@ namespace Features {
 
 			// Information about the target, relative to the local player
 			struct LocalTargetInfo {
-				// Target distance information
-				float DistanceFromCrosshair = FLT_MAX;										// The distance from the crosshair in pixels
+				// Target distance information (FLT_MAX so that any value is less than it)
+				float DistanceFromCrosshairPixels = FLT_MAX;								// The distance from the crosshair in pixels
+				float DistanceFromCrosshairDegrees = FLT_MAX;								// The distance from the crosshair in degrees
+				float DistanceFromCrosshairDegreesRealCamera = FLT_MAX;						// The distance from the crosshair in degrees from the REAL camera (used for silent aim FOV checks)
 				float DistanceFromPlayer = FLT_MAX;											// The distance from the local player in meters
 				float SmartTargetingDistance = FLT_MAX;										// The physical distance and the crosshair distance combined (hence smart targeting)
 
 				// Aimbot information
 				bool IsTargeting = false;													// Is the local player currently aimbotting the target
+				bool IsOnScreen = false;													// Is the target on the screen
 
 				SDK::FRotator TargetRotation = SDK::FRotator(0, 0, 0);						// The target rotation to aimbot the target
 				SDK::FRotator TargetRotationWithSmooth = SDK::FRotator(0, 0, 0);			// The target rotation to aimbot the target with smoothing applied
 				SDK::FRotator TargetRotationChange = SDK::FRotator(0, 0, 0);				// The current rotation change required to achieve the target rotation
 
-				int CurrentFOVSize = 0;														// The current FOV size, NOT adjusted for the screen size
-				int CurrentRealFOVSize = 0;													// The current FOV size, adjusted for the screen size
+				int CurrentFOVSizeDegrees = 0;												// The current FOV size in degrees
+				int CurrentFOVSizePixels = 0;												// The current FOV size in pixels
 				float CurrentSmoothing = 0;													// The current smoothing
 			};
 		public:
@@ -103,10 +107,11 @@ namespace Features {
 			 *
 			 * @param Target - The target to update
 			 * @param TargetCache - The target's fort pawn cache
-			 * @param Camera - The local player's camera (optional)
+			 * @param MainCamera - The local player's camera (optional)
+			 * @param AimbotCamera - The aimbot camera (optional) (used for silent aim)
 			 * @param FPSScale - The scale to apply to the smoothing (optional)
 			 */
-			static void UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& Camera = Actors::CameraCache(), const float FPSScale = float());
+			static void UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& MainCamera = Actors::CameraCache(), const Actors::CameraCache& AimbotCamera = Actors::CameraCache(), const float FPSScale = float());
 		};
 
 		/* Represents a building weak spot target, inherits from Target with extended functions for dealing with building weak spot targets */
@@ -119,10 +124,11 @@ namespace Features {
 			 *
 			 * @param Target - The target to update
 			 * @param WeakSpot - The target's building weak spot
-			 * @param Camera - The local player's camera (optional)
+			 * @param MainCamera - The local player's camera (optional)
+			 * @param AimbotCamera - The aimbot camera (optional) (used for silent aim)
 			 * @param FPSScale - The scale to apply to the smoothing (optional)
 			 */
-			static void UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::CameraCache& Camera = Actors::CameraCache(), const float FPSScale = float());
+			static void UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::CameraCache& MainCamera = Actors::CameraCache(), const Actors::CameraCache& AimbotCamera = Actors::CameraCache(), const float FPSScale = float());
 		};
 	}
 }

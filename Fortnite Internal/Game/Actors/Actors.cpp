@@ -6,15 +6,11 @@
 #include "../../Drawing/Drawing.h"
 #include "../../Configs/Config.h"
 #include "../Game.h"
+#include "../../Utilities/Math.h"
+#include "../../Utilities/Logger.h"
 
 void Actors::Tick() {
 	if (SDK::GetLocalCanvas() == nullptr) return;
-
-	// Adjust FOV for screen resolution
-	Config::Aimbot::CloseAim::RealFOV = Config::Aimbot::CloseAim::FOV * ((float)(Game::ScreenHeight) / 1080.f);
-	Config::Aimbot::Standard::RealFOV = Config::Aimbot::Standard::FOV * ((float)(Game::ScreenHeight) / 1080.f);
-	Config::Aimbot::Weakspot::RealFOV = Config::Aimbot::Weakspot::FOV * ((float)(Game::ScreenHeight) / 1080.f);
-	Config::Aimbot::TriggerBot::RealFOV = Config::Aimbot::TriggerBot::FOV * ((float)(Game::ScreenHeight) / 1080.f);
 
 	// Update FPS scale
 	{
@@ -49,10 +45,10 @@ void Actors::Tick() {
 					float RealPitchDistance = MainCamera.Rotation.GetPitchDistance(MainTarget.LocalInfo.TargetRotation);
 					float RealYawDistance = MainCamera.Rotation.GetYawDistance(MainTarget.LocalInfo.TargetRotation);
 
-					if (RealPitchDistance < SilentPitchDistance) {
+					if (std::abs(RealPitchDistance) < std::abs(SilentPitchDistance)) {
 						AimbotCamera.Rotation.Pitch = MainCamera.Rotation.Pitch;
 					}
-					if (RealYawDistance < SilentYawDistance) {
+					if (std::abs(RealYawDistance) < std::abs(SilentYawDistance)) {
 						AimbotCamera.Rotation.Yaw = MainCamera.Rotation.Yaw;
 					}
 				}
@@ -68,11 +64,21 @@ void Actors::Tick() {
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowAimLine && Config::Aimbot::Enabled) {
 				if (MainTarget.GlobalInfo.TargetActor) {
+					// If the target is behind us, we need to flip the aim line (K2_Project is weird with things behind us)
+					SDK::FVector AimLineEnd = SDK::Project3D(MainTarget.GlobalInfo.TargetBonePosition);
+					if (AimLineEnd.Z <= 0.f) {
+						AimLineEnd.Y *= -1;
+						AimLineEnd.X *= -1;
+
+						AimLineEnd.X += Game::ScreenWidth;
+						AimLineEnd.Y += Game::ScreenHeight;
+					}
+
 					if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(MainTarget.GlobalInfo.TargetBonePosition2D.X, MainTarget.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 					}
 					else {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(MainTarget.GlobalInfo.TargetBonePosition2D.X, MainTarget.GlobalInfo.TargetBonePosition2D.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 					}
 				}
 			}
@@ -84,18 +90,18 @@ void Actors::Tick() {
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowFOV && Config::Aimbot::Enabled) {
 				if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer) {
-					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::CloseAim::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::CloseAim::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 				}
 				else if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Weakspot::RealFOV, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Weakspot::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 				}
 				else {
-					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Standard::RealFOV, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Standard::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 				}
 			}
 
 			if (Config::Aimbot::TriggerBot::ShowFOV && Config::Aimbot::TriggerBot::Enabled) {
-				Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::TriggerBot::RealFOV, 32, SDK::FLinearColor(0.75f, 0.25f, 0.75f, 1.f), true);
+				Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::TriggerBot::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(0.75f, 0.25f, 0.75f, 1.f), true);
 			}
 		}
 	}
