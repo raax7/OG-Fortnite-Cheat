@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_map>
+
 #include "../SDK/SDK.h"
 #include "../SDK/Classes/Engine_classes.h"
 
@@ -150,16 +152,25 @@ public:
 		Gamepad_RightTrigger,
 		Gamepad_DPad_Up,
 		Gamepad_DPad_Down,
-		Gamepad_DPad_Right,
 		Gamepad_DPad_Left,
+		Gamepad_DPad_Right,
 		Gamepad_LeftStick_Up,
 		Gamepad_LeftStick_Down,
-		Gamepad_LeftStick_Right,
 		Gamepad_LeftStick_Left,
+		Gamepad_LeftStick_Right,
 		Gamepad_RightStick_Up,
 		Gamepad_RightStick_Down,
+		Gamepad_RightStick_Left,
 		Gamepad_RightStick_Right,
-		Gamepad_RightStick_Left
+
+		KEYNAME_MAX
+	};
+
+	/* Info on key names */
+	struct KeyMapInfo {
+		std::string Name;
+		SDK::FName FName;
+		Input::KeyName KeyName;
 	};
 private:
 	/* Cache info on keystates to avoid multiple checks per frame */
@@ -183,193 +194,15 @@ private:
 		KeyInfoCache WasJustReleased{};
 		KeyInfoCache WasJustPressed{};
 
-		KeyName KeyName;
+
+
+		KeyData() : FName(), Name() {}
+
+		KeyData(SDK::FName FName, std::string Name) : FName(FName), Name(Name) {}
 	};
 
-	/* Cache info on all keys */
-	struct KeysCache {
-		KeyData AnyKey;
-
-		KeyData MouseX;
-		KeyData MouseY;
-		KeyData MouseScrollUp;
-		KeyData MouseScrollDown;
-		KeyData LeftMouseButton;
-		KeyData RightMouseButton;
-		KeyData MiddleMouseButton;
-		KeyData ThumbMouseButton;
-		KeyData ThumbMouseButton2;
-
-		KeyData BackSpace;
-		KeyData Tab;
-		KeyData Enter;
-		KeyData Pause;
-		KeyData CapsLock;
-		KeyData Escape;
-		KeyData SpaceBar;
-		KeyData PageUp;
-		KeyData PageDown;
-		KeyData End;
-		KeyData Home;
-
-		KeyData Left;
-		KeyData Up;
-		KeyData Right;
-		KeyData Down;
-
-		KeyData Insert;
-		KeyData Delete;
-
-		KeyData Zero;
-		KeyData One;
-		KeyData Two;
-		KeyData Three;
-		KeyData Four;
-		KeyData Five;
-		KeyData Six;
-		KeyData Seven;
-		KeyData Eight;
-		KeyData Nine;
-
-		KeyData A;
-		KeyData B;
-		KeyData C;
-		KeyData D;
-		KeyData E;
-		KeyData F;
-		KeyData G;
-		KeyData H;
-		KeyData I;
-		KeyData J;
-		KeyData K;
-		KeyData L;
-		KeyData M;
-		KeyData N;
-		KeyData O;
-		KeyData P;
-		KeyData Q;
-		KeyData R;
-		KeyData S;
-		KeyData T;
-		KeyData U;
-		KeyData V;
-		KeyData W;
-		KeyData X;
-		KeyData Y;
-		KeyData Z;
-
-		KeyData NumPadZero;
-		KeyData NumPadOne;
-		KeyData NumPadTwo;
-		KeyData NumPadThree;
-		KeyData NumPadFour;
-		KeyData NumPadFive;
-		KeyData NumPadSix;
-		KeyData NumPadSeven;
-		KeyData NumPadEight;
-		KeyData NumPadNine;
-
-		KeyData Multiply;
-		KeyData Add;
-		KeyData Subtract;
-		KeyData Decimal;
-		KeyData Divide;
-
-		KeyData F1;
-		KeyData F2;
-		KeyData F3;
-		KeyData F4;
-		KeyData F5;
-		KeyData F6;
-		KeyData F7;
-		KeyData F8;
-		KeyData F9;
-		KeyData F10;
-		KeyData F11;
-		KeyData F12;
-
-		KeyData NumLock;
-		KeyData ScrollLock;
-		KeyData LeftShift;
-		KeyData RightShift;
-		KeyData LeftControl;
-		KeyData RightControl;
-		KeyData LeftAlt;
-		KeyData RightAlt;
-		KeyData LeftCommand;
-		KeyData RightCommand;
-		KeyData Semicolon;
-		KeyData Equals;
-		KeyData Comma;
-		KeyData Underscore;
-		KeyData Period;
-		KeyData Slash;
-		KeyData Tilde;
-		KeyData LeftBracket;
-		KeyData Backslash;
-		KeyData RightBracket;
-		KeyData Quote;
-		KeyData Asterix;
-		KeyData Ampersand;
-		KeyData Caret;
-		KeyData Dollar;
-		KeyData Exclamation;
-		KeyData Colon;
-
-		KeyData A_AccentGrave;
-		KeyData E_AccentGrave;
-		KeyData E_AccentAigu;
-		KeyData C_Cedille;
-
-		KeyData Section;
-
-		KeyData Gamepad_LeftX;
-		KeyData Gamepad_LeftY;
-		KeyData Gamepad_RightX;
-		KeyData Gamepad_RightY;
-		KeyData Gamepad_LeftTriggerAxis;
-		KeyData Gamepad_RightTriggerAxis;
-		KeyData Gamepad_LeftThumbstick;
-		KeyData Gamepad_RightThumbstick;
-		KeyData Gamepad_Special_Left;
-		KeyData Gamepad_Special_Left_X;
-		KeyData Gamepad_Special_Left_Y;
-		KeyData Gamepad_Special_Right;
-		KeyData Gamepad_FaceButton_Bottom;
-		KeyData Gamepad_FaceButton_Right;
-		KeyData Gamepad_FaceButton_Left;
-		KeyData Gamepad_FaceButton_Top;
-		KeyData Gamepad_LeftShoulder;
-		KeyData Gamepad_RightShoulder;
-		KeyData Gamepad_LeftTrigger;
-		KeyData Gamepad_RightTrigger;
-		KeyData Gamepad_DPad_Up;
-		KeyData Gamepad_DPad_Down;
-		KeyData Gamepad_DPad_Right;
-		KeyData Gamepad_DPad_Left;
-		KeyData Gamepad_LeftStick_Up;
-		KeyData Gamepad_LeftStick_Down;
-		KeyData Gamepad_LeftStick_Right;
-		KeyData Gamepad_LeftStick_Left;
-		KeyData Gamepad_RightStick_Up;
-		KeyData Gamepad_RightStick_Down;
-		KeyData Gamepad_RightStick_Right;
-		KeyData Gamepad_RightStick_Left;
-
-		KeyData None;
-	};
-
-
-
-	static KeysCache Keys;
+	static std::unordered_map<KeyName, KeyData> Keys;
 	static MouseCache Mouse;
-private:
-	/*
-	* @brief Get the key data for a specific key
-	* 
-	* @param Key - The key to get the data for
-	*/
-	static KeyData& GetKeyData(KeyName Key);
 public:
 	/*
 	* @brief Get the mouse position
@@ -402,6 +235,33 @@ public:
 	* @return Returns - The mouse position
 	*/
 	static bool WasKeyJustPressed(KeyName Key);
+	/*
+	* @brief Get all the keys that are currently down
+	* 
+	* @return A vector of all the keys that are currently down
+	*/
+	std::vector<Input::KeyName> GetAllDownKeys();
+	/*
+	* @brief Get all the keys that were just released
+	* 
+	* @return A vector of all the keys that were just released
+	*/
+	std::vector<Input::KeyName> GetAllJustReleasedKeys();
+	/*
+	* @brief Get all the keys that were just pressed
+	* 
+	* @return A vector of all the keys that were just pressed
+	*/
+	std::vector<Input::KeyName> GetAllJustPressedKeys();
+
+	/*
+	* @brief Get the key name from a key
+	* 
+	* @param Key - The key to get the name of
+	* 
+	* @return The name of the key
+	*/
+	std::string GetKeyName(Input::KeyName Key);
 
 	/* Init the input cache system */
 	static void Init();

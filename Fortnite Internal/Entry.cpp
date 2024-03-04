@@ -14,7 +14,7 @@
 // TO-DO:
 // - Convert menu to a class (ONGOING)
 // - Add a pickaxe check for weakspot aimbot
-// - Convert FOV size to camera degrees instead of pixelss
+// - Revert FOV back to pixels always, add option for disabling FOV circle entirely
 // - Add a batch line processor for better line outlne handling
 // - Fix struct offset grabbing not working on new UProperty handling
 // - Add a proper config system
@@ -80,7 +80,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                      )
 {
     ThisModule = hModule;
-
+    
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:

@@ -25,6 +25,7 @@ namespace SDK {
 			}
 
 			namespace FortPawn {
+				inline uintptr_t bIsDying;
 				inline uintptr_t CurrentWeapon;
 			}
 
@@ -38,7 +39,7 @@ namespace SDK {
 
 			namespace GameViewportClient {
 				inline uintptr_t World;
-				inline uintptr_t GameInstance;
+				inline uintptr_t GameInstance; // DO NOT DELETE! Required for getting PostRender VFT index
 			}
 
 			namespace GameInstance {
@@ -154,6 +155,12 @@ namespace SDK {
 			inline uintptr_t AppendString = 0x0;
 			inline uintptr_t FNameConstructor = 0x0;
 			inline uintptr_t LineTraceSingle = 0x0;
+		}
+
+		namespace Masks {
+			namespace FortPawn{
+				inline uintptr_t bIsDying;
+			}
 		}
 	}
 

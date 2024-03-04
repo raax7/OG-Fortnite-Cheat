@@ -8,12 +8,15 @@
 namespace SDK {
 	TUObjectArray UObject::ObjectArray;
 
-	int32_t UClass::DefaultObjectOffset;
-	int32_t UClass::CastFlagsOffset;
-	int32_t UStruct::SuperOffset;
-	int32_t UStruct::ChildPropertiesOffset;
-	int32_t UProperty::OffsetOffset;
-	int32_t UFunction::FunctionFlags;
+	uint32 UClass::DefaultObjectOffset;
+	uint32 UClass::CastFlagsOffset;
+	uint32 UStruct::SuperOffset;
+	uint32 UStruct::ChildPropertiesOffset;
+	uint32 UStruct::ChildrenOffset;
+	uint32 UField::NextOffset;
+	uint32 UProperty::OffsetOffset;
+	uint32 UBoolProperty::ByteMaskOffset;
+	uint32 UFunction::FunctionFlagsOffset;
 
 
 
@@ -79,179 +82,6 @@ namespace SDK {
 		return "None";
 	}
 
-	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
-#if 0
-		for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
-			UObject* Object = ObjectArray.GetByIndex(i);
-
-			if (!Object)
-				continue;
-
-			if (Object->IsDefaultObject() || Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct)) {
-				SDK::UStruct* ObjectStruct = Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct) ? ((SDK::UStruct*)Object) : Object->Class;
-
-				std::string ObjectName = ObjectStruct->Name.ToString();
-
-				for (FunctionSearch& Function : Functions) {
-					if (*Function.Function || !ObjectName.ends_with(Function.className))
-						continue;
-
-					SDK::UField* child = ObjectStruct->Children;
-					while (child) {
-						if (child->Name.ToString() == Function.childName) {
-							*Function.Function = child;
-						}
-
-						child = child->Next;
-					}
-				}
-
-				for (Offset_& offset : Offsets) {
-					if (*offset.pOffset || !ObjectName.ends_with(offset.className))
-						continue;
-
-					SDK::FField* child = ObjectStruct->ChildProperties;
-					while (child) {
-						if (child->Name.ToString() == offset.propertyName) {
-							*offset.pOffset = ((SDK::FProperty*)child)->Offset;
-							if (offset.pMask && !*offset.pMask) {
-								*offset.pMask = ((SDK::FBoolProperty*)child)->FieldMask;
-							}
-						}
-
-						child = child->Next;
-					}
-				}
-
-				for (Class_& class_ : Classes) {
-					if (!*class_.pAddress && ObjectName == class_.className)
-						*class_.pAddress = (uintptr_t)ObjectStruct;
-				}
-			}
-		}
-#endif
-
-		DEBUG_LOG(skCrypt("Setting up objects...").decrypt());
-
-		for (int i = 0; i < ObjectArray.Num() && (!Functions.empty() || !Offsets.empty()); ++i) {
-			UObject* Object = ObjectArray.GetByIndex(i);
-
-			if (!Object)
-				continue;
-
-			std::string ObjectName = Object->GetName();
-
-			if (ObjectName.empty())
-				continue;
-
-			if (!Functions.empty()) {
-				if (Object->HasTypeFlag(EClassCastFlags::Function)) {
-					for (auto it = Functions.begin(); it != Functions.end(); ) {
-						FunctionSearch& CurrentFunction = *it;
-
-						if (CurrentFunction.FunctionName == ObjectName) {
-
-							std::string combinedString = CurrentFunction.ClassName + "." + CurrentFunction.FunctionName;
-
-							std::string FullObjectName = Object->GetFullName();
-
-							if (FullObjectName.length() >= combinedString.length() &&
-								FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
-								*CurrentFunction.Function = Object;
-								it = Functions.erase(it);
-							}
-							else {
-								++it;
-							}
-						}
-						else {
-							++it;
-						}
-					}
-				}
-			}
-
-			if (!Offsets.empty()) {
-				for (auto it = Offsets.begin(); it != Offsets.end();) {
-					OffsetSearch& CurrentOffset = *it;
-
-					if (Game::GameVersion >= 12.00) {
-						// In later UE4 versions, they changed how they manage UProperty variables, so we add "Default__" to the beginning of the class name
-						// to find the default object of the class. There is no default object for structs, so we just use the class name
-						std::string DefaultName;
-						if (CurrentOffset.Type == OffsetType::Class) {
-							DefaultName = skCrypt("Default__").decrypt() + CurrentOffset.ClassName;
-						}
-						else {
-							DefaultName = CurrentOffset.ClassName;
-						}
-
-						if (ObjectName == DefaultName) {
-							FField* ChildProperties = Object->Class->ChildProperties();
-
-							if (!ChildProperties) {
-								++it;
-								continue;
-							}
-
-							uint32_t Offset = GetPropertyOffset(ChildProperties, CurrentOffset.PropertyName);
-
-							if (Offset) {
-								*CurrentOffset.Offset = Offset;
-								it = Offsets.erase(it);
-							}
-							else {
-								++it;
-							}
-						}
-						else {
-							++it;
-						}
-					}
-					else {
-						if (CurrentOffset.PropertyName == ObjectName) {
-							std::string combinedString = CurrentOffset.ClassName + "." + CurrentOffset.PropertyName;
-
-							std::string FullObjectName = Object->GetFullName();
-
-							if (FullObjectName.length() >= combinedString.length() &&
-								FullObjectName.substr(FullObjectName.length() - combinedString.length()) == combinedString) {
-								UProperty* Property = reinterpret_cast<SDK::UProperty*>(Object);
-								*CurrentOffset.Offset = GetPropertyOffset(Property);
-								it = Offsets.erase(it);
-							}
-							else {
-								++it;
-							}
-						}
-						else {
-							++it;
-						}
-					}
-				}
-			}
-		}
-
-		if (!Offsets.empty()) {
-			std::string OffsetsNotFoundStr = skCrypt("Offsets not found:\n").decrypt();
-			for (auto& Offset : Offsets) {
-				OffsetsNotFoundStr += Offset.ClassName + skCrypt(".").decrypt() + Offset.PropertyName + skCrypt("\n").decrypt();
-			}
-
-			THROW_ERROR(skCrypt("One or more offsets were not found!\n").decrypt() + OffsetsNotFoundStr, false);
-		}
-		if (!Functions.empty()) {
-			std::string FunctionsNotFoundStr = skCrypt("Functions not found:\n").decrypt();
-			for (auto& Function : Functions) {
-				FunctionsNotFoundStr += Function.ClassName + skCrypt(".").decrypt() + Function.FunctionName + skCrypt("\n").decrypt();
-			}
-
-			THROW_ERROR(skCrypt("One or more functions were not found!").decrypt() + FunctionsNotFoundStr, false);
-		}
-
-		DEBUG_LOG(skCrypt("Setup objects!").decrypt());
-	}
-
 	bool UObject::IsA(class UClass* Clss) const
 	{
 		for (UStruct* Super = Class; Super; Super = Super->Super())
@@ -263,5 +93,129 @@ namespace SDK {
 		}
 
 		return false;
+	}
+
+	bool FField::HasTypeFlag(EClassCastFlags TypeFlag) const
+	{
+		if (Class == nullptr)
+			return false;
+
+		return TypeFlag != EClassCastFlags::None ? Class->CastFlags & TypeFlag : true;
+	}
+
+
+
+	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
+		DEBUG_LOG(skCrypt("Setting up objects...").decrypt());
+
+		std::vector<FunctionSearch> FunctionsNotFound = Functions;
+		std::vector<OffsetSearch> OffsetsNotFound = Offsets;
+
+
+
+		for (int i = 0; i < ObjectArray.Num() && (Functions.empty() == false || Offsets.empty() == false); i++) {
+			UObject* Object = ObjectArray.GetByIndex(i);
+
+			if (!Object)
+				continue;
+
+			// In later UE4 versions, they changed how they managed properties
+			// so we need to add these addional checks to make sure we only get the default object or ScriptStruct
+			if (Game::GameVersion >= 12.00 && Object->IsDefaultObject() == false && Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct) == false)
+				continue;
+			
+			SDK::UStruct* ObjectStruct = Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct) ? ((SDK::UStruct*)Object) : Object->Class;
+			std::string ObjectName = ObjectStruct->Name.ToString();
+
+			for (FunctionSearch& Function : Functions) {
+				if (*Function.Function || ObjectName.ends_with(Function.ClassName) == false)
+					continue;
+
+				SDK::UField* Children = ObjectStruct->Children();
+				while (Children) {
+					if (Children->HasTypeFlag(SDK::EClassCastFlags::Function) && Children->Name.ToString() == Function.FunctionName) {
+						*Function.Function = Children;
+
+						FunctionsNotFound.erase(std::remove(FunctionsNotFound.begin(), FunctionsNotFound.end(), Function), FunctionsNotFound.end());
+					}
+
+					Children = Children->Next();
+				}
+			}
+
+			for (OffsetSearch& Offset : Offsets) {
+				if ((Offset.Offset == nullptr && Offset.Mask == nullptr) || ObjectName.ends_with(Offset.ClassName) == false)
+					continue;
+
+				if (Game::GameVersion >= 12.00) {
+					SDK::FField* ChildProperty = ObjectStruct->ChildProperties();
+					while (ChildProperty) {
+						if (ChildProperty->Name.ToString() == Offset.PropertyName) {
+							if (Offset.Offset != nullptr && *Offset.Offset == 0x0 && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::Property)) {
+								*Offset.Offset = ((SDK::FProperty*)ChildProperty)->Offset;
+							}
+
+							if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
+								*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
+							}
+
+							OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());
+						}
+
+						ChildProperty = ChildProperty->Next;
+					}
+				}
+				else {
+					if (ObjectName.ends_with(Offset.ClassName)) {
+						SDK::UField* Child = ObjectStruct->Children();
+						while (Child) {
+							if (Child->Name.ToString() == Offset.PropertyName) {
+								if (Offset.Offset != nullptr && *Offset.Offset == 0x0 && Child->HasTypeFlag(SDK::EClassCastFlags::Property)) {
+									*Offset.Offset = GetPropertyOffset((SDK::UProperty*)Child);
+								}
+
+								if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && Child->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
+									*Offset.Mask = ((SDK::UBoolProperty*)Child)->ByteMaskOffset;
+								}
+
+								OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());
+							}
+
+							Child = Child->Next();
+						}
+					}
+				}
+			}
+		}
+
+
+
+		if (OffsetsNotFound.empty() == false || FunctionsNotFound.empty() == false) {
+			std::string MissingOffsets;
+			for (OffsetSearch& Offset : OffsetsNotFound) {
+				MissingOffsets += Offset.ClassName + " " + Offset.PropertyName + "\n";
+			}
+
+			std::string MissingFunctions;
+			for (FunctionSearch& Function : FunctionsNotFound) {
+				MissingFunctions += Function.ClassName + " " + Function.FunctionName + "\n";
+			}
+
+			std::string Output = skCrypt("").decrypt();
+
+			if (MissingOffsets.empty() == false) {
+				Output += skCrypt("Missing offsets: \n").decrypt();
+				Output += MissingOffsets;
+			}
+
+			if (MissingFunctions.empty() == false) {
+				Output += skCrypt("\nMissing functions: \n").decrypt();
+				Output += MissingFunctions;
+			}
+			
+			THROW_ERROR(skCrypt("Failed to find all offsets and functions!\n\n").decrypt() + Output, CRASH_ON_ERROR);
+		}
+
+		DEBUG_LOG(skCrypt("Setup objects!").decrypt());
 	}
 }

@@ -81,34 +81,35 @@ private:
 	*/
 	static void WalkVFT(const char* TargetFunctionName, void** VFT, void* TargetFunction, uintptr_t& VFTIndex, int SearchRange);
 public:
-	/* @brief Update the GObject offset (for finding UObjects) */
+	/* Update the GObject offset (for finding UObjects) */
 	static void InitGObjects();
 
-	/* @brief Update the AppendString function offset (for converting FNames to strings) */
+	/* Update the AppendString function offset (for converting FNames to strings) */
 	static void InitAppendString();
 
-	/* @brief Update the FNameConstructor function offset (for creating FNames) */
+	/* Update the FNameConstructor function offset (for creating FNames) */
 	static void InitFNameConstructor();
 
-	/* @brief Update the LineTraceSingle function offset (for visible check) */
+	/* Update the LineTraceSingle function offset (for visible check) */
 	static void InitLineTraceSingle();
 
 
-	/* @brief Update the PostRender VFT index (for engine rendering) */
+	/* Update the PostRender VFT index (for engine rendering) */
 	static void InitPRIndex();
 
-	/* @brief Update the PostRender VFT index (for calling UFunctions) */
+	/* Update the PostRender VFT index (for calling UFunctions) */
 	static void InitPEIndex();
 
-	/* @brief Update the GetPlayerViewpoint VFT index (for SilentAim) */
+	/* Update the GetPlayerViewpoint VFT index (for SilentAim) */
 	static void InitGPVIndex();
 
-	/* @brief Update the GetViewpoint VFT index (for SilentAim) */
+	/* Update the GetViewpoint VFT index (for SilentAim) */
 	static void InitGVIndex();
 
 
+
 	// CREDITS TO: Dumper-7
-	static int32_t FindCastFlagsOffset() {
+	static uint32 FindCastFlagsOffset() {
 		std::vector<std::pair<void*, SDK::EClassCastFlags>> infos = {
 			{ SDK::UObject::FindObjectFast(skCrypt("Actor").decrypt()), SDK::EClassCastFlags::Actor},
 			{ SDK::UObject::FindObjectFast(skCrypt("Class").decrypt()), SDK::EClassCastFlags::Field | SDK::EClassCastFlags::Struct | SDK::EClassCastFlags::Class }
@@ -116,7 +117,7 @@ public:
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
-	static int32_t FindDefaultObjectOffset() {
+	static uint32 FindDefaultObjectOffset() {
 		std::vector<std::pair<void*, void*>> infos = {
 			{ SDK::UObject::FindObjectFast(skCrypt("Object").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Default__Object").decrypt()) },
 			{ SDK::UObject::FindObjectFast(skCrypt("Field").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Default__Field").decrypt()) }
@@ -124,7 +125,7 @@ public:
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
-	static int32_t FindSuperOffset() {
+	static uint32 FindSuperOffset() {
 		std::vector<std::pair<void*, void*>> infos = {
 			{ SDK::UObject::FindObjectFast(skCrypt("Struct").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Field").decrypt()) },
 			{ SDK::UObject::FindObjectFast(skCrypt("Class").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Struct").decrypt()) }
@@ -138,14 +139,14 @@ public:
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
-	static int32_t FindChildPropertiesOffset() {
+	static uint32 FindChildPropertiesOffset() {
 		uint8* ObjA = (uint8*)SDK::UObject::FindObjectFast("Color");
 		uint8* ObjB = (uint8*)SDK::UObject::FindObjectFast("Guid");
 
-		return Memory::GetValidPointerOffset(ObjA, ObjB, SDK::UStruct::SuperOffset + 0x10, 0x80);
+		return Memory::GetValidPointerOffset(ObjA, ObjB, SDK::UStruct::SuperOffset + (sizeof(void*) * 2), 0x80);
 	}
 	// CREDITS TO: Dumper-7
-	static int32_t FindFunctionFlagsOffset() {
+	static uint32 FindFunctionFlagsOffset() {
 		std::vector<std::pair<void*, SDK::EFunctionFlags>> Infos;
 
 		Infos.push_back({ SDK::UObject::FindObjectFast("WasInputKeyJustPressed"), SDK::EFunctionFlags::Final | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public | SDK::EFunctionFlags::BlueprintCallable | SDK::EFunctionFlags::BlueprintPure | SDK::EFunctionFlags::Const });
@@ -161,5 +162,35 @@ public:
 		}
 
 		return Memory::FindOffset(Infos);
+	}
+	// CREDITS TO: Dumper-7
+	static uint32 FindChildrenOffset() {
+		std::vector<std::pair<void*, void*>> Infos;
+
+		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("PlayerController").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("WasInputKeyJustReleased").decrypt(), skCrypt("PlayerController").decrypt())});
+		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Controller").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("UnPossess").decrypt(), skCrypt("Controller").decrypt()) });
+
+		uint32 Ret = Memory::FindOffset(Infos);
+
+		if (Ret == 0x28)
+		{
+			Infos.clear();
+
+			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Vector").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("X").decrypt(), skCrypt("Vector").decrypt()) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Vector4").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("X").decrypt(), skCrypt("Vector4").decrypt()) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Vector2D").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("X").decrypt(), skCrypt("Vector2D").decrypt()) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Guid").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("A").decrypt(), skCrypt("Guid").decrypt()) });
+
+			return Memory::FindOffset(Infos);
+		}
+
+		return Ret;
+	}
+	// CREDITS TO: Dumper-7
+	static uint32 FindUFieldNextOffset() {
+		uint8_t* KismetSystemLibraryChild = reinterpret_cast<uint8_t*>(SDK::UObject::FindObjectFast<SDK::UStruct>(skCrypt("KismetSystemLibrary").decrypt())->Children());
+		uint8_t* KismetStringLibraryChild = reinterpret_cast<uint8_t*>(SDK::UObject::FindObjectFast<SDK::UStruct>(skCrypt("KismetStringLibrary").decrypt())->Children());
+
+		return Memory::GetValidPointerOffset(KismetSystemLibraryChild, KismetStringLibraryChild, 0x20 + 0x08, 0x48);
 	}
 };

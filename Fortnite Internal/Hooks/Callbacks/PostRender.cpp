@@ -5,6 +5,7 @@
 
 #include "../../Utilities/Math.h"
 #include "../../Configs/Config.h"
+#include "../../Utilities/Logger.h"
 
 void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	if (!Canvas) {
@@ -17,7 +18,7 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	Game::ScreenWidth = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeX();
 	Game::ScreenHeight = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeY();
 
-	// Clamp the FOV to targetting FOV issues on extreme FOV's. This does make it innacurate on FOV's above 120, but when is that gonna happen?
+	// Clamp the FOV to fix target issues on extreme FOV's. This does make it innacurate on FOV's above 120, but this doesn't really matter
 	Game::PixelsPerDegree = Game::ScreenWidth / Math::RadiansToDegrees((2 * tan(0.5f * Math::DegreesToRadians(Math::Clamp(Actors::MainCamera.FOV, 0, 120)))));
 
 	Hooks::Tick();

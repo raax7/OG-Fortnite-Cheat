@@ -14,20 +14,29 @@ typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
-enum class OffsetType {
-	Class = 0,
-	Struct = 1,
-};
 struct FunctionSearch {
-	std::string ClassName;
-	std::string FunctionName;
-	void** Function;
+	std::string ClassName;		// The name of the class	
+	std::string FunctionName;	// The name of the function
+	void** Function;			// A pointer to save the function address to
+
+	bool operator==(const FunctionSearch& rhs) {
+		return ClassName == rhs.ClassName
+			&& FunctionName == rhs.FunctionName
+			&& Function == rhs.Function;
+	}
 };
 struct OffsetSearch {
-	std::string ClassName;
-	std::string PropertyName;
-	uintptr_t* Offset;
-	OffsetType Type;
+	std::string ClassName;		// The name of the class
+	std::string PropertyName;	// The name of the property
+	uintptr_t* Offset;			// A pointer to save the offset to
+	uintptr_t* Mask;			// A pointer to save the bitfield mask to
+
+	bool operator==(const OffsetSearch& rhs) {
+		return ClassName == rhs.ClassName
+			&& PropertyName == rhs.PropertyName
+			&& Offset == rhs.Offset
+			&& Mask == rhs.Mask;
+	}
 };
 
 namespace SDK {
@@ -107,6 +116,25 @@ namespace SDK {
 			return nullptr;
 		}
 
+		template<typename UEType = UObject>
+		static UEType* FindObjectFastInOuter(std::string Name, std::string Outer)
+		{
+			for (int i = 0; i < ObjectArray.Num(); ++i)
+			{
+				UObject* Object = ObjectArray.GetByIndex(i);
+
+				if (!Object)
+					continue;
+
+				if (Object->GetName() == Name && Object->Outer->GetName() == Outer)
+				{
+					return reinterpret_cast<UEType*>(Object);
+				}
+			}
+
+			return nullptr;
+		}
+
 
 		static class UClass* FindClass(const std::string& ClassFullName)
 		{
@@ -119,6 +147,7 @@ namespace SDK {
 		}
 
 
+
 		static void SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets);
 
 
@@ -127,15 +156,28 @@ namespace SDK {
 
 
 
+	class FFieldClass
+	{
+	public:
+		FName                                        Name;                                              // (0x00[0x08]) NOT AUTO-GENERATED PROPERTY
+		uint64                                       Id;                                                // (0x08[0x08]) NOT AUTO-GENERATED PROPERTY
+		EClassCastFlags								 CastFlags;                                         // (0x10[0x08]) NOT AUTO-GENERATED PROPERTY
+		uint64										 ClassFlags;                                        // (0x18[0x04]) NOT AUTO-GENERATED PROPERTY
+		uint8                                        Pad_74C3[0x4];                                     // Fixing Size After Last (Predefined) Property  [ Dumper-7 ]
+		FFieldClass*								 SuperClass;                                        // (0x20[0x08]) NOT AUTO-GENERATED PROPERTY
+	};
+
 	class FField
 	{
 	public:
 		void*										 Vft;                                               // (0x00[0x08]) NOT AUTO-GENERATED PROPERTY
-		void*										 Class;                                             // (0x08[0x08]) NOT AUTO-GENERATED PROPERTY
+		FFieldClass*								 Class;												// (0x08[0x08]) NOT AUTO-GENERATED PROPERTY
 		char										 Owner[0x10];                                       // (0x10[0x10]) NOT AUTO-GENERATED PROPERTY
 		FField*										 Next;                                              // (0x20[0x08]) NOT AUTO-GENERATED PROPERTY
 		FName                                        Name;                                              // (0x28[0x10]) NOT AUTO-GENERATED PROPERTY
 		int32                                        Flags;                                             // (0x38[0x04]) NOT AUTO-GENERATED PROPERTY
+	
+		bool HasTypeFlag(EClassCastFlags TypeFlag) const;
 	};
 
 	class FProperty : public FField
@@ -147,18 +189,44 @@ namespace SDK {
 		int32                                        Offset;                                            // (0x4C[0x04]) NOT AUTO-GENERATED PROPERTY
 	};
 
+	class FBoolProperty : public FProperty
+	{
+	public:
+		uint8                                        Pad_74C7[0x28];                                    // Fixing Size After Last (Predefined) Property  [ Dumper-7 ]
+		uint8                                        FieldSize;                                         // (0x78[0x01]) NOT AUTO-GENERATED PROPERTY
+		uint8                                        ByteOffset;                                        // (0x79[0x01]) NOT AUTO-GENERATED PROPERTY
+		uint8                                        ByteMask;                                          // (0x7A[0x01]) NOT AUTO-GENERATED PROPERTY
+		uint8                                        FieldMask;                                         // (0x7B[0x01]) NOT AUTO-GENERATED PROPERTY
+	};
+
+	class UField : public UObject {
+	public:
+		static uint32 NextOffset;
+
+		class UField* Next() {
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return nullptr;
+			return (UField*)(*(uintptr_t*)((uintptr_t)this + NextOffset));
+		}
+	};
+
 	class UStruct : public UObject {
 	public:
-		static int32_t SuperOffset;
-		static int32_t ChildPropertiesOffset;
+		static uint32 SuperOffset;
+		static uint32 ChildPropertiesOffset;
+		static uint32 ChildrenOffset;
 
 		class UStruct* Super() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return nullptr;
 			return (UStruct*)(*(uintptr_t*)((uintptr_t)this + SuperOffset));
 		}
 
+		class UField* Children() {
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return nullptr;
+			return (UField*)(*(uintptr_t*)((uintptr_t)this + ChildrenOffset));
+		}
+
 		class FField* ChildProperties() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return nullptr;
 			return (FField*)(*(uintptr_t*)((uintptr_t)this + ChildPropertiesOffset));
 		}
 	};
@@ -166,31 +234,42 @@ namespace SDK {
 	class UProperty : public UObject
 	{
 	public:
-		static int32_t OffsetOffset;
+		static uint32 OffsetOffset;
 
 		int32 Offset() {
-			if (!this) return 0;
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return 0;
 			return *(int32*)((uintptr_t)this + OffsetOffset);
+		}
+	};
+
+	class UBoolProperty : public UProperty {
+	public:
+		static uint32 ByteMaskOffset;
+
+		uint8 ByteMask() {
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return 0;
+			return *(uint8*)((uintptr_t)this + ByteMaskOffset);
 		}
 	};
 
 	class UClass : public UStruct {
 	public:
-		static int32_t CastFlagsOffset;
-		static int32_t DefaultObjectOffset;
+		static uint32 CastFlagsOffset;
+		static uint32 DefaultObjectOffset;
 
 		enum class EClassCastFlags CastFlags() {
-			if (!this) return EClassCastFlags::None;
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return EClassCastFlags::None;
 			return *(EClassCastFlags*)((uintptr_t)this + CastFlagsOffset);
 		}
+
 		class UObject* DefaultObject() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer((uintptr_t)this) == false) return nullptr;
 			return (UObject*)(*(uintptr_t*)((uintptr_t)this + DefaultObjectOffset));
 		}
 	};
 
 	class UFunction : public UStruct {
 	public:
-		static int32_t FunctionFlags;
+		static uint32 FunctionFlagsOffset;
 	};
 }

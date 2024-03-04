@@ -107,7 +107,7 @@ void SDKInitializer::InitPRIndex() {
 		if (!Obj)
 			continue;
 
-		if (Obj->IsA(SDK::UGameViewportClient::StaticClass()) && !Obj->IsDefaultObject())
+		if (Obj->IsA(SDK::UGameViewportClient::StaticClass()) && Obj->IsDefaultObject() == false)
 		{
 			Vft = static_cast<SDK::UEngine*>(Obj)->Vft;
 			break;
@@ -117,6 +117,8 @@ void SDKInitializer::InitPRIndex() {
 	if (!Vft) {
 		THROW_ERROR(skCrypt("Failed to find VFT for UGameViewportClient!").decrypt(), false);
 	}
+
+	int bSuppressTransitionMessage = (int)SDK::Cached::Offsets::GameViewportClient::GameInstance + sizeof(void*);
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
 	{
@@ -137,9 +139,8 @@ void SDKInitializer::InitPRIndex() {
 		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
 			continue;
 
-		if (Memory::FindPatternInRange({ 0x80, 0xB9, 0x88, 0x00, 0x00, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x30))
+		if (Memory::FindPatternInRange({ 0x80, 0xB9, bSuppressTransitionMessage, 0x00, 0x00, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x30))
 		{
-			// PostRender is always 1 index before DrawTransition
 			SDK::Cached::VFT::PostRender = i;
 			DEBUG_LOG(skCrypt("PostRender VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::PostRender));
 
@@ -147,7 +148,7 @@ void SDKInitializer::InitPRIndex() {
 		}
 	}
 
-	if (!SDK::Cached::VFT::PostRender) {
+	if (SDK::Cached::VFT::PostRender == 0x0) {
 		THROW_ERROR(skCrypt("Failed to find PostRender VFT index!").decrypt(), CRASH_ON_ERROR);
 	}
 }
@@ -173,8 +174,8 @@ void SDKInitializer::InitPEIndex() {
 		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
 			break;
 
-		if (Memory::FindPatternInRange({ 0xF7, -0x1, SDK::UFunction::FunctionFlags, 0x0, 0x0, 0x0, 0x0, 0x04, 0x0, 0x0 }, Resolve32BitRelativeJump(Vft[i]), 0x400)
-			&& Memory::FindPatternInRange({ 0xF7, -0x1, SDK::UFunction::FunctionFlags, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0 }, Resolve32BitRelativeJump(Vft[i]), 0x400))
+		if (Memory::FindPatternInRange({ 0xF7, -0x1, (int32_t)SDK::UFunction::FunctionFlagsOffset, 0x0, 0x0, 0x0, 0x0, 0x04, 0x0, 0x0 }, Resolve32BitRelativeJump(Vft[i]), 0x400)
+			&& Memory::FindPatternInRange({ 0xF7, -0x1, (int32_t)SDK::UFunction::FunctionFlagsOffset, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0 }, Resolve32BitRelativeJump(Vft[i]), 0x400))
 		{
 			SDK::Cached::VFT::ProcessEvent = i;
 			DEBUG_LOG(skCrypt("ProcessEvent VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::ProcessEvent));

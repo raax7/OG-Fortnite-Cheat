@@ -42,15 +42,17 @@ void SDK::Init() {
 		SDKInitializer::InitLineTraceSingle();
 
 		// Init Class Offsets
-		SDK::UProperty::OffsetOffset		= 0x44;
+		SDK::UProperty::OffsetOffset		= 0x44; // Doesn't change (as far as I know)
+		SDK::UBoolProperty::ByteMaskOffset	= 0x72; // Doesn't change (as far as I know)
 		SDK::UClass::DefaultObjectOffset	= SDKInitializer::FindDefaultObjectOffset();
 		SDK::UClass::CastFlagsOffset		= SDKInitializer::FindCastFlagsOffset();
 		SDK::UStruct::SuperOffset			= SDKInitializer::FindSuperOffset();
 		SDK::UStruct::ChildPropertiesOffset = SDKInitializer::FindChildPropertiesOffset();
-		SDK::UFunction::FunctionFlags		= SDKInitializer::FindFunctionFlagsOffset();
+		SDK::UStruct::ChildrenOffset		= SDKInitializer::FindChildrenOffset();
+		SDK::UField::NextOffset 			= SDKInitializer::FindUFieldNextOffset();
+		SDK::UFunction::FunctionFlagsOffset	= SDKInitializer::FindFunctionFlagsOffset();
 
 		// Init VFT Indexes
-		SDKInitializer::InitPRIndex();
 		SDKInitializer::InitPEIndex();
 		SDKInitializer::InitGPVIndex();
 		SDKInitializer::InitGVIndex();
@@ -73,62 +75,66 @@ void SDK::Init() {
 
 	// Init Cached Objects
 	{
-		std::vector<FunctionSearch> Functions{
-			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_DrawLine").decrypt(),				&SDK::Cached::Functions::Canvas::K2_DrawLine },
-			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_DrawText").decrypt(),				&SDK::Cached::Functions::Canvas::K2_DrawText },
-			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_TextSize").decrypt(),				&SDK::Cached::Functions::Canvas::K2_TextSize },
-			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_Project").decrypt(),				&SDK::Cached::Functions::Canvas::K2_Project },
-			FunctionSearch { skCrypt("GameplayStatics").decrypt(),		skCrypt("GetAllActorsOfClass").decrypt(),		&SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass },
-			FunctionSearch { skCrypt("PlayerCameraManager").decrypt(),	skCrypt("GetCameraLocation").decrypt(),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraLocation },
-			FunctionSearch { skCrypt("PlayerCameraManager").decrypt(),	skCrypt("GetCameraRotation").decrypt(),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraRotation },
-			FunctionSearch { skCrypt("PlayerCameraManager").decrypt(),	skCrypt("GetFOVAngle").decrypt(),				&SDK::Cached::Functions::PlayerCameraManager::GetFOVAngle },
-			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("IsInputKeyDown").decrypt(),			&SDK::Cached::Functions::PlayerController::IsInputKeyDown },
-			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("WasInputKeyJustReleased").decrypt(),	&SDK::Cached::Functions::PlayerController::WasInputKeyJustReleased },
-			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("WasInputKeyJustPressed").decrypt(),	&SDK::Cached::Functions::PlayerController::WasInputKeyJustPressed },
-			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("GetMousePosition").decrypt(),			&SDK::Cached::Functions::PlayerController::GetMousePosition },
-			FunctionSearch { skCrypt("Controller").decrypt(),			skCrypt("ClientSetRotation").decrypt(),			&SDK::Cached::Functions::PlayerController::ClientSetRotation },
-			FunctionSearch { skCrypt("Controller").decrypt(),			skCrypt("SetControlRotation").decrypt(),		&SDK::Cached::Functions::PlayerController::SetControlRotation },
-			FunctionSearch { skCrypt("KismetSystemLibrary").decrypt(),	skCrypt("LineTraceSingle").decrypt(),			&SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle },
-			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("FindLookAtRotation").decrypt(),		&SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation },
-			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("GetForwardVector").decrypt(),			&SDK::Cached::Functions::KismetMathLibrary::GetForwardVector },
-			FunctionSearch { skCrypt("PlayerState").decrypt(),			skCrypt("GetPlayerName").decrypt(),				&SDK::Cached::Functions::PlayerState::GetPlayerName },
-			FunctionSearch { skCrypt("SkinnedMeshComponent").decrypt(),	skCrypt("GetBoneName").decrypt(),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName },
-			FunctionSearch { skCrypt("SceneComponent").decrypt(),		skCrypt("GetSocketLocation").decrypt(),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation },
-			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorRotation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorRotation },
+		std::vector<FunctionSearch> Functions {
+			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_DrawLine").decrypt(),				&SDK::Cached::Functions::Canvas::K2_DrawLine							},
+			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_DrawText").decrypt(),				&SDK::Cached::Functions::Canvas::K2_DrawText							},
+			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_TextSize").decrypt(),				&SDK::Cached::Functions::Canvas::K2_TextSize							},
+			FunctionSearch { skCrypt("Canvas").decrypt(),				skCrypt("K2_Project").decrypt(),				&SDK::Cached::Functions::Canvas::K2_Project								},
+			FunctionSearch { skCrypt("GameplayStatics").decrypt(),		skCrypt("GetAllActorsOfClass").decrypt(),		&SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass			},
+			FunctionSearch { skCrypt("PlayerCameraManager").decrypt(),	skCrypt("GetCameraLocation").decrypt(),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraLocation			},
+			FunctionSearch { skCrypt("PlayerCameraManager").decrypt(),	skCrypt("GetCameraRotation").decrypt(),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraRotation			},
+			FunctionSearch { skCrypt("PlayerCameraManager").decrypt(),	skCrypt("GetFOVAngle").decrypt(),				&SDK::Cached::Functions::PlayerCameraManager::GetFOVAngle				},
+			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("IsInputKeyDown").decrypt(),			&SDK::Cached::Functions::PlayerController::IsInputKeyDown				},
+			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("WasInputKeyJustReleased").decrypt(),	&SDK::Cached::Functions::PlayerController::WasInputKeyJustReleased		},
+			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("WasInputKeyJustPressed").decrypt(),	&SDK::Cached::Functions::PlayerController::WasInputKeyJustPressed		},
+			FunctionSearch { skCrypt("PlayerController").decrypt(),		skCrypt("GetMousePosition").decrypt(),			&SDK::Cached::Functions::PlayerController::GetMousePosition				},
+			FunctionSearch { skCrypt("Controller").decrypt(),			skCrypt("ClientSetRotation").decrypt(),			&SDK::Cached::Functions::PlayerController::ClientSetRotation			},
+			FunctionSearch { skCrypt("Controller").decrypt(),			skCrypt("SetControlRotation").decrypt(),		&SDK::Cached::Functions::PlayerController::SetControlRotation			},
+			FunctionSearch { skCrypt("KismetSystemLibrary").decrypt(),	skCrypt("LineTraceSingle").decrypt(),			&SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle			},
+			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("FindLookAtRotation").decrypt(),		&SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation			},
+			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("GetForwardVector").decrypt(),			&SDK::Cached::Functions::KismetMathLibrary::GetForwardVector			},
+			FunctionSearch { skCrypt("PlayerState").decrypt(),			skCrypt("GetPlayerName").decrypt(),				&SDK::Cached::Functions::PlayerState::GetPlayerName						},
+			FunctionSearch { skCrypt("SkinnedMeshComponent").decrypt(),	skCrypt("GetBoneName").decrypt(),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName				},
+			FunctionSearch { skCrypt("SceneComponent").decrypt(),		skCrypt("GetSocketLocation").decrypt(),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation		},
+			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorRotation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorRotation						},
 		};
 
-		std::vector<OffsetSearch> Offsets{
-			OffsetSearch { skCrypt("Engine").decrypt(),					skCrypt("GameViewport").decrypt(),				&SDK::Cached::Offsets::Engine::GameViewport,					OffsetType::Class },
-			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("World").decrypt(),						&SDK::Cached::Offsets::GameViewportClient::World,				OffsetType::Class },
-			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("GameInstance").decrypt(),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		OffsetType::Class },
-			OffsetSearch { skCrypt("GameInstance").decrypt(),			skCrypt("LocalPlayers").decrypt(),				&SDK::Cached::Offsets::GameInstance::LocalPlayers,				OffsetType::Class },
-			OffsetSearch { skCrypt("Player").decrypt(),					skCrypt("PlayerController").decrypt(),			&SDK::Cached::Offsets::Player::PlayerController,				OffsetType::Class },
-			OffsetSearch { skCrypt("PlayerController").decrypt(),		skCrypt("AcknowledgedPawn").decrypt(),			&SDK::Cached::Offsets::PlayerController::AcknowledgedPawn,		OffsetType::Class },
-			OffsetSearch { skCrypt("PlayerController").decrypt(),		skCrypt("PlayerCameraManager").decrypt(),		&SDK::Cached::Offsets::PlayerController::PlayerCameraManager,	OffsetType::Class },
-			OffsetSearch { skCrypt("HUD").decrypt(),					skCrypt("DebugCanvas").decrypt(),				&SDK::Cached::Offsets::HUD::Canvas,								OffsetType::Class },
-			OffsetSearch { skCrypt("Pawn").decrypt(),					skCrypt("PlayerState").decrypt(),				&SDK::Cached::Offsets::Pawn::PlayerState,						OffsetType::Class },
-			OffsetSearch { skCrypt("Character").decrypt(),				skCrypt("Mesh").decrypt(),						&SDK::Cached::Offsets::Character::Mesh,							OffsetType::Class },
-			OffsetSearch { skCrypt("Font").decrypt(),					skCrypt("LegacyFontSize").decrypt(),			&SDK::Cached::Offsets::Font::LegacyFontSize,					OffsetType::Class },
+		std::vector<OffsetSearch> Offsets {
+			OffsetSearch { skCrypt("Engine").decrypt(),					skCrypt("GameViewport").decrypt(),				&SDK::Cached::Offsets::Engine::GameViewport,					nullptr },
+			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("World").decrypt(),						&SDK::Cached::Offsets::GameViewportClient::World,				nullptr },
+			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("GameInstance").decrypt(),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		nullptr },
+			OffsetSearch { skCrypt("GameInstance").decrypt(),			skCrypt("LocalPlayers").decrypt(),				&SDK::Cached::Offsets::GameInstance::LocalPlayers,				nullptr },
+			OffsetSearch { skCrypt("Player").decrypt(),					skCrypt("PlayerController").decrypt(),			&SDK::Cached::Offsets::Player::PlayerController,				nullptr },
+			OffsetSearch { skCrypt("PlayerController").decrypt(),		skCrypt("AcknowledgedPawn").decrypt(),			&SDK::Cached::Offsets::PlayerController::AcknowledgedPawn,		nullptr },
+			OffsetSearch { skCrypt("PlayerController").decrypt(),		skCrypt("PlayerCameraManager").decrypt(),		&SDK::Cached::Offsets::PlayerController::PlayerCameraManager,	nullptr },
+			OffsetSearch { skCrypt("HUD").decrypt(),					skCrypt("DebugCanvas").decrypt(),				&SDK::Cached::Offsets::HUD::Canvas,								nullptr },
+			OffsetSearch { skCrypt("Pawn").decrypt(),					skCrypt("PlayerState").decrypt(),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
+			OffsetSearch { skCrypt("Character").decrypt(),				skCrypt("Mesh").decrypt(),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
+			OffsetSearch { skCrypt("Font").decrypt(),					skCrypt("LegacyFontSize").decrypt(),			&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
 
-			OffsetSearch { skCrypt("FortPickup").decrypt(),				skCrypt("PrimaryPickupItemEntry").decrypt(),	&SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry,		OffsetType::Class },
-			OffsetSearch { skCrypt("FortItemDefinition").decrypt(),		skCrypt("DisplayName").decrypt(),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			OffsetType::Class },
-			OffsetSearch { skCrypt("FortItemDefinition").decrypt(),		skCrypt("Tier").decrypt(),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				OffsetType::Class },
-			OffsetSearch { skCrypt("Actor").decrypt(),					skCrypt("RootComponent").decrypt(),				&SDK::Cached::Offsets::Actor::RootComponent,					OffsetType::Class },
-			OffsetSearch { skCrypt("SceneComponent").decrypt(),			skCrypt("RelativeLocation").decrypt(),			&SDK::Cached::Offsets::SceneComponent::RelativeLocation,		OffsetType::Class },
-			OffsetSearch { skCrypt("Canvas").decrypt(),					skCrypt("SizeX").decrypt(),						&SDK::Cached::Offsets::Canvas::SizeX,							OffsetType::Class },
-			OffsetSearch { skCrypt("Canvas").decrypt(),					skCrypt("SizeY").decrypt(),						&SDK::Cached::Offsets::Canvas::SizeY,							OffsetType::Class },
-			OffsetSearch { skCrypt("FortPlayerStateAthena").decrypt(),	skCrypt("TeamIndex").decrypt(),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		OffsetType::Class },
-			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("CurrentWeapon").decrypt(),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					OffsetType::Class },
-			OffsetSearch { skCrypt("BuildingWeakSpot").decrypt(),		skCrypt("bHit").decrypt(),						&SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField,	OffsetType::Class },
-			OffsetSearch { skCrypt("FortWeapon").decrypt(),				skCrypt("WeaponData").decrypt(),				&SDK::Cached::Offsets::FortWeapon::WeaponData,					OffsetType::Class },
+			OffsetSearch { skCrypt("FortPickup").decrypt(),				skCrypt("PrimaryPickupItemEntry").decrypt(),	&SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry,		nullptr },
+			OffsetSearch { skCrypt("FortItemDefinition").decrypt(),		skCrypt("DisplayName").decrypt(),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			nullptr },
+			OffsetSearch { skCrypt("FortItemDefinition").decrypt(),		skCrypt("Tier").decrypt(),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				nullptr },
+			OffsetSearch { skCrypt("Actor").decrypt(),					skCrypt("RootComponent").decrypt(),				&SDK::Cached::Offsets::Actor::RootComponent,					nullptr },
+			OffsetSearch { skCrypt("SceneComponent").decrypt(),			skCrypt("RelativeLocation").decrypt(),			&SDK::Cached::Offsets::SceneComponent::RelativeLocation,		nullptr },
+			OffsetSearch { skCrypt("Canvas").decrypt(),					skCrypt("SizeX").decrypt(),						&SDK::Cached::Offsets::Canvas::SizeX,							nullptr },
+			OffsetSearch { skCrypt("Canvas").decrypt(),					skCrypt("SizeY").decrypt(),						&SDK::Cached::Offsets::Canvas::SizeY,							nullptr },
+			OffsetSearch { skCrypt("FortPlayerStateAthena").decrypt(),	skCrypt("TeamIndex").decrypt(),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		nullptr },
+			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("CurrentWeapon").decrypt(),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
+			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("bIsDying").decrypt(),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
+			OffsetSearch { skCrypt("BuildingWeakSpot").decrypt(),		skCrypt("bHit").decrypt(),						&SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField,	nullptr },
+			OffsetSearch { skCrypt("FortWeapon").decrypt(),				skCrypt("WeaponData").decrypt(),				&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
 
-			OffsetSearch { skCrypt("FortItemEntry").decrypt(),			skCrypt("ItemDefinition").decrypt(),			&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			OffsetType::Struct },
-			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Location").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				OffsetType::Struct },
-			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Rotation").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Rotation,				OffsetType::Struct },
+			OffsetSearch { skCrypt("FortItemEntry").decrypt(),			skCrypt("ItemDefinition").decrypt(),			&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
+			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Location").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
+			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Rotation").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Rotation,				nullptr },
 		};
 
 		SDK::UObject::SetupObjects(Functions, Offsets);
 	}
+
+	// Init PostRender VFT index after due to it relying on one of the offsets found in the previous step
+	SDKInitializer::InitPRIndex();
 
 	Input::Init();
 	Features::FortPawnHelper::Bone::Init();

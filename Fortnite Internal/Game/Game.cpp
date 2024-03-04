@@ -61,12 +61,6 @@ void Game::DrawCallback() {
 	}
 	RaaxGUI::EndWindow();
 
-	RaaxGUI::BeginWindow(skCrypt("Dummy Window").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
-	RaaxGUI::EndWindow();
-
-	RaaxGUI::BeginWindow(skCrypt("Dummy Window 2").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(rand() % 540, rand() % 540));
-	RaaxGUI::EndWindow();
-
 	RaaxGUI::EndFrame();
 
 	if (test) {
@@ -94,14 +88,32 @@ void Game::DrawCallback() {
 	}
 
 	if (Input::WasKeyJustReleased(Input::KeyName::Right)) {
-		Config::Aimbot::Standard::Smoothing += 0.1f;
+		Config::Aimbot::Standard::Smoothing += 0.10f;
 	}
 	if (Input::WasKeyJustReleased(Input::KeyName::Left)) {
-		Config::Aimbot::Standard::Smoothing -= 0.1f;
+		Config::Aimbot::Standard::Smoothing -= 0.10f;
+	}
+
+	if (Input::WasKeyJustReleased(Input::KeyName::Zero)) {
+		Config::Aimbot::CloseAim::Smoothing += 0.10f;
+	}
+	if (Input::WasKeyJustReleased(Input::KeyName::Nine)) {
+		Config::Aimbot::CloseAim::Smoothing -= 0.10f;
+	}
+
+	if (Input::WasKeyJustReleased(Input::KeyName::Eight)) {
+		Config::Aimbot::CloseAim::FOV += 10;
+	}
+	if (Input::WasKeyJustReleased(Input::KeyName::Seven)) {
+		Config::Aimbot::CloseAim::FOV -= 10;
 	}
 
 	Drawing::Text(std::to_string(Config::Aimbot::Standard::FOV).c_str(), SDK::FVector2D(100, 100), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
 	Drawing::Text(std::to_string(Config::Aimbot::Standard::Smoothing).c_str(), SDK::FVector2D(100, 120), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
-	Drawing::Text(std::to_string(Actors::MainTarget.LocalInfo.DistanceFromCrosshairDegrees).c_str(), SDK::FVector2D(100, 150), 18.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true, true, true);
-	Drawing::Text(std::to_string(Actors::MainTarget.LocalInfo.CurrentFOVSizeDegrees).c_str(), SDK::FVector2D(100, 170), 18.f, SDK::FLinearColor(1.f, 1.f, 0.f, 1.f), true, true, true);
+
+	Drawing::Text(std::to_string(Config::Aimbot::CloseAim::FOV).c_str(), SDK::FVector2D(100, 140), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
+	Drawing::Text(std::to_string(Config::Aimbot::CloseAim::Smoothing).c_str(), SDK::FVector2D(100, 160), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
+
+	// Drawing::Text(std::to_string(Actors::MainTarget.LocalInfo.DistanceFromCrosshairDegrees).c_str(), SDK::FVector2D(100, 150), 18.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true, true, true);
+	//Drawing::Text(std::to_string(Actors::MainTarget.LocalInfo.CurrentFOVSizeDegrees).c_str(), SDK::FVector2D(100, 170), 18.f, SDK::FLinearColor(1.f, 1.f, 0.f, 1.f), true, true, true);
 }

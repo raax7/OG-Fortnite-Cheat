@@ -48,7 +48,7 @@ namespace Config {
 		namespace Standard {
 			inline bool Enabled = true;
 			inline float FOV = 20;
-			inline float Smoothing = 8.f;
+			inline float Smoothing = 1.f;
 		}
 
 		namespace Weakspot {

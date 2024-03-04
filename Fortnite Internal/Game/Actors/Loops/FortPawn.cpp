@@ -39,6 +39,7 @@ void Actors::FortPawn::Tick() {
 		}
 
 		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
+		if (CurrentPlayer.FortPawn->IsDying()) continue;
 
 		bool DidPopulate2D = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
 		Features::FortPawnHelper::PopulateVisibilities(CurrentPlayer);

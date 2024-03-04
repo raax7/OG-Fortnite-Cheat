@@ -3,337 +3,177 @@
 #include "../Game.h"
 #include "../../Utilities/Logger.h"
 
-inline Input::KeysCache Input::Keys;
+inline std::unordered_map<Input::KeyName, Input::KeyData> Input::Keys = {
+	{ Input::KeyName::AnyKey, { SDK::FName(), skCrypt("Any Key").decrypt() } },
+
+	{ Input::KeyName::MouseX, { SDK::FName(), skCrypt("Mouse X").decrypt() } },
+	{ Input::KeyName::MouseY, { SDK::FName(), skCrypt("Mouse Y").decrypt() } },
+	{ Input::KeyName::MouseScrollUp, { SDK::FName(), skCrypt("Scroll Up").decrypt() } },
+	{ Input::KeyName::MouseScrollDown, { SDK::FName(), skCrypt("Scroll Down").decrypt() } },
+	{ Input::KeyName::LeftMouseButton, { SDK::FName(), skCrypt("LMB").decrypt() } },
+	{ Input::KeyName::RightMouseButton, { SDK::FName(), skCrypt("RMB").decrypt() } },
+	{ Input::KeyName::MiddleMouseButton, { SDK::FName(), skCrypt("MMB").decrypt() } },
+	{ Input::KeyName::ThumbMouseButton, { SDK::FName(), skCrypt("Thumb MB").decrypt() } },
+	{ Input::KeyName::ThumbMouseButton2, { SDK::FName(), skCrypt("Thumb MB2").decrypt() } },
+
+	{ Input::KeyName::BackSpace, { SDK::FName(), skCrypt("BackSpace").decrypt() } },
+	{ Input::KeyName::Tab, { SDK::FName(), skCrypt("Tab").decrypt() } },
+	{ Input::KeyName::Enter, { SDK::FName(), skCrypt("Enter").decrypt() } },
+	{ Input::KeyName::Pause, { SDK::FName(), skCrypt("Pause").decrypt() } },
+	{ Input::KeyName::CapsLock, { SDK::FName(), skCrypt("CapsLock").decrypt() } },
+	{ Input::KeyName::Escape, { SDK::FName(), skCrypt("Escape").decrypt() } },
+	{ Input::KeyName::SpaceBar, { SDK::FName(), skCrypt("Space").decrypt() } },
+	{ Input::KeyName::PageUp, { SDK::FName(), skCrypt("PageUp").decrypt() } },
+	{ Input::KeyName::PageDown, { SDK::FName(), skCrypt("PageDown").decrypt() } },
+	{ Input::KeyName::End, { SDK::FName(), skCrypt("End").decrypt() } },
+	{ Input::KeyName::Home, { SDK::FName(), skCrypt("Home").decrypt() } },
+
+	{ Input::KeyName::Left, { SDK::FName(), skCrypt("Left Arrow").decrypt() } },
+	{ Input::KeyName::Up, { SDK::FName(), skCrypt("Up Arrow").decrypt() } },
+	{ Input::KeyName::Right, { SDK::FName(), skCrypt("Right Arrow").decrypt() } },
+	{ Input::KeyName::Down, { SDK::FName(), skCrypt("Down Arrow").decrypt() } },
+
+	{ Input::KeyName::Insert, { SDK::FName(), skCrypt("Insert").decrypt() } },
+	{ Input::KeyName::Delete, { SDK::FName(), skCrypt("Delete").decrypt() } },
+
+	{ Input::KeyName::Zero, { SDK::FName(), skCrypt("0").decrypt() } },
+	{ Input::KeyName::One, { SDK::FName(), skCrypt("1").decrypt() } },
+	{ Input::KeyName::Two, { SDK::FName(), skCrypt("2").decrypt() } },
+	{ Input::KeyName::Three, { SDK::FName(), skCrypt("3").decrypt() } },
+	{ Input::KeyName::Four, { SDK::FName(), skCrypt("4").decrypt() } },
+	{ Input::KeyName::Five, { SDK::FName(), skCrypt("5").decrypt() } },
+	{ Input::KeyName::Six, { SDK::FName(), skCrypt("6").decrypt() } },
+	{ Input::KeyName::Seven, { SDK::FName(), skCrypt("7").decrypt() } },
+	{ Input::KeyName::Eight, { SDK::FName(), skCrypt("8").decrypt() } },
+	{ Input::KeyName::Nine, { SDK::FName(), skCrypt("9").decrypt() } },
+
+	{ Input::KeyName::A, { SDK::FName(), skCrypt("A").decrypt() } },
+	{ Input::KeyName::B, { SDK::FName(), skCrypt("B").decrypt() } },
+	{ Input::KeyName::C, { SDK::FName(), skCrypt("C").decrypt() } },
+	{ Input::KeyName::D, { SDK::FName(), skCrypt("D").decrypt() } },
+	{ Input::KeyName::E, { SDK::FName(), skCrypt("E").decrypt() } },
+	{ Input::KeyName::F, { SDK::FName(), skCrypt("F").decrypt() } },
+	{ Input::KeyName::G, { SDK::FName(), skCrypt("G").decrypt() } },
+	{ Input::KeyName::H, { SDK::FName(), skCrypt("H").decrypt() } },
+	{ Input::KeyName::I, { SDK::FName(), skCrypt("I").decrypt() } },
+	{ Input::KeyName::J, { SDK::FName(), skCrypt("J").decrypt() } },
+	{ Input::KeyName::K, { SDK::FName(), skCrypt("K").decrypt() } },
+	{ Input::KeyName::L, { SDK::FName(), skCrypt("L").decrypt() } },
+	{ Input::KeyName::M, { SDK::FName(), skCrypt("M").decrypt() } },
+	{ Input::KeyName::N, { SDK::FName(), skCrypt("N").decrypt() } },
+	{ Input::KeyName::O, { SDK::FName(), skCrypt("O").decrypt() } },
+	{ Input::KeyName::P, { SDK::FName(), skCrypt("P").decrypt() } },
+	{ Input::KeyName::Q, { SDK::FName(), skCrypt("Q").decrypt() } },
+	{ Input::KeyName::R, { SDK::FName(), skCrypt("R").decrypt() } },
+	{ Input::KeyName::S, { SDK::FName(), skCrypt("S").decrypt() } },
+	{ Input::KeyName::T, { SDK::FName(), skCrypt("T").decrypt() } },
+	{ Input::KeyName::U, { SDK::FName(), skCrypt("U").decrypt() } },
+	{ Input::KeyName::V, { SDK::FName(), skCrypt("V").decrypt() } },
+	{ Input::KeyName::W, { SDK::FName(), skCrypt("W").decrypt() } },
+	{ Input::KeyName::X, { SDK::FName(), skCrypt("X").decrypt() } },
+	{ Input::KeyName::Y, { SDK::FName(), skCrypt("Y").decrypt() } },
+	{ Input::KeyName::Z, { SDK::FName(), skCrypt("Z").decrypt() } },
+
+	{ Input::KeyName::NumPadZero, { SDK::FName(), skCrypt("NumPad 0").decrypt() } },
+	{ Input::KeyName::NumPadOne, { SDK::FName(), skCrypt("NumPad 1").decrypt() } },
+	{ Input::KeyName::NumPadTwo, { SDK::FName(), skCrypt("NumPad 2").decrypt() } },
+	{ Input::KeyName::NumPadThree, { SDK::FName(), skCrypt("NumPad 3").decrypt() } },
+	{ Input::KeyName::NumPadFour, { SDK::FName(), skCrypt("NumPad 4").decrypt() } },
+	{ Input::KeyName::NumPadFive, { SDK::FName(), skCrypt("NumPad 5").decrypt() } },
+	{ Input::KeyName::NumPadSix, { SDK::FName(), skCrypt("NumPad 6").decrypt() } },
+	{ Input::KeyName::NumPadSeven, { SDK::FName(), skCrypt("NumPad 7").decrypt() } },
+	{ Input::KeyName::NumPadEight, { SDK::FName(), skCrypt("NumPad 8").decrypt() } },
+	{ Input::KeyName::NumPadNine, { SDK::FName(), skCrypt("NumPad 9").decrypt() } },
+
+	{ Input::KeyName::Multiply, { SDK::FName(), skCrypt("Multiply").decrypt() } },
+	{ Input::KeyName::Add, { SDK::FName(), skCrypt("Add").decrypt() } },
+	{ Input::KeyName::Subtract, { SDK::FName(), skCrypt("Subtract").decrypt() } },
+	{ Input::KeyName::Decimal, { SDK::FName(), skCrypt("Decimal").decrypt() } },
+	{ Input::KeyName::Divide, { SDK::FName(), skCrypt("Divide").decrypt() } },
+
+	{ Input::KeyName::F1, { SDK::FName(), skCrypt("F1").decrypt() } },
+	{ Input::KeyName::F2, { SDK::FName(), skCrypt("F2").decrypt() } },
+	{ Input::KeyName::F3, { SDK::FName(), skCrypt("F3").decrypt() } },
+	{ Input::KeyName::F4, { SDK::FName(), skCrypt("F4").decrypt() } },
+	{ Input::KeyName::F5, { SDK::FName(), skCrypt("F5").decrypt() } },
+	{ Input::KeyName::F6, { SDK::FName(), skCrypt("F6").decrypt() } },
+	{ Input::KeyName::F7, { SDK::FName(), skCrypt("F7").decrypt() } },
+	{ Input::KeyName::F8, { SDK::FName(), skCrypt("F8").decrypt() } },
+	{ Input::KeyName::F9, { SDK::FName(), skCrypt("F9").decrypt() } },
+	{ Input::KeyName::F10, { SDK::FName(), skCrypt("F10").decrypt() } },
+	{ Input::KeyName::F11, { SDK::FName(), skCrypt("F11").decrypt() } },
+	{ Input::KeyName::F12, { SDK::FName(), skCrypt("F12").decrypt() } },
+
+	{ Input::KeyName::NumLock, { SDK::FName(), skCrypt("NumLock").decrypt() } },
+	{ Input::KeyName::ScrollLock, { SDK::FName(), skCrypt("ScrollLock").decrypt() } },
+	{ Input::KeyName::LeftShift, { SDK::FName(), skCrypt("Left Shift").decrypt() } },
+	{ Input::KeyName::RightShift, { SDK::FName(), skCrypt("Right Shift").decrypt() } },
+	{ Input::KeyName::LeftControl, { SDK::FName(), skCrypt("Left Control").decrypt() } },
+	{ Input::KeyName::RightControl, { SDK::FName(), skCrypt("Right Control").decrypt() } },
+	{ Input::KeyName::LeftAlt, { SDK::FName(), skCrypt("Left Alt").decrypt() } },
+	{ Input::KeyName::RightAlt, { SDK::FName(), skCrypt("Right Alt").decrypt() } },
+	{ Input::KeyName::LeftCommand, { SDK::FName(), skCrypt("Left Command").decrypt() } },
+	{ Input::KeyName::RightCommand, { SDK::FName(), skCrypt("Right Command").decrypt() } },
+	{ Input::KeyName::Semicolon, { SDK::FName(), skCrypt("Semicolon").decrypt() } },
+	{ Input::KeyName::Equals, { SDK::FName(), skCrypt("Equals").decrypt() } },
+	{ Input::KeyName::Comma, { SDK::FName(), skCrypt("Comma").decrypt() } },
+	{ Input::KeyName::Underscore, { SDK::FName(), skCrypt("Underscore").decrypt() } },
+	{ Input::KeyName::Period, { SDK::FName(), skCrypt("Period").decrypt() } },
+	{ Input::KeyName::Slash, { SDK::FName(), skCrypt("Slash").decrypt() } },
+	{ Input::KeyName::Tilde, { SDK::FName(), skCrypt("Tilde").decrypt() } },
+	{ Input::KeyName::LeftBracket, { SDK::FName(), skCrypt("Left Bracket").decrypt() } },
+	{ Input::KeyName::Backslash, { SDK::FName(), skCrypt("Backslash").decrypt() } },
+	{ Input::KeyName::RightBracket, { SDK::FName(), skCrypt("Right Bracket").decrypt() } },
+	{ Input::KeyName::Quote, { SDK::FName(), skCrypt("Quote").decrypt() } },
+	{ Input::KeyName::Asterix, { SDK::FName(), skCrypt("Asterix").decrypt() } },
+	{ Input::KeyName::Ampersand, { SDK::FName(), skCrypt("Ampersand").decrypt() } },
+	{ Input::KeyName::Caret, { SDK::FName(), skCrypt("Caret").decrypt() } },
+	{ Input::KeyName::Dollar, { SDK::FName(), skCrypt("Dollar").decrypt() } },
+	{ Input::KeyName::Exclamation, { SDK::FName(), skCrypt("Exclamation").decrypt() } },
+	{ Input::KeyName::Colon, { SDK::FName(), skCrypt("Colon").decrypt() } },
+
+	{ Input::KeyName::A_AccentGrave, { SDK::FName(), skCrypt("A Accent Grave").decrypt() } },
+	{ Input::KeyName::E_AccentGrave, { SDK::FName(), skCrypt("E Accent Grave").decrypt() } },
+	{ Input::KeyName::E_AccentAigu, { SDK::FName(), skCrypt("E Accent Aigu").decrypt() } },
+	{ Input::KeyName::C_Cedille, { SDK::FName(), skCrypt("C Cedille").decrypt() } },
+
+	{ Input::KeyName::Section, { SDK::FName(), skCrypt("Section").decrypt() } },
+
+	{ Input::KeyName::Gamepad_LeftX, { SDK::FName(), skCrypt("Gamepad Left X").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftY, { SDK::FName(), skCrypt("Gamepad Left Y").decrypt() } },
+	{ Input::KeyName::Gamepad_RightX, { SDK::FName(), skCrypt("Gamepad Right X").decrypt() } },
+	{ Input::KeyName::Gamepad_RightY, { SDK::FName(), skCrypt("Gamepad Right Y").decrypt() } },
+
+	{ Input::KeyName::Gamepad_LeftTriggerAxis, { SDK::FName(), skCrypt("Gamepad Left Trigger Axis").decrypt() } },
+	{ Input::KeyName::Gamepad_RightTriggerAxis, { SDK::FName(), skCrypt("Gamepad Right Trigger Axis").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftThumbstick, { SDK::FName(), skCrypt("Gamepad Left Thumbstick").decrypt() } },
+	{ Input::KeyName::Gamepad_RightThumbstick, { SDK::FName(), skCrypt("Gamepad Right Thumbstick").decrypt() } },
+	{ Input::KeyName::Gamepad_Special_Left, { SDK::FName(), skCrypt("Gamepad Special Left").decrypt() } },
+	{ Input::KeyName::Gamepad_Special_Left_X, { SDK::FName(), skCrypt("Gamepad Special Left X").decrypt() } },
+	{ Input::KeyName::Gamepad_Special_Left_Y, { SDK::FName(), skCrypt("Gamepad Special Left Y").decrypt() } },
+	{ Input::KeyName::Gamepad_Special_Right, { SDK::FName(), skCrypt("Gamepad Special Right").decrypt() } },
+	{ Input::KeyName::Gamepad_FaceButton_Bottom, { SDK::FName(), skCrypt("Gamepad Face Button Bottom").decrypt() } },
+	{ Input::KeyName::Gamepad_FaceButton_Right, { SDK::FName(), skCrypt("Gamepad Face Button Right").decrypt() } },
+	{ Input::KeyName::Gamepad_FaceButton_Left, { SDK::FName(), skCrypt("Gamepad Face Button Left").decrypt() } },
+	{ Input::KeyName::Gamepad_FaceButton_Top, { SDK::FName(), skCrypt("Gamepad Face Button Top").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftShoulder, { SDK::FName(), skCrypt("Gamepad Left Shoulder").decrypt() } },
+	{ Input::KeyName::Gamepad_RightShoulder, { SDK::FName(), skCrypt("Gamepad Right Shoulder").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftTrigger, { SDK::FName(), skCrypt("Gamepad Left Trigger").decrypt() } },
+	{ Input::KeyName::Gamepad_RightTrigger, { SDK::FName(), skCrypt("Gamepad Right Trigger").decrypt() } },
+	{ Input::KeyName::Gamepad_DPad_Up, { SDK::FName(), skCrypt("Gamepad DPad Up").decrypt() } },
+	{ Input::KeyName::Gamepad_DPad_Down, { SDK::FName(), skCrypt("Gamepad DPad Down").decrypt() } },
+	{ Input::KeyName::Gamepad_DPad_Left, { SDK::FName(), skCrypt("Gamepad DPad Left").decrypt() } },
+	{ Input::KeyName::Gamepad_DPad_Right, { SDK::FName(), skCrypt("Gamepad DPad Right").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftStick_Up, { SDK::FName(), skCrypt("Gamepad Leftstick Up").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftStick_Down, { SDK::FName(), skCrypt("Gamepad Leftstick Down").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftStick_Left, { SDK::FName(), skCrypt("Gamepad Leftstick Left").decrypt() } },
+	{ Input::KeyName::Gamepad_LeftStick_Right, { SDK::FName(), skCrypt("Gamepad Leftstick Right").decrypt() } },
+	{ Input::KeyName::Gamepad_RightStick_Up, { SDK::FName(), skCrypt("Gamepad Rightstick Up").decrypt() } },
+	{ Input::KeyName::Gamepad_RightStick_Down, { SDK::FName(), skCrypt("Gamepad Rightstick Down").decrypt() } },
+	{ Input::KeyName::Gamepad_RightStick_Left, { SDK::FName(), skCrypt("Gamepad Rightstick Left").decrypt() } },
+	{ Input::KeyName::Gamepad_RightStick_Right, { SDK::FName(), skCrypt("Gamepad Rightstick Right").decrypt() } },
+};
 inline Input::MouseCache Input::Mouse;
-
-Input::KeyData& Input::GetKeyData(KeyName Key) {
-	switch (Key) {
-	case Input::KeyName::AnyKey:
-		return Input::Keys.AnyKey;
-
-	case Input::KeyName::MouseX:
-		return Input::Keys.MouseX;
-	case Input::KeyName::MouseY:
-		return Input::Keys.MouseY;
-	case Input::KeyName::MouseScrollUp:
-		return Input::Keys.MouseScrollUp;
-	case Input::KeyName::MouseScrollDown:
-		return Input::Keys.MouseScrollDown;
-	case Input::KeyName::LeftMouseButton:
-		return Input::Keys.LeftMouseButton;
-	case Input::KeyName::RightMouseButton:
-		return Input::Keys.RightMouseButton;
-	case Input::KeyName::MiddleMouseButton:
-		return Input::Keys.MiddleMouseButton;
-	case Input::KeyName::ThumbMouseButton:
-		return Input::Keys.ThumbMouseButton;
-	case Input::KeyName::ThumbMouseButton2:
-		return Input::Keys.ThumbMouseButton2;
-
-	case Input::KeyName::BackSpace:
-		return Input::Keys.BackSpace;
-	case Input::KeyName::Tab:
-		return Input::Keys.Tab;
-	case Input::KeyName::Enter:
-		return Input::Keys.Enter;
-	case Input::KeyName::Pause:
-		return Input::Keys.Pause;
-	case Input::KeyName::CapsLock:
-		return Input::Keys.CapsLock;
-	case Input::KeyName::Escape:
-		return Input::Keys.Escape;
-	case Input::KeyName::SpaceBar:
-		return Input::Keys.SpaceBar;
-	case Input::KeyName::PageUp:
-		return Input::Keys.PageUp;
-	case Input::KeyName::PageDown:
-		return Input::Keys.PageDown;
-	case Input::KeyName::End:
-		return Input::Keys.End;
-	case Input::KeyName::Home:
-		return Input::Keys.Home;
-
-	case Input::KeyName::Left:
-		return Input::Keys.Left;
-	case Input::KeyName::Up:
-		return Input::Keys.Up;
-	case Input::KeyName::Right:
-		return Input::Keys.Right;
-	case Input::KeyName::Down:
-		return Input::Keys.Down;
-
-	case Input::KeyName::Insert:
-		return Input::Keys.Insert;
-	case Input::KeyName::Delete:
-		return Input::Keys.Delete;
-
-	case Input::KeyName::Zero:
-		return Input::Keys.Zero;
-	case Input::KeyName::One:
-		return Input::Keys.One;
-	case Input::KeyName::Two:
-		return Input::Keys.Two;
-	case Input::KeyName::Three:
-		return Input::Keys.Three;
-	case Input::KeyName::Four:
-		return Input::Keys.Four;
-	case Input::KeyName::Five:
-		return Input::Keys.Five;
-	case Input::KeyName::Six:
-		return Input::Keys.Six;
-	case Input::KeyName::Seven:
-		return Input::Keys.Seven;
-	case Input::KeyName::Eight:
-		return Input::Keys.Eight;
-	case Input::KeyName::Nine:
-		return Input::Keys.Nine;
-
-	case Input::KeyName::A:
-		return Input::Keys.A;
-	case Input::KeyName::B:
-		return Input::Keys.B;
-	case Input::KeyName::C:
-		return Input::Keys.C;
-	case Input::KeyName::D:
-		return Input::Keys.D;
-	case Input::KeyName::E:
-		return Input::Keys.E;
-	case Input::KeyName::F:
-		return Input::Keys.F;
-	case Input::KeyName::G:
-		return Input::Keys.G;
-	case Input::KeyName::H:
-		return Input::Keys.H;
-	case Input::KeyName::I:
-		return Input::Keys.I;
-	case Input::KeyName::J:
-		return Input::Keys.J;
-	case Input::KeyName::K:
-		return Input::Keys.K;
-	case Input::KeyName::L:
-		return Input::Keys.L;
-	case Input::KeyName::M:
-		return Input::Keys.M;
-	case Input::KeyName::N:
-		return Input::Keys.N;
-	case Input::KeyName::O:
-		return Input::Keys.O;
-	case Input::KeyName::P:
-		return Input::Keys.P;
-	case Input::KeyName::Q:
-		return Input::Keys.Q;
-	case Input::KeyName::R:
-		return Input::Keys.R;
-	case Input::KeyName::S:
-		return Input::Keys.S;
-	case Input::KeyName::T:
-		return Input::Keys.T;
-	case Input::KeyName::U:
-		return Input::Keys.U;
-	case Input::KeyName::V:
-		return Input::Keys.V;
-	case Input::KeyName::W:
-		return Input::Keys.W;
-	case Input::KeyName::X:
-		return Input::Keys.X;
-	case Input::KeyName::Y:
-		return Input::Keys.Y;
-	case Input::KeyName::Z:
-		return Input::Keys.Z;
-
-	case Input::KeyName::NumPadZero:
-		return Input::Keys.NumPadZero;
-	case Input::KeyName::NumPadOne:
-		return Input::Keys.NumPadOne;
-	case Input::KeyName::NumPadTwo:
-		return Input::Keys.NumPadTwo;
-	case Input::KeyName::NumPadThree:
-		return Input::Keys.NumPadThree;
-	case Input::KeyName::NumPadFour:
-		return Input::Keys.NumPadFour;
-	case Input::KeyName::NumPadFive:
-		return Input::Keys.NumPadFive;
-	case Input::KeyName::NumPadSix:
-		return Input::Keys.NumPadSix;
-	case Input::KeyName::NumPadSeven:
-		return Input::Keys.NumPadSeven;
-	case Input::KeyName::NumPadEight:
-		return Input::Keys.NumPadEight;
-	case Input::KeyName::NumPadNine:
-		return Input::Keys.NumPadNine;
-
-	case Input::KeyName::Multiply:
-		return Input::Keys.Multiply;
-	case Input::KeyName::Add:
-		return Input::Keys.Add;
-	case Input::KeyName::Subtract:
-		return Input::Keys.Subtract;
-	case Input::KeyName::Decimal:
-		return Input::Keys.Decimal;
-	case Input::KeyName::Divide:
-		return Input::Keys.Divide;
-
-	case Input::KeyName::F1:
-		return Input::Keys.F1;
-	case Input::KeyName::F2:
-		return Input::Keys.F2;
-	case Input::KeyName::F3:
-		return Input::Keys.F3;
-	case Input::KeyName::F4:
-		return Input::Keys.F4;
-	case Input::KeyName::F5:
-		return Input::Keys.F5;
-	case Input::KeyName::F6:
-		return Input::Keys.F6;
-	case Input::KeyName::F7:
-		return Input::Keys.F7;
-	case Input::KeyName::F8:
-		return Input::Keys.F8;
-	case Input::KeyName::F9:
-		return Input::Keys.F9;
-	case Input::KeyName::F10:
-		return Input::Keys.F10;
-	case Input::KeyName::F11:
-		return Input::Keys.F11;
-	case Input::KeyName::F12:
-		return Input::Keys.F12;
-
-	case Input::KeyName::NumLock:
-		return Input::Keys.NumLock;
-	case Input::KeyName::ScrollLock:
-		return Input::Keys.ScrollLock;
-	case Input::KeyName::LeftShift:
-		return Input::Keys.LeftShift;
-	case Input::KeyName::RightShift:
-		return Input::Keys.RightShift;
-	case Input::KeyName::LeftControl:
-		return Input::Keys.LeftControl;
-	case Input::KeyName::RightControl:
-		return Input::Keys.RightControl;
-	case Input::KeyName::LeftAlt:
-		return Input::Keys.LeftAlt;
-	case Input::KeyName::RightAlt:
-		return Input::Keys.RightAlt;
-	case Input::KeyName::LeftCommand:
-		return Input::Keys.LeftCommand;
-	case Input::KeyName::RightCommand:
-		return Input::Keys.RightCommand;
-	case Input::KeyName::Semicolon:
-		return Input::Keys.Semicolon;
-	case Input::KeyName::Equals:
-		return Input::Keys.Equals;
-	case Input::KeyName::Comma:
-		return Input::Keys.Comma;
-	case Input::KeyName::Underscore:
-		return Input::Keys.Underscore;
-	case Input::KeyName::Period:
-		return Input::Keys.Period;
-	case Input::KeyName::Slash:
-		return Input::Keys.Slash;
-	case Input::KeyName::Tilde:
-		return Input::Keys.Tilde;
-	case Input::KeyName::LeftBracket:
-		return Input::Keys.LeftBracket;
-	case Input::KeyName::Backslash:
-		return Input::Keys.Backslash;
-	case Input::KeyName::RightBracket:
-		return Input::Keys.RightBracket;
-	case Input::KeyName::Quote:
-		return Input::Keys.Quote;
-	case Input::KeyName::Asterix:
-		return Input::Keys.Asterix;
-	case Input::KeyName::Ampersand:
-		return Input::Keys.Ampersand;
-	case Input::KeyName::Caret:
-		return Input::Keys.Caret;
-	case Input::KeyName::Dollar:
-		return Input::Keys.Dollar;
-	case Input::KeyName::Exclamation:
-		return Input::Keys.Exclamation;
-	case Input::KeyName::Colon:
-		return Input::Keys.Colon;
-
-	case Input::KeyName::A_AccentGrave:
-		return Input::Keys.A_AccentGrave;
-	case Input::KeyName::E_AccentGrave:
-		return Input::Keys.E_AccentGrave;
-	case Input::KeyName::E_AccentAigu:
-		return Input::Keys.E_AccentAigu;
-	case Input::KeyName::C_Cedille:
-		return Input::Keys.C_Cedille;
-
-	case Input::KeyName::Section:
-		return Input::Keys.Section;
-
-	case Input::KeyName::Gamepad_LeftX:
-		return Input::Keys.Gamepad_LeftX;
-	case Input::KeyName::Gamepad_LeftY:
-		return Input::Keys.Gamepad_LeftY;
-	case Input::KeyName::Gamepad_RightX:
-		return Input::Keys.Gamepad_RightX;
-	case Input::KeyName::Gamepad_RightY:
-		return Input::Keys.Gamepad_RightY;
-	case Input::KeyName::Gamepad_LeftTriggerAxis:
-		return Input::Keys.Gamepad_LeftTriggerAxis;
-	case Input::KeyName::Gamepad_RightTriggerAxis:
-		return Input::Keys.Gamepad_RightTriggerAxis;
-	case Input::KeyName::Gamepad_LeftThumbstick:
-		return Input::Keys.Gamepad_LeftThumbstick;
-	case Input::KeyName::Gamepad_RightThumbstick:
-		return Input::Keys.Gamepad_RightThumbstick;
-	case Input::KeyName::Gamepad_Special_Left:
-		return Input::Keys.Gamepad_Special_Left;
-	case Input::KeyName::Gamepad_Special_Left_X:
-		return Input::Keys.Gamepad_Special_Left_X;
-	case Input::KeyName::Gamepad_Special_Left_Y:
-		return Input::Keys.Gamepad_Special_Left_Y;
-	case Input::KeyName::Gamepad_Special_Right:
-		return Input::Keys.Gamepad_Special_Right;
-	case Input::KeyName::Gamepad_FaceButton_Bottom:
-		return Input::Keys.Gamepad_FaceButton_Bottom;
-	case Input::KeyName::Gamepad_FaceButton_Right:
-		return Input::Keys.Gamepad_FaceButton_Right;
-	case Input::KeyName::Gamepad_FaceButton_Left:
-		return Input::Keys.Gamepad_FaceButton_Left;
-	case Input::KeyName::Gamepad_FaceButton_Top:
-		return Input::Keys.Gamepad_FaceButton_Top;
-	case Input::KeyName::Gamepad_LeftShoulder:
-		return Input::Keys.Gamepad_LeftShoulder;
-	case Input::KeyName::Gamepad_RightShoulder:
-		return Input::Keys.Gamepad_RightShoulder;
-	case Input::KeyName::Gamepad_LeftTrigger:
-		return Input::Keys.Gamepad_LeftTrigger;
-	case Input::KeyName::Gamepad_RightTrigger:
-		return Input::Keys.Gamepad_RightTrigger;
-	case Input::KeyName::Gamepad_DPad_Up:
-		return Input::Keys.Gamepad_DPad_Up;
-	case Input::KeyName::Gamepad_DPad_Down:
-		return Input::Keys.Gamepad_DPad_Down;
-	case Input::KeyName::Gamepad_DPad_Right:
-		return Input::Keys.Gamepad_DPad_Right;
-	case Input::KeyName::Gamepad_DPad_Left:
-		return Input::Keys.Gamepad_DPad_Left;
-	case Input::KeyName::Gamepad_LeftStick_Up:
-		return Input::Keys.Gamepad_LeftStick_Up;
-	case Input::KeyName::Gamepad_LeftStick_Down:
-		return Input::Keys.Gamepad_LeftStick_Down;
-	case Input::KeyName::Gamepad_LeftStick_Right:
-		return Input::Keys.Gamepad_LeftStick_Right;
-	case Input::KeyName::Gamepad_LeftStick_Left:
-		return Input::Keys.Gamepad_LeftStick_Left;
-	case Input::KeyName::Gamepad_RightStick_Up:
-		return Input::Keys.Gamepad_RightStick_Up;
-	case Input::KeyName::Gamepad_RightStick_Down:
-		return Input::Keys.Gamepad_RightStick_Down;
-	case Input::KeyName::Gamepad_RightStick_Right:
-		return Input::Keys.Gamepad_RightStick_Right;
-	case Input::KeyName::Gamepad_RightStick_Left:
-		return Input::Keys.Gamepad_RightStick_Left;
-
-	default:
-		return Input::Keys.None;
-	}
-}
 
 SDK::FVector2D Input::GetMousePosition() {
 	if (Mouse.FrameUpdated != Game::CurrentFrame) {
@@ -351,46 +191,84 @@ SDK::FVector2D Input::GetMousePosition() {
 }
 
 bool Input::IsKeyDown(KeyName Key) {
-	KeyData& KeyData = GetKeyData(Key);
+	auto& KeyData = Keys[Key];
 
 	if (KeyData.IsDown.FrameUpdated != Game::CurrentFrame) {
 		KeyData.IsDown.FrameUpdated = Game::CurrentFrame;
 
-		SDK::FKey Key{};
-		Key.KeyName = KeyData.FName;
+		SDK::FKey FKey{};
+		FKey.KeyName = KeyData.FName;
 
-		KeyData.IsDown.Value = SDK::GetLocalController()->IsInputKeyDown(Key);
+		KeyData.IsDown.Value = SDK::GetLocalController()->IsInputKeyDown(FKey);
 	}
 
 	return KeyData.IsDown.Value;
 }
 bool Input::WasKeyJustReleased(KeyName Key) {
-	KeyData& KeyData = GetKeyData(Key);
+	auto& KeyData = Keys[Key];
 
 	if (KeyData.WasJustReleased.FrameUpdated != Game::CurrentFrame) {
 		KeyData.WasJustReleased.FrameUpdated = Game::CurrentFrame;
 
-		SDK::FKey Key{};
-		Key.KeyName = KeyData.FName;
+		SDK::FKey FKey{};
+		FKey.KeyName = KeyData.FName;
 
-		KeyData.WasJustReleased.Value = SDK::GetLocalController()->WasInputKeyJustReleased(Key);
+		KeyData.WasJustReleased.Value = SDK::GetLocalController()->WasInputKeyJustReleased(FKey);
 	}
 
 	return KeyData.WasJustReleased.Value;
 }
 bool Input::WasKeyJustPressed(KeyName Key) {
-	KeyData& KeyData = GetKeyData(Key);
+	auto& KeyData = Keys[Key];
 
 	if (KeyData.WasJustPressed.FrameUpdated != Game::CurrentFrame) {
 		KeyData.WasJustPressed.FrameUpdated = Game::CurrentFrame;
 
-		SDK::FKey Key{};
-		Key.KeyName = KeyData.FName;
+		SDK::FKey FKey{};
+		FKey.KeyName = KeyData.FName;
 
-		KeyData.WasJustPressed.Value = SDK::GetLocalController()->WasInputKeyJustPressed(Key);
+		KeyData.WasJustPressed.Value = SDK::GetLocalController()->WasInputKeyJustPressed(FKey);
 	}
 
 	return KeyData.WasJustPressed.Value;
+}
+
+std::vector<Input::KeyName> Input::GetAllDownKeys() {
+	std::vector<Input::KeyName> KeysDown{};
+
+	for (auto& Key : Keys) {
+		if (IsKeyDown(Key.first)) {
+			KeysDown.push_back(Key.first);
+		}
+	}
+
+	return KeysDown;
+}
+std::vector<Input::KeyName> Input::GetAllJustReleasedKeys() {
+	std::vector<Input::KeyName> KeysJustReleased{};
+
+	for (auto& Key : Keys) {
+		if (WasKeyJustReleased(Key.first)) {
+			KeysJustReleased.push_back(Key.first);
+		}
+	}
+
+	return KeysJustReleased;
+}
+std::vector<Input::KeyName> Input::GetAllJustPressedKeys() {
+	std::vector<Input::KeyName> KeysJustPressed{};
+
+	for (auto& Key : Keys) {
+		if (WasKeyJustPressed(Key.first)) {
+			KeysJustPressed.push_back(Key.first);
+		}
+	}
+
+	return KeysJustPressed;
+}
+
+std::string Input::GetKeyName(Input::KeyName Key) {
+	return Keys[Key].Name;
 }
 
 void Input::Init() {
@@ -398,327 +276,174 @@ void Input::Init() {
 
 	// Init KeyNames
 	{
-		Keys.AnyKey.FName = SDK::FName(skCrypt(L"AnyKey").decrypt());
-		Keys.AnyKey.Name = skCrypt("Any Key").decrypt();
+		Keys[KeyName::AnyKey].FName = SDK::FName(skCrypt(L"AnyKey").decrypt());
 
-		Keys.MouseX.FName = SDK::FName(skCrypt(L"MouseX").decrypt());
-		Keys.MouseX.Name = skCrypt("Mouse X").decrypt();
-		Keys.MouseY.FName = SDK::FName(skCrypt(L"MouseY").decrypt());
-		Keys.MouseY.Name = skCrypt("Mouse Y").decrypt();
-		Keys.MouseScrollUp.FName = SDK::FName(skCrypt(L"MouseScrollUp").decrypt());
-		Keys.MouseScrollUp.Name = skCrypt("Scroll Up").decrypt();
-		Keys.MouseScrollDown.FName = SDK::FName(skCrypt(L"MouseScrollDown").decrypt());
-		Keys.MouseScrollDown.Name = skCrypt("Scroll Down").decrypt();
-		Keys.LeftMouseButton.FName = SDK::FName(skCrypt(L"LeftMouseButton").decrypt());
-		Keys.LeftMouseButton.Name = skCrypt("LMB").decrypt();
-		Keys.RightMouseButton.FName = SDK::FName(skCrypt(L"RightMouseButton").decrypt());
-		Keys.RightMouseButton.Name = skCrypt("RMB").decrypt();
-		Keys.MiddleMouseButton.FName = SDK::FName(skCrypt(L"MiddleMouseButton").decrypt());
-		Keys.MiddleMouseButton.Name = skCrypt("MMB").decrypt();
-		Keys.ThumbMouseButton.FName = SDK::FName(skCrypt(L"ThumbMouseButton").decrypt());
-		Keys.ThumbMouseButton.Name = skCrypt("Thumb MB").decrypt();
-		Keys.ThumbMouseButton2.FName = SDK::FName(skCrypt(L"ThumbMouseButton2").decrypt());
-		Keys.ThumbMouseButton2.Name = skCrypt("Thumb MB2").decrypt();
+		Keys[KeyName::MouseX].FName = SDK::FName(skCrypt(L"MouseX").decrypt());
+		Keys[KeyName::MouseY].FName = SDK::FName(skCrypt(L"MouseY").decrypt());
+		Keys[KeyName::MouseScrollUp].FName = SDK::FName(skCrypt(L"MouseScrollUp").decrypt());
+		Keys[KeyName::MouseScrollDown].FName = SDK::FName(skCrypt(L"MouseScrollDown").decrypt());
+		Keys[KeyName::LeftMouseButton].FName = SDK::FName(skCrypt(L"LeftMouseButton").decrypt());
+		Keys[KeyName::RightMouseButton].FName = SDK::FName(skCrypt(L"RightMouseButton").decrypt());
+		Keys[KeyName::MiddleMouseButton].FName = SDK::FName(skCrypt(L"MiddleMouseButton").decrypt());
+		Keys[KeyName::ThumbMouseButton].FName = SDK::FName(skCrypt(L"ThumbMouseButton").decrypt());
+		Keys[KeyName::ThumbMouseButton2].FName = SDK::FName(skCrypt(L"ThumbMouseButton2").decrypt());
 
-		Keys.BackSpace.FName = SDK::FName(skCrypt(L"BackSpace").decrypt());
-		Keys.BackSpace.Name = skCrypt("BackSpace").decrypt();
-		Keys.Tab.FName = SDK::FName(skCrypt(L"Tab").decrypt());
-		Keys.Tab.Name = skCrypt("Tab").decrypt();
-		Keys.Enter.FName = SDK::FName(skCrypt(L"Enter").decrypt());
-		Keys.Enter.Name = skCrypt("Enter").decrypt();
-		Keys.Pause.FName = SDK::FName(skCrypt(L"Pause").decrypt());
-		Keys.Pause.Name = skCrypt("Pause").decrypt();
-		Keys.CapsLock.FName = SDK::FName(skCrypt(L"CapsLock").decrypt());
-		Keys.CapsLock.Name = skCrypt("CapsLock").decrypt();
-		Keys.Escape.FName = SDK::FName(skCrypt(L"Escape").decrypt());
-		Keys.Escape.Name = skCrypt("Escape").decrypt();
-		Keys.SpaceBar.FName = SDK::FName(skCrypt(L"SpaceBar").decrypt());
-		Keys.SpaceBar.Name = skCrypt("Space").decrypt();
-		Keys.PageUp.FName = SDK::FName(skCrypt(L"PageUp").decrypt());
-		Keys.PageUp.Name = skCrypt("PageUp").decrypt();
-		Keys.PageDown.FName = SDK::FName(skCrypt(L"PageDown").decrypt());
-		Keys.PageDown.Name = skCrypt("PageDown").decrypt();
-		Keys.End.FName = SDK::FName(skCrypt(L"End").decrypt());
-		Keys.End.Name = skCrypt("End").decrypt();
-		Keys.Home.FName = SDK::FName(skCrypt(L"Home").decrypt());
-		Keys.Home.Name = skCrypt("Home").decrypt();
+		Keys[KeyName::BackSpace].FName = SDK::FName(skCrypt(L"BackSpace").decrypt());
+		Keys[KeyName::Tab].FName = SDK::FName(skCrypt(L"Tab").decrypt());
+		Keys[KeyName::Enter].FName = SDK::FName(skCrypt(L"Enter").decrypt());
+		Keys[KeyName::Pause].FName = SDK::FName(skCrypt(L"Pause").decrypt());
+		Keys[KeyName::CapsLock].FName = SDK::FName(skCrypt(L"CapsLock").decrypt());
+		Keys[KeyName::Escape].FName = SDK::FName(skCrypt(L"Escape").decrypt());
+		Keys[KeyName::SpaceBar].FName = SDK::FName(skCrypt(L"SpaceBar").decrypt());
+		Keys[KeyName::PageUp].FName = SDK::FName(skCrypt(L"PageUp").decrypt());
+		Keys[KeyName::PageDown].FName = SDK::FName(skCrypt(L"PageDown").decrypt());
+		Keys[KeyName::End].FName = SDK::FName(skCrypt(L"End").decrypt());
+		Keys[KeyName::Home].FName = SDK::FName(skCrypt(L"Home").decrypt());
 
-		Keys.Left.FName = SDK::FName(skCrypt(L"Left").decrypt());
-		Keys.Left.Name = skCrypt("Left Arrow").decrypt();
-		Keys.Up.FName = SDK::FName(skCrypt(L"Up").decrypt());
-		Keys.Up.Name = skCrypt("Up Arrow").decrypt();
-		Keys.Right.FName = SDK::FName(skCrypt(L"Right").decrypt());
-		Keys.Right.Name = skCrypt("Right Arrow").decrypt();
-		Keys.Down.FName = SDK::FName(skCrypt(L"Down").decrypt());
-		Keys.Down.Name = skCrypt("Down Arrow").decrypt();
+		Keys[KeyName::Left].FName = SDK::FName(skCrypt(L"Left").decrypt());
+		Keys[KeyName::Up].FName = SDK::FName(skCrypt(L"Up").decrypt());
+		Keys[KeyName::Right].FName = SDK::FName(skCrypt(L"Right").decrypt());
+		Keys[KeyName::Down].FName = SDK::FName(skCrypt(L"Down").decrypt());
 
-		Keys.Insert.FName = SDK::FName(skCrypt(L"Insert").decrypt());
-		Keys.Insert.Name = skCrypt("Insert").decrypt();
-		Keys.Delete.FName = SDK::FName(skCrypt(L"Delete").decrypt());
-		Keys.Delete.Name = skCrypt("Delete").decrypt();
+		Keys[KeyName::Insert].FName = SDK::FName(skCrypt(L"Insert").decrypt());
+		Keys[KeyName::Delete].FName = SDK::FName(skCrypt(L"Delete").decrypt());
 
-		Keys.Zero.FName = SDK::FName(skCrypt(L"Zero").decrypt());
-		Keys.Zero.Name = skCrypt("0").decrypt();
-		Keys.One.FName = SDK::FName(skCrypt(L"One").decrypt());
-		Keys.One.Name = skCrypt("1").decrypt();
-		Keys.Two.FName = SDK::FName(skCrypt(L"Two").decrypt());
-		Keys.Two.Name = skCrypt("2").decrypt();
-		Keys.Three.FName = SDK::FName(skCrypt(L"Three").decrypt());
-		Keys.Three.Name = skCrypt("3").decrypt();
-		Keys.Four.FName = SDK::FName(skCrypt(L"Four").decrypt());
-		Keys.Four.Name = skCrypt("4").decrypt();
-		Keys.Five.FName = SDK::FName(skCrypt(L"Five").decrypt());
-		Keys.Five.Name = skCrypt("5").decrypt();
-		Keys.Six.FName = SDK::FName(skCrypt(L"Six").decrypt());
-		Keys.Six.Name = skCrypt("6").decrypt();
-		Keys.Seven.FName = SDK::FName(skCrypt(L"Seven").decrypt());
-		Keys.Seven.Name = skCrypt("7").decrypt();
-		Keys.Eight.FName = SDK::FName(skCrypt(L"Eight").decrypt());
-		Keys.Eight.Name = skCrypt("8").decrypt();
-		Keys.Nine.FName = SDK::FName(skCrypt(L"Nine").decrypt());
-		Keys.Nine.Name = skCrypt("9").decrypt();
+		Keys[KeyName::Zero].FName = SDK::FName(skCrypt(L"Zero").decrypt());
+		Keys[KeyName::One].FName = SDK::FName(skCrypt(L"One").decrypt());
+		Keys[KeyName::Two].FName = SDK::FName(skCrypt(L"Two").decrypt());
+		Keys[KeyName::Three].FName = SDK::FName(skCrypt(L"Three").decrypt());
+		Keys[KeyName::Four].FName = SDK::FName(skCrypt(L"Four").decrypt());
+		Keys[KeyName::Five].FName = SDK::FName(skCrypt(L"Five").decrypt());
+		Keys[KeyName::Six].FName = SDK::FName(skCrypt(L"Six").decrypt());
+		Keys[KeyName::Seven].FName = SDK::FName(skCrypt(L"Seven").decrypt());
+		Keys[KeyName::Eight].FName = SDK::FName(skCrypt(L"Eight").decrypt());
+		Keys[KeyName::Nine].FName = SDK::FName(skCrypt(L"Nine").decrypt());
 
-		Keys.A.FName = SDK::FName(skCrypt(L"A").decrypt());
-		Keys.A.Name = skCrypt("A").decrypt();
-		Keys.B.FName = SDK::FName(skCrypt(L"B").decrypt());
-		Keys.B.Name = skCrypt("B").decrypt();
-		Keys.C.FName = SDK::FName(skCrypt(L"C").decrypt());
-		Keys.C.Name = skCrypt("C").decrypt();
-		Keys.D.FName = SDK::FName(skCrypt(L"D").decrypt());
-		Keys.D.Name = skCrypt("D").decrypt();
-		Keys.E.FName = SDK::FName(skCrypt(L"E").decrypt());
-		Keys.E.Name = skCrypt("E").decrypt();
-		Keys.F.FName = SDK::FName(skCrypt(L"F").decrypt());
-		Keys.F.Name = skCrypt("F").decrypt();
-		Keys.G.FName = SDK::FName(skCrypt(L"G").decrypt());
-		Keys.G.Name = skCrypt("G").decrypt();
-		Keys.H.FName = SDK::FName(skCrypt(L"H").decrypt());
-		Keys.H.Name = skCrypt("H").decrypt();
-		Keys.I.FName = SDK::FName(skCrypt(L"I").decrypt());
-		Keys.I.Name = skCrypt("I").decrypt();
-		Keys.J.FName = SDK::FName(skCrypt(L"J").decrypt());
-		Keys.J.Name = skCrypt("J").decrypt();
-		Keys.K.FName = SDK::FName(skCrypt(L"K").decrypt());
-		Keys.K.Name = skCrypt("K").decrypt();
-		Keys.L.FName = SDK::FName(skCrypt(L"L").decrypt());
-		Keys.L.Name = skCrypt("L").decrypt();
-		Keys.M.FName = SDK::FName(skCrypt(L"M").decrypt());
-		Keys.M.Name = skCrypt("M").decrypt();
-		Keys.N.FName = SDK::FName(skCrypt(L"N").decrypt());
-		Keys.N.Name = skCrypt("N").decrypt();
-		Keys.O.FName = SDK::FName(skCrypt(L"O").decrypt());
-		Keys.O.Name = skCrypt("O").decrypt();
-		Keys.P.FName = SDK::FName(skCrypt(L"P").decrypt());
-		Keys.P.Name = skCrypt("P").decrypt();
-		Keys.Q.FName = SDK::FName(skCrypt(L"Q").decrypt());
-		Keys.Q.Name = skCrypt("Q").decrypt();
-		Keys.R.FName = SDK::FName(skCrypt(L"R").decrypt());
-		Keys.R.Name = skCrypt("R").decrypt();
-		Keys.S.FName = SDK::FName(skCrypt(L"S").decrypt());
-		Keys.S.Name = skCrypt("S").decrypt();
-		Keys.T.FName = SDK::FName(skCrypt(L"T").decrypt());
-		Keys.T.Name = skCrypt("T").decrypt();
-		Keys.U.FName = SDK::FName(skCrypt(L"U").decrypt());
-		Keys.U.Name = skCrypt("U").decrypt();
-		Keys.V.FName = SDK::FName(skCrypt(L"V").decrypt());
-		Keys.V.Name = skCrypt("V").decrypt();
-		Keys.W.FName = SDK::FName(skCrypt(L"W").decrypt());
-		Keys.W.Name = skCrypt("W").decrypt();
-		Keys.X.FName = SDK::FName(skCrypt(L"X").decrypt());
-		Keys.X.Name = skCrypt("X").decrypt();
-		Keys.Y.FName = SDK::FName(skCrypt(L"Y").decrypt());
-		Keys.Y.Name = skCrypt("Y").decrypt();
-		Keys.Z.FName = SDK::FName(skCrypt(L"Z").decrypt());
-		Keys.Z.Name = skCrypt("Z").decrypt();
+		Keys[KeyName::A].FName = SDK::FName(skCrypt(L"A").decrypt());
+		Keys[KeyName::B].FName = SDK::FName(skCrypt(L"B").decrypt());
+		Keys[KeyName::C].FName = SDK::FName(skCrypt(L"C").decrypt());
+		Keys[KeyName::D].FName = SDK::FName(skCrypt(L"D").decrypt());
+		Keys[KeyName::E].FName = SDK::FName(skCrypt(L"E").decrypt());
+		Keys[KeyName::F].FName = SDK::FName(skCrypt(L"F").decrypt());
+		Keys[KeyName::G].FName = SDK::FName(skCrypt(L"G").decrypt());
+		Keys[KeyName::H].FName = SDK::FName(skCrypt(L"H").decrypt());
+		Keys[KeyName::I].FName = SDK::FName(skCrypt(L"I").decrypt());
+		Keys[KeyName::J].FName = SDK::FName(skCrypt(L"J").decrypt());
+		Keys[KeyName::K].FName = SDK::FName(skCrypt(L"K").decrypt());
+		Keys[KeyName::L].FName = SDK::FName(skCrypt(L"L").decrypt());
+		Keys[KeyName::M].FName = SDK::FName(skCrypt(L"M").decrypt());
+		Keys[KeyName::N].FName = SDK::FName(skCrypt(L"N").decrypt());
+		Keys[KeyName::O].FName = SDK::FName(skCrypt(L"O").decrypt());
+		Keys[KeyName::P].FName = SDK::FName(skCrypt(L"P").decrypt());
+		Keys[KeyName::Q].FName = SDK::FName(skCrypt(L"Q").decrypt());
+		Keys[KeyName::R].FName = SDK::FName(skCrypt(L"R").decrypt());
+		Keys[KeyName::S].FName = SDK::FName(skCrypt(L"S").decrypt());
+		Keys[KeyName::T].FName = SDK::FName(skCrypt(L"T").decrypt());
+		Keys[KeyName::U].FName = SDK::FName(skCrypt(L"U").decrypt());
+		Keys[KeyName::V].FName = SDK::FName(skCrypt(L"V").decrypt());
+		Keys[KeyName::W].FName = SDK::FName(skCrypt(L"W").decrypt());
+		Keys[KeyName::X].FName = SDK::FName(skCrypt(L"X").decrypt());
+		Keys[KeyName::Y].FName = SDK::FName(skCrypt(L"Y").decrypt());
+		Keys[KeyName::Z].FName = SDK::FName(skCrypt(L"Z").decrypt());
 
-		Keys.NumPadZero.FName = SDK::FName(skCrypt(L"NumPadZero").decrypt());
-		Keys.NumPadZero.Name = skCrypt("Num0").decrypt();
-		Keys.NumPadOne.FName = SDK::FName(skCrypt(L"NumPadOne").decrypt());
-		Keys.NumPadOne.Name = skCrypt("Num1").decrypt();
-		Keys.NumPadTwo.FName = SDK::FName(skCrypt(L"NumPadTwo").decrypt());
-		Keys.NumPadTwo.Name = skCrypt("Num2").decrypt();
-		Keys.NumPadThree.FName = SDK::FName(skCrypt(L"NumPadThree").decrypt());
-		Keys.NumPadThree.Name = skCrypt("Num3").decrypt();
-		Keys.NumPadFour.FName = SDK::FName(skCrypt(L"NumPadFour").decrypt());
-		Keys.NumPadFour.Name = skCrypt("Num4").decrypt();
-		Keys.NumPadFive.FName = SDK::FName(skCrypt(L"NumPadFive").decrypt());
-		Keys.NumPadFive.Name = skCrypt("Num5").decrypt();
-		Keys.NumPadSix.FName = SDK::FName(skCrypt(L"NumPadSix").decrypt());
-		Keys.NumPadSix.Name = skCrypt("Num6").decrypt();
-		Keys.NumPadSeven.FName = SDK::FName(skCrypt(L"NumPadSeven").decrypt());
-		Keys.NumPadSeven.Name = skCrypt("Num7").decrypt();
-		Keys.NumPadEight.FName = SDK::FName(skCrypt(L"NumPadEight").decrypt());
-		Keys.NumPadEight.Name = skCrypt("Num8").decrypt();
-		Keys.NumPadNine.FName = SDK::FName(skCrypt(L"NumPadNine").decrypt());
-		Keys.NumPadNine.Name = skCrypt("Num9").decrypt();
+		Keys[KeyName::NumPadZero].FName = SDK::FName(skCrypt(L"NumPadZero").decrypt());
+		Keys[KeyName::NumPadOne].FName = SDK::FName(skCrypt(L"NumPadOne").decrypt());
+		Keys[KeyName::NumPadTwo].FName = SDK::FName(skCrypt(L"NumPadTwo").decrypt());
+		Keys[KeyName::NumPadThree].FName = SDK::FName(skCrypt(L"NumPadThree").decrypt());
+		Keys[KeyName::NumPadFour].FName = SDK::FName(skCrypt(L"NumPadFour").decrypt());
+		Keys[KeyName::NumPadFive].FName = SDK::FName(skCrypt(L"NumPadFive").decrypt());
+		Keys[KeyName::NumPadSix].FName = SDK::FName(skCrypt(L"NumPadSix").decrypt());
+		Keys[KeyName::NumPadSeven].FName = SDK::FName(skCrypt(L"NumPadSeven").decrypt());
+		Keys[KeyName::NumPadEight].FName = SDK::FName(skCrypt(L"NumPadEight").decrypt());
+		Keys[KeyName::NumPadNine].FName = SDK::FName(skCrypt(L"NumPadNine").decrypt());
 
-		Keys.Multiply.FName = SDK::FName(skCrypt(L"Multiply").decrypt());
-		Keys.Multiply.Name = skCrypt("Multiply").decrypt();
-		Keys.Add.FName = SDK::FName(skCrypt(L"Add").decrypt());
-		Keys.Add.Name = skCrypt("Add").decrypt();
-		Keys.Subtract.FName = SDK::FName(skCrypt(L"Subtract").decrypt());
-		Keys.Subtract.Name = skCrypt("Subtract").decrypt();
-		Keys.Decimal.FName = SDK::FName(skCrypt(L"Decimal").decrypt());
-		Keys.Decimal.Name = skCrypt("Decimal").decrypt();
-		Keys.Divide.FName = SDK::FName(skCrypt(L"Divide").decrypt());
-		Keys.Divide.Name = skCrypt("Divide").decrypt();
+		Keys[KeyName::Multiply].FName = SDK::FName(skCrypt(L"Multiply").decrypt());
+		Keys[KeyName::Add].FName = SDK::FName(skCrypt(L"Add").decrypt());
+		Keys[KeyName::Subtract].FName = SDK::FName(skCrypt(L"Subtract").decrypt());
+		Keys[KeyName::Decimal].FName = SDK::FName(skCrypt(L"Decimal").decrypt());
+		Keys[KeyName::Divide].FName = SDK::FName(skCrypt(L"Divide").decrypt());
 
-		Keys.F1.FName = SDK::FName(skCrypt(L"F1").decrypt());
-		Keys.F1.Name = skCrypt("F1").decrypt();
-		Keys.F2.FName = SDK::FName(skCrypt(L"F2").decrypt());
-		Keys.F2.Name = skCrypt("F2").decrypt();
-		Keys.F3.FName = SDK::FName(skCrypt(L"F3").decrypt());
-		Keys.F3.Name = skCrypt("F3").decrypt();
-		Keys.F4.FName = SDK::FName(skCrypt(L"F4").decrypt());
-		Keys.F4.Name = skCrypt("F4").decrypt();
-		Keys.F5.FName = SDK::FName(skCrypt(L"F5").decrypt());
-		Keys.F5.Name = skCrypt("F5").decrypt();
-		Keys.F6.FName = SDK::FName(skCrypt(L"F6").decrypt());
-		Keys.F6.Name = skCrypt("F6").decrypt();
-		Keys.F7.FName = SDK::FName(skCrypt(L"F7").decrypt());
-		Keys.F7.Name = skCrypt("F7").decrypt();
-		Keys.F8.FName = SDK::FName(skCrypt(L"F8").decrypt());
-		Keys.F8.Name = skCrypt("F8").decrypt();
-		Keys.F9.FName = SDK::FName(skCrypt(L"F9").decrypt());
-		Keys.F9.Name = skCrypt("F9").decrypt();
-		Keys.F10.FName = SDK::FName(skCrypt(L"F10").decrypt());
-		Keys.F10.Name = skCrypt("F10").decrypt();
-		Keys.F11.FName = SDK::FName(skCrypt(L"F11").decrypt());
-		Keys.F11.Name = skCrypt("F11").decrypt();
-		Keys.F12.FName = SDK::FName(skCrypt(L"F12").decrypt());
-		Keys.F12.Name = skCrypt("F12").decrypt();
+		Keys[KeyName::F1].FName = SDK::FName(skCrypt(L"F1").decrypt());
+		Keys[KeyName::F2].FName = SDK::FName(skCrypt(L"F2").decrypt());
+		Keys[KeyName::F3].FName = SDK::FName(skCrypt(L"F3").decrypt());
+		Keys[KeyName::F4].FName = SDK::FName(skCrypt(L"F4").decrypt());
+		Keys[KeyName::F5].FName = SDK::FName(skCrypt(L"F5").decrypt());
+		Keys[KeyName::F6].FName = SDK::FName(skCrypt(L"F6").decrypt());
+		Keys[KeyName::F7].FName = SDK::FName(skCrypt(L"F7").decrypt());
+		Keys[KeyName::F8].FName = SDK::FName(skCrypt(L"F8").decrypt());
+		Keys[KeyName::F9].FName = SDK::FName(skCrypt(L"F9").decrypt());
+		Keys[KeyName::F10].FName = SDK::FName(skCrypt(L"F10").decrypt());
+		Keys[KeyName::F11].FName = SDK::FName(skCrypt(L"F11").decrypt());
+		Keys[KeyName::F12].FName = SDK::FName(skCrypt(L"F12").decrypt());
 
-		Keys.NumLock.FName = SDK::FName(skCrypt(L"NumLock").decrypt());
-		Keys.NumLock.Name = skCrypt("NumLock").decrypt();
-		Keys.ScrollLock.FName = SDK::FName(skCrypt(L"ScrollLock").decrypt());
-		Keys.ScrollLock.Name = skCrypt("ScrollLock").decrypt();
-		Keys.LeftShift.FName = SDK::FName(skCrypt(L"LeftShift").decrypt());
-		Keys.LeftShift.Name = skCrypt("LShift").decrypt();
-		Keys.RightShift.FName = SDK::FName(skCrypt(L"RightShift").decrypt());
-		Keys.RightShift.Name = skCrypt("RShift").decrypt();
-		Keys.LeftControl.FName = SDK::FName(skCrypt(L"LeftControl").decrypt());
-		Keys.LeftControl.Name = skCrypt("LCtrl").decrypt();
-		Keys.RightControl.FName = SDK::FName(skCrypt(L"RightControl").decrypt());
-		Keys.RightControl.Name = skCrypt("RCtrl").decrypt();
-		Keys.LeftAlt.FName = SDK::FName(skCrypt(L"LeftAlt").decrypt());
-		Keys.LeftAlt.Name = skCrypt("LAlt").decrypt();
-		Keys.RightAlt.FName = SDK::FName(skCrypt(L"RightAlt").decrypt());
-		Keys.RightAlt.Name = skCrypt("RAlt").decrypt();
-		Keys.LeftCommand.FName = SDK::FName(skCrypt(L"LeftCommand").decrypt());
-		Keys.LeftCommand.Name = skCrypt("LCmd").decrypt();
-		Keys.RightCommand.FName = SDK::FName(skCrypt(L"RightCommand").decrypt());
-		Keys.RightCommand.Name = skCrypt("RCmd").decrypt();
-		Keys.Semicolon.FName = SDK::FName(skCrypt(L"Semicolon").decrypt());
-		Keys.Semicolon.Name = skCrypt("Semicolon").decrypt();
-		Keys.Equals.FName = SDK::FName(skCrypt(L"Equals").decrypt());
-		Keys.Equals.Name = skCrypt("Equals").decrypt();
-		Keys.Comma.FName = SDK::FName(skCrypt(L"Comma").decrypt());
-		Keys.Comma.Name = skCrypt("Comma").decrypt();
-		Keys.Underscore.FName = SDK::FName(skCrypt(L"Underscore").decrypt());
-		Keys.Underscore.Name = skCrypt("Underscore").decrypt();
-		Keys.Period.FName = SDK::FName(skCrypt(L"Period").decrypt());
-		Keys.Period.Name = skCrypt("Period").decrypt();
-		Keys.Slash.FName = SDK::FName(skCrypt(L"Slash").decrypt());
-		Keys.Slash.Name = skCrypt("Slash").decrypt();
-		Keys.Tilde.FName = SDK::FName(skCrypt(L"Tilde").decrypt());
-		Keys.Tilde.Name = skCrypt("Tilde").decrypt();
-		Keys.LeftBracket.FName = SDK::FName(skCrypt(L"LeftBracket").decrypt());
-		Keys.LeftBracket.Name = skCrypt("LBracket").decrypt();
-		Keys.Backslash.FName = SDK::FName(skCrypt(L"Backslash").decrypt());
-		Keys.Backslash.Name = skCrypt("Backslash").decrypt();
-		Keys.RightBracket.FName = SDK::FName(skCrypt(L"RightBracket").decrypt());
-		Keys.RightBracket.Name = skCrypt("RBracket").decrypt();
-		Keys.Quote.FName = SDK::FName(skCrypt(L"Quote").decrypt());
-		Keys.Quote.Name = skCrypt("Quote").decrypt();
-		Keys.Asterix.FName = SDK::FName(skCrypt(L"Asterix").decrypt());
-		Keys.Asterix.Name = skCrypt("Asterix").decrypt();
-		Keys.Ampersand.FName = SDK::FName(skCrypt(L"Ampersand").decrypt());
-		Keys.Ampersand.Name = skCrypt("Ampersand").decrypt();
-		Keys.Caret.FName = SDK::FName(skCrypt(L"Caret").decrypt());
-		Keys.Caret.Name = skCrypt("Caret").decrypt();
-		Keys.Dollar.FName = SDK::FName(skCrypt(L"Dollar").decrypt());
-		Keys.Dollar.Name = skCrypt("Dollar").decrypt();
-		Keys.Exclamation.FName = SDK::FName(skCrypt(L"Exclamation").decrypt());
-		Keys.Exclamation.Name = skCrypt("Exclamation").decrypt();
-		Keys.Colon.FName = SDK::FName(skCrypt(L"Colon").decrypt());
-		Keys.Colon.Name = skCrypt("Colon").decrypt();
+		Keys[KeyName::NumLock].FName = SDK::FName(skCrypt(L"NumLock").decrypt());
+		Keys[KeyName::ScrollLock].FName = SDK::FName(skCrypt(L"ScrollLock").decrypt());
+		Keys[KeyName::LeftShift].FName = SDK::FName(skCrypt(L"LeftShift").decrypt());
+		Keys[KeyName::RightShift].FName = SDK::FName(skCrypt(L"RightShift").decrypt());
+		Keys[KeyName::LeftControl].FName = SDK::FName(skCrypt(L"LeftControl").decrypt());
+		Keys[KeyName::RightControl].FName = SDK::FName(skCrypt(L"RightControl").decrypt());
+		Keys[KeyName::LeftAlt].FName = SDK::FName(skCrypt(L"LeftAlt").decrypt());
+		Keys[KeyName::RightAlt].FName = SDK::FName(skCrypt(L"RightAlt").decrypt());
+		Keys[KeyName::LeftCommand].FName = SDK::FName(skCrypt(L"LeftCommand").decrypt());
+		Keys[KeyName::RightCommand].FName = SDK::FName(skCrypt(L"RightCommand").decrypt());
+		Keys[KeyName::Semicolon].FName = SDK::FName(skCrypt(L"Semicolon").decrypt());
+		Keys[KeyName::Equals].FName = SDK::FName(skCrypt(L"Equals").decrypt());
+		Keys[KeyName::Comma].FName = SDK::FName(skCrypt(L"Comma").decrypt());
+		Keys[KeyName::Underscore].FName = SDK::FName(skCrypt(L"Underscore").decrypt());
+		Keys[KeyName::Period].FName = SDK::FName(skCrypt(L"Period").decrypt());
+		Keys[KeyName::Slash].FName = SDK::FName(skCrypt(L"Slash").decrypt());
+		Keys[KeyName::Tilde].FName = SDK::FName(skCrypt(L"Tilde").decrypt());
+		Keys[KeyName::LeftBracket].FName = SDK::FName(skCrypt(L"LeftBracket").decrypt());
+		Keys[KeyName::Backslash].FName = SDK::FName(skCrypt(L"Backslash").decrypt());
+		Keys[KeyName::RightBracket].FName = SDK::FName(skCrypt(L"RightBracket").decrypt());
+		Keys[KeyName::Quote].FName = SDK::FName(skCrypt(L"Quote").decrypt());
+		Keys[KeyName::Asterix].FName = SDK::FName(skCrypt(L"Asterix").decrypt());
+		Keys[KeyName::Ampersand].FName = SDK::FName(skCrypt(L"Ampersand").decrypt());
+		Keys[KeyName::Caret].FName = SDK::FName(skCrypt(L"Caret").decrypt());
+		Keys[KeyName::Dollar].FName = SDK::FName(skCrypt(L"Dollar").decrypt());
+		Keys[KeyName::Exclamation].FName = SDK::FName(skCrypt(L"Exclamation").decrypt());
+		Keys[KeyName::Colon].FName = SDK::FName(skCrypt(L"Colon").decrypt());
 
-		Keys.A_AccentGrave.FName = SDK::FName(skCrypt(L"A_AccentGrave").decrypt());
-		Keys.A_AccentGrave.Name = skCrypt("A_Grave").decrypt();
-		Keys.E_AccentGrave.FName = SDK::FName(skCrypt(L"E_AccentGrave").decrypt());
-		Keys.E_AccentGrave.Name = skCrypt("E_Grave").decrypt();
-		Keys.E_AccentAigu.FName = SDK::FName(skCrypt(L"E_AccentAigu").decrypt());
-		Keys.E_AccentAigu.Name = skCrypt("E_Aigu").decrypt();
-		Keys.C_Cedille.FName = SDK::FName(skCrypt(L"C_Cedille").decrypt());
-		Keys.C_Cedille.Name = skCrypt("C_Cedille").decrypt();
+		Keys[KeyName::A_AccentGrave].FName = SDK::FName(skCrypt(L"A_AccentGrave").decrypt());
+		Keys[KeyName::E_AccentGrave].FName = SDK::FName(skCrypt(L"E_AccentGrave").decrypt());
+		Keys[KeyName::E_AccentAigu].FName = SDK::FName(skCrypt(L"E_AccentAigu").decrypt());
+		Keys[KeyName::C_Cedille].FName = SDK::FName(skCrypt(L"C_Cedille").decrypt());
 
-		Keys.Section.FName = SDK::FName(skCrypt(L"Section").decrypt());
-		Keys.Section.Name = skCrypt("Section").decrypt();
+		Keys[KeyName::Section].FName = SDK::FName(skCrypt(L"Section").decrypt());
 
-		Keys.Gamepad_LeftX.FName = SDK::FName(skCrypt(L"Gamepad_LeftX").decrypt());
-		Keys.Gamepad_LeftX.Name = skCrypt("Gamepad_LeftX").decrypt();
-		Keys.Gamepad_LeftY.FName = SDK::FName(skCrypt(L"Gamepad_LeftY").decrypt());
-		Keys.Gamepad_LeftY.Name = skCrypt("Gamepad_LeftY").decrypt();
-		Keys.Gamepad_RightX.FName = SDK::FName(skCrypt(L"Gamepad_RightX").decrypt());
-		Keys.Gamepad_RightX.Name = skCrypt("Gamepad_RightX").decrypt();
-		Keys.Gamepad_RightY.FName = SDK::FName(skCrypt(L"Gamepad_RightY").decrypt());
-		Keys.Gamepad_RightY.Name = skCrypt("Gamepad_RightY").decrypt();
-		Keys.Gamepad_LeftTriggerAxis.FName = SDK::FName(skCrypt(L"Gamepad_LeftTriggerAxis").decrypt());
-		Keys.Gamepad_LeftTriggerAxis.Name = skCrypt("Gamepad_LeftTriggerAxis").decrypt();
-		Keys.Gamepad_RightTriggerAxis.FName = SDK::FName(skCrypt(L"Gamepad_RightTriggerAxis").decrypt());
-		Keys.Gamepad_RightTriggerAxis.Name = skCrypt("Gamepad_RightTriggerAxis").decrypt();
-		Keys.Gamepad_LeftThumbstick.FName = SDK::FName(skCrypt(L"Gamepad_LeftThumbstick").decrypt());
-		Keys.Gamepad_LeftThumbstick.Name = skCrypt("Gamepad_LeftThumbstick").decrypt();
-		Keys.Gamepad_RightThumbstick.FName = SDK::FName(skCrypt(L"Gamepad_RightThumbstick").decrypt());
-		Keys.Gamepad_RightThumbstick.Name = skCrypt("Gamepad_RightThumbstick").decrypt();
-		Keys.Gamepad_Special_Left.FName = SDK::FName(skCrypt(L"Gamepad_Special_Left").decrypt());
-		Keys.Gamepad_Special_Left.Name = skCrypt("Gamepad_Special_Left").decrypt();
-		Keys.Gamepad_Special_Left_X.FName = SDK::FName(skCrypt(L"Gamepad_Special_Left_X").decrypt());
-		Keys.Gamepad_Special_Left_X.Name = skCrypt("Gamepad_Special_Left_X").decrypt();
-		Keys.Gamepad_Special_Left_Y.FName = SDK::FName(skCrypt(L"Gamepad_Special_Left_Y").decrypt());
-		Keys.Gamepad_Special_Left_Y.Name = skCrypt("Gamepad_Special_Left_Y").decrypt();
-		Keys.Gamepad_Special_Right.FName = SDK::FName(skCrypt(L"Gamepad_Special_Right").decrypt());
-		Keys.Gamepad_Special_Right.Name = skCrypt("Gamepad_Special_Right").decrypt();
-		Keys.Gamepad_FaceButton_Bottom.FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Bottom").decrypt());
-		Keys.Gamepad_FaceButton_Bottom.Name = skCrypt("Gamepad_FaceButton_Bottom").decrypt();
-		Keys.Gamepad_FaceButton_Right.FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Right").decrypt());
-		Keys.Gamepad_FaceButton_Right.Name = skCrypt("Gamepad_FaceButton_Right").decrypt();
-		Keys.Gamepad_FaceButton_Left.FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Left").decrypt());
-		Keys.Gamepad_FaceButton_Left.Name = skCrypt("Gamepad_FaceButton_Left").decrypt();
-		Keys.Gamepad_FaceButton_Top.FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Top").decrypt());
-		Keys.Gamepad_FaceButton_Top.Name = skCrypt("Gamepad_FaceButton_Top").decrypt();
-		Keys.Gamepad_LeftShoulder.FName = SDK::FName(skCrypt(L"Gamepad_LeftShoulder").decrypt());
-		Keys.Gamepad_LeftShoulder.Name = skCrypt("Gamepad_LeftShoulder").decrypt();
-		Keys.Gamepad_RightShoulder.FName = SDK::FName(skCrypt(L"Gamepad_RightShoulder").decrypt());
-		Keys.Gamepad_RightShoulder.Name = skCrypt("Gamepad_RightShoulder").decrypt();
-		Keys.Gamepad_LeftTrigger.FName = SDK::FName(skCrypt(L"Gamepad_LeftTrigger").decrypt());
-		Keys.Gamepad_LeftTrigger.Name = skCrypt("Gamepad_LeftTrigger").decrypt();
-		Keys.Gamepad_RightTrigger.FName = SDK::FName(skCrypt(L"Gamepad_RightTrigger").decrypt());
-		Keys.Gamepad_RightTrigger.Name = skCrypt("Gamepad_RightTrigger").decrypt();
-		Keys.Gamepad_DPad_Up.FName = SDK::FName(skCrypt(L"Gamepad_DPad_Up").decrypt());
-		Keys.Gamepad_DPad_Up.Name = skCrypt("Gamepad_DPad_Up").decrypt();
-		Keys.Gamepad_DPad_Down.FName = SDK::FName(skCrypt(L"Gamepad_DPad_Down").decrypt());
-		Keys.Gamepad_DPad_Down.Name = skCrypt("Gamepad_DPad_Down").decrypt();
-		Keys.Gamepad_DPad_Right.FName = SDK::FName(skCrypt(L"Gamepad_DPad_Right").decrypt());
-		Keys.Gamepad_DPad_Right.Name = skCrypt("Gamepad_DPad_Right").decrypt();
-		Keys.Gamepad_DPad_Left.FName = SDK::FName(skCrypt(L"Gamepad_DPad_Left").decrypt());
-		Keys.Gamepad_DPad_Left.Name = skCrypt("Gamepad_DPad_Left").decrypt();
-		Keys.Gamepad_LeftStick_Up.FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Up").decrypt());
-		Keys.Gamepad_LeftStick_Up.Name = skCrypt("Gamepad_LeftStick_Up").decrypt();
-		Keys.Gamepad_LeftStick_Down.FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Down").decrypt());
-		Keys.Gamepad_LeftStick_Down.Name = skCrypt("Gamepad_LeftStick_Down").decrypt();
-		Keys.Gamepad_LeftStick_Right.FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Right").decrypt());
-		Keys.Gamepad_LeftStick_Right.Name = skCrypt("Gamepad_LeftStick_Right").decrypt();
-		Keys.Gamepad_LeftStick_Left.FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Left").decrypt());
-		Keys.Gamepad_LeftStick_Left.Name = skCrypt("Gamepad_LeftStick_Left").decrypt();
-		Keys.Gamepad_RightStick_Up.FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Up").decrypt());
-		Keys.Gamepad_RightStick_Up.Name = skCrypt("Gamepad_RightStick_Up").decrypt();
-		Keys.Gamepad_RightStick_Down.FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Down").decrypt());
-		Keys.Gamepad_RightStick_Down.Name = skCrypt("Gamepad_RightStick_Down").decrypt();
-		Keys.Gamepad_RightStick_Right.FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Right").decrypt());
-		Keys.Gamepad_RightStick_Right.Name = skCrypt("Gamepad_RightStick_Right").decrypt();
-		Keys.Gamepad_RightStick_Left.FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Left").decrypt());
-		Keys.Gamepad_RightStick_Left.Name = skCrypt("Gamepad_RightStick_Left").decrypt();
+		Keys[KeyName::Gamepad_LeftX].FName = SDK::FName(skCrypt(L"Gamepad_LeftX").decrypt());
+		Keys[KeyName::Gamepad_LeftY].FName = SDK::FName(skCrypt(L"Gamepad_LeftY").decrypt());
+		Keys[KeyName::Gamepad_RightX].FName = SDK::FName(skCrypt(L"Gamepad_RightX").decrypt());
+		Keys[KeyName::Gamepad_RightY].FName = SDK::FName(skCrypt(L"Gamepad_RightY").decrypt());	
+		Keys[KeyName::Gamepad_LeftTriggerAxis].FName = SDK::FName(skCrypt(L"Gamepad_LeftTriggerAxis").decrypt());
+		Keys[KeyName::Gamepad_RightTriggerAxis].FName = SDK::FName(skCrypt(L"Gamepad_RightTriggerAxis").decrypt());
+		Keys[KeyName::Gamepad_LeftThumbstick].FName = SDK::FName(skCrypt(L"Gamepad_LeftThumbstick").decrypt());
+		Keys[KeyName::Gamepad_RightThumbstick].FName = SDK::FName(skCrypt(L"Gamepad_RightThumbstick").decrypt());
+		Keys[KeyName::Gamepad_Special_Left].FName = SDK::FName(skCrypt(L"Gamepad_Special_Left").decrypt());	
+		Keys[KeyName::Gamepad_Special_Left_X].FName = SDK::FName(skCrypt(L"Gamepad_Special_Left_X").decrypt());
+		Keys[KeyName::Gamepad_Special_Left_Y].FName = SDK::FName(skCrypt(L"Gamepad_Special_Left_Y").decrypt());
+		Keys[KeyName::Gamepad_Special_Right].FName = SDK::FName(skCrypt(L"Gamepad_Special_Right").decrypt());
+
+		Keys[KeyName::Gamepad_FaceButton_Bottom].FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Bottom").decrypt());
+		Keys[KeyName::Gamepad_FaceButton_Right].FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Right").decrypt());
+		Keys[KeyName::Gamepad_FaceButton_Left].FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Left").decrypt());
+		Keys[KeyName::Gamepad_FaceButton_Top].FName = SDK::FName(skCrypt(L"Gamepad_FaceButton_Top").decrypt());
+		Keys[KeyName::Gamepad_LeftShoulder].FName = SDK::FName(skCrypt(L"Gamepad_LeftShoulder").decrypt());
+		Keys[KeyName::Gamepad_RightShoulder].FName = SDK::FName(skCrypt(L"Gamepad_RightShoulder").decrypt());
+		Keys[KeyName::Gamepad_LeftTrigger].FName = SDK::FName(skCrypt(L"Gamepad_LeftTrigger").decrypt());	
+		Keys[KeyName::Gamepad_RightTrigger].FName = SDK::FName(skCrypt(L"Gamepad_RightTrigger").decrypt());
+		Keys[KeyName::Gamepad_DPad_Up].FName = SDK::FName(skCrypt(L"Gamepad_DPad_Up").decrypt());
+		Keys[KeyName::Gamepad_DPad_Down].FName = SDK::FName(skCrypt(L"Gamepad_DPad_Down").decrypt());	
+		Keys[KeyName::Gamepad_DPad_Right].FName = SDK::FName(skCrypt(L"Gamepad_DPad_Right").decrypt());
+		Keys[KeyName::Gamepad_DPad_Left].FName = SDK::FName(skCrypt(L"Gamepad_DPad_Left").decrypt());
+		Keys[KeyName::Gamepad_LeftStick_Up].FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Up").decrypt());
+		Keys[KeyName::Gamepad_LeftStick_Down].FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Down").decrypt());
+		Keys[KeyName::Gamepad_LeftStick_Right].FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Right").decrypt());
+		Keys[KeyName::Gamepad_LeftStick_Left].FName = SDK::FName(skCrypt(L"Gamepad_LeftStick_Left").decrypt());
+		Keys[KeyName::Gamepad_RightStick_Up].FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Up").decrypt());
+		Keys[KeyName::Gamepad_RightStick_Down].FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Down").decrypt());	
+		Keys[KeyName::Gamepad_RightStick_Right].FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Right").decrypt());	
+		Keys[KeyName::Gamepad_RightStick_Left].FName = SDK::FName(skCrypt(L"Gamepad_RightStick_Left").decrypt());
 	}
 
 	DEBUG_LOG(skCrypt("Input system initialized!").decrypt());

@@ -139,10 +139,6 @@ namespace Math {
 		return radians * (180.0f / M_PI);
 	}
 
-	inline float Abs(float Value) {
-		return (Value < 0.0f) ? -Value : Value;
-	}
-
 	inline float GetDegreeDistance(SDK::FRotator Rotator1, SDK::FRotator Rotator2) {
 		SDK::FVector ForwardVector1 = SDK::UKismetMathLibrary::StaticClass()->GetForwardVector(Rotator1);
 		SDK::FVector ForwardVector2 = SDK::UKismetMathLibrary::StaticClass()->GetForwardVector(Rotator2);

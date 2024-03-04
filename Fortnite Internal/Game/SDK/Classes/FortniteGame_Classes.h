@@ -107,6 +107,18 @@ namespace SDK {
 			return (AFortWeapon*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::CurrentWeapon));
 		}
 
+		bool IsDying() {
+			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+			if (SDK::Cached::Masks::FortPawn::bIsDying) {
+				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::bIsDying);
+				return BitField & SDK::Cached::Masks::FortPawn::bIsDying;
+			}
+			else {
+				return *(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::bIsDying);
+			}
+		}
+
 
 
 		// STATIC FUNCTIONS
@@ -117,9 +129,9 @@ namespace SDK {
 	public:
 		// VALUES
 
-		uint8_t GetWeakSpotInfo() {
+		uint8 GetWeakSpotInfo() {
 			if (!this) return 0;
-			return *(uint8_t*)((uintptr_t)this + SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField);
+			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField);
 		}
 
 
