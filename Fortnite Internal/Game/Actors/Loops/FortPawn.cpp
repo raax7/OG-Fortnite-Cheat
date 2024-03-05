@@ -2,6 +2,8 @@
 
 #include "../../SDK/Classes/Engine_classes.h"
 
+#include "../../Game.h"
+
 #include "../../../Drawing/Drawing.h"
 #include "../../../Configs/Config.h"
 
@@ -10,8 +12,8 @@
 #include "../../Features/Aimbot/Aimbot.h"
 
 #include "../../../Utilities/Math.h"
-#include "../../Game.h"
-#include "../../../Utilities/Logger.h"
+
+#include "../../SDK/SDKInitializer.h"
 
 void Actors::FortPawn::Tick() {
 	if (!SDK::GetLocalCanvas()) return;
@@ -19,9 +21,11 @@ void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
 
 	// move somwhere better later this is gay here
-	if (!SDK::GetLocalController()->AcknowledgedPawn()) LocalPawnCache.TeamIndex = INT_FAST8_MAX;
+	if (SDK::GetLocalPawn() == nullptr) LocalPawnCache.TeamIndex = INT_FAST8_MAX;
 
-	for (auto it = CachedPlayers.begin(); it != CachedPlayers.end(); ++it) {
+	std::vector<Actors::Caches::FortPawnCache> CachedPlayersLocal = Actors::FortPawn::CachedPlayers;
+
+	for (auto it = CachedPlayersLocal.begin(); it != CachedPlayersLocal.end(); ++it) {
 		Actors::Caches::FortPawnCache& CurrentPlayer = *it;
 
 		SDK::AActor*					Actor				= CurrentPlayer.FortPawn;								if (!Actor) continue;
@@ -35,6 +39,45 @@ void Actors::FortPawn::Tick() {
 			LocalPawnCache.Position = Bone;
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
+			SDK::AFortWeapon* Weapon = FortPawn->CurrentWeapon();
+
+			if (Weapon) {
+				// We have to init here because we need a valid AFortWeapon to get the VFT
+				if (SDK::Cached::VFT::GetWeaponStats == 0x0) {
+					SDKInitializer::InitGetWeaponStatsIndex(Weapon);
+				}
+				else {
+					SDK::FFortBaseWeaponStats* WeaponStats = nullptr;
+					WeaponStats = Weapon->WeaponStats();
+
+					if (WeaponStats) {
+						if (Config::Exploits::Pickaxe::Enabled && Weapon->IsPickaxe()) {
+							SDK::FFortMeleeWeaponStats* MeleeWeaponStats = (SDK::FFortMeleeWeaponStats*)WeaponStats;
+							MeleeWeaponStats->SetSwingPlaySpeed(Config::Exploits::Pickaxe::SpeedMultiplier);
+						}
+						else if (Config::Exploits::Weapon::Enabled && Weapon->IsA(SDK::AFortWeaponRanged::StaticClass())) {
+							SDK::FFortRangedWeaponStats* RangedWeaponStats = (SDK::FFortRangedWeaponStats*)WeaponStats;
+
+							if (Config::Exploits::Weapon::NoSpread) {
+								// you definetly dont need to do all of these, but yeah
+								RangedWeaponStats->SetSpread(0.f);
+								RangedWeaponStats->SetSpreadDownsights(0.f);
+								RangedWeaponStats->SetStandingStillSpreadMultiplier(0.f);
+								RangedWeaponStats->SetAthenaCrouchingSpreadMultiplier(0.f);
+								RangedWeaponStats->SetAthenaJumpingFallingSpreadMultiplier(0.f);
+								RangedWeaponStats->SetAthenaSprintingSpreadMultiplier(0.f);
+								RangedWeaponStats->SetMinSpeedForSpreadMultiplier(0.f);
+								RangedWeaponStats->SetMaxSpeedForSpreadMultiplier(0.f);
+							}
+
+							if (Config::Exploits::Weapon::CartridgePerFire != 1) {
+								//RangedWeaponStats->SetCartridgePerFire(Config::Exploits::Weapon::CartridgePerFire);
+							}
+						}
+					}
+				}
+			}
+
 			continue;
 		}
 
@@ -43,7 +86,7 @@ void Actors::FortPawn::Tick() {
 
 		bool DidPopulate2D = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
 		Features::FortPawnHelper::PopulateVisibilities(CurrentPlayer);
-
+		
 		CurrentPlayer.IsOnScreen = false;
 
 		for (int i = 0; i < CurrentPlayer.BoneRegister2D.size(); i++) {
@@ -53,7 +96,7 @@ void Actors::FortPawn::Tick() {
 				CurrentPlayer.IsOnScreen = true;
 			}
 		}
-
+		
 		CurrentPlayer.DistanceFromLocal = LocalPawnCache.Position.Distance(CurrentPlayer.BoneRegister[Features::FortPawnHelper::Bone::Root]) / 100.f;
 
 		// Hardcoded max distance, should move to bone population for optimisation

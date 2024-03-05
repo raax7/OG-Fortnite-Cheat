@@ -8,13 +8,19 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_Engine|x64 = Debug_Engine|x64
+		Debug_ImGui|x64 = Debug_ImGui|x64
 		Release_Engine|x64 = Release_Engine|x64
+		Release_ImGui|x64 = Release_ImGui|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Debug_Engine|x64.ActiveCfg = Debug_Engine|x64
 		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Debug_Engine|x64.Build.0 = Debug_Engine|x64
+		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Debug_ImGui|x64.ActiveCfg = Debug_ImGui|x64
+		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Debug_ImGui|x64.Build.0 = Debug_ImGui|x64
 		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Release_Engine|x64.ActiveCfg = Release_Engine|x64
 		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Release_Engine|x64.Build.0 = Release_Engine|x64
+		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Release_ImGui|x64.ActiveCfg = Release_ImGui|x64
+		{507F8410-E804-4BAE-AE5C-68AE005C38F4}.Release_ImGui|x64.Build.0 = Release_ImGui|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

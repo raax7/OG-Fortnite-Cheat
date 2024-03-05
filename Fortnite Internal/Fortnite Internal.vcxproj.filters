@@ -50,13 +50,75 @@
     <ClCompile Include="Game\Input\Input.cpp">
       <Filter>Game\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Features\FortPawnHelper\FortPawnHelper.cpp" />
-    <ClCompile Include="Game\Features\Aimbot\Target.cpp" />
-    <ClCompile Include="Game\Features\Aimbot\Aimbot.cpp" />
-    <ClCompile Include="Game\SDK\Classes\Engine_Functions.cpp" />
-    <ClCompile Include="Game\SDK\Classes\FortniteGame_Functions.cpp" />
-    <ClCompile Include="Game\Features\FortPawnHelper\Bone.cpp" />
-    <ClCompile Include="Game\SDK\Classes\Basic.cpp" />
+    <ClCompile Include="Drawing\ImGui\imgui.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\ImGui\imgui_demo.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\ImGui\imgui_draw.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\ImGui\imgui_impl_dx11.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\ImGui\imgui_impl_win32.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\ImGui\imgui_tables.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing\ImGui\imgui_widgets.cpp">
+      <Filter>Drawing\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\FortPawnHelper\FortPawnHelper.cpp">
+      <Filter>Game\Features\FortPawnHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Aimbot\Aimbot.cpp">
+      <Filter>Game\Features\Aimbot</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Aimbot\Target.cpp">
+      <Filter>Game\Features\Aimbot</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\SDK\Classes\Basic.cpp">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\FortPawnHelper\Bone.cpp">
+      <Filter>Game\Features\FortPawnHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\SDK\Classes\FortniteGame_Functions.cpp">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\SDK\Classes\Engine_Functions.cpp">
+      <Filter>Game\SDK\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\WndProc.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\ResizeBuffers.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\Present.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\RaaxDx\RaaxDx.cpp">
+      <Filter>Hooks\RaaxDx</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\RaaxDx\minhook\src\buffer.c">
+      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\RaaxDx\minhook\src\hook.c">
+      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\RaaxDx\minhook\src\trampoline.c">
+      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\RaaxDx\minhook\src\hde\hde32.c">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\RaaxDx\minhook\src\hde\hde64.c">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -95,9 +157,6 @@
     <Filter Include="Game\Actors\Loops">
       <UniqueIdentifier>{042f96ca-9bce-43c7-9195-5d67f678d6f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Features\FortPawn">
-      <UniqueIdentifier>{c7195b69-6869-4b49-8a00-440ea8ff337f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Input">
       <UniqueIdentifier>{2dbf881b-214c-4ce7-ae61-4b4f2654c8c5}</UniqueIdentifier>
     </Filter>
@@ -109,6 +168,30 @@
     </Filter>
     <Filter Include="Drawing\RaaxGUI">
       <UniqueIdentifier>{cf03b6bf-0d0d-49c1-afdb-4b5e64336048}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Drawing\ImGui">
+      <UniqueIdentifier>{8a875f6b-aabd-4aed-bbd2-0832f581750b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features\FortPawnHelper">
+      <UniqueIdentifier>{c7195b69-6869-4b49-8a00-440ea8ff337f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\RaaxDx">
+      <UniqueIdentifier>{6eb80892-c8c9-4766-b6eb-29b7bebcc1a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\RaaxDx\minhook">
+      <UniqueIdentifier>{09ad028c-a7f2-4f76-a3ed-2f8226e8a0a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\RaaxDx\minhook\include">
+      <UniqueIdentifier>{535cac5b-302a-4164-ace4-44a93100c15c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\RaaxDx\minhook\src">
+      <UniqueIdentifier>{3a1c28d2-3bf7-4202-a4c1-0d5704f3d59d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\RaaxDx\minhook\dll_resources">
+      <UniqueIdentifier>{21ebf247-e3ec-4ba7-9b0a-485e991a3fff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks\RaaxDx\minhook\src\hde">
+      <UniqueIdentifier>{d6d213c1-5045-4e09-b7d3-a08635004238}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -137,7 +220,7 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Features\FortPawnHelper\FortPawnHelper.h">
-      <Filter>Game\Features\FortPawn</Filter>
+      <Filter>Game\Features\FortPawnHelper</Filter>
     </ClInclude>
     <ClInclude Include="Configs\Config.h">
       <Filter>Configs</Filter>
@@ -200,6 +283,72 @@
     <ClInclude Include="Game\Input\Input.h">
       <Filter>Game\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\FortPawnHelper\Bone.h" />
+    <ClInclude Include="Drawing\ImGui\imconfig.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imgui.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imgui_impl_dx11.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imgui_impl_win32.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imgui_internal.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imstb_rectpack.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imstb_textedit.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing\ImGui\imstb_truetype.h">
+      <Filter>Drawing\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Font.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\FortPawnHelper\Bone.h">
+      <Filter>Game\Features\FortPawnHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\RaaxDx.h">
+      <Filter>Hooks\RaaxDx</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\buffer.h">
+      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\trampoline.h">
+      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\include\MinHook.h">
+      <Filter>Hooks\RaaxDx\minhook\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\hde32.h">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\hde64.h">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\pstdint.h">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\table32.h">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\table64.h">
+      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Hooks\RaaxDx\minhook\dll_resources\MinHook.def">
+      <Filter>Hooks\RaaxDx\minhook\dll_resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Hooks\RaaxDx\minhook\dll_resources\MinHook.rc">
+      <Filter>Hooks\RaaxDx\minhook\dll_resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

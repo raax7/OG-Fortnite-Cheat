@@ -90,35 +90,35 @@ SDK::FName Features::FortPawnHelper::Bone::GetBoneName(BoneID BoneID) {
     return Names.None;
 }
 void Features::FortPawnHelper::Bone::Init() {
-    DEBUG_LOG(skCrypt("Initializing bone names...").decrypt());
+    DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing bone names...").decrypt());
 
     // Init Names
     {
-        Names.Head = SDK::FName(L"head");
-        Names.Neck = SDK::FName(L"neck_01");
+        Names.Head = SDK::FName(skCrypt(L"head").decrypt());
+        Names.Neck = SDK::FName(skCrypt(L"neck_01").decrypt());
 
-        Names.ChestLeft = SDK::FName(L"clavicle_l");
-        Names.ChestRight = SDK::FName(L"clavicle_r");
+        Names.ChestLeft = SDK::FName(skCrypt(L"clavicle_l").decrypt());
+        Names.ChestRight = SDK::FName(skCrypt(L"clavicle_r").decrypt());
 
-        Names.LeftShoulder = SDK::FName(L"upperarm_l");
-        Names.LeftElbow = SDK::FName(L"lowerarm_l");
-        Names.LeftHand = SDK::FName(L"Hand_L");
-        Names.RightShoulder = SDK::FName(L"upperarm_r");
-        Names.RightElbow = SDK::FName(L"lowerarm_r");
-        Names.RightHand = SDK::FName(L"hand_r");
+        Names.LeftShoulder = SDK::FName(skCrypt(L"upperarm_l").decrypt());
+        Names.LeftElbow = SDK::FName(skCrypt(L"lowerarm_l").decrypt());
+        Names.LeftHand = SDK::FName(skCrypt(L"Hand_L").decrypt());
+        Names.RightShoulder = SDK::FName(skCrypt(L"upperarm_r").decrypt());
+        Names.RightElbow = SDK::FName(skCrypt(L"lowerarm_r").decrypt());
+        Names.RightHand = SDK::FName(skCrypt(L"hand_r").decrypt());
 
-        Names.LeftLeg = SDK::FName(L"thigh_l");
-        Names.LeftKnee = SDK::FName(L"calf_l");
-        Names.LeftFoot = SDK::FName(L"foot_l");
-        Names.RightLeg = SDK::FName(L"thigh_r");
-        Names.RightKnee = SDK::FName(L"calf_r");
-        Names.RightFoot = SDK::FName(L"foot_r");
+        Names.LeftLeg = SDK::FName(skCrypt(L"thigh_l").decrypt());
+        Names.LeftKnee = SDK::FName(skCrypt(L"calf_l").decrypt());
+        Names.LeftFoot = SDK::FName(skCrypt(L"foot_l").decrypt());
+        Names.RightLeg = SDK::FName(skCrypt(L"thigh_r").decrypt());
+        Names.RightKnee = SDK::FName(skCrypt(L"calf_r").decrypt());
+        Names.RightFoot = SDK::FName(skCrypt(L"foot_r").decrypt());
 
-        Names.Pelvis = SDK::FName(L"pelvis");
+        Names.Pelvis = SDK::FName(skCrypt(L"pelvis").decrypt());
 
-        Names.Root = SDK::FName(L"Root");
-        Names.None = SDK::FName(L"None");
+        Names.Root = SDK::FName(skCrypt(L"Root").decrypt());
+        Names.None = SDK::FName(skCrypt(L"None").decrypt());
     }
 
-    DEBUG_LOG(skCrypt("Bone names initialized!").decrypt());
+    DEBUG_LOG(LOG_OFFSET, skCrypt("Bone names initialized!").decrypt());
 }

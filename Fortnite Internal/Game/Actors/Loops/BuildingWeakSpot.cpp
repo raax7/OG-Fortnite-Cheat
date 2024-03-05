@@ -12,6 +12,7 @@ void Actors::BuildingWeakSpot::Tick() {
 
 	for (int i = 0; i < CachedBuildingWeakSpot.Num(); i++) {
 		if (Config::Aimbot::Weakspot::Enabled == false) break;
+		if (reinterpret_cast<SDK::AFortPawn*>(SDK::GetLocalPawn())->CurrentWeapon()->IsPickaxe() == false) break;
 
 		// ADD CHECK FOR IF CURRENT WEAPON IS A GUN OR A PICKAXE
 		//if (reinterpret_cast<SDK::AFortPawn*>(SDK::GetLocalController()->AcknowledgedPawn())->CurrentWeapon()) break;

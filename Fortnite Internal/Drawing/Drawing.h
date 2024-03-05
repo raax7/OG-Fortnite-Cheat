@@ -62,30 +62,30 @@ public:
 	/*
 	* @brief Draws a filled rectangle on the screen
 	* 
-	* @param ScreenPositionA - The starting position of the rectangle
-	* @param ScreenPositionB - The ending position of the rectangle
+	* @param ScreenPosition - The starting position of the rectangle
+	* @param ScreenSize - The size of the rectangle
 	* @param RenderColor - The color of the rectangle
 	*/
-	static void FilledRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, SDK::FLinearColor RenderColor, bool Outlined);
+	static void FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Draws a hollow rectangle on the screen
 	* 
 	* @param ScreenPositionA - The starting position of the rectangle
-	* @param ScreenPositionB - The ending position of the rectangle
+	* @param ScreenSize - The size of the rectangle
 	* @param Thickness - The thickness of the rectangle
 	* @param RenderColor - The color of the rectangle
 	* @param Outlined - Whether or not the rectangle should be outlined
 	*/
-	static void Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	static void Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Draws a cornered rectangle on the screen
 	* 
 	* @param ScreenPositionA - The starting position of the rectangle
-	* @param ScreenPositionB - The ending position of the rectangle
+	* @param ScreenSize - The size of the rectangle
 	* @param Thickness - The thickness of the rectangle
 	* @param RenderColor - The color of the rectangle
 	*/
-	static void CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	static void CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 };

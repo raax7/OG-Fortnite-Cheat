@@ -11,5 +11,6 @@ namespace Game {
 
 	inline uintptr_t CurrentCanvas	= 0x0;
 
+	void MenuCallback();
 	void DrawCallback();
 }

@@ -106,6 +106,13 @@ public:
 	/* Update the GetViewpoint VFT index (for SilentAim) */
 	static void InitGVIndex();
 
+	/* 
+	* @brief Update the GetWeaponStats VFT index (for some weapon exploits)
+	* 
+	* @param WeaponObject - The weapon actor to get the VFT index from
+	*/
+	static void InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor);
+
 
 
 	// CREDITS TO: Dumper-7

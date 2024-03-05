@@ -49,7 +49,7 @@ namespace Features {
                 Root = 3,           // "Root"
 
                 ChestLeft = 4,	    // "clavicle_l"
-                ChestRight = 5,    // "clavicle_r"
+                ChestRight = 5,     // "clavicle_r"
 
                 // There is no chest bone, so this is a dummy value used for the hierarchy, chest should be calculated based on left and right chest bones
                 Chest = 6,          // none
@@ -57,8 +57,8 @@ namespace Features {
                 LeftShoulder = 7,   // "upperarm_l"
                 LeftElbow = 8,	    // "lowerarm_l"
                 LeftHand = 9,	    // "Hand_L"
-                RightShoulder = 10,  // "upperarm_r"
-                RightElbow = 11,	    // "lowerarm_r"
+                RightShoulder = 10, // "upperarm_r"
+                RightElbow = 11,    // "lowerarm_r"
                 RightHand = 12,	    // "hand_r"
 
                 LeftLeg = 13,	    // "thigh_l"

@@ -15,6 +15,10 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 namespace SDK {
+#ifdef _IMGUI
+	SDK::FVector2D ProjectWorldToScreen(SDK::FVector WorldLocation, SDK::FVector CameraLocation, SDK::FRotator CameraRotation, float CameraFOV);
+#endif
+
 	// Classes
 
 	class USceneComponent : public UObject {

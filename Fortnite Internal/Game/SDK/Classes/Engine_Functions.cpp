@@ -4,8 +4,46 @@
 
 #include "../../../Utilities/SpoofCall/SpoofCall.h"
 #include "../../../Utilities/Error.h"
+#include "../../../Utilities/Math.h"
 #include "../../Features/FortPawnHelper/Bone.h"
 #include "../../Game.h"
+
+#ifdef _IMGUI
+SDK::FVector2D SDK::ProjectWorldToScreen(SDK::FVector WorldLocation, SDK::FVector CameraLocation, SDK::FRotator CameraRotation, float CameraFOV) {
+	SDK::FVector2D Screenlocation = SDK::FVector2D(0, 0);
+
+	float radPitch = (CameraRotation.Pitch * float(M_PI) / 180.f);
+	float radYaw = (CameraRotation.Yaw * float(M_PI) / 180.f);
+	float radRoll = (CameraRotation.Roll * float(M_PI) / 180.f);
+
+	float SP = sinf(radPitch);
+	float CP = cosf(radPitch);
+	float SY = sinf(radYaw);
+	float CY = cosf(radYaw);
+	float SR = sinf(radRoll);
+	float CR = cosf(radRoll);
+
+	SDK::FVector vAxisX, vAxisY, vAxisZ;
+	vAxisX = SDK::FVector(CP * CY, CP * SY, SP);
+	vAxisY = SDK::FVector(SR * SP * CY - CR * SY, SR * SP * SY + CR * CY, -SR * CP);
+	vAxisZ = SDK::FVector(-(CR * SP * CY + SR * SY), CY * SR - CR * SP * SY, CR * CP);
+
+	SDK::FVector vDelta = WorldLocation - CameraLocation;
+	SDK::FVector vTransformed = SDK::FVector(vDelta.Dot(vAxisY), vDelta.Dot(vAxisZ), vDelta.Dot(vAxisX));
+
+	if (vTransformed.Z < 1.f)
+		vTransformed.Z = 1.f;
+
+	float FovAngle = CameraFOV;
+	float ScreenCenterX = (float)Game::ScreenWidth / 2.0f;
+	float ScreenCenterY = (float)Game::ScreenHeight / 2.0f;
+
+	Screenlocation.X = ScreenCenterX + vTransformed.X * (ScreenCenterX / tan(FovAngle * (float)M_PI / 360.f)) / vTransformed.Z;
+	Screenlocation.Y = ScreenCenterY - vTransformed.Y * (ScreenCenterX / tan(FovAngle * (float)M_PI / 360.f)) / vTransformed.Z;
+
+	return Screenlocation;
+}
+#endif
 
 // Classes
 
@@ -64,7 +102,7 @@ SDK::FString SDK::APlayerState::GetPlayerName() {
 		FString return_value;
 	} params_GetPlayerName{};
 
-	this->ProcessEvent(SDK::Cached::Functions::PlayerState::GetPlayerName, &params_GetPlayerName);
+	//this->ProcessEvent(SDK::Cached::Functions::PlayerState::GetPlayerName, &params_GetPlayerName);
 
 	return params_GetPlayerName.return_value;
 }
@@ -473,6 +511,9 @@ SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 }
 
 SDK::FVector2D SDK::Project(FVector& WorldLocation) {
+#if _IMGUI
+	return ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
+#else
 	SDK::FVector ScreenLocation = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
 
 	if (ScreenLocation.Z > 0.f) {
@@ -480,9 +521,16 @@ SDK::FVector2D SDK::Project(FVector& WorldLocation) {
 	}
 
 	return SDK::FVector2D(-1.f, -1.f);
+#endif
 }
 SDK::FVector SDK::Project3D(FVector& WorldLocation) {
+	// IMPROVE THIS SO IT WORKS THE SAME ON ENGINE AND IMGUI
+#if _IMGUI
+	SDK::FVector2D ScreenLocation = ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
+	return SDK::FVector(ScreenLocation.X, ScreenLocation.Y, 1.f);
+#else
 	return SDK::GetLocalCanvas()->K2_Project(WorldLocation);
+#endif
 }
 bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};

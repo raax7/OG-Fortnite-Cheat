@@ -56,7 +56,7 @@ public:
 };
 
 #if _DEBUG
-#define THROW_ERROR(message, close) ErrorManager::error(message, close, __FILE__, __LINE__)
+    #define THROW_ERROR(message, close) ErrorManager::error(message, close, __FILE__, __LINE__)
 #else
-#define THROW_ERROR(message, close) ErrorManager::error(message, close, "", 0)
+    #define THROW_ERROR(message, close) ErrorManager::error(message, close, "", 0)
 #endif

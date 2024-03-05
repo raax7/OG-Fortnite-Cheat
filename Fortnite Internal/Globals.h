@@ -3,9 +3,30 @@
 #include <Windows.h>
 #include "Utilities/skCrypter.h"
 
-#define EXTRA_DEBUG_INFO	FALSE	// Enables writing of EXTRA_DEBUG_LOG messages
+// ALL POTENTIAL DETECTION VECTORS ARE MARKED WITH A COMMENT!
+// IF YOU WANT TO AVOID DETECTION, YOU SHOULD DISABLE THEM!
+
+
+
+#define LOG_NONE 0					// No logs
+#define LOG_ERROR 1					// Only error logs
+#define LOG_OFFSET 2				// Error logs and offset logs
+#define LOG_INFO 3					// Error logs, offset logs and general info logs
+#define LOG_ALL 3					// Log everything
+#define LOG_LEVEL_MAX 4	
+
+
+
+// Level of DEBUG_LOG to display
+#ifdef _DEBUG
+	#define LOG_LEVEL		LOG_INFO
+#endif // _DEBUG
+#ifdef NODEBUG
+	#define LOG_LEVEL		LOG_NONE// No logs in release mode by default
+#endif // NODEBUG
+
 #define SHOW_MESSAGE_BOX	TRUE	// Enables the display of error message boxes
-#define CRASH_ON_ERROR		FALSE	// Crashes the game when an offset/VFT index is not found
+#define CRASH_ON_NOT_FOUND	FALSE	// Crashes the game when an offset/VFT index is not found
 
 #define NAME_DUMP			FALSE	// Dumps all FNames to a log
 #define OBJECT_DUMP			FALSE	// Dumps all UObjects to a log
@@ -17,3 +38,8 @@
 // Both of these settings will require a thread to be created, and will be a major detection vector (most of the time)!
 
 inline HMODULE ThisModule = nullptr;// The current module handle
+
+
+
+// Compile-Time Asserts
+static_assert(LOG_LEVEL < LOG_LEVEL_MAX && LOG_LEVEL >= LOG_NONE, "Invalid log level");

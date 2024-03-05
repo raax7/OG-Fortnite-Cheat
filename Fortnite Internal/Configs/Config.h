@@ -2,16 +2,20 @@
 #include <Windows.h>
 #include "ConfigTypes.h"
 
+extern enum class KeyName;
+
 namespace Config {
 	inline bool rapidfiresex = false;
 
 	inline float test = 0;
 	inline int test2 = 5;
-	inline float testfloat = 0.5;
+	inline float testfloat = 1.f;
 	inline float testfloat2 = 0;
 
 	namespace Aimbot {
 		inline bool Enabled = true;
+
+		inline KeyName AimKey;
 
 		inline bool SilentAim = false;
 		inline bool UseAimKeyForSilent = false;
@@ -47,7 +51,7 @@ namespace Config {
 
 		namespace Standard {
 			inline bool Enabled = true;
-			inline float FOV = 20;
+			inline int FOV = 20;
 			inline float Smoothing = 1.f;
 		}
 
@@ -89,6 +93,28 @@ namespace Config {
 
 		namespace SilentGun {
 			inline bool Enabled = false;
+		}
+
+		namespace Pickaxe {
+			inline bool Enabled = false;
+			inline float SpeedMultiplier = 1.f;
+		}
+
+		namespace Weapon {
+			inline bool Enabled = false;
+
+			inline bool ReloadSpeed = false;
+			inline float ReloadSpeedMultiplier = 1.f; // 10.f is instant
+
+			inline bool FireRate = false;
+			inline float FireRateMultiplier = 1.f; // 10.f is instant
+
+			inline bool NoSpread = false;
+
+			inline bool Recoil = false;
+			inline float RecoilMultiplier = 1.f; // 0.f is none
+
+			inline int CartridgePerFire = 1;
 		}
 	}
 }

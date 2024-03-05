@@ -8,7 +8,8 @@
 #include "Error.h"
 #include "../Globals.h"
 
-#ifdef _DEBUG
+// Only log if the log level is not LOG_NO
+#if LOG_LEVEL > LOG_NONE
 class Logger {
 private:
     static std::ofstream File;
@@ -24,7 +25,7 @@ private:
 
     static std::string GetFileName(const char* FilePath) {
         if (!FilePath) {
-            return "";
+            return skCrypt("").decrypt();
         }
 
         size_t LastSlash = std::string(FilePath).find_last_of(skCrypt("/\\").decrypt());
@@ -45,12 +46,16 @@ public:
                 File << std::endl << std::endl << std::endl;
             }
 
-            Log<std::string>(skCrypt("--------------------- LOGGER STARTED ---------------------").decrypt(), nullptr, 0);
+            Log<std::string>(0, skCrypt("--------------------- LOGGER STARTED ---------------------").decrypt(), nullptr, 0);
         }
     }
 
     template <typename T>
-    static void Log(const T& Message, const char* FilePath, int Line) {
+    static void Log(unsigned __int8 LogLevel, const T& Message, const char* FilePath, int Line) {
+        if (LogLevel > LOG_LEVEL) {
+			return;
+		}
+
         std::ostringstream LogStream;
 
         std::string FileName = GetFileName(FilePath);
@@ -69,18 +74,8 @@ public:
 };
 
 inline std::ofstream Logger::File;
+
+#define DEBUG_LOG(LogLevel, Message) Logger::Log(LogLevel, Message, __FILE__, __LINE__)
+#else
+    #define DEBUG_LOG(LogLevel, Message) ((void)0)
 #endif
-
-#ifdef _DEBUG
-    #define DEBUG_LOG(Message) Logger::Log(Message, __FILE__, __LINE__)
-    #if EXTRA_DEBUG_INFO
-        #define EXTRA_DEBUG_LOG(Message) Logger::Log(Message, __FILE__, __LINE__)
-#endif // EXTRA_DEBUG_INFO
-
-#if !EXTRA_DEBUG_INFO
-    #define EXTRA_DEBUG_LOG(Message) ((void)0)
-        #endif // !EXTRA_DEBUG_INFO
-    #else // _DEBUG
-        #define DEBUG_LOG(Message) ((void)0)
-        #define EXTRA_DEBUG_LOG(Message) ((void)0)
-#endif // _DEBUG

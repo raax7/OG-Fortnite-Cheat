@@ -1,5 +1,14 @@
 #include "FortniteGame_Classes.h"
 
+SDK::UClass* SDK::UFortWeaponMeleeItemDefinition::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortWeaponMeleeItemDefinition").decrypt());
+
+	return Clss;
+}
+
 SDK::UClass* SDK::AFortPickup::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -13,10 +22,36 @@ SDK::FFortBaseWeaponStats* SDK::AFortWeapon::WeaponStats() {
 	if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
 	auto VFT = *reinterpret_cast<void***>(this);
 
-	// The VFT index has only been 0xD0 across all versions ive checked, so no need to get dynamically
-	if (VFT != nullptr && VFT[0xD0] != nullptr) {
-		return reinterpret_cast<FFortBaseWeaponStats * (*)(void*)>(VFT[0xD0])(this);
+	if (VFT != nullptr && VFT[SDK::Cached::VFT::GetWeaponStats] != nullptr) {
+		return reinterpret_cast<FFortBaseWeaponStats * (*)(void*)>(VFT[SDK::Cached::VFT::GetWeaponStats])(this);
 	}
+}
+
+bool SDK::AFortWeapon::IsPickaxe() {
+	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+	UFortWeaponItemDefinition* WeaponData = this->WeaponData();
+	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+
+	return WeaponData->IsA(UFortWeaponMeleeItemDefinition::StaticClass());
+}
+
+SDK::UClass* SDK::AFortWeapon::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortWeapon").decrypt());
+
+	return Clss;
+}
+
+SDK::UClass* SDK::AFortWeaponRanged::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortWeaponRanged").decrypt());
+
+	return Clss;
 }
 
 SDK::UClass* SDK::AFortPawn::StaticClass() {

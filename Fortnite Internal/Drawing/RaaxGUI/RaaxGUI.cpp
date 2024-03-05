@@ -66,7 +66,6 @@ void RaaxGUI::EndFrame() {
 			Element* CurrentElement = *it2;
 
 			if (CurrentElement->Seen == false) {
-				DEBUG_LOG(skCrypt("Element not seen! - ").decrypt() + CurrentElement->Name);
 				it2 = CurrentWindow->ElementsLastFrame.erase(it2);
 				delete CurrentElement;
 			}
@@ -189,7 +188,7 @@ void RaaxGUI::Window::Draw() {
 			break;
 		}
 
-		Drawing::Text(Name, TextPosition, 12.f, { 1.f, 1.f, 1.f, 1.f }, Style.TitleBarTextAlignment == TextAlignment::Center ? true : false, false, false);
+		Drawing::Text(Name, TextPosition, 12.f, { 1.f, 1.f, 1.f, 1.f }, Style.TitleBarTextAlignment == TextAlignment::Center ? true : false, false, true);
 
 		// Draw elements
 		for (int i = 0; i < Elements.size(); i++) {

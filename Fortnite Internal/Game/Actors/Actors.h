@@ -53,5 +53,6 @@ namespace Actors {
 	// Functions
 
 	void Tick();
+	void Draw();
 	void UpdateCaches();
 }

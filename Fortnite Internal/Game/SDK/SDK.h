@@ -8,6 +8,7 @@ namespace SDK {
 			inline uintptr_t ProcessEvent;
 			inline uintptr_t GetPlayerViewpoint;
 			inline uintptr_t GetViewpoint;
+			inline uintptr_t GetWeaponStats;
 		}
 
 		namespace Offsets {
@@ -99,6 +100,19 @@ namespace SDK {
 
 			namespace FortMeleeWeaponStats {
 				inline uintptr_t SwingPlaySpeed;
+			}
+
+			namespace FortRangedWeaponStats {
+				inline uintptr_t Spread;
+				inline uintptr_t SpreadDownsights;
+				inline uintptr_t StandingStillSpreadMultiplier;
+				inline uintptr_t AthenaCrouchingSpreadMultiplier;
+				inline uintptr_t AthenaJumpingFallingSpreadMultiplier;
+				inline uintptr_t AthenaSprintingSpreadMultiplier;
+				inline uintptr_t MinSpeedForSpreadMultiplier;
+				inline uintptr_t MaxSpeedForSpreadMultiplier;
+
+				inline uintptr_t CartridgePerFire;
 			}
 		}
 

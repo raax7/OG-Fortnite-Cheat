@@ -9,7 +9,7 @@
 
 template <typename T>
 Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void* Hook) {
-	DEBUG_LOG(skCrypt("Create VFTHook called").decrypt());
+	DEBUG_LOG(LOG_INFO, skCrypt("Create VFTHook called").decrypt());
 
 	DWORD OldProtection{};
 	LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
@@ -23,13 +23,13 @@ Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void*
 	this->VFTIndex = VFTIndex;
 	this->Original = Original;
 
-	DEBUG_LOG(skCrypt("Hooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
+	DEBUG_LOG(LOG_INFO, skCrypt("Hooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
 }
 Hooks::VFTHook::~VFTHook() {
-	DEBUG_LOG(skCrypt("Destroy VFTHook called").decrypt());
+	DEBUG_LOG(LOG_INFO, skCrypt("Destroy VFTHook called").decrypt());
 
 	if (!VFT || !Original) {
-		DEBUG_LOG(skCrypt("Failed to destroy hook! VFT or Original is nullptr").decrypt());
+		DEBUG_LOG(LOG_INFO, skCrypt("Failed to destroy hook! VFT or Original is nullptr").decrypt());
 		return;
 	}
 
@@ -40,7 +40,7 @@ Hooks::VFTHook::~VFTHook() {
 
 	LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
 
-	DEBUG_LOG(skCrypt("Unhooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
+	DEBUG_LOG(LOG_INFO, skCrypt("Unhooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
 }
 
 void Hooks::Init() {

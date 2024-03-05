@@ -106,7 +106,7 @@ namespace SDK {
 
 
 	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
-		DEBUG_LOG(skCrypt("Setting up objects...").decrypt());
+		DEBUG_LOG(LOG_OFFSET, skCrypt("Setting up objects...").decrypt());
 
 		std::vector<FunctionSearch> FunctionsNotFound = Functions;
 		std::vector<OffsetSearch> OffsetsNotFound = Offsets;
@@ -213,9 +213,9 @@ namespace SDK {
 				Output += MissingFunctions;
 			}
 			
-			THROW_ERROR(skCrypt("Failed to find all offsets and functions!\n\n").decrypt() + Output, CRASH_ON_ERROR);
+			THROW_ERROR(skCrypt("Failed to find all offsets and functions!\n\n").decrypt() + Output, CRASH_ON_NOT_FOUND);
 		}
 
-		DEBUG_LOG(skCrypt("Setup objects!").decrypt());
+		DEBUG_LOG(LOG_OFFSET, skCrypt("Setup objects!").decrypt());
 	}
 }

@@ -59,6 +59,15 @@ void Actors::Tick() {
 		}
 	}
 
+	// Update local player
+	{
+		if (SDK::GetLocalController()->AcknowledgedPawn()->GetRootComponent() == nullptr) {
+			LocalPawnCache.Position = SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation();
+			LocalPawnCache.TeamIndex = INT_FAST8_MAX;
+		}
+	}
+}
+void Actors::Draw() {
 	// Draw the aim line
 	{
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
@@ -103,14 +112,6 @@ void Actors::Tick() {
 			if (Config::Aimbot::TriggerBot::ShowFOV && Config::Aimbot::TriggerBot::Enabled) {
 				Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::TriggerBot::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(0.75f, 0.25f, 0.75f, 1.f), true);
 			}
-		}
-	}
-
-	// Update local player
-	{
-		if (SDK::GetLocalController()->AcknowledgedPawn()->GetRootComponent() == nullptr) {
-			LocalPawnCache.Position = SDK::GetLocalController()->PlayerCameraManager()->GetCameraLocation();
-			LocalPawnCache.TeamIndex = INT_FAST8_MAX;
 		}
 	}
 }

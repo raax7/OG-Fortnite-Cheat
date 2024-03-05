@@ -1,6 +1,8 @@
 #pragma once
 #include <unordered_map>
 
+#include "../../Globals.h"
+
 #include "../SDK/SDK.h"
 #include "../SDK/Classes/Engine_classes.h"
 
@@ -8,6 +10,8 @@ class Input {
 public:
 	/* Enum for easy key usage */
 	enum class KeyName {
+		NONE,
+
 		AnyKey,
 		MouseX,
 		MouseY,
@@ -187,6 +191,9 @@ private:
 
 	/* Cache info on key name, states etc */
 	struct KeyData {
+		int VKCode;
+		KeyName KeyName;
+
 		SDK::FName FName;
 		std::string Name;
 
@@ -196,9 +203,11 @@ private:
 
 
 
-		KeyData() : FName(), Name() {}
+		// Default constructor
+		KeyData() : VKCode(0), KeyName(Input::KeyName::KEYNAME_MAX), FName(), Name() {}
 
-		KeyData(SDK::FName FName, std::string Name) : FName(FName), Name(Name) {}
+		// Constructor with SDK::FName and std::string arguments
+		KeyData(int VKCode, Input::KeyName KeyName, SDK::FName FName, std::string Name) : VKCode(VKCode), KeyName(KeyName), FName(FName), Name(Name) {}
 	};
 
 	static std::unordered_map<KeyName, KeyData> Keys;
@@ -240,28 +249,28 @@ public:
 	* 
 	* @return A vector of all the keys that are currently down
 	*/
-	std::vector<Input::KeyName> GetAllDownKeys();
+	static std::vector<Input::KeyName> GetAllDownKeys();
 	/*
 	* @brief Get all the keys that were just released
 	* 
 	* @return A vector of all the keys that were just released
 	*/
-	std::vector<Input::KeyName> GetAllJustReleasedKeys();
+	static std::vector<Input::KeyName> GetAllJustReleasedKeys();
 	/*
 	* @brief Get all the keys that were just pressed
 	* 
 	* @return A vector of all the keys that were just pressed
 	*/
-	std::vector<Input::KeyName> GetAllJustPressedKeys();
+	static std::vector<Input::KeyName> GetAllJustPressedKeys();
 
 	/*
-	* @brief Get the key name from a key
+	* @brief Get the key name as a string from a key
 	* 
 	* @param Key - The key to get the name of
 	* 
 	* @return The name of the key
 	*/
-	std::string GetKeyName(Input::KeyName Key);
+	static std::string GetKeyNameString(Input::KeyName Key);
 
 	/* Init the input cache system */
 	static void Init();

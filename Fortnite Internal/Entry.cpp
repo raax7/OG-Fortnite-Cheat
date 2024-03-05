@@ -1,7 +1,8 @@
 #include <Windows.h>
-#include <cstdlib>
 
+#ifdef _ENGINE
 #include "Drawing/RaaxGUI/RaaxGUI.h"
+#endif // _ENGINE
 #include "Game/Input/Input.h"
 #include "Game/SDK/SDK.h"
 #include "Hooks/Hooks.h"
@@ -12,21 +13,20 @@
 #include "Utilities/Logger.h"
 
 // TO-DO:
-// - Convert menu to a class (ONGOING)
-// - Add a pickaxe check for weakspot aimbot
-// - Revert FOV back to pixels always, add option for disabling FOV circle entirely
+// - Fix unloading crashing on ImGui on some versions of Fortnite
+// - Improve input class even more (less reliance on tick based UE functions and force input events for WndProc input)
+// - Improve GetPlayerViewpoint and GetViewpoint VFT index getting
+// - Fix text size being innacurate on Engine rendering
+// - Add WndProc hook for Engine
+// - Add a season based feature system(allow / forbid features only on specific seasons)
+// - Add more menu elements types to RaaxGUI
+// - Add more features
 // - Add a batch line processor for better line outlne handling
-// - Fix struct offset grabbing not working on new UProperty handling
 // - Add a proper config system
-// - Test font size with float UFont::ScalingFactor
 // - Add a PCH
 // - Make everything in Memory.h my own code (no pasting)
-// - Fix spoof_call on LineTraceSingle
-
-// IMPORTANT - Fix buffer overflow with optimisations enabled in compiler settings. (/02) (on FindObjectFast)
-
-// NOTES:
-// GetWeaponStats VFT: UFortItemDefinition[0xD0]
+// - Add WndProc as an option for Engine rendering
+// - Add DX12 support for ImGui
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
@@ -41,6 +41,10 @@ VOID UnloadThread() {
             if (Hooks::PostRender::Hook)            delete Hooks::PostRender::Hook;
             if (Hooks::GetPlayerViewpoint::Hook)    delete Hooks::GetPlayerViewpoint::Hook;
             if (Hooks::GetViewpoint::Hook)          delete Hooks::GetViewpoint::Hook;
+#ifdef _IMGUI
+            LI_FN(SetWindowLongPtrA).safe()(RaaxDx::Window, GWLP_WNDPROC, (LONG_PTR)Hooks::WndProc::WndProcOriginal);
+            RaaxDx::Unhook();
+#endif // _IMGUI
 
             // Free library
             LI_FN(FreeLibraryAndExitThread).safe()(ThisModule, 0);
@@ -58,7 +62,7 @@ VOID Main() {
     // Seed random
     LI_FN(srand).safe()(time(NULL));
 
-#ifdef _DEBUG
+#if LOG_LEVEL > LOG_NONE
     // Init logger (REPLACE WITH YOUR OWN PATH)
     Logger::InitLogger(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log").decrypt());
 #endif // _DEBUG
@@ -66,7 +70,9 @@ VOID Main() {
     SDK::Init();    // Init base address, GObjects, function addresses, offsets etc
     Hooks::Init();  // Init hooks
 
+#ifdef _ENGINE
     RaaxGUI::InitContext(); // Init menu
+#endif // _ENGINE
 
 #if UNLOAD_THREAD
     // Create a thread to handle unloading

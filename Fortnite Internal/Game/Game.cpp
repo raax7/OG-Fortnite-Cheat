@@ -1,27 +1,28 @@
 #include "Game.h"
 
-#include "../Drawing/RaaxGUI/RaaxGUI.h"
+#include "SDK/Classes/Engine_Classes.h"
+
+#include "../Drawing/Drawing.h"
 
 #include "Actors/Actors.h"
 #include "../Game/Input/Input.h"
-#include "../Utilities/Logger.h"
-#include "../Drawing/Drawing.h"
-#include "SDK/Classes/Engine_Classes.h"
 #include "../Configs/Config.h"
+
+#ifdef _IMGUI
+#include "../Drawing/ImGui/imgui.h"
+#endif
+#ifdef _ENGINE
+#include "../Drawing/RaaxGUI/RaaxGUI.h"
+#endif
 
 bool test = false;
 bool test123 = false;
 bool TOGGLEWINDOW = true;
 
-void Game::DrawCallback() {
-	Actors::FortWeapon::Tick();
-	Actors::BuildingWeakSpot::Tick();
-	Actors::FortPawn::Tick();
+bool WaitingForKeyInput = false;
 
-	if (Input::WasKeyJustReleased(Input::KeyName::Insert)) {
-		test = !test;
-	}
-
+void Game::MenuCallback() {
+#ifdef _ENGINE
 	RaaxGUI::NewFrame();
 
 	if (RaaxGUI::BeginWindow(skCrypt("Aimbot Settings").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(300, 500))) {
@@ -50,7 +51,7 @@ void Game::DrawCallback() {
 		}
 	}
 	RaaxGUI::EndWindow();
-	
+
 	if (RaaxGUI::BeginWindow(skCrypt("Visual Settings").decrypt(), &test, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
 		if (RaaxGUI::Checkbox(skCrypt("Player ESP").decrypt(), &Config::Visuals::Players::Enabled)) {
 			RaaxGUI::Checkbox(skCrypt("Box").decrypt(), &Config::Visuals::Players::Box);
@@ -62,58 +63,102 @@ void Game::DrawCallback() {
 	RaaxGUI::EndWindow();
 
 	RaaxGUI::EndFrame();
+#endif
+
+#ifdef _IMGUI
+	if (test) {
+		ImGui::Begin(skCrypt("ImGui Window").decrypt());
+
+		ImGui::Checkbox(skCrypt("Weapon ESP").decrypt(), &Config::Visuals::Weapons::Enabled);
+
+		ImGui::Checkbox(skCrypt("Weapon Mods").decrypt(), &Config::Exploits::Weapon::Enabled);
+		if (Config::Exploits::Weapon::Enabled) {
+			ImGui::Checkbox(skCrypt("No Spread").decrypt(), &Config::Exploits::Weapon::NoSpread);
+			//ImGui::SliderInt("CartridgePerFire", &Config::Exploits::Weapon::CartridgePerFire, 1, 10);
+		}
+
+		ImGui::Checkbox(skCrypt("Pickaxe Mods").decrypt(), &Config::Exploits::Pickaxe::Enabled);
+		if (Config::Exploits::Pickaxe::Enabled) {
+			ImGui::SliderFloat(skCrypt("Pickaxe Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 50.f);
+		}
+
+		ImGui::Checkbox(skCrypt("Aimbot").decrypt(), &Config::Aimbot::Enabled);
+		if (Config::Aimbot::Enabled) {
+			std::string ButtonName = skCrypt("None").decrypt();
+			if ((uint8)Config::Aimbot::AimKey) {
+				ButtonName = skCrypt("Aim Key: ").decrypt() + Input::GetKeyNameString((Input::KeyName)Config::Aimbot::AimKey);
+			}
+
+			if (WaitingForKeyInput) {
+				ButtonName = skCrypt("...").decrypt();
+
+				std::vector<Input::KeyName> Keys = Input::GetAllDownKeys();
+
+				if (Keys.size() > 0) {
+					for (int i = 0; i < Keys.size(); i++) {
+						if (Keys[i] != Input::KeyName::AnyKey
+							&& Keys[i] != Input::KeyName::MouseX
+							&& Keys[i] != Input::KeyName::MouseY
+							&& Keys[i] != Input::KeyName::LeftMouseButton) {
+							Config::Aimbot::AimKey = (KeyName)Keys[i];
+							WaitingForKeyInput = false;
+						}
+					}
+				}
+			}
+
+			if (ImGui::Button(ButtonName.c_str(), ImVec2(250, 40))) {
+				WaitingForKeyInput = true;
+			}
+
+			ImGui::Checkbox(skCrypt("Silent Aim").decrypt(), &Config::Aimbot::SilentAim);
+			if (Config::Aimbot::SilentAim) ImGui::Checkbox(skCrypt("Use Aimkey For Silent").decrypt(), &Config::Aimbot::UseAimKeyForSilent);
+			ImGui::Checkbox(skCrypt("Show Aim Line").decrypt(), &Config::Aimbot::ShowAimLine);
+			ImGui::Checkbox(skCrypt("Show FOV").decrypt(), &Config::Aimbot::ShowFOV);
+		}
+
+		ImGui::Checkbox(skCrypt("Standard").decrypt(), &Config::Aimbot::Standard::Enabled);
+		if (Config::Aimbot::Standard::Enabled) {
+			ImGui::SliderInt(skCrypt("Standard FOV").decrypt(), &Config::Aimbot::Standard::FOV, 0.f, 180.f);
+			ImGui::SliderFloat(skCrypt("Standard Smoothing").decrypt(), &Config::Aimbot::Standard::Smoothing, 0.f, 20.f);
+		}
+
+		ImGui::Checkbox(skCrypt("Close Aim").decrypt(), &Config::Aimbot::CloseAim::Enabled);
+		if (Config::Aimbot::CloseAim::Enabled) {
+			ImGui::SliderInt(skCrypt("Close FOV").decrypt(), &Config::Aimbot::CloseAim::FOV, 0.f, 180.f);
+			ImGui::SliderFloat(skCrypt("Smoothing").decrypt(), &Config::Aimbot::CloseAim::Smoothing, 0.f, 20.f);
+		}
+
+		ImGui::Checkbox(skCrypt("Weakspot").decrypt(), &Config::Aimbot::Weakspot::Enabled);
+		if (Config::Aimbot::Weakspot::Enabled) {
+			ImGui::SliderInt(skCrypt("Weakspot FOV").decrypt(), &Config::Aimbot::Weakspot::FOV, 0.f, 180.f);
+			ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 0.f, 20.f);
+		}
+
+		ImGui::Checkbox(skCrypt("Player ESP").decrypt(), &Config::Visuals::Players::Enabled);
+		if (Config::Visuals::Players::Enabled) {
+			ImGui::Checkbox(skCrypt("Box").decrypt(), &Config::Visuals::Players::Box);
+			ImGui::Checkbox(skCrypt("Skeleton").decrypt(), &Config::Visuals::Players::Skeleton);
+			ImGui::Checkbox(skCrypt("Distance").decrypt(), &Config::Visuals::Players::Distance);
+			ImGui::Checkbox(skCrypt("Name").decrypt(), &Config::Visuals::Players::Name);
+		}
+
+		ImGui::End();
+	}
+#endif
+}
+void Game::DrawCallback() {
+	Actors::FortWeapon::Tick();
+	Actors::BuildingWeakSpot::Tick();
+	Actors::FortPawn::Tick();
+
+	if (Input::WasKeyJustReleased(Input::KeyName::Insert)) {
+		test = !test;
+	}
 
 	if (test) {
 		Drawing::Circle(Input::GetMousePosition(), 4.f, 16, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 	}
 
-	if (Input::WasKeyJustReleased(Input::KeyName::F2)) {
-		TOGGLEWINDOW = !TOGGLEWINDOW;
-	}
-
-
-
-
-	if (Input::WasKeyJustReleased(Input::KeyName::F5)) {
-		void* test = SDK::GetLocalPlayer();
-	}
-
-
-
-	if (Input::WasKeyJustReleased(Input::KeyName::Up)) {
-		Config::Aimbot::Standard::FOV += 10;
-	}
-	if (Input::WasKeyJustReleased(Input::KeyName::Down)) {
-		Config::Aimbot::Standard::FOV -= 10;
-	}
-
-	if (Input::WasKeyJustReleased(Input::KeyName::Right)) {
-		Config::Aimbot::Standard::Smoothing += 0.10f;
-	}
-	if (Input::WasKeyJustReleased(Input::KeyName::Left)) {
-		Config::Aimbot::Standard::Smoothing -= 0.10f;
-	}
-
-	if (Input::WasKeyJustReleased(Input::KeyName::Zero)) {
-		Config::Aimbot::CloseAim::Smoothing += 0.10f;
-	}
-	if (Input::WasKeyJustReleased(Input::KeyName::Nine)) {
-		Config::Aimbot::CloseAim::Smoothing -= 0.10f;
-	}
-
-	if (Input::WasKeyJustReleased(Input::KeyName::Eight)) {
-		Config::Aimbot::CloseAim::FOV += 10;
-	}
-	if (Input::WasKeyJustReleased(Input::KeyName::Seven)) {
-		Config::Aimbot::CloseAim::FOV -= 10;
-	}
-
-	Drawing::Text(std::to_string(Config::Aimbot::Standard::FOV).c_str(), SDK::FVector2D(100, 100), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
-	Drawing::Text(std::to_string(Config::Aimbot::Standard::Smoothing).c_str(), SDK::FVector2D(100, 120), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
-
-	Drawing::Text(std::to_string(Config::Aimbot::CloseAim::FOV).c_str(), SDK::FVector2D(100, 140), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
-	Drawing::Text(std::to_string(Config::Aimbot::CloseAim::Smoothing).c_str(), SDK::FVector2D(100, 160), 16.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true, true, true);
-
-	// Drawing::Text(std::to_string(Actors::MainTarget.LocalInfo.DistanceFromCrosshairDegrees).c_str(), SDK::FVector2D(100, 150), 18.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true, true, true);
-	//Drawing::Text(std::to_string(Actors::MainTarget.LocalInfo.CurrentFOVSizeDegrees).c_str(), SDK::FVector2D(100, 170), 18.f, SDK::FLinearColor(1.f, 1.f, 0.f, 1.f), true, true, true);
+	Actors::Draw();
 }

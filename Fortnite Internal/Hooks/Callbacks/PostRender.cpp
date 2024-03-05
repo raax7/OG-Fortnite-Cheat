@@ -13,7 +13,9 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 		//return spoof_call<void>(PostRenderOriginal, this_, Canvas);
 	}
 
+#ifdef _ENGINE
 	Game::CurrentFrame++;
+#endif
 	Game::CurrentCanvas = Canvas;
 	Game::ScreenWidth = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeX();
 	Game::ScreenHeight = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeY();
@@ -26,7 +28,21 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	Actors::Tick();
 	Actors::UpdateCaches();
 
+#ifdef _ENGINE
 	Game::DrawCallback();
+	Game::MenuCallback();
+#else
+	if (RaaxDx::Initalized == false) {
+		DEBUG_LOG(LOG_INFO, skCrypt("Initiating DirectX hooks").decrypt());
+
+		if (RaaxDx::Init() == RaaxDx::Status::Success && RaaxDx::Hook() == RaaxDx::Status::Success) {
+			DEBUG_LOG(LOG_INFO, skCrypt("Hooked DirectX").decrypt());
+		}
+		else {
+			THROW_ERROR(skCrypt("Failed to hook DirectX").decrypt(), true);
+		}
+	}
+#endif
 
 	return PostRenderOriginal(this_, Canvas);
 	//return spoof_call<void>(PostRenderOriginal, this_, Canvas);

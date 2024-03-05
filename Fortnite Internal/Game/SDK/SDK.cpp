@@ -29,7 +29,7 @@ uintptr_t SDK::GetBaseAddress() {
 }
 
 void SDK::Init() {
-	DEBUG_LOG(skCrypt("Initializing SDK...").decrypt());
+	DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing SDK...").decrypt());
 	 
 	// Init Offsets, Functions, and VFT Indexes
 	{
@@ -70,7 +70,7 @@ void SDK::Init() {
 				true);
 		}
 
-		DEBUG_LOG(skCrypt("Game Version: ").decrypt() + std::to_string(GetGameVersion()));
+		DEBUG_LOG(LOG_OFFSET, skCrypt("Game Version: ").decrypt() + std::to_string(GetGameVersion()));
 	}
 
 	// Init Cached Objects
@@ -100,9 +100,12 @@ void SDK::Init() {
 		};
 
 		std::vector<OffsetSearch> Offsets {
+			// REQUIRED FOR POST-RENDER VFT INDEX
+			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("GameInstance").decrypt(),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		nullptr },
+			// REQUIRED FOR POST-RENDER VFT INDEX
+
 			OffsetSearch { skCrypt("Engine").decrypt(),					skCrypt("GameViewport").decrypt(),				&SDK::Cached::Offsets::Engine::GameViewport,					nullptr },
 			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("World").decrypt(),						&SDK::Cached::Offsets::GameViewportClient::World,				nullptr },
-			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("GameInstance").decrypt(),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		nullptr },
 			OffsetSearch { skCrypt("GameInstance").decrypt(),			skCrypt("LocalPlayers").decrypt(),				&SDK::Cached::Offsets::GameInstance::LocalPlayers,				nullptr },
 			OffsetSearch { skCrypt("Player").decrypt(),					skCrypt("PlayerController").decrypt(),			&SDK::Cached::Offsets::Player::PlayerController,				nullptr },
 			OffsetSearch { skCrypt("PlayerController").decrypt(),		skCrypt("AcknowledgedPawn").decrypt(),			&SDK::Cached::Offsets::PlayerController::AcknowledgedPawn,		nullptr },
@@ -128,6 +131,19 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("FortItemEntry").decrypt(),			skCrypt("ItemDefinition").decrypt(),			&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
 			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Location").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
 			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Rotation").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Rotation,				nullptr },
+		
+			OffsetSearch { skCrypt("FortMeleeWeaponStats").decrypt(),	skCrypt("SwingPlaySpeed").decrypt(),			&SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed,	nullptr },
+			
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("Spread").decrypt(),					&SDK::Cached::Offsets::FortRangedWeaponStats::Spread,			nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("SpreadDownsights").decrypt(),			&SDK::Cached::Offsets::FortRangedWeaponStats::SpreadDownsights,	nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("StandingStillSpreadMultiplier").decrypt(),	&SDK::Cached::Offsets::FortRangedWeaponStats::StandingStillSpreadMultiplier, nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("AthenaCrouchingSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaCrouchingSpreadMultiplier, nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("AthenaJumpingFallingSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaJumpingFallingSpreadMultiplier, nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("AthenaSprintingSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier, nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("MinSpeedForSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier, nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("MaxSpeedForSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier, nullptr },
+			
+			OffsetSearch { skCrypt("FortBaseWeaponStats").decrypt(),	skCrypt("CartridgePerFire").decrypt(),			&SDK::Cached::Offsets::FortRangedWeaponStats::CartridgePerFire, nullptr },
 		};
 
 		SDK::UObject::SetupObjects(Functions, Offsets);
@@ -139,7 +155,7 @@ void SDK::Init() {
 	Input::Init();
 	Features::FortPawnHelper::Bone::Init();
 
-	DEBUG_LOG(skCrypt("SDK Initialized!").decrypt());
+	DEBUG_LOG(LOG_OFFSET, skCrypt("SDK Initialized!").decrypt());
 
 #if OBJECT_DUMP
 	for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++) {

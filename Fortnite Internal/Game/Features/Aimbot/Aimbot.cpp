@@ -5,7 +5,7 @@
 #include "../../../Configs/Config.h"
 
 void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
-	if (Input::IsKeyDown(Input::KeyName::RightMouseButton)) {
+	if (Input::IsKeyDown((Input::KeyName)Config::Aimbot::AimKey)) {
 		TargetToAimot.LocalInfo.IsTargeting = true;
 
 		if (Config::Aimbot::SilentAim == false) {

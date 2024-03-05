@@ -21,6 +21,12 @@ namespace SDK {
 	public:
 
 	};
+	class UFortWeaponMeleeItemDefinition : public UFortWeaponItemDefinition {
+	public:
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
 	class UFortItemDefinition : public UObject {
 	public:
 		// VALUES
@@ -73,16 +79,30 @@ namespace SDK {
 			return (UFortWeaponItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::WeaponData));
 		}
 
-		bool IsPickaxe() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
-			// add shit here
-		}
-
 
 
 		// FUNCTIONS
 
 		FFortBaseWeaponStats* WeaponStats();
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+
+
+
+
+		// CUSTOM FUNCTIONS
+
+		bool IsPickaxe();
+	};
+	class AFortWeaponRanged : public AFortWeapon {
+	public:
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
 	};
 	class AFortPlayerState : public APlayerState {
 	public:
