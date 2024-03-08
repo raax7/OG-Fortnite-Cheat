@@ -11,15 +11,15 @@
 #include "../Input/Input.h"
 #include "../Features/FortPawnHelper/Bone.h"
 
-bool SDK::IsValidPointer(uintptr_t Address) {
+bool SDK::IsValidPointer(void* Address) {
 	if (!Address) {
 		return false;
 	}
 
 	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obselete win api func
-	//if (LI_FN(IsBadWritePtr).safe_cached()(&Address, 8)) {
-	//	return false;
-	//}
+	if (LI_FN(IsBadWritePtr).safe_cached()(Address, 8)) {
+		return false;
+	}
 
 	return true;
 }
@@ -97,6 +97,9 @@ void SDK::Init() {
 			FunctionSearch { skCrypt("SkinnedMeshComponent").decrypt(),	skCrypt("GetBoneName").decrypt(),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName				},
 			FunctionSearch { skCrypt("SceneComponent").decrypt(),		skCrypt("GetSocketLocation").decrypt(),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation		},
 			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorRotation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorRotation						},
+			
+			FunctionSearch { skCrypt("FortWeapon").decrypt(),			skCrypt("IsProjectileWeapon").decrypt(),		&SDK::Cached::Functions::FortWeapon::IsProjectileWeapon					},
+			FunctionSearch { skCrypt("FortWeapon").decrypt(),			skCrypt("GetProjectileSpeed").decrypt(),		&SDK::Cached::Functions::FortWeapon::GetProjectileSpeed					},
 		};
 
 		std::vector<OffsetSearch> Offsets {

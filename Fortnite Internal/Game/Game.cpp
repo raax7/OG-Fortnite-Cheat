@@ -15,13 +15,17 @@
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
 #endif
 
-bool test = false;
+bool test = true;
 bool test123 = false;
 bool TOGGLEWINDOW = true;
 
 bool WaitingForKeyInput = false;
 
 void Game::MenuCallback() {
+	if (!SDK::GetLocalPlayer()) return;
+	if (!SDK::GetLocalController()) return;
+	if (!SDK::GetEngine()) return;
+
 #ifdef _ENGINE
 	RaaxGUI::NewFrame();
 
@@ -79,7 +83,7 @@ void Game::MenuCallback() {
 
 		ImGui::Checkbox(skCrypt("Pickaxe Mods").decrypt(), &Config::Exploits::Pickaxe::Enabled);
 		if (Config::Exploits::Pickaxe::Enabled) {
-			ImGui::SliderFloat(skCrypt("Pickaxe Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 50.f);
+			ImGui::SliderFloat(skCrypt("Pickaxe Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
 		}
 
 		ImGui::Checkbox(skCrypt("Aimbot").decrypt(), &Config::Aimbot::Enabled);
@@ -120,19 +124,19 @@ void Game::MenuCallback() {
 		ImGui::Checkbox(skCrypt("Standard").decrypt(), &Config::Aimbot::Standard::Enabled);
 		if (Config::Aimbot::Standard::Enabled) {
 			ImGui::SliderInt(skCrypt("Standard FOV").decrypt(), &Config::Aimbot::Standard::FOV, 0.f, 180.f);
-			ImGui::SliderFloat(skCrypt("Standard Smoothing").decrypt(), &Config::Aimbot::Standard::Smoothing, 0.f, 20.f);
+			ImGui::SliderFloat(skCrypt("Standard Smoothing").decrypt(), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
 		}
 
 		ImGui::Checkbox(skCrypt("Close Aim").decrypt(), &Config::Aimbot::CloseAim::Enabled);
 		if (Config::Aimbot::CloseAim::Enabled) {
 			ImGui::SliderInt(skCrypt("Close FOV").decrypt(), &Config::Aimbot::CloseAim::FOV, 0.f, 180.f);
-			ImGui::SliderFloat(skCrypt("Smoothing").decrypt(), &Config::Aimbot::CloseAim::Smoothing, 0.f, 20.f);
+			ImGui::SliderFloat(skCrypt("Smoothing").decrypt(), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
 		}
 
 		ImGui::Checkbox(skCrypt("Weakspot").decrypt(), &Config::Aimbot::Weakspot::Enabled);
 		if (Config::Aimbot::Weakspot::Enabled) {
 			ImGui::SliderInt(skCrypt("Weakspot FOV").decrypt(), &Config::Aimbot::Weakspot::FOV, 0.f, 180.f);
-			ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 0.f, 20.f);
+			ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
 		}
 
 		ImGui::Checkbox(skCrypt("Player ESP").decrypt(), &Config::Visuals::Players::Enabled);
@@ -148,6 +152,10 @@ void Game::MenuCallback() {
 #endif
 }
 void Game::DrawCallback() {
+	if (!SDK::GetLocalPlayer()) return;
+	if (!SDK::GetLocalController()) return;
+	if (!SDK::GetEngine()) return;
+
 	Actors::FortWeapon::Tick();
 	Actors::BuildingWeakSpot::Tick();
 	Actors::FortPawn::Tick();

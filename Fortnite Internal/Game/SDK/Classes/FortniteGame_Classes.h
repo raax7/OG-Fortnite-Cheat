@@ -42,7 +42,7 @@ namespace SDK {
 		}
 
 		//EFortItemType Type() {
-		//	if (!SDK::IsValidPointer((uintptr_t)this)) return EFortItemType{};
+		//	if (!SDK::IsValidPointer(this)) return EFortItemType{};
 		//	return *(EFortItemType*)((uintptr_t)this + SDK::Cached::Offsets::FortItemDefinition::ItemType);
 		//}
 	};
@@ -75,7 +75,7 @@ namespace SDK {
 		// VALUES
 
 		UFortWeaponItemDefinition* WeaponData() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (UFortWeaponItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::WeaponData));
 		}
 
@@ -84,6 +84,10 @@ namespace SDK {
 		// FUNCTIONS
 
 		FFortBaseWeaponStats* WeaponStats();
+
+		bool IsProjectileWeapon();
+
+		float GetProjectileSpeed(float ChargePercent);
 
 
 
@@ -109,7 +113,7 @@ namespace SDK {
 		// VALUES
 
 		uint8 TeamIndex() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return uint8{};
+			if (!SDK::IsValidPointer(this)) return uint8{};
 			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex);
 		}
 	};
@@ -118,17 +122,17 @@ namespace SDK {
 		// VALUES
 
 		AFortPlayerState* PlayerState() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (AFortPlayerState*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Pawn::PlayerState));
 		}
 
 		AFortWeapon* CurrentWeapon() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (AFortWeapon*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::CurrentWeapon));
 		}
 
 		bool IsDying() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+			if (!SDK::IsValidPointer(this)) return false;
 
 			if (SDK::Cached::Masks::FortPawn::bIsDying) {
 				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::bIsDying);

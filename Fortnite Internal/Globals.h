@@ -1,7 +1,5 @@
 #pragma once
-#include <string>
 #include <Windows.h>
-#include "Utilities/skCrypter.h"
 
 // ALL POTENTIAL DETECTION VECTORS ARE MARKED WITH A COMMENT!
 // IF YOU WANT TO AVOID DETECTION, YOU SHOULD DISABLE THEM!

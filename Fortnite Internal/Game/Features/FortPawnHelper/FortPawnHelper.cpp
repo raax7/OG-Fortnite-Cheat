@@ -3,6 +3,7 @@
 #include "Bone.h"
 
 #include "../../../Utilities/Math.h"
+#include "../../../Utilities/Logger.h"
 
 bool Features::FortPawnHelper::PopulateBones(Actors::Caches::FortPawnCache& FortPawnCache) {
 	SDK::FVector2D Temp_W2S;
@@ -10,6 +11,7 @@ bool Features::FortPawnHelper::PopulateBones(Actors::Caches::FortPawnCache& Fort
 	// Resize the bone register to avoid out of range errors
 	FortPawnCache.BoneRegister.resize(100);
 	FortPawnCache.BoneRegister2D.resize(100);
+	FortPawnCache.BoneVisibilities.resize(100);
 
 	bool BoneOnScreen = false;
 
@@ -33,6 +35,8 @@ bool Features::FortPawnHelper::PopulateBones(Actors::Caches::FortPawnCache& Fort
 	return BoneOnScreen;
 }
 void Features::FortPawnHelper::PopulateVisibilities(Actors::Caches::FortPawnCache& FortPawnCache) {
+	FortPawnCache.BoneRegister.resize(100);
+	FortPawnCache.BoneRegister2D.resize(100);
 	FortPawnCache.BoneVisibilities.resize(100);
 
 	FortPawnCache.BoneVisibilities[Bone::Head] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BoneRegister[Bone::Head], FortPawnCache.FortPawn, SDK::GetLocalPawn());

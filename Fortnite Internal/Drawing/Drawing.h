@@ -1,9 +1,104 @@
 #pragma once
+#ifdef _IMGUI
+#include <vector>
+#endif
+
 #include "../Game/SDK/Classes/Basic.h"
+#include <mutex>
 
 /* A wrapper for drawing functions */
 class Drawing {
+#ifdef _IMGUI
+private:
+	/* Cache lines for ImGui processing */
+	struct LineCache {
+		SDK::FVector2D ScreenPositionA;
+		SDK::FVector2D ScreenPositionB;
+		float Thickness;
+		SDK::FLinearColor RenderColor;
+		bool Outlined;
+	};
+
+	/* Cache texts for ImGui processing */
+	struct TextCache {
+		std::string RenderText;
+		SDK::FVector2D ScreenPosition;
+		float FontSize;
+		SDK::FLinearColor RenderColor;
+		bool CenteredX;
+		bool CenteredY;
+		bool Outlined;
+	};
+
+	/* Cache circles for ImGui processing */
+	struct CircleCache {
+		SDK::FVector2D ScreenPosition;
+		float Radius;
+		int32_t Segments;
+		SDK::FLinearColor RenderColor;
+		bool Outlined;
+	};
+
+	/* Cache filled rectangles for ImGui processing */
+	struct FilledRectCache {
+		SDK::FVector2D ScreenPosition;
+		SDK::FVector2D ScreenSize;
+		SDK::FLinearColor RenderColor;
+		bool Outlined;
+	};
+
+	/* Cache hollow rectangles for ImGui processing */
+	struct RectCache {
+		SDK::FVector2D ScreenPositionA;
+		SDK::FVector2D ScreenSize;
+		float Thickness;
+		SDK::FLinearColor RenderColor;
+		bool Outlined;
+	};
+
+	/* Cache cornered rectangles for ImGui processing */
+	struct CorneredRectCache {
+		SDK::FVector2D ScreenPositionA;
+		SDK::FVector2D ScreenSize;
+		float Thickness;
+		SDK::FLinearColor RenderColor;
+		bool Outlined;
+	};
+
+
+
+	static std::vector<LineCache> RenderBufferLine, UpdateBufferLine;
+	static std::vector<TextCache> RenderBufferText, UpdateBufferText;
+	static std::vector<CircleCache> RenderBufferCircle, UpdateBufferCircle;
+	static std::vector<FilledRectCache> RenderBufferFilledRect, UpdateBufferFilledRect;
+	static std::vector<RectCache> RenderBufferRect, UpdateBufferRect;
+	static std::vector<CorneredRectCache> RenderBufferCorneredRect, UpdateBufferCorneredRect;
+
+	static std::mutex SwapMutex; // Used for swapping buffers safely
+
+	static void SwapBuffers() {
+		std::lock_guard<std::mutex> lock(SwapMutex);
+		std::swap(UpdateBufferLine, RenderBufferLine);
+		std::swap(UpdateBufferText, RenderBufferText);
+		std::swap(UpdateBufferCircle, RenderBufferCircle);
+		std::swap(RenderBufferFilledRect, UpdateBufferFilledRect);
+		std::swap(RenderBufferRect, UpdateBufferRect);
+		std::swap(RenderBufferCorneredRect, UpdateBufferCorneredRect);
+
+		UpdateBufferLine.clear();
+		UpdateBufferText.clear();
+		UpdateBufferCircle.clear();
+		UpdateBufferFilledRect.clear();
+		UpdateBufferRect.clear();
+		UpdateBufferCorneredRect.clear();
+	}
+#endif
 public:
+#ifdef _IMGUI
+	/* Render the queued data for drawing */
+	static void RenderQueuedDrawingInfo();
+#endif
+
 	/*
 	* @brief Draws a line on the screen
 	*

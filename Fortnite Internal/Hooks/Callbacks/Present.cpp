@@ -1,10 +1,15 @@
 #include "../Hooks.h"
 
-#include "../../Utilities/Font.h"
+#include "../../Drawing/Drawing.h"
 
 #include "../../Game/Game.h"
 
+#include "../../Utilities/Font.h"
+#include "../../Utilities/Logger.h"
+
 HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+	std::lock_guard<std::mutex> lock(PresentMutex);
+
 	if (ImGuiBeenSetup == false) {
 		RaaxDx::InitImGui(pSwapChain);
 
@@ -14,16 +19,11 @@ HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncI
 		ImGuiBeenSetup = true;
 	}
 
-	Game::CurrentFrame++;
-
-	if (!ImGuiBeenSetup)
-		RaaxDx::InitImGui(pSwapChain);
-
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	Game::DrawCallback();
+	Drawing::RenderQueuedDrawingInfo();
 	Game::MenuCallback();
 
 	ImGui::EndFrame();

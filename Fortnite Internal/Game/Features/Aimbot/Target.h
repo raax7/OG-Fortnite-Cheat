@@ -41,7 +41,7 @@ namespace Features {
 				// Target distance information (FLT_MAX so that any value is less than it)
 				float DistanceFromCrosshairPixels = FLT_MAX;								// The distance from the crosshair in pixels
 				float DistanceFromCrosshairDegrees = FLT_MAX;								// The distance from the crosshair in degrees
-				float DistanceFromCrosshairDegreesRealCamera = FLT_MAX;						// The distance from the crosshair in degrees from the REAL camera (used for silent aim FOV checks)
+				//float DistanceFromCrosshairDegreesRealCamera = FLT_MAX;						// The distance from the crosshair in degrees from the REAL camera (used for silent aim FOV checks)
 				float DistanceFromPlayer = FLT_MAX;											// The distance from the local player in meters
 				float SmartTargetingDistance = FLT_MAX;										// The physical distance and the crosshair distance combined (hence smart targeting)
 
@@ -111,7 +111,7 @@ namespace Features {
 			 * @param AimbotCamera - The aimbot camera (optional) (used for silent aim)
 			 * @param FPSScale - The scale to apply to the smoothing (optional)
 			 */
-			static void UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& MainCamera = Actors::CameraCache(), const Actors::CameraCache& AimbotCamera = Actors::CameraCache(), const float FPSScale = float());
+			static void UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& MainCamera, const Actors::CameraCache& AimbotCamera, const float FPSScale = float());
 		};
 
 		/* Represents a building weak spot target, inherits from Target with extended functions for dealing with building weak spot targets */

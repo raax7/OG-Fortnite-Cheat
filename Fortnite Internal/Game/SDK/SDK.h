@@ -166,6 +166,11 @@ namespace SDK {
 				inline void* GetSocketLocation;
 			}
 
+			namespace FortWeapon {
+				inline void* IsProjectileWeapon;
+				inline void* GetProjectileSpeed;
+			}
+
 			inline uintptr_t AppendString = 0x0;
 			inline uintptr_t FNameConstructor = 0x0;
 			inline uintptr_t LineTraceSingle = 0x0;
@@ -178,7 +183,7 @@ namespace SDK {
 		}
 	}
 
-	bool IsValidPointer(uintptr_t Address);
+	bool IsValidPointer(void* Address);
 	uintptr_t GetBaseAddress();
 
 	void Init();

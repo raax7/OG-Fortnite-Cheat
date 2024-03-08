@@ -10,8 +10,6 @@
 #include "../../Utilities/Logger.h"
 
 void Actors::Tick() {
-	if (SDK::GetLocalCanvas() == nullptr) return;
-
 	// Update FPS scale
 	{
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -26,7 +24,7 @@ void Actors::Tick() {
 	// Update Camera and AimbotCamera
 	{
 		SDK::APlayerCameraManager* CameraManager = SDK::GetLocalController()->PlayerCameraManager();
-		if (SDK::IsValidPointer((uintptr_t)CameraManager)) {
+		if (SDK::IsValidPointer(CameraManager)) {
 			MainCamera.Position = CameraManager->GetCameraLocation();
 			MainCamera.Rotation = CameraManager->GetCameraRotation();
 			MainCamera.FOV = CameraManager->GetFOVAngle();
@@ -116,8 +114,6 @@ void Actors::Draw() {
 	}
 }
 void Actors::UpdateCaches() {
-	if (SDK::GetLocalCanvas() == nullptr) return;
-
 	auto CurrentTime = std::chrono::steady_clock::now();
 
 	// Player Cache (to avoid calling GetAllActorsOfClass every tick)
@@ -140,6 +136,10 @@ void Actors::UpdateCaches() {
 					FortPawnCache.PlayerName = PlayerState->GetPlayerName();
 					FortPawnCache.TeamIndex = static_cast<SDK::AFortPlayerState*>(PlayerState)->TeamIndex();
 				}
+
+				FortPawnCache.BoneRegister.resize(100);
+				FortPawnCache.BoneRegister2D.resize(100);
+				FortPawnCache.BoneVisibilities.resize(100);
 
 				TempCache.push_back(FortPawnCache);
 			}

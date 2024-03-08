@@ -6,8 +6,6 @@
 #include "../../../Configs/Config.h"
 
 void Actors::BuildingWeakSpot::Tick() {
-	if (SDK::GetLocalCanvas() == nullptr) return;
-
 	bool SeenTarget = false;
 
 	for (int i = 0; i < CachedBuildingWeakSpot.Num(); i++) {

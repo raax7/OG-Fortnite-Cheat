@@ -18,6 +18,7 @@ namespace Actors {
 			float							DistanceFromLocal{};
 			bool							AnyBoneVisible;
 			bool							IsOnScreen;
+			bool							DidPopulate2D;
 
 			std::vector<SDK::FVector>		BoneRegister;
 			std::vector<SDK::FVector2D>		BoneRegister2D;

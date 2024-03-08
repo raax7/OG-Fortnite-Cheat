@@ -17,7 +17,7 @@ namespace SDK {
 		// VALUES
 
 		void SetCartridgePerFire(float NewCartridgePerFire) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::CartridgePerFire) = NewCartridgePerFire;
 		}
 	};
@@ -27,42 +27,42 @@ namespace SDK {
 		// VALUES
 
 		void SetSpread(float NewSpread) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::Spread) = NewSpread;
 		}
 
 		void SetSpreadDownsights(float NewSpreadDownsights) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::SpreadDownsights) = NewSpreadDownsights;
 		}
 
 		void SetStandingStillSpreadMultiplier(float NewStandingStillSpreadMultiplier) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::StandingStillSpreadMultiplier) = NewStandingStillSpreadMultiplier;
 		}
 
 		void SetAthenaCrouchingSpreadMultiplier(float NewAthenaCrouchingSpreadMultiplier) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::AthenaCrouchingSpreadMultiplier) = NewAthenaCrouchingSpreadMultiplier;
 		}
 
 		void SetAthenaJumpingFallingSpreadMultiplier(float NewAthenaJumpingFallingSpreadMultiplier) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::AthenaJumpingFallingSpreadMultiplier) = NewAthenaJumpingFallingSpreadMultiplier;
 		}
 
 		void SetAthenaSprintingSpreadMultiplier(float NewAthenaSprintingSpreadMultiplier) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier) = NewAthenaSprintingSpreadMultiplier;
 		}
 
 		void SetMinSpeedForSpreadMultiplier(float NewMinSpeedForSpreadMultiplier) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier) = NewMinSpeedForSpreadMultiplier;
 		}
 
 		void SetMaxSpeedForSpreadMultiplier(float NewMaxSpeedForSpreadMultiplier) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier) = NewMaxSpeedForSpreadMultiplier;
 		}
 	};
@@ -73,12 +73,12 @@ namespace SDK {
 		// VALUES
 
 		float GetSwingPlaySpeed() {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return 0;
+			if (SDK::IsValidPointer(this) == false) return 0;
 			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed);
 		}
 
 		void SetSwingPlaySpeed(float NewSwingPlaySpeed) {
-			if (SDK::IsValidPointer((uintptr_t)this) == false) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed) = NewSwingPlaySpeed;
 		}
 	};

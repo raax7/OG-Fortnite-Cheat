@@ -29,6 +29,7 @@ namespace RaaxDx {
 	void InitImGui(IDXGISwapChain* Swapchain);
 
 
+	inline IDXGISwapChain* SwapChain;
 	inline ID3D11Device* Device;
 	inline ID3D11DeviceContext* DeviceContext;
 	inline ID3D11RenderTargetView* RenderTargetView;

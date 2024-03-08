@@ -187,9 +187,6 @@
     <Filter Include="Hooks\RaaxDx\minhook\src">
       <UniqueIdentifier>{3a1c28d2-3bf7-4202-a4c1-0d5704f3d59d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Hooks\RaaxDx\minhook\dll_resources">
-      <UniqueIdentifier>{21ebf247-e3ec-4ba7-9b0a-485e991a3fff}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Hooks\RaaxDx\minhook\src\hde">
       <UniqueIdentifier>{d6d213c1-5045-4e09-b7d3-a08635004238}</UniqueIdentifier>
     </Filter>
@@ -340,15 +337,5 @@
     <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\table64.h">
       <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Hooks\RaaxDx\minhook\dll_resources\MinHook.def">
-      <Filter>Hooks\RaaxDx\minhook\dll_resources</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Hooks\RaaxDx\minhook\dll_resources\MinHook.rc">
-      <Filter>Hooks\RaaxDx\minhook\dll_resources</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

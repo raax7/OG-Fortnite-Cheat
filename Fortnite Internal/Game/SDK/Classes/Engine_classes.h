@@ -26,7 +26,7 @@ namespace SDK {
 		// VALUES
 
 		FVector GetPosition() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return FVector{};
+			if (!SDK::IsValidPointer(this)) return FVector{};
 			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
 		}
 	};
@@ -35,7 +35,7 @@ namespace SDK {
 		// VALUES
 
 		USceneComponent* GetRootComponent() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
 		}
 
@@ -64,7 +64,7 @@ namespace SDK {
 		// VALUES
 
 		USkeletalMeshComponent* Mesh() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (USkeletalMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Character::Mesh));
 		}
 	};
@@ -89,7 +89,7 @@ namespace SDK {
 		// VALUES
 
 		APawn* AcknowledgedPawn() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (APawn*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::AcknowledgedPawn));
 		}
 
@@ -132,7 +132,7 @@ namespace SDK {
 		// VALUES
 
 		TArray<ULocalPlayer*> LocalPlayers() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return TArray<ULocalPlayer*>{};
+			if (!SDK::IsValidPointer(this)) return TArray<ULocalPlayer*>{};
 			return *(TArray<ULocalPlayer*>*)((uintptr_t)this + SDK::Cached::Offsets::GameInstance::LocalPlayers);
 		}
 	};
@@ -235,12 +235,12 @@ namespace SDK {
 		// VALUES
 
 		void SetFontSize(int32 NewFontSize) {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return;
+			if (!SDK::IsValidPointer(this)) return;
 			*(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize) = NewFontSize;
 		}
 
 		int32 GetFontSize() {
-			if (!SDK::IsValidPointer((uintptr_t)this)) return 0;
+			if (!SDK::IsValidPointer(this)) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize);
 		}
 	};

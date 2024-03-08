@@ -4820,7 +4820,7 @@ void ImGui::NewFrame()
     // This fallback is particularly important as it prevents ImGui:: calls from crashing.
     g.WithinFrameScopeWithImplicitWindow = true;
     SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-    Begin("Debug##Default");
+    Begin("D3bvg##D3f@ult");
     IM_ASSERT(g.CurrentWindow->IsFallbackWindow == true);
 
     // [DEBUG] When io.ConfigDebugBeginReturnValue is set, we make Begin()/BeginChild() return false at different level of the window-stack,

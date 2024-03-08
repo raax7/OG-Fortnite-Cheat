@@ -39,34 +39,13 @@ RaaxDx::Status RaaxDx::Init() {
 		return Status::DxNotFound;
 	}
 
-	// Init WindowClass and Window
-	WNDCLASSEX WindowClass;
-	WindowClass.cbSize = sizeof(WNDCLASSEX);
-	WindowClass.style = CS_HREDRAW | CS_VREDRAW;
-	WindowClass.lpfnWndProc = DefWindowProc;
-	WindowClass.cbClsExtra = 0;
-	WindowClass.cbWndExtra = 0;
-	WindowClass.hInstance = GetModuleHandle(NULL);
-	WindowClass.hIcon = NULL;
-	WindowClass.hCursor = NULL;
-	WindowClass.hbrBackground = NULL;
-	WindowClass.lpszMenuName = NULL;
-	WindowClass.lpszClassName = skCrypt(L"RDXWC").decrypt();
-	WindowClass.hIconSm = NULL;
-	RegisterClassEx(&WindowClass);
-	Window = LI_FN(CreateWindowExW).safe()(0, WindowClass.lpszClassName, skCrypt(L"RDXW").decrypt(), WS_OVERLAPPEDWINDOW, 0, 0, 100, 100, NULL, NULL, WindowClass.hInstance, NULL);
-
-	if (Window == NULL) {
-		return RaaxDx::Status::WindowError;
-	}
-
 	if (DXVersion == 11) {
 		void* D3D11CreateDeviceAndSwapChain = LI_FN(GetProcAddress).safe()(DXModule, skCrypt("D3D11CreateDeviceAndSwapChain").decrypt());
 		if (D3D11CreateDeviceAndSwapChain == NULL) {
-			LI_FN(DestroyWindow).safe()(Window);
-			LI_FN(UnregisterClassW).safe()(WindowClass.lpszClassName, WindowClass.hInstance);
 			return Status::DxFunctionNotFound;
 		}
+
+		// Create D3D11 Device and SwapChain
 
 		// Create D3D11 Device and SwapChain
 		D3D_FEATURE_LEVEL FeatureLevel;
@@ -93,7 +72,7 @@ RaaxDx::Status RaaxDx::Init() {
 		SwapChainDesc.SampleDesc = SampleDesc;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.BufferCount = 1;
-		SwapChainDesc.OutputWindow = Window;
+		SwapChainDesc.OutputWindow = GetForegroundWindow();
 		SwapChainDesc.Windowed = 1;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -104,8 +83,13 @@ RaaxDx::Status RaaxDx::Init() {
 
 		HRESULT Result = ((HRESULT(*)(IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL*, UINT, UINT, const DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**, ID3D11Device**, D3D_FEATURE_LEVEL*, ID3D11DeviceContext**))D3D11CreateDeviceAndSwapChain)(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, FeatureLevels, 1, D3D11_SDK_VERSION, &SwapChainDesc, &SwapChain, &Device, &FeatureLevel, &DeviceContext);
 		if (FAILED(Result)) {
-			LI_FN(DestroyWindow).safe()(Window);
-			LI_FN(UnregisterClassW).safe()(WindowClass.lpszClassName, WindowClass.hInstance);
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
+			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
 			return Status::CreateFailed;
 		}
 
@@ -120,9 +104,6 @@ RaaxDx::Status RaaxDx::Init() {
 		SwapChain->Release();
 		Device->Release();
 		DeviceContext->Release();
-
-		LI_FN(DestroyWindow).safe()(Window);
-		LI_FN(UnregisterClassW).safe()(WindowClass.lpszClassName, WindowClass.hInstance);
 
 		Initalized = true;
 	}

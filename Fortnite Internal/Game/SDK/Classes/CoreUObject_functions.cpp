@@ -3,6 +3,7 @@
 #include "../SDK.h"
 #include "../../Game.h"
 #include "../../../Utilities/Logger.h"
+#include "../../../Utilities/Memory.h"
 #include "../../../Utilities/SpoofCall/SpoofCall.h"
 
 namespace SDK {
@@ -39,10 +40,10 @@ namespace SDK {
 
 	void UObject::ProcessEvent(void* FN, void* Params)
 	{
-		if (this == nullptr || FN == nullptr)
+		if (SDK::IsValidPointer(this) == false || SDK::IsValidPointer(FN) == false)
 			return;
 
-		if (this->Vft != nullptr && this->Vft[SDK::Cached::VFT::ProcessEvent] != nullptr)
+		if (SDK::IsValidPointer(this->Vft) && SDK::IsValidPointer(this->Vft[SDK::Cached::VFT::ProcessEvent]))
 		{
 			using ProcessEventParams = void(*)(UObject*, void*, void*);
 			auto OriginalProcessEvent = reinterpret_cast<ProcessEventParams>(this->Vft[SDK::Cached::VFT::ProcessEvent]);

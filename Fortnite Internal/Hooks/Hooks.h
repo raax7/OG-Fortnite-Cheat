@@ -4,6 +4,7 @@
 #ifdef _IMGUI
 #include <d3d11.h>
 #include <dxgi.h>
+#include <mutex>
 #include "RaaxDx/RaaxDx.h"
 #include "../Drawing/ImGui/imgui.h"
 #include "../Drawing/ImGui/imgui_impl_win32.h"
@@ -61,6 +62,8 @@ namespace Hooks {
 
 		inline bool ImGuiBeenSetup = false;
 
+		inline std::mutex PresentMutex;
+
 		inline ImFont* Font;
 		inline ImFont* LargeFont;
 	}
@@ -75,9 +78,7 @@ namespace Hooks {
 
 		HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pThis, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
 	}
-#endif
 
-#if INPUT_TYPE == WNDPROC_INPUT
 	namespace WndProc {
 		using WndProcParams = LRESULT(*)(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		inline WndProcParams WndProcOriginal = nullptr;

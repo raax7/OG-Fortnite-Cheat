@@ -14,10 +14,23 @@
 #include "../../../Utilities/Math.h"
 
 #include "../../SDK/SDKInitializer.h"
+#include "../../../Utilities/Logger.h"
+
+SDK::FVector PredictBulletImpactPoint(const float bulletSpeed, const float bulletGravity, const SDK::FVector& targetPosition, const SDK::FVector& targetVelocity, const float distanceToTarget) {
+	const float timeToHit = distanceToTarget / bulletSpeed;
+
+	SDK::FVector futureTargetPosition;
+	futureTargetPosition.X = targetPosition.X + targetVelocity.X * timeToHit;
+	futureTargetPosition.Y = targetPosition.Y + targetVelocity.Y * timeToHit;
+	futureTargetPosition.Z = targetPosition.Z + targetVelocity.Z * timeToHit;
+
+	const float bulletDrop = 0.5 * bulletGravity * timeToHit * timeToHit;
+	futureTargetPosition.Z -= bulletDrop;
+
+	return futureTargetPosition;
+}
 
 void Actors::FortPawn::Tick() {
-	if (!SDK::GetLocalCanvas()) return;
-
 	bool SeenTarget = false;
 
 	// move somwhere better later this is gay here
@@ -32,11 +45,10 @@ void Actors::FortPawn::Tick() {
 		SDK::AFortPawn*					FortPawn			= reinterpret_cast<SDK::AFortPawn*>(Actor);				if (!FortPawn) continue;
 		SDK::AFortPlayerState*			FortPlayerState		= FortPawn->PlayerState();								//if (!FortPlayerState) continue;
 		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (!Character) continue;
-		CurrentPlayer.Mesh									= Character->Mesh();									if (!CurrentPlayer.Mesh) continue;
+		CurrentPlayer.Mesh									= Character->Mesh();									if (Memory::IsBadReadPtr(CurrentPlayer.Mesh)) continue;
 
 		if (FortPawn == SDK::GetLocalPawn()) {
-			SDK::FVector Bone = CurrentPlayer.Mesh->GetBonePosition(0);
-			LocalPawnCache.Position = Bone;
+			LocalPawnCache.Position = CurrentPlayer.FortPawn->GetRootComponent()->GetPosition();
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
 			SDK::AFortWeapon* Weapon = FortPawn->CurrentWeapon();
@@ -66,8 +78,8 @@ void Actors::FortPawn::Tick() {
 								RangedWeaponStats->SetAthenaCrouchingSpreadMultiplier(0.f);
 								RangedWeaponStats->SetAthenaJumpingFallingSpreadMultiplier(0.f);
 								RangedWeaponStats->SetAthenaSprintingSpreadMultiplier(0.f);
-								RangedWeaponStats->SetMinSpeedForSpreadMultiplier(0.f);
-								RangedWeaponStats->SetMaxSpeedForSpreadMultiplier(0.f);
+								RangedWeaponStats->SetMinSpeedForSpreadMultiplier(FLT_MAX);
+								RangedWeaponStats->SetMaxSpeedForSpreadMultiplier(FLT_MAX);
 							}
 
 							if (Config::Exploits::Weapon::CartridgePerFire != 1) {
@@ -84,9 +96,9 @@ void Actors::FortPawn::Tick() {
 		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
 		if (CurrentPlayer.FortPawn->IsDying()) continue;
 
-		bool DidPopulate2D = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
+		CurrentPlayer.DidPopulate2D = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
 		Features::FortPawnHelper::PopulateVisibilities(CurrentPlayer);
-		
+
 		CurrentPlayer.IsOnScreen = false;
 
 		for (int i = 0; i < CurrentPlayer.BoneRegister2D.size(); i++) {
@@ -111,7 +123,7 @@ void Actors::FortPawn::Tick() {
 			}
 		}
 
-		if (DidPopulate2D) {
+		if (CurrentPlayer.DidPopulate2D) {
 			//if (FortPawn == Objects::target.Actor) {
 			//	Colour = SDK::FLinearColor(0.9f, 0.5f, 0.1f, 1.f);
 			//}
@@ -232,7 +244,7 @@ void Actors::FortPawn::Tick() {
 			if (CurrentPlayer.AnyBoneVisible && (!MainTarget.LocalInfo.IsTargeting || !MainTarget.GlobalInfo.TargetActor)) {
 				Features::Aimbot::Target PotentialNewTarget{};
 
-				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer, AimbotCamera);
+				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer, MainCamera, AimbotCamera);
 				MainTarget.SetTarget(PotentialNewTarget);
 			}
 

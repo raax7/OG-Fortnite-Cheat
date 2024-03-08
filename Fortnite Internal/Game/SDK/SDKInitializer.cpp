@@ -317,7 +317,7 @@ void SDKInitializer::InitGObjects() {
 		true
 	);
 
-	if (!SDK::IsValidPointer(TUObjectArray)) {
+	if (!SDK::IsValidPointer((void*)TUObjectArray)) {
 		SDK::UObject::ObjectArray.IsChunked = false;
 
 		TUObjectArray = Memory::PatternScan(
@@ -335,7 +335,7 @@ void SDKInitializer::InitGObjects() {
 		SDK::UObject::ObjectArray.FixedObjects = reinterpret_cast<SDK::Fixed_TUObjectArray*>(TUObjectArray);
 	}
 
-	if (SDK::IsValidPointer(TUObjectArray)) {
+	if (SDK::IsValidPointer((void*)TUObjectArray)) {
 		DEBUG_LOG(LOG_OFFSET, skCrypt("GObjects offset found: ").decrypt() + std::to_string(TUObjectArray - SDK::GetBaseAddress()));
 	}
 	else {

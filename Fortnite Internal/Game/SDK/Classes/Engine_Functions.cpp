@@ -48,7 +48,7 @@ SDK::FVector2D SDK::ProjectWorldToScreen(SDK::FVector WorldLocation, SDK::FVecto
 // Classes
 
 bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	struct {
 		FRotator NewRotation;
@@ -65,7 +65,7 @@ bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool b
 }
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FName{};
+	if (!SDK::IsValidPointer(this)) return FName{};
 
 	struct {
 		int32 BoneIndex;
@@ -80,7 +80,7 @@ SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
 	return params_GetBoneName.return_value;
 }
 SDK::FVector SDK::USkeletalMeshComponent::GetSocketLocation(FName InSocketName) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector();
+	if (!SDK::IsValidPointer(this)) return FVector(-1, -1, -1);
 
 	struct {
 		FName InSocketName;
@@ -96,14 +96,14 @@ SDK::FVector SDK::USkeletalMeshComponent::GetSocketLocation(FName InSocketName) 
 }
 
 SDK::FString SDK::APlayerState::GetPlayerName() {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FString{};
+	if (!SDK::IsValidPointer(this)) return FString{};
 
 	struct {
 		FString return_value;
 	} params_GetPlayerName{};
 
-	//this->ProcessEvent(SDK::Cached::Functions::PlayerState::GetPlayerName, &params_GetPlayerName);
-
+	this->ProcessEvent(SDK::Cached::Functions::PlayerState::GetPlayerName, &params_GetPlayerName);
+	
 	return params_GetPlayerName.return_value;
 }
 
@@ -142,7 +142,7 @@ float SDK::APlayerCameraManager::GetFOVAngle() {
 }
 
 void SDK::APlayerController::ClientSetRotation(FRotator& NewRotation, bool bResetCamera) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return;
+	if (!SDK::IsValidPointer(this)) return;
 
 	struct {
 		FRotator NewRotation;
@@ -157,7 +157,7 @@ void SDK::APlayerController::ClientSetRotation(FRotator& NewRotation, bool bRese
 	return;
 }
 void SDK::APlayerController::SetControlRotation(FRotator NewRotation) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return;
+	if (!SDK::IsValidPointer(this)) return;
 
 	struct {
 		FRotator NewRotation;
@@ -170,7 +170,7 @@ void SDK::APlayerController::SetControlRotation(FRotator NewRotation) {
 	return;
 }
 bool SDK::APlayerController::WasInputKeyJustReleased(FKey& Key) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	struct {
 		FKey Key;
@@ -185,7 +185,7 @@ bool SDK::APlayerController::WasInputKeyJustReleased(FKey& Key) {
 	return params_WasInputKeyJustReleased.return_value;
 }
 bool SDK::APlayerController::WasInputKeyJustPressed(FKey& Key) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	struct {
 		FKey Key;
@@ -200,7 +200,7 @@ bool SDK::APlayerController::WasInputKeyJustPressed(FKey& Key) {
 	return params_WasInputKeyJustPressed.return_value;
 }
 bool SDK::APlayerController::IsInputKeyDown(FKey& Key) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	struct {
 		FKey Key;
@@ -215,7 +215,7 @@ bool SDK::APlayerController::IsInputKeyDown(FKey& Key) {
 	return params_IsInputKeyDown.return_value;
 }
 bool SDK::APlayerController::GetMousePosition(float* LocationX, float* LocationY) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	struct {
 		float LocationX;
@@ -258,7 +258,7 @@ SDK::UEngine* SDK::UEngine::GetDefaultObj() {
 }
 
 SDK::TArray<SDK::AActor*> SDK::UGameplayStatics::GetAllActorsOfClass(UObject* WorldContextObject, UObject* ActorClass) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return TArray<AActor*>{};
+	if (!SDK::IsValidPointer(this)) return TArray<AActor*>{};
 
 	struct {
 		UObject* WorldContextObject;
@@ -324,7 +324,7 @@ SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 }
 
 SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector{};
+	if (!SDK::IsValidPointer(this)) return FVector{};
 
 	struct {
 		FRotator InRot;
@@ -339,7 +339,7 @@ SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
 	return params_GetForwardVector.return_value;
 }
 SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, struct FVector Target) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FRotator{};
+	if (!SDK::IsValidPointer(this)) return FRotator{};
 
 	struct {
 		FVector Start;
@@ -374,7 +374,7 @@ SDK::UFont* SDK::Roboto::StaticFont() {
 }
 
 void SDK::UCanvas::K2_DrawLine(const FVector2D& ScreenPositionA, const FVector2D& ScreenPositionB, float Thickness, const FLinearColor& RenderColor) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return;
+	if (!SDK::IsValidPointer(this)) return;
 
 	struct
 	{
@@ -392,7 +392,7 @@ void SDK::UCanvas::K2_DrawLine(const FVector2D& ScreenPositionA, const FVector2D
 	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawLine, &params_K2_DrawLine);
 }
 SDK::FVector SDK::UCanvas::K2_Project(FVector& WorldLocation) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector();
+	if (!SDK::IsValidPointer(this)) return FVector();
 
 	struct {
 		FVector WorldLocation;
@@ -407,7 +407,7 @@ SDK::FVector SDK::UCanvas::K2_Project(FVector& WorldLocation) {
 	return params_K2_Project.return_value;
 }
 void SDK::UCanvas::K2_DrawText(FString& RenderText, FVector2D ScreenPosition, int32 FontSize, FLinearColor RenderColor, bool bCentreX, bool bCentreY, bool bOutlined) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return;
+	if (!SDK::IsValidPointer(this)) return;
 
 	int32 OriginalFontSize = reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->GetFontSize();
 	reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->SetFontSize(FontSize);
@@ -478,7 +478,7 @@ void SDK::UCanvas::K2_DrawText(FString& RenderText, FVector2D ScreenPosition, in
 	return;
 }
 SDK::FVector2D SDK::UCanvas::K2_TextSize(const FString& RenderText, int32 FontSize) {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return FVector2D{};
+	if (!SDK::IsValidPointer(this)) return FVector2D{};
 
 	int32 OriginalFontSize = reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->GetFontSize();
 	reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->SetFontSize(FontSize);
@@ -511,9 +511,9 @@ SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 }
 
 SDK::FVector2D SDK::Project(FVector& WorldLocation) {
-#if _IMGUI
-	return ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
-#else
+//#if _IMGUI
+//	return ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
+//#else
 	SDK::FVector ScreenLocation = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
 
 	if (ScreenLocation.Z > 0.f) {
@@ -521,20 +521,22 @@ SDK::FVector2D SDK::Project(FVector& WorldLocation) {
 	}
 
 	return SDK::FVector2D(-1.f, -1.f);
-#endif
+//#endif
 }
 SDK::FVector SDK::Project3D(FVector& WorldLocation) {
 	// IMPROVE THIS SO IT WORKS THE SAME ON ENGINE AND IMGUI
-#if _IMGUI
-	SDK::FVector2D ScreenLocation = ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
-	return SDK::FVector(ScreenLocation.X, ScreenLocation.Y, 1.f);
-#else
+///#if _IMGUI
+//	SDK::FVector2D ScreenLocation = ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
+//	return SDK::FVector(ScreenLocation.X, ScreenLocation.Y, 1.f);
+//#else
 	return SDK::GetLocalCanvas()->K2_Project(WorldLocation);
-#endif
+//#endif
 }
 bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};
 	TArray<AActor*> IgnoredActors;
+
+	if (TargetPosition == SDK::FVector()) return false;
 
 	if (ActorToIgnore) IgnoredActors.Add(ActorToIgnore);
 	if (ActorToIgnore2) IgnoredActors.Add(ActorToIgnore2);

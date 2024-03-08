@@ -3,14 +3,15 @@
 #ifdef _ENGINE
 #include "Drawing/RaaxGUI/RaaxGUI.h"
 #endif // _ENGINE
+
 #include "Game/Input/Input.h"
 #include "Game/SDK/SDK.h"
 #include "Hooks/Hooks.h"
 
 #include "Utilities/LazyImporter.h"
+#include "Utilities/Logger.h"
 
 #include "Globals.h"
-#include "Utilities/Logger.h"
 
 // TO-DO:
 // - Fix unloading crashing on ImGui on some versions of Fortnite
@@ -27,6 +28,7 @@
 // - Make everything in Memory.h my own code (no pasting)
 // - Add WndProc as an option for Engine rendering
 // - Add DX12 support for ImGui
+// - Fix target selection issues
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
@@ -66,6 +68,12 @@ VOID Main() {
     // Init logger (REPLACE WITH YOUR OWN PATH)
     Logger::InitLogger(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log").decrypt());
 #endif // _DEBUG
+
+    // output fortnite base address
+    DEBUG_LOG(LOG_INFO, skCrypt("Fortnite base address: ").decrypt() + std::to_string(SDK::GetBaseAddress()));
+
+    // output our module base address
+    DEBUG_LOG(LOG_INFO, skCrypt("Our module base address: ").decrypt() + std::to_string((uintptr_t)ThisModule));
 
     SDK::Init();    // Init base address, GObjects, function addresses, offsets etc
     Hooks::Init();  // Init hooks

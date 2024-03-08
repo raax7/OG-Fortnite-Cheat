@@ -13,7 +13,7 @@ namespace Actors {
 
 		inline std::vector<Actors::Caches::FortPawnCache> CachedPlayers;
 
-		inline const float IntervalSeconds = 0.25f;
+		inline const float IntervalSeconds = 0.01f;
 		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
@@ -22,7 +22,7 @@ namespace Actors {
 
 		inline SDK::TArray<SDK::AActor*> CachedWeapons;
 
-		inline const float IntervalSeconds = 0.25f;
+		inline const float IntervalSeconds = 0.01f;
 		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
@@ -31,7 +31,7 @@ namespace Actors {
 
 		inline SDK::TArray<SDK::AActor*> CachedBuildingWeakSpot;
 
-		inline const float IntervalSeconds = 0.10f;
+		inline const float IntervalSeconds = 0.01f;
 		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 

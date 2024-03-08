@@ -19,7 +19,7 @@ SDK::UClass* SDK::AFortPickup::StaticClass() {
 }
 
 SDK::FFortBaseWeaponStats* SDK::AFortWeapon::WeaponStats() {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return nullptr;
+	if (!SDK::IsValidPointer(this)) return nullptr;
 	auto VFT = *reinterpret_cast<void***>(this);
 
 	if (VFT != nullptr && VFT[SDK::Cached::VFT::GetWeaponStats] != nullptr) {
@@ -27,11 +27,37 @@ SDK::FFortBaseWeaponStats* SDK::AFortWeapon::WeaponStats() {
 	}
 }
 
+bool SDK::AFortWeapon::IsProjectileWeapon() {
+	if (!SDK::IsValidPointer(this)) return false;
+
+	struct {
+		bool return_value;
+	} params_IsProjectileWeapon{};
+
+	this->ProcessEvent(SDK::Cached::Functions::FortWeapon::IsProjectileWeapon, &params_IsProjectileWeapon);
+
+	return params_IsProjectileWeapon.return_value;
+}
+
+float SDK::AFortWeapon::GetProjectileSpeed(float ChargePercent) {
+	if (!SDK::IsValidPointer(this)) return false;
+
+	struct {
+		float ChargePercent;
+
+		float return_value;
+	} params_GetProjectileSpeed{};
+
+	this->ProcessEvent(SDK::Cached::Functions::FortWeapon::GetProjectileSpeed, &params_GetProjectileSpeed);
+
+	return params_GetProjectileSpeed.return_value;
+}
+
 bool SDK::AFortWeapon::IsPickaxe() {
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	UFortWeaponItemDefinition* WeaponData = this->WeaponData();
-	if (!SDK::IsValidPointer((uintptr_t)this)) return false;
+	if (!SDK::IsValidPointer(this)) return false;
 
 	return WeaponData->IsA(UFortWeaponMeleeItemDefinition::StaticClass());
 }
