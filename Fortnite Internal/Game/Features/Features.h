@@ -2,11 +2,15 @@
 #include <Windows.h>
 
 namespace Features {
-	namespace FortPawnHelper {
-		class Bone;
-	};
-
 	namespace Aimbot {
 		class Target;
+	};
+
+	namespace Exploits {
+		class Vehicle;
+	};
+
+	namespace FortPawnHelper {
+		class Bone;
 	};
 }

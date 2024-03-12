@@ -10,25 +10,13 @@
 #include "../../Features/FortPawnHelper/Bone.h"
 #include "../../Features/FortPawnHelper/FortPawnHelper.h"
 #include "../../Features/Aimbot/Aimbot.h"
+#include "../../Features/Exploits/Vehicles.h"
 
 #include "../../../Utilities/Math.h"
 
 #include "../../SDK/SDKInitializer.h"
 #include "../../../Utilities/Logger.h"
-
-SDK::FVector PredictBulletImpactPoint(const float bulletSpeed, const float bulletGravity, const SDK::FVector& targetPosition, const SDK::FVector& targetVelocity, const float distanceToTarget) {
-	const float timeToHit = distanceToTarget / bulletSpeed;
-
-	SDK::FVector futureTargetPosition;
-	futureTargetPosition.X = targetPosition.X + targetVelocity.X * timeToHit;
-	futureTargetPosition.Y = targetPosition.Y + targetVelocity.Y * timeToHit;
-	futureTargetPosition.Z = targetPosition.Z + targetVelocity.Z * timeToHit;
-
-	const float bulletDrop = 0.5 * bulletGravity * timeToHit * timeToHit;
-	futureTargetPosition.Z -= bulletDrop;
-
-	return futureTargetPosition;
-}
+#include "../../Input/Input.h"
 
 void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
@@ -45,14 +33,15 @@ void Actors::FortPawn::Tick() {
 		SDK::AFortPawn*					FortPawn			= reinterpret_cast<SDK::AFortPawn*>(Actor);				if (!FortPawn) continue;
 		SDK::AFortPlayerState*			FortPlayerState		= FortPawn->PlayerState();								//if (!FortPlayerState) continue;
 		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (!Character) continue;
-		CurrentPlayer.Mesh									= Character->Mesh();									if (Memory::IsBadReadPtr(CurrentPlayer.Mesh)) continue;
+		CurrentPlayer.Mesh									= Character->Mesh();									if (!CurrentPlayer.Mesh) continue;
 
 		if (FortPawn == SDK::GetLocalPawn()) {
 			LocalPawnCache.Position = CurrentPlayer.FortPawn->GetRootComponent()->GetPosition();
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
-			SDK::AFortWeapon* Weapon = FortPawn->CurrentWeapon();
+			Features::Exploits::Vehicle::Tick();
 
+			SDK::AFortWeapon* Weapon = FortPawn->CurrentWeapon();
 			if (Weapon) {
 				// We have to init here because we need a valid AFortWeapon to get the VFT
 				if (SDK::Cached::VFT::GetWeaponStats == 0x0) {
@@ -88,6 +77,10 @@ void Actors::FortPawn::Tick() {
 						}
 					}
 				}
+			}
+
+			if (Input::IsKeyDown(Input::KeyName::H)) {
+				FortPawn->GetMovementComponent()->StopMovementImmediately();
 			}
 
 			continue;

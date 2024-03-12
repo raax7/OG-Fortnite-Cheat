@@ -17,7 +17,7 @@ bool SDK::IsValidPointer(void* Address) {
 	}
 
 	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obselete win api func
-	if (LI_FN(IsBadWritePtr).safe_cached()(Address, 8)) {
+	if (LI_FN(IsBadReadPtr).safe_cached()(Address, 8)) {
 		return false;
 	}
 
@@ -30,7 +30,7 @@ uintptr_t SDK::GetBaseAddress() {
 
 void SDK::Init() {
 	DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing SDK...").decrypt());
-	 
+
 	// Init Offsets, Functions, and VFT Indexes
 	{
 		// Init GObjects
@@ -54,7 +54,6 @@ void SDK::Init() {
 
 		// Init VFT Indexes
 		SDKInitializer::InitPEIndex();
-		SDKInitializer::InitGPVIndex();
 		SDKInitializer::InitGVIndex();
 	}
 
@@ -93,11 +92,15 @@ void SDK::Init() {
 			FunctionSearch { skCrypt("KismetSystemLibrary").decrypt(),	skCrypt("LineTraceSingle").decrypt(),			&SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle			},
 			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("FindLookAtRotation").decrypt(),		&SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation			},
 			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("GetForwardVector").decrypt(),			&SDK::Cached::Functions::KismetMathLibrary::GetForwardVector			},
+			FunctionSearch { skCrypt("KismetMathLibrary").decrypt(),	skCrypt("GetRightVector").decrypt(),			&SDK::Cached::Functions::KismetMathLibrary::GetRightVector				},
 			FunctionSearch { skCrypt("PlayerState").decrypt(),			skCrypt("GetPlayerName").decrypt(),				&SDK::Cached::Functions::PlayerState::GetPlayerName						},
 			FunctionSearch { skCrypt("SkinnedMeshComponent").decrypt(),	skCrypt("GetBoneName").decrypt(),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName				},
 			FunctionSearch { skCrypt("SceneComponent").decrypt(),		skCrypt("GetSocketLocation").decrypt(),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation		},
+			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_TeleportTo").decrypt(),				&SDK::Cached::Functions::Actor::K2_TeleportTo							},
 			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorRotation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorRotation						},
-			
+			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorLocation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorLocation						},
+			FunctionSearch { skCrypt("Pawn").decrypt(),					skCrypt("GetMovementComponent").decrypt(),		&SDK::Cached::Functions::Pawn::GetMovementComponent						},
+			FunctionSearch { skCrypt("MovementComponent").decrypt(),	skCrypt("StopMovementImmediately").decrypt(),	&SDK::Cached::Functions::MovementComponent::StopMovementImmediately		},
 			FunctionSearch { skCrypt("FortWeapon").decrypt(),			skCrypt("IsProjectileWeapon").decrypt(),		&SDK::Cached::Functions::FortWeapon::IsProjectileWeapon					},
 			FunctionSearch { skCrypt("FortWeapon").decrypt(),			skCrypt("GetProjectileSpeed").decrypt(),		&SDK::Cached::Functions::FortWeapon::GetProjectileSpeed					},
 		};
@@ -128,6 +131,7 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("FortPlayerStateAthena").decrypt(),	skCrypt("TeamIndex").decrypt(),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		nullptr },
 			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("CurrentWeapon").decrypt(),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
 			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("bIsDying").decrypt(),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
+			OffsetSearch { skCrypt("FortPlayerPawn").decrypt(),			skCrypt("VehicleStateLocal").decrypt(),			&SDK::Cached::Offsets::FortPawn::VehicleStateLocal,				nullptr },
 			OffsetSearch { skCrypt("BuildingWeakSpot").decrypt(),		skCrypt("bHit").decrypt(),						&SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField,	nullptr },
 			OffsetSearch { skCrypt("FortWeapon").decrypt(),				skCrypt("WeaponData").decrypt(),				&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
 
@@ -147,6 +151,22 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("MaxSpeedForSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier, nullptr },
 			
 			OffsetSearch { skCrypt("FortBaseWeaponStats").decrypt(),	skCrypt("CartridgePerFire").decrypt(),			&SDK::Cached::Offsets::FortRangedWeaponStats::CartridgePerFire, nullptr },
+			
+			OffsetSearch { skCrypt("FortAthenaAntelopeVehicle").decrypt(), skCrypt("FortAntelopeVehicleConfigs").decrypt(), &SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs, nullptr },
+			
+			OffsetSearch { skCrypt("FortAthenaJackalVehicle").decrypt(), skCrypt("BoostTimers").decrypt(),				&SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers,	nullptr },
+			
+			OffsetSearch { skCrypt("FortAthenaDoghouseVehicle").decrypt(), skCrypt("BoostAction").decrypt(),			&SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction,	nullptr },
+			
+			OffsetSearch { skCrypt("FortAntelopeVehicleConfigs").decrypt(), skCrypt("BoostAccumulationRate").decrypt(), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate, nullptr },
+			OffsetSearch { skCrypt("FortAntelopeVehicleConfigs").decrypt(), skCrypt("BoostExpenseRate").decrypt(), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate, nullptr },
+			
+			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("ChargeRate").decrypt(),				&SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate,	nullptr },
+			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("ActiveExpenseRate").decrypt(),		&SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate, nullptr },
+			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("PassiveExpenseRate").decrypt(),		&SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate, nullptr },
+			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("Charge").decrypt(),					&SDK::Cached::Offsets::FortRechargingActionTimer::Charge,		nullptr },
+			
+			OffsetSearch { skCrypt("VehiclePawnState").decrypt(),		skCrypt("Vehicle").decrypt(),					&SDK::Cached::Offsets::VehiclePawnState::Vehicle,				nullptr },
 		};
 
 		SDK::UObject::SetupObjects(Functions, Offsets);
@@ -154,6 +174,7 @@ void SDK::Init() {
 
 	// Init PostRender VFT index after due to it relying on one of the offsets found in the previous step
 	SDKInitializer::InitPRIndex();
+	SDKInitializer::InitGPVIndex();
 
 	Input::Init();
 	Features::FortPawnHelper::Bone::Init();

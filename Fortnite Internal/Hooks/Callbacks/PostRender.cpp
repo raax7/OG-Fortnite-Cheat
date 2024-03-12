@@ -3,6 +3,8 @@
 #include "../../Game/Actors/Actors.h"
 #include "../../Game/Game.h"
 
+#include "../../Drawing/Drawing.h"
+
 #include "../../Utilities/Logger.h"
 #include "../../Utilities/Math.h"
 
@@ -29,6 +31,8 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	Game::DrawCallback();
 
 #ifdef _IMGUI
+	Drawing::SwapBuffers();
+
 	if (RaaxDx::Initalized == false) {
 		DEBUG_LOG(LOG_INFO, skCrypt("Initiating DirectX hooks").decrypt());
 

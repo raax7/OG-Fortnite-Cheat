@@ -21,6 +21,8 @@ bool TOGGLEWINDOW = true;
 
 bool WaitingForKeyInput = false;
 
+int Tab = 0;
+
 void Game::MenuCallback() {
 	if (!SDK::GetLocalPlayer()) return;
 	if (!SDK::GetLocalController()) return;
@@ -71,80 +73,117 @@ void Game::MenuCallback() {
 
 #ifdef _IMGUI
 	if (test) {
-		ImGui::Begin(skCrypt("ImGui Window").decrypt());
+		ImGui::Begin(skCrypt("Settings").decrypt());
 
-		ImGui::Checkbox(skCrypt("Weapon ESP").decrypt(), &Config::Visuals::Weapons::Enabled);
 
-		ImGui::Checkbox(skCrypt("Weapon Mods").decrypt(), &Config::Exploits::Weapon::Enabled);
-		if (Config::Exploits::Weapon::Enabled) {
-			ImGui::Checkbox(skCrypt("No Spread").decrypt(), &Config::Exploits::Weapon::NoSpread);
-			//ImGui::SliderInt("CartridgePerFire", &Config::Exploits::Weapon::CartridgePerFire, 1, 10);
+
+		// Menu Tabs
+		if (ImGui::Button(skCrypt("Aimbot").decrypt(), ImVec2(150, 30))) {
+			Tab = 0;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(skCrypt("Visuals").decrypt(), ImVec2(150, 30))) {
+			Tab = 1;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(skCrypt("Exploits").decrypt(), ImVec2(150, 30))) {
+			Tab = 2;
 		}
 
-		ImGui::Checkbox(skCrypt("Pickaxe Mods").decrypt(), &Config::Exploits::Pickaxe::Enabled);
-		if (Config::Exploits::Pickaxe::Enabled) {
-			ImGui::SliderFloat(skCrypt("Pickaxe Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
-		}
+		switch (Tab) {
+		case 0:
+		{
+			ImGui::Checkbox(skCrypt("Aimbot").decrypt(), &Config::Aimbot::Enabled);
+			if (Config::Aimbot::Enabled) {
+				std::string ButtonName = skCrypt("None").decrypt();
+				if ((uint8)Config::Aimbot::AimKey) {
+					ButtonName = skCrypt("Aim Key: ").decrypt() + Input::GetKeyNameString((Input::KeyName)Config::Aimbot::AimKey);
+				}
 
-		ImGui::Checkbox(skCrypt("Aimbot").decrypt(), &Config::Aimbot::Enabled);
-		if (Config::Aimbot::Enabled) {
-			std::string ButtonName = skCrypt("None").decrypt();
-			if ((uint8)Config::Aimbot::AimKey) {
-				ButtonName = skCrypt("Aim Key: ").decrypt() + Input::GetKeyNameString((Input::KeyName)Config::Aimbot::AimKey);
-			}
+				if (WaitingForKeyInput) {
+					ButtonName = skCrypt("...").decrypt();
 
-			if (WaitingForKeyInput) {
-				ButtonName = skCrypt("...").decrypt();
+					std::vector<Input::KeyName> Keys = Input::GetAllDownKeys();
 
-				std::vector<Input::KeyName> Keys = Input::GetAllDownKeys();
-
-				if (Keys.size() > 0) {
-					for (int i = 0; i < Keys.size(); i++) {
-						if (Keys[i] != Input::KeyName::AnyKey
-							&& Keys[i] != Input::KeyName::MouseX
-							&& Keys[i] != Input::KeyName::MouseY
-							&& Keys[i] != Input::KeyName::LeftMouseButton) {
-							Config::Aimbot::AimKey = (KeyName)Keys[i];
-							WaitingForKeyInput = false;
+					if (Keys.size() > 0) {
+						for (int i = 0; i < Keys.size(); i++) {
+							if (Keys[i] != Input::KeyName::AnyKey
+								&& Keys[i] != Input::KeyName::MouseX
+								&& Keys[i] != Input::KeyName::MouseY
+								&& Keys[i] != Input::KeyName::LeftMouseButton) {
+								Config::Aimbot::AimKey = (KeyName)Keys[i];
+								WaitingForKeyInput = false;
+							}
 						}
 					}
 				}
+
+				if (ImGui::Button(ButtonName.c_str(), ImVec2(250, 40))) {
+					WaitingForKeyInput = true;
+				}
+
+				ImGui::Checkbox(skCrypt("Silent Aim").decrypt(), &Config::Aimbot::SilentAim);
+				if (Config::Aimbot::SilentAim) ImGui::Checkbox(skCrypt("Use Aimkey For Silent").decrypt(), &Config::Aimbot::UseAimKeyForSilent);
+				ImGui::Checkbox(skCrypt("Show Aim Line").decrypt(), &Config::Aimbot::ShowAimLine);
+				ImGui::Checkbox(skCrypt("Show FOV").decrypt(), &Config::Aimbot::ShowFOV);
+
+				ImGui::Checkbox(skCrypt("Standard").decrypt(), &Config::Aimbot::Standard::Enabled);
+				if (Config::Aimbot::Standard::Enabled) {
+					ImGui::SliderInt(skCrypt("Standard FOV").decrypt(), &Config::Aimbot::Standard::FOV, 0.f, 180.f);
+					ImGui::SliderFloat(skCrypt("Standard Smoothing").decrypt(), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
+				}
+
+				ImGui::Checkbox(skCrypt("Close Aim").decrypt(), &Config::Aimbot::CloseAim::Enabled);
+				if (Config::Aimbot::CloseAim::Enabled) {
+					ImGui::SliderInt(skCrypt("Close FOV").decrypt(), &Config::Aimbot::CloseAim::FOV, 0.f, 180.f);
+					ImGui::SliderFloat(skCrypt("Smoothing").decrypt(), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
+				}
+
+				ImGui::Checkbox(skCrypt("Weakspot").decrypt(), &Config::Aimbot::Weakspot::Enabled);
+				if (Config::Aimbot::Weakspot::Enabled) {
+					ImGui::SliderInt(skCrypt("Weakspot FOV").decrypt(), &Config::Aimbot::Weakspot::FOV, 0.f, 180.f);
+					ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
+				}
 			}
 
-			if (ImGui::Button(ButtonName.c_str(), ImVec2(250, 40))) {
-				WaitingForKeyInput = true;
+			break;
+		}
+		case 1:
+		{
+			ImGui::Checkbox(skCrypt("Weapon ESP").decrypt(), &Config::Visuals::Weapons::Enabled);
+
+			ImGui::Checkbox(skCrypt("Player ESP").decrypt(), &Config::Visuals::Players::Enabled);
+			if (Config::Visuals::Players::Enabled) {
+				ImGui::Checkbox(skCrypt("Box").decrypt(), &Config::Visuals::Players::Box);
+				ImGui::Checkbox(skCrypt("Skeleton").decrypt(), &Config::Visuals::Players::Skeleton);
+				ImGui::Checkbox(skCrypt("Distance").decrypt(), &Config::Visuals::Players::Distance);
+				ImGui::Checkbox(skCrypt("Name").decrypt(), &Config::Visuals::Players::Name);
 			}
 
-			ImGui::Checkbox(skCrypt("Silent Aim").decrypt(), &Config::Aimbot::SilentAim);
-			if (Config::Aimbot::SilentAim) ImGui::Checkbox(skCrypt("Use Aimkey For Silent").decrypt(), &Config::Aimbot::UseAimKeyForSilent);
-			ImGui::Checkbox(skCrypt("Show Aim Line").decrypt(), &Config::Aimbot::ShowAimLine);
-			ImGui::Checkbox(skCrypt("Show FOV").decrypt(), &Config::Aimbot::ShowFOV);
+			break;
 		}
+		case 2:
+		{
+			ImGui::Checkbox(skCrypt("Weapon Mods").decrypt(), &Config::Exploits::Weapon::Enabled);
+			if (Config::Exploits::Weapon::Enabled) {
+				ImGui::Checkbox(skCrypt("No Spread").decrypt(), &Config::Exploits::Weapon::NoSpread);
+				ImGui::SliderInt("CartridgePerFire", &Config::Exploits::Weapon::CartridgePerFire, 1, 10);
+			}
 
-		ImGui::Checkbox(skCrypt("Standard").decrypt(), &Config::Aimbot::Standard::Enabled);
-		if (Config::Aimbot::Standard::Enabled) {
-			ImGui::SliderInt(skCrypt("Standard FOV").decrypt(), &Config::Aimbot::Standard::FOV, 0.f, 180.f);
-			ImGui::SliderFloat(skCrypt("Standard Smoothing").decrypt(), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
+			ImGui::Checkbox(skCrypt("Pickaxe Mods").decrypt(), &Config::Exploits::Pickaxe::Enabled);
+			if (Config::Exploits::Pickaxe::Enabled) {
+				ImGui::SliderFloat(skCrypt("Pickaxe Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
+			}
+
+			ImGui::Checkbox(skCrypt("Vehicle Mods").decrypt(), &Config::Exploits::Vehicle::Enabled);
+			if (Config::Exploits::Vehicle::Enabled) {
+				ImGui::Checkbox(skCrypt("Infinite Boost").decrypt(), &Config::Exploits::Vehicle::InfiniteBoost);
+				ImGui::Checkbox(skCrypt("Fly").decrypt(), &Config::Exploits::Vehicle::Fly);
+				ImGui::SliderFloat(skCrypt("Fly Speed").decrypt(), &Config::Exploits::Vehicle::FlySpeed, 0.f, 1000.f);
+			}
+
+			break;
 		}
-
-		ImGui::Checkbox(skCrypt("Close Aim").decrypt(), &Config::Aimbot::CloseAim::Enabled);
-		if (Config::Aimbot::CloseAim::Enabled) {
-			ImGui::SliderInt(skCrypt("Close FOV").decrypt(), &Config::Aimbot::CloseAim::FOV, 0.f, 180.f);
-			ImGui::SliderFloat(skCrypt("Smoothing").decrypt(), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
-		}
-
-		ImGui::Checkbox(skCrypt("Weakspot").decrypt(), &Config::Aimbot::Weakspot::Enabled);
-		if (Config::Aimbot::Weakspot::Enabled) {
-			ImGui::SliderInt(skCrypt("Weakspot FOV").decrypt(), &Config::Aimbot::Weakspot::FOV, 0.f, 180.f);
-			ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
-		}
-
-		ImGui::Checkbox(skCrypt("Player ESP").decrypt(), &Config::Visuals::Players::Enabled);
-		if (Config::Visuals::Players::Enabled) {
-			ImGui::Checkbox(skCrypt("Box").decrypt(), &Config::Visuals::Players::Box);
-			ImGui::Checkbox(skCrypt("Skeleton").decrypt(), &Config::Visuals::Players::Skeleton);
-			ImGui::Checkbox(skCrypt("Distance").decrypt(), &Config::Visuals::Players::Distance);
-			ImGui::Checkbox(skCrypt("Name").decrypt(), &Config::Visuals::Players::Name);
 		}
 
 		ImGui::End();

@@ -8,44 +8,38 @@
 #include "../../Features/FortPawnHelper/Bone.h"
 #include "../../Game.h"
 
-#ifdef _IMGUI
-SDK::FVector2D SDK::ProjectWorldToScreen(SDK::FVector WorldLocation, SDK::FVector CameraLocation, SDK::FRotator CameraRotation, float CameraFOV) {
-	SDK::FVector2D Screenlocation = SDK::FVector2D(0, 0);
 
-	float radPitch = (CameraRotation.Pitch * float(M_PI) / 180.f);
-	float radYaw = (CameraRotation.Yaw * float(M_PI) / 180.f);
-	float radRoll = (CameraRotation.Roll * float(M_PI) / 180.f);
-
-	float SP = sinf(radPitch);
-	float CP = cosf(radPitch);
-	float SY = sinf(radYaw);
-	float CY = cosf(radYaw);
-	float SR = sinf(radRoll);
-	float CR = cosf(radRoll);
-
-	SDK::FVector vAxisX, vAxisY, vAxisZ;
-	vAxisX = SDK::FVector(CP * CY, CP * SY, SP);
-	vAxisY = SDK::FVector(SR * SP * CY - CR * SY, SR * SP * SY + CR * CY, -SR * CP);
-	vAxisZ = SDK::FVector(-(CR * SP * CY + SR * SY), CY * SR - CR * SP * SY, CR * CP);
-
-	SDK::FVector vDelta = WorldLocation - CameraLocation;
-	SDK::FVector vTransformed = SDK::FVector(vDelta.Dot(vAxisY), vDelta.Dot(vAxisZ), vDelta.Dot(vAxisX));
-
-	if (vTransformed.Z < 1.f)
-		vTransformed.Z = 1.f;
-
-	float FovAngle = CameraFOV;
-	float ScreenCenterX = (float)Game::ScreenWidth / 2.0f;
-	float ScreenCenterY = (float)Game::ScreenHeight / 2.0f;
-
-	Screenlocation.X = ScreenCenterX + vTransformed.X * (ScreenCenterX / tan(FovAngle * (float)M_PI / 360.f)) / vTransformed.Z;
-	Screenlocation.Y = ScreenCenterY - vTransformed.Y * (ScreenCenterX / tan(FovAngle * (float)M_PI / 360.f)) / vTransformed.Z;
-
-	return Screenlocation;
-}
-#endif
 
 // Classes
+
+void SDK::UMovementComponent::StopMovementImmediately() {
+	if (!SDK::IsValidPointer(this)) return;
+
+	struct {
+	} params_StopMovementImmediately{};
+
+	this->ProcessEvent(SDK::Cached::Functions::MovementComponent::StopMovementImmediately, &params_StopMovementImmediately);
+
+	return;
+}
+
+bool SDK::AActor::K2_TeleportTo(const struct FVector& DestLocation, const struct FRotator& DestRotation) {
+	if (!SDK::IsValidPointer(this)) return false;
+
+	struct {
+		FVector DestLocation;
+		FRotator DestRotation;
+		bool return_value;
+		uint8 Pad_56F[0x3];
+	} params_K2_TeleportTo{};
+
+	params_K2_TeleportTo.DestLocation = DestLocation;
+	params_K2_TeleportTo.DestRotation = DestRotation;
+
+	this->ProcessEvent(SDK::Cached::Functions::Actor::K2_TeleportTo, &params_K2_TeleportTo);
+
+	return params_K2_TeleportTo.return_value;
+}
 
 bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics) {
 	if (!SDK::IsValidPointer(this)) return false;
@@ -54,6 +48,7 @@ bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool b
 		FRotator NewRotation;
 		bool bTeleportPhysics;
 		bool return_value;
+		uint8 Pad_577[0x2];
 	} params_K2_SetActorRotation{};
 
 	params_K2_SetActorRotation.NewRotation = NewRotation;
@@ -62,6 +57,29 @@ bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool b
 	this->ProcessEvent(SDK::Cached::Functions::Actor::K2_SetActorRotation, &params_K2_SetActorRotation);
 
 	return params_K2_SetActorRotation.return_value;
+}
+
+bool SDK::AActor::K2_SetActorLocation(const struct FVector& NewLocation, bool bSweep, struct FHitResult* SweepHitResult, bool bTeleport) {
+	if (!SDK::IsValidPointer(this)) return false;
+
+	struct {
+		FVector NewLocation;
+		bool bSweep;
+		uint8 Pad_585[0x3];
+		FHitResult* SweepHitResult;
+		bool bTeleport;
+		bool return_value;
+		uint8 Pad_586[0x2];
+	} params_K2_SetActorLocation{};
+
+	params_K2_SetActorLocation.NewLocation = NewLocation;
+	params_K2_SetActorLocation.bSweep = bSweep;
+	params_K2_SetActorLocation.SweepHitResult = SweepHitResult;
+	params_K2_SetActorLocation.bTeleport = bTeleport;
+
+	this->ProcessEvent(SDK::Cached::Functions::Actor::K2_SetActorLocation, &params_K2_SetActorLocation);
+
+	return params_K2_SetActorLocation.return_value;
 }
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
@@ -80,7 +98,7 @@ SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
 	return params_GetBoneName.return_value;
 }
 SDK::FVector SDK::USkeletalMeshComponent::GetSocketLocation(FName InSocketName) {
-	if (!SDK::IsValidPointer(this)) return FVector(-1, -1, -1);
+	if (!SDK::IsValidPointer(this)) return FVector();
 
 	struct {
 		FName InSocketName;
@@ -93,6 +111,18 @@ SDK::FVector SDK::USkeletalMeshComponent::GetSocketLocation(FName InSocketName) 
 	this->ProcessEvent(SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation, &params_GetSocketLocation);
 
 	return params_GetSocketLocation.return_value;
+}
+
+SDK::UPawnMovementComponent* SDK::APawn::GetMovementComponent() {
+	if (!SDK::IsValidPointer(this)) return nullptr;
+
+	struct {
+		UPawnMovementComponent* return_value;
+	} params_GetMovementComponent{};
+
+	this->ProcessEvent(SDK::Cached::Functions::Pawn::GetMovementComponent, &params_GetMovementComponent);
+
+	return params_GetMovementComponent.return_value;
 }
 
 SDK::FString SDK::APlayerState::GetPlayerName() {
@@ -231,6 +261,14 @@ bool SDK::APlayerController::GetMousePosition(float* LocationX, float* LocationY
 
 	return params_GetMousePosition.return_value;
 }
+SDK::UClass* SDK::APlayerController::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(skCrypt("PlayerController").decrypt());
+
+	return Clss;
+}
 
 SDK::UClass* SDK::UGameViewportClient::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -293,18 +331,19 @@ SDK::FString SDK::UKismetSystemLibrary::GetEngineVersion() {
 
 	return params_GetEngineVersion.return_value;
 }
-bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObject, const struct FVector& Start, const struct FVector& End, enum class ETraceTypeQuery TraceChannel, bool bTraceComplex, TArray<class AActor*>& ActorsToIgnore, enum class EDrawDebugTrace DrawDebugType, struct FHitResult* OutHit, bool bIgnoreSelf, const struct FLinearColor& TraceColor, const struct FLinearColor& TraceHitColor, float DrawTime) {
-	using LineTraceSingleParams = bool(*)(UObject* WorldContextObject,
-		FVector Start,
-		FVector End,
+bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObject, const struct FVector& Start, const struct FVector& End, enum class ETraceTypeQuery TraceChannel, bool bTraceComplex, TArray<class AActor*>& ActorsToIgnore, enum class EDrawDebugTrace DrawDebugType, struct FHitResult& OutHit, bool bIgnoreSelf, const struct FLinearColor& TraceColor, const struct FLinearColor& TraceHitColor, float DrawTime) {
+	using LineTraceSingleParams = bool(*)(
+		UObject* WorldContextObject,
+		FVector& Start,
+		FVector& End,
 		ETraceTypeQuery TraceChannel,
 		bool bTraceComplex,
-		TArray<class AActor*> ActorsToIgnore,
+		TArray<class AActor*>& ActorsToIgnore,
 		EDrawDebugTrace DrawDebugType,
 		FHitResult OutHit,
 		bool bIgnoreSelf,
-		FLinearColor TraceColor,
-		FLinearColor TraceHitColor,
+		FLinearColor& TraceColor,
+		FLinearColor& TraceHitColor,
 		float DrawTime);
 	static LineTraceSingleParams OriginalLineTraceSingle;
 
@@ -312,7 +351,12 @@ bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObjec
 
 	// Calling through spoof_call doesn't work here. Most likely because some parameters are passed by reference
 
-	return OriginalLineTraceSingle(WorldContextObject, Start, End, TraceChannel, true, ActorsToIgnore, EDrawDebugTrace::None, {}, true, SDK::FLinearColor(), SDK::FLinearColor(), 0.f);
+	SDK::FVector StartCopy = Start;
+	SDK::FVector EndCopy = End;
+
+	SDK::FLinearColor EmptyColor = SDK::FLinearColor();
+
+	return OriginalLineTraceSingle(WorldContextObject, StartCopy, EndCopy, TraceChannel, bTraceComplex, ActorsToIgnore, EDrawDebugTrace::None, {}, bIgnoreSelf, EmptyColor, EmptyColor, 0.f);
 }
 SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -337,6 +381,21 @@ SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
 	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetForwardVector, &params_GetForwardVector);
 
 	return params_GetForwardVector.return_value;
+}
+SDK::FVector SDK::UKismetMathLibrary::GetRightVector(const FRotator& InRot) {
+	if (!SDK::IsValidPointer(this)) return FVector{};
+
+	struct {
+		FRotator InRot;
+
+		FVector return_value;
+	} params_GetRightVector{};
+
+	params_GetRightVector.InRot = InRot;
+
+	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetRightVector, &params_GetRightVector);
+
+	return params_GetRightVector.return_value;
 }
 SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, struct FVector Target) {
 	if (!SDK::IsValidPointer(this)) return FRotator{};
@@ -510,7 +569,7 @@ SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 	return GetSocketLocation(Features::FortPawnHelper::Bone::GetBoneName(BoneID));
 }
 
-SDK::FVector2D SDK::Project(FVector& WorldLocation) {
+SDK::FVector2D SDK::Project(FVector WorldLocation) {
 //#if _IMGUI
 //	return ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
 //#else
@@ -523,7 +582,7 @@ SDK::FVector2D SDK::Project(FVector& WorldLocation) {
 	return SDK::FVector2D(-1.f, -1.f);
 //#endif
 }
-SDK::FVector SDK::Project3D(FVector& WorldLocation) {
+SDK::FVector SDK::Project3D(FVector WorldLocation) {
 	// IMPROVE THIS SO IT WORKS THE SAME ON ENGINE AND IMGUI
 ///#if _IMGUI
 //	SDK::FVector2D ScreenLocation = ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
@@ -552,7 +611,7 @@ bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPositio
 		true,
 		IgnoredActors,
 		EDrawDebugTrace::None,
-		&Hit,
+		Hit,
 		true,
 		FLinearColor(0.f, 0.f, 0.f, 0.f),
 		FLinearColor(0.f, 0.f, 0.f, 0.f),

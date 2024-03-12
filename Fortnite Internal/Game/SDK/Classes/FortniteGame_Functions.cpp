@@ -1,5 +1,32 @@
 #include "FortniteGame_Classes.h"
 
+SDK::UClass* SDK::AFortAthenaAntelopeVehicle::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortAthenaAntelopeVehicle").decrypt());
+
+	return Clss;
+}
+
+SDK::UClass* SDK::AFortAthenaJackalVehicle::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortAthenaJackalVehicle").decrypt());
+
+	return Clss;
+}
+
+SDK::UClass* SDK::AFortAthenaDoghouseVehicle::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortAthenaDoghouseVehicle").decrypt());
+
+	return Clss;
+}
+
 SDK::UClass* SDK::UFortWeaponMeleeItemDefinition::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -87,6 +114,11 @@ SDK::UClass* SDK::AFortPawn::StaticClass() {
 		Clss = UObject::FindClassFast(skCrypt("FortPawn").decrypt());
 
 	return Clss;
+}
+
+SDK::AFortAthenaVehicle* SDK::AFortPawn::GetVehicle() {
+	if (SDK::IsValidPointer(this) == false) return nullptr;
+	return VehicleStateLocal()->GetVehicle();
 }
 
 SDK::UClass* SDK::ABuildingWeakSpot::StaticClass() {

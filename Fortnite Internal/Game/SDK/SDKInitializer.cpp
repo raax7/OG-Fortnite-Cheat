@@ -110,7 +110,7 @@ void SDKInitializer::InitPRIndex() {
 
 		if (Obj->IsA(SDK::UGameViewportClient::StaticClass()) && Obj->IsDefaultObject() == false)
 		{
-			Vft = static_cast<SDK::UEngine*>(Obj)->Vft;
+			Vft = static_cast<SDK::UGameViewportClient*>(Obj)->Vft;
 			break;
 		}
 	}
@@ -184,20 +184,85 @@ void SDKInitializer::InitPEIndex() {
 		}
 	}
 
-
-
 	uint8_t* StringRef = Memory::FindByStringInAllSections(skCrypt(L"Accessed None").decrypt());
 	uintptr_t NextFunctionStart = Memory::FindNextFunctionStart(StringRef);
 
 	SDKInitializer::WalkVFT(skCrypt("ProcessEvent").decrypt(), SDK::UObject::ObjectArray.GetByIndex(0)->Vft, reinterpret_cast<void*>(NextFunctionStart), SDK::Cached::VFT::ProcessEvent, 0x150);
 }
 void SDKInitializer::InitGPVIndex() {
-	InitVFTIndex(
-		skCrypt("GetPlayerViewpoint").decrypt(),
-		std::vector<const char*>{ skCrypt("FF 90 ? ? ? ?").decrypt() },
-		skCrypt(L"STAT_VolumeStreamingTickTime").decrypt(),
-		SDK::Cached::VFT::GetPlayerViewpoint,
-		0x400);
+	void** Vft = nullptr;
+
+	for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++)
+	{
+		SDK::UObject* Obj = SDK::UObject::ObjectArray.GetByIndex(i);
+
+		if (!Obj)
+			continue;
+
+		if (Obj->IsA(SDK::APlayerController::StaticClass()) && Obj->IsDefaultObject() == false)
+		{
+			Vft = static_cast<SDK::APlayerController*>(Obj)->Vft;
+			break;
+		}
+	}
+
+	if (Vft == nullptr) {
+		THROW_ERROR(skCrypt("Failed to find VFT for APlayerController!").decrypt(), false);
+	}
+
+	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
+	{
+		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+		if (*Address == 0xE9)
+		{
+			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
+
+			if (Memory::IsInProcessRange(uintptr_t(Ret)))
+				return Ret;
+		}
+
+		return reinterpret_cast<uint8_t*>(FunctionPtr);
+	};
+
+	for (int i = 0; i < 0x150; i++)
+	{
+		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
+			continue;
+
+		DEBUG_LOG(LOG_INFO, skCrypt("Checking VFT index ").decrypt() + std::to_string(i) + " - " + std::to_string((uintptr_t)Vft[i]));
+		// 80 BB 18 01 00 00 03
+		// 48 C7 45 38 42 01 00 00
+		if (Memory::FindPatternInRange({ 0x80, 0xBB, -0x01, -0x01, 0x00, 0x00, 0x03 }, Resolve32BitRelativeJump(Vft[i]), 0x60)
+			&& Memory::FindPatternInRange({ 0x84, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x60)
+			&& Memory::FindPatternInRange({ 0x48, 0x8B, 0xCB }, Resolve32BitRelativeJump(Vft[i]), 0x60))
+		{
+			SDK::Cached::VFT::GetPlayerViewpoint = i;
+			DEBUG_LOG(LOG_OFFSET, skCrypt("GetPlayerViewpoint VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::GetPlayerViewpoint));
+
+			return;
+		}
+	}
+
+	if (SDK::Cached::VFT::GetPlayerViewpoint == 0x0) {
+		for (int i = 0; i < 0x150; i++)
+		{
+			if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
+				continue;
+
+			DEBUG_LOG(LOG_INFO, skCrypt("Checking VFT index ").decrypt() + std::to_string(i) + " - " + std::to_string((uintptr_t)Vft[i]));
+			if (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x30, 0x48, 0x8B, 0x81, -0x01, -0x01, -0x01, -0x01, 0x49, 0x8B, 0xD8, 0x48, 0x85, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x60))
+			{
+				SDK::Cached::VFT::GetPlayerViewpoint = i;
+				DEBUG_LOG(LOG_OFFSET, skCrypt("GetPlayerViewpoint VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::GetPlayerViewpoint));
+
+				return;
+			}
+		}
+	}
+
+	if (SDK::Cached::VFT::GetPlayerViewpoint == 0x0) {
+		THROW_ERROR(skCrypt("Failed to find GetPlayerViewpoint VFT index!").decrypt(), CRASH_ON_NOT_FOUND);
+	}
 }
 void SDKInitializer::InitGVIndex() {
 	InitVFTIndex(

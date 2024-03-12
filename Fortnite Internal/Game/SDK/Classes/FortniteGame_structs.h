@@ -12,6 +12,41 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 namespace SDK {
+	struct FVehiclePawnState {
+	public:
+		// VALUES
+
+		class AFortAthenaVehicle* GetVehicle() {
+			if (SDK::IsValidPointer(this) == false) return nullptr;
+			return (AFortAthenaVehicle*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::VehiclePawnState::Vehicle));
+		}
+	};
+
+	struct FFortRechargingActionTimer {
+	public:
+		// VALUES
+
+		void SetChargeRate(float NewChargeRate) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate) = NewChargeRate;
+		}
+	
+		void SetActiveExpenseRate(float NewActiveExpenseRate) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate) = NewActiveExpenseRate;
+		}
+
+		void SetPassiveExpenseRate(float NewPassiveExpenseRate) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate) = NewPassiveExpenseRate;
+		}
+
+		void SetCharge(float NewCharge) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::Charge) = NewCharge;
+		}
+	};
+
 	struct FFortBaseWeaponStats {
 	public:
 		// VALUES

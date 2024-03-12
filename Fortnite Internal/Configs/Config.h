@@ -116,5 +116,13 @@ namespace Config {
 
 			inline int CartridgePerFire = 1;
 		}
+
+		namespace Vehicle {
+			inline bool Enabled = false;
+			
+			inline bool InfiniteBoost = false;
+			inline bool Fly = false;
+			inline float FlySpeed = 1.f;
+		}
 	}
 }

@@ -15,10 +15,6 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 namespace SDK {
-#ifdef _IMGUI
-	SDK::FVector2D ProjectWorldToScreen(SDK::FVector WorldLocation, SDK::FVector CameraLocation, SDK::FRotator CameraRotation, float CameraFOV);
-#endif
-
 	// Classes
 
 	class USceneComponent : public UObject {
@@ -30,6 +26,16 @@ namespace SDK {
 			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
 		}
 	};
+	class UMovementComponent : public UObject {
+	public:
+		// FUNCTIONS
+
+		void StopMovementImmediately();
+	};
+	class UPawnMovementComponent : public UMovementComponent {
+	public:
+
+	};
 	class AActor : public UObject {
 	public:
 		// VALUES
@@ -39,7 +45,14 @@ namespace SDK {
 			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
 		}
 
+
+		// FUNCTIONS
+
+		bool K2_TeleportTo(const struct FVector& DestLocation, const struct FRotator& DestRotation);
+
 		bool K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics);
+
+		bool K2_SetActorLocation(const struct FVector& NewLocation, bool bSweep, struct FHitResult* SweepHitResult, bool bTeleport);
 	};
 	class USkeletalMeshComponent : public UObject {
 	public:
@@ -57,7 +70,7 @@ namespace SDK {
 	};
 	class APawn : public AActor {
 	public:
-
+		UPawnMovementComponent* GetMovementComponent();
 	};
 	class ACharacter : public APawn {
 	public:
@@ -113,6 +126,12 @@ namespace SDK {
 		bool IsInputKeyDown(FKey& Key);
 
 		bool GetMousePosition(float* LocationX, float* LocationY);
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
 	};
 	class UPlayer : public UObject {
 	public:
@@ -204,7 +223,7 @@ namespace SDK {
 			bool bTraceComplex,
 			TArray<class AActor*>& ActorsToIgnore,
 			enum class EDrawDebugTrace DrawDebugType,
-			struct FHitResult* OutHit,
+			struct FHitResult& OutHit,
 			bool bIgnoreSelf,
 			const struct FLinearColor& TraceColor,
 			const struct FLinearColor& TraceHitColor,
@@ -221,6 +240,8 @@ namespace SDK {
 		// FUNCTIONS
 
 		FVector GetForwardVector(const FRotator& InRot);
+
+		SDK::FVector GetRightVector(const FRotator& InRot);
 
 		FRotator FindLookAtRotation(struct FVector Start, struct FVector Target);
 	
@@ -288,7 +309,7 @@ namespace SDK {
 	*
 	* @return The projected location as FVector2D (without Z)
 	*/
-	FVector2D Project(FVector& WorldLocation);
+	FVector2D Project(FVector WorldLocation);
 	/*
 	* @brief Wrapper for K2_Project
 	*
@@ -296,7 +317,7 @@ namespace SDK {
 	*
 	* @return The projected location as FVector (with Z)
 	*/
-	FVector Project3D(FVector& WorldLocation);
+	FVector Project3D(FVector WorldLocation);
 	/*
 	* @brief Wrapper for LineTraceSingle
 	*

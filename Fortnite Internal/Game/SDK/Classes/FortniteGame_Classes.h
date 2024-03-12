@@ -17,6 +17,74 @@ typedef unsigned __int64 uint64;
 namespace SDK {
 	// Classes
 
+	class UFortAntelopeVehicleConfigs : public UObject {
+	public:
+		// VALUES
+
+		void SetBoostAccumulationRate(float Value) {
+			if (!SDK::IsValidPointer(this)) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate) = Value;
+		}
+
+		void SetBoostExpenseRate(float Value) {
+			if (!SDK::IsValidPointer(this)) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate) = Value;
+		}
+	};
+
+	class AFortAthenaVehicle : public APawn {
+	public:
+
+	};
+
+	class AFortAthenaJackalVehicle : public AFortAthenaVehicle {
+	public:
+		// VALUES
+
+		TArray<struct FFortRechargingActionTimer> BoostTimers() {
+			if (!SDK::IsValidPointer(this)) return TArray<struct FFortRechargingActionTimer>{};
+			return *(TArray<struct FFortRechargingActionTimer>*)((uintptr_t)this + SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers);
+		}
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
+
+	class AFortAthenaDoghouseVehicle : public AFortAthenaVehicle {
+	public:
+		// VALUES
+
+		FFortRechargingActionTimer* BoostAction() {
+			if (!SDK::IsValidPointer(this)) return nullptr;
+			return (FFortRechargingActionTimer*)((uintptr_t)this + SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction);
+		}
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
+
+	class AFortAthenaAntelopeVehicle : public AFortAthenaVehicle {
+	public:
+		// VALUES
+
+		UFortAntelopeVehicleConfigs* FortAntelopeVehicleConfigs() {
+			if (!SDK::IsValidPointer(this)) return nullptr;
+			return (UFortAntelopeVehicleConfigs*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs));
+		}
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
+
 	class UFortWeaponItemDefinition : public UObject {
 	public:
 
@@ -131,6 +199,11 @@ namespace SDK {
 			return (AFortWeapon*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::CurrentWeapon));
 		}
 
+		FVehiclePawnState* VehicleStateLocal() {
+			if (!SDK::IsValidPointer(this)) return nullptr;
+			return (FVehiclePawnState*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::VehicleStateLocal);
+		}
+
 		bool IsDying() {
 			if (!SDK::IsValidPointer(this)) return false;
 
@@ -148,6 +221,26 @@ namespace SDK {
 		// STATIC FUNCTIONS
 
 		static UClass* StaticClass();
+
+
+
+		// CUSTOM FUNCTIONS
+
+		AFortAthenaVehicle* GetVehicle();
+	};
+	class ABuildingActor : public AActor {
+	public:
+		// VALUES
+
+		uint8 TeamIndex() {
+			if (!SDK::IsValidPointer(this)) return 0;
+			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex);
+		}
+
+		void SetTeamIndex(uint8 NewTeamIndex) {
+			if (!SDK::IsValidPointer(this)) return;
+			*(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex) = NewTeamIndex;
+		}
 	};
 	class ABuildingWeakSpot : public AActor {
 	public:

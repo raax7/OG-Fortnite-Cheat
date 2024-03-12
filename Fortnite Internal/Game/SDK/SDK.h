@@ -28,6 +28,7 @@ namespace SDK {
 			namespace FortPawn {
 				inline uintptr_t bIsDying;
 				inline uintptr_t CurrentWeapon;
+				inline uintptr_t VehicleStateLocal;
 			}
 
 			namespace Font {
@@ -114,11 +115,53 @@ namespace SDK {
 
 				inline uintptr_t CartridgePerFire;
 			}
+
+			namespace FortAthenaAntelopeVehicle {
+				inline uintptr_t FortAntelopeVehicleConfigs;
+			}
+
+			namespace FortAthenaJackalVehicle {
+				inline uintptr_t BoostTimers;
+			}
+
+			namespace FortAthenaDoghouseVehicle {
+				inline uintptr_t BoostAction;
+			}
+
+			namespace FortAntelopeVehicleConfigs {
+				inline uintptr_t BoostAccumulationRate;
+				inline uintptr_t BoostExpenseRate;
+			}
+
+			namespace VehiclePawnState {
+				inline uintptr_t Vehicle;
+			}
+
+			namespace FortRechargingActionTimer {
+				inline uintptr_t ChargeRate;
+				inline uintptr_t ActiveExpenseRate;
+				inline uintptr_t PassiveExpenseRate;
+				inline uintptr_t Charge;
+			}
+
+			namespace BuildingActor {
+				inline uintptr_t TeamIndex;
+			}
 		}
 
 		namespace Functions {
 			namespace Actor {
+				inline void* K2_TeleportTo;
 				inline void* K2_SetActorRotation;
+				inline void* K2_SetActorLocation;
+			}
+
+			namespace Pawn {
+				inline void* GetMovementComponent;
+			}
+
+			namespace MovementComponent {
+				inline void* StopMovementImmediately;
 			}
 
 			namespace Canvas {
@@ -136,6 +179,7 @@ namespace SDK {
 			namespace KismetMathLibrary {
 				inline void* FindLookAtRotation;
 				inline void* GetForwardVector;
+				inline void* GetRightVector;
 			}
 
 			namespace GameplayStatics {

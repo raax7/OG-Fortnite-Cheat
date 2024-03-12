@@ -74,24 +74,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Engine|x64'">
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)1</TargetName>
     <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ImGui|x64'">
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)1</TargetName>
     <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Engine|x64'">
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)1</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ImGui|x64'">
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\$(Configuration)\Intermediates\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)1</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Engine|x64'">
     <ClCompile>
@@ -157,6 +157,7 @@
       </UndefinePreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <Optimization>MaxSpeed</Optimization>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,6 +165,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>powershell -ExecutionPolicy Bypass -File "$(SolutionDir)\Post-Build Scripts\ClearPathStrings.ps1" "$(TargetPath)"</Command>
@@ -185,6 +193,7 @@
       </UndefinePreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <Optimization>MaxSpeed</Optimization>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -192,6 +201,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>powershell -ExecutionPolicy Bypass -File "$(SolutionDir)\Post-Build Scripts\ClearPathStrings.ps1" "$(TargetPath)"</Command>
@@ -318,6 +334,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Engine|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_ImGui|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Game\Features\Exploits\Vehicles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configs\Config.h" />
@@ -459,6 +476,7 @@
     <ClInclude Include="Utilities\skCrypter.h" />
     <ClInclude Include="Game\SDK\SDK.h" />
     <ClInclude Include="Game\Features\Aimbot\Target.h" />
+    <ClInclude Include="Game\Features\Exploits\Vehicles.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

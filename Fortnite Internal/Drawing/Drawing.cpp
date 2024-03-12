@@ -22,7 +22,7 @@ std::mutex Drawing::SwapMutex;
 
 #ifdef _IMGUI
 void Drawing::RenderQueuedDrawingInfo() {
-	SwapBuffers();
+	std::lock_guard<std::mutex> lock(SwapMutex);
 
 	for (auto& Line : RenderBufferLine) {
 		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X, Line.ScreenPositionA.Y), ImVec2(Line.ScreenPositionB.X, Line.ScreenPositionB.Y), ImColor(Line.RenderColor.R, Line.RenderColor.G, Line.RenderColor.B, Line.RenderColor.A), Line.Thickness);

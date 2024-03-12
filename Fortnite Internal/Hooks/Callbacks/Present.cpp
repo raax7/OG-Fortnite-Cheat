@@ -9,6 +9,7 @@
 
 HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
 	std::lock_guard<std::mutex> lock(PresentMutex);
+	std::unique_lock<std::recursive_timed_mutex> lock2(Hooks::WndProc::WndProcMutex, std::chrono::milliseconds(1000));
 
 	if (ImGuiBeenSetup == false) {
 		RaaxDx::InitImGui(pSwapChain);

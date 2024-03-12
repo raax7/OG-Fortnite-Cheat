@@ -75,15 +75,17 @@ private:
 	static std::vector<CorneredRectCache> RenderBufferCorneredRect, UpdateBufferCorneredRect;
 
 	static std::mutex SwapMutex; // Used for swapping buffers safely
-
+#endif
+public:
+#ifdef _IMGUI
 	static void SwapBuffers() {
 		std::lock_guard<std::mutex> lock(SwapMutex);
-		std::swap(UpdateBufferLine, RenderBufferLine);
-		std::swap(UpdateBufferText, RenderBufferText);
-		std::swap(UpdateBufferCircle, RenderBufferCircle);
-		std::swap(RenderBufferFilledRect, UpdateBufferFilledRect);
-		std::swap(RenderBufferRect, UpdateBufferRect);
-		std::swap(RenderBufferCorneredRect, UpdateBufferCorneredRect);
+		RenderBufferLine = UpdateBufferLine;
+		RenderBufferText = UpdateBufferText;
+		RenderBufferCircle = UpdateBufferCircle;
+		RenderBufferFilledRect = UpdateBufferFilledRect;
+		RenderBufferRect = UpdateBufferRect;
+		RenderBufferCorneredRect = UpdateBufferCorneredRect;
 
 		UpdateBufferLine.clear();
 		UpdateBufferText.clear();
@@ -92,9 +94,7 @@ private:
 		UpdateBufferRect.clear();
 		UpdateBufferCorneredRect.clear();
 	}
-#endif
-public:
-#ifdef _IMGUI
+
 	/* Render the queued data for drawing */
 	static void RenderQueuedDrawingInfo();
 #endif

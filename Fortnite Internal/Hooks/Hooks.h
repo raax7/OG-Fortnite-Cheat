@@ -83,6 +83,8 @@ namespace Hooks {
 		using WndProcParams = LRESULT(*)(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		inline WndProcParams WndProcOriginal = nullptr;
 
+		inline std::recursive_timed_mutex WndProcMutex;
+
 		inline HWND Window;
 
 		LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
