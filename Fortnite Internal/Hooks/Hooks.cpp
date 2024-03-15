@@ -3,8 +3,10 @@
 #include "../Game/SDK/SDK.h"
 #include "../Game/SDK/Classes/Engine_Classes.h"
 
+#include "../External-Libs/LazyImporter.h"
+
 #include "../Utilities/Logger.h"
-#include "../Utilities/LazyImporter.h"
+
 #include "../Configs/Config.h"
 
 template <typename T>
@@ -51,7 +53,7 @@ void Hooks::Init() {
 		Hooks::PostRender::PostRender);
 }
 void Hooks::Tick() {
-	if (Config::Aimbot::SilentAim) {
+	if (Config::Aimbot::SilentAim && SDK::Cached::VFT::GetPlayerViewpoint != 0x0 && SDK::Cached::VFT::GetViewpoint != 0x0) {
 		SDK::APlayerController* PlayerController = SDK::GetLocalController();
 		if (!Hooks::GetPlayerViewpoint::Hook || (Hooks::GetPlayerViewpoint::PlayerControllerHooked != PlayerController && PlayerController)) {
 			if (Hooks::GetPlayerViewpoint::Hook) delete Hooks::GetPlayerViewpoint::Hook;

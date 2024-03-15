@@ -113,7 +113,10 @@ namespace SDK {
 				inline uintptr_t MinSpeedForSpreadMultiplier;
 				inline uintptr_t MaxSpeedForSpreadMultiplier;
 
-				inline uintptr_t CartridgePerFire;
+				inline uintptr_t BulletsPerCartridge;
+				inline uintptr_t ReloadTime;
+				inline uintptr_t RecoilVert;
+				inline uintptr_t RecoilHoriz;
 			}
 
 			namespace FortAthenaAntelopeVehicle {
@@ -146,6 +149,11 @@ namespace SDK {
 
 			namespace BuildingActor {
 				inline uintptr_t TeamIndex;
+			}
+
+			namespace FortPlayerController {
+				inline uintptr_t bBuildFree;
+				inline uintptr_t bInfiniteAmmo;
 			}
 		}
 
@@ -223,6 +231,11 @@ namespace SDK {
 		namespace Masks {
 			namespace FortPawn{
 				inline uintptr_t bIsDying;
+			}
+
+			namespace FortPlayerController {
+				inline uintptr_t bBuildFree;
+				inline uintptr_t bInfiniteAmmo;
 			}
 		}
 	}

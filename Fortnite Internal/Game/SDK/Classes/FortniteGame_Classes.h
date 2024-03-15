@@ -228,6 +228,34 @@ namespace SDK {
 
 		AFortAthenaVehicle* GetVehicle();
 	};
+	class AFortPlayerController : public APlayerController {
+	public:
+		// VALUES
+
+		void SetbBuildFree(bool NewbBuildFree) {
+			if (!SDK::IsValidPointer(this)) return;
+
+			if (SDK::Cached::Masks::FortPlayerController::bBuildFree) {
+				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree);
+				*BitField = NewbBuildFree ? *BitField | SDK::Cached::Masks::FortPlayerController::bBuildFree : *BitField & ~SDK::Cached::Masks::FortPlayerController::bBuildFree;
+			}
+			else {
+				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree) = NewbBuildFree;
+			}
+		}
+
+		void SetbInfiniteAmmo(bool NewbInfiniteAmmo) {
+			if (!SDK::IsValidPointer(this)) return;
+
+			if (SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo) {
+				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo);
+				*BitField = NewbInfiniteAmmo ? *BitField | SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo : *BitField & ~SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo;
+			}
+			else {
+				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo) = NewbInfiniteAmmo;
+			}
+		}
+	};
 	class ABuildingActor : public AActor {
 	public:
 		// VALUES

@@ -1,7 +1,6 @@
 #include "SDKInitializer.h"
 
 #include "../SDK/Classes/Engine_classes.h"
-#include "../SDK/Classes/FortniteGame_classes.h"
 
 #include "../../Utilities/Logger.h"
 
@@ -207,7 +206,7 @@ void SDKInitializer::InitGPVIndex() {
 	}
 
 	if (Vft == nullptr) {
-		THROW_ERROR(skCrypt("Failed to find VFT for APlayerController!").decrypt(), false);
+		THROW_ERROR(skCrypt("Failed to find VFT for APlayerController!").decrypt(), CRASH_ON_NOT_FOUND);
 	}
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
@@ -230,11 +229,15 @@ void SDKInitializer::InitGPVIndex() {
 			continue;
 
 		DEBUG_LOG(LOG_INFO, skCrypt("Checking VFT index ").decrypt() + std::to_string(i) + " - " + std::to_string((uintptr_t)Vft[i]));
-		// 80 BB 18 01 00 00 03
-		// 48 C7 45 38 42 01 00 00
-		if (Memory::FindPatternInRange({ 0x80, 0xBB, -0x01, -0x01, 0x00, 0x00, 0x03 }, Resolve32BitRelativeJump(Vft[i]), 0x60)
-			&& Memory::FindPatternInRange({ 0x84, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x60)
-			&& Memory::FindPatternInRange({ 0x48, 0x8B, 0xCB }, Resolve32BitRelativeJump(Vft[i]), 0x60))
+
+		if ((Memory::FindPatternInRange({ 0x80, 0xBB, -0x01, -0x01, 0x00, 0x00, 0x03 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+			&& Memory::FindPatternInRange({ 0x84, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+			&& Memory::FindPatternInRange({ 0x48, 0x8B, 0xCB }, Resolve32BitRelativeJump(Vft[i]), 0x70))
+			|| (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x30, 0x48, 0x8B, 0x81, -0x01, -0x01, -0x01, -0x01, 0x49, 0x8B, 0xD8, 0x48, 0x85, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x70))
+			|| (Memory::FindPatternInRange({ 0x0F, 0x10, 0x89, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+			&& Memory::FindPatternInRange({ 0x0F, 0xC6, -0x01, -0x01, 0x0F, 0xC6, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70))
+			|| (Memory::FindPatternInRange({ 0x48, 0x81, 0xEC, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+			&& Memory::FindPatternInRange({ 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01, 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70)))
 		{
 			SDK::Cached::VFT::GetPlayerViewpoint = i;
 			DEBUG_LOG(LOG_OFFSET, skCrypt("GetPlayerViewpoint VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::GetPlayerViewpoint));
@@ -273,12 +276,18 @@ void SDKInitializer::InitGVIndex() {
 		0x400);
 }
 void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
-	static bool HasTried = false;
+	// Visual explanation: https://imgur.com/a/BnH41YR
+	// 
+	// VFT-Base: 0x40CE3E0
+	// VFT-Index-Address: 0x40CEA60
+	// VFT-Index: ((VFT-Index-Address - VFT-Base) / 8) = 0xD0
 
+	// Since we require a AFortWeapon instance to find the VFT index
+	// we have to check if we've already tried to avoid insane lag
+	static bool HasTried = false;
 	if (HasTried) {
 		return;
 	}
-	
 	HasTried = true;
 
 	void** Vft = WeaponActor->Vft;
@@ -308,7 +317,8 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 
 		// 48 83 EC 58 48 8B 91 ? ? ? ? 48 85 D2 0F 84 ? ? ? ?
 		// 48 83 EC 58 48 8B 89 ? ? ? ? 48 85 C9 0F 84 ? ? ? ?
-		if (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x58, 0x48, 0x8B, -0x01, -0x01, -0x01, -0x01, -0x01, 0x48, 0x85 }, Resolve32BitRelativeJump(Vft[i]), 0x50))
+		if (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x58, 0x48, 0x8B, -0x01, -0x01, -0x01, -0x01, -0x01, 0x48, 0x85 }, Resolve32BitRelativeJump(Vft[i]), 0x50)
+			|| Memory::FindPatternInRange({ 0x48, 0x8B, 0x89, -0x01, -0x01, 0x00, 0x00, 0x48, -0x01, -0x01, 0x74, 0x13 }, Resolve32BitRelativeJump(Vft[i]), 0x50))
 		{
 			SDK::Cached::VFT::GetWeaponStats = i;
 			DEBUG_LOG(LOG_OFFSET, skCrypt("GetWeaponStats VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::GetWeaponStats));
@@ -323,6 +333,14 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 }
 
 void SDKInitializer::InitAppendString() {
+	// FName::AppendString documentation: https://docs.unrealengine.com/4.26/en-US/API/Runtime/Core/UObject/FName/AppendString/1/
+	// "ForwardShadingQuality_" reference in UE source: https://github.com/EpicGames/UnrealEngine/blob/4.26/Engine/Source/Runtime/MaterialShaderQualitySettings/Private/MaterialShaderQualitySettings.cpp#L55
+	// Visual explanation: https://imgur.com/a/mCe1SF6
+	// 
+	// AppendString is used to convert an FName to an FString.
+	// It is very easy to find as in nearly ever Unreal Engine game it is
+	// called directly after the reference of "ForwardShadingQuality_"
+
 	InitFunctionOffset(
 		skCrypt("AppendString").decrypt(),
 		std::vector<const char*>
@@ -352,7 +370,7 @@ void SDKInitializer::InitLineTraceSingle() {
 		true
 	);
 
-	if (!SDK::Cached::Functions::LineTraceSingle) {
+	if (SDK::Cached::Functions::LineTraceSingle == 0x0) {
 		SDK::Cached::Functions::LineTraceSingle = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("4C 39 6B 20 4C 8D 45 A0 F2 0F 10 45 ? 48 8D 55 B0 44 0F B6 8D ? ? ? ? 49 8B C5 48 8B 4C 24 ? 0F 95 C0 48 01 43 20 8B 45 88 44 88 74 24 ? F2 0F 11 45 ? F2 0F 10 45 ? 89 45 A8 8B 45 98 48 89 7C 24 ? 48 89 74 24 ? 89 45 B8 F2 0F 11 45 ? 44 88 7C 24 ? E8 ? ? ? ?").decrypt(),
@@ -361,7 +379,7 @@ void SDKInitializer::InitLineTraceSingle() {
 		);
 	}
 
-	if (!SDK::Cached::Functions::LineTraceSingle) {
+	if (SDK::Cached::Functions::LineTraceSingle == 0x0) {
 		THROW_ERROR(skCrypt("Failed to find LineTraceSingle!").decrypt(), CRASH_ON_NOT_FOUND);
 	}
 
@@ -382,7 +400,7 @@ void SDKInitializer::InitGObjects() {
 		true
 	);
 
-	if (!SDK::IsValidPointer((void*)TUObjectArray)) {
+	if (SDK::IsValidPointer((void*)TUObjectArray) == false) {
 		SDK::UObject::ObjectArray.IsChunked = false;
 
 		TUObjectArray = Memory::PatternScan(

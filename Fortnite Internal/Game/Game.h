@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include <vadefs.h>
 
 namespace Game {
 	inline float GameVersion		= 0.f;

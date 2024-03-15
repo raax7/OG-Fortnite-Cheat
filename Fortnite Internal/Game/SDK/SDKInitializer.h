@@ -3,9 +3,10 @@
 
 #include "Classes/CoreUObject_Classes.h"
 
+#include "../../External-Libs/skCrypter.h"
+
 #include "../../Utilities/Error.h"
 #include "../../Utilities/Memory.h"
-#include "../../Utilities/skCrypter.h"
 
 /* This class is used to initialize the SDK by updating the offsets and VFT indicies */
 class SDKInitializer {

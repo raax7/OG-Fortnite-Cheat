@@ -11,6 +11,7 @@
 #include "../../Features/FortPawnHelper/FortPawnHelper.h"
 #include "../../Features/Aimbot/Aimbot.h"
 #include "../../Features/Exploits/Vehicles.h"
+#include "../../Features/Exploits/Weapons.h"
 
 #include "../../../Utilities/Math.h"
 
@@ -40,47 +41,16 @@ void Actors::FortPawn::Tick() {
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
 			Features::Exploits::Vehicle::Tick();
+			Features::Exploits::Weapons::Tick(FortPawn->CurrentWeapon());
 
-			SDK::AFortWeapon* Weapon = FortPawn->CurrentWeapon();
-			if (Weapon) {
-				// We have to init here because we need a valid AFortWeapon to get the VFT
-				if (SDK::Cached::VFT::GetWeaponStats == 0x0) {
-					SDKInitializer::InitGetWeaponStatsIndex(Weapon);
+			if (Config::Exploits::Player::Enabled && SDK::GetLocalController()) {
+				if (Config::Exploits::Player::InfiniteBuilds) {
+					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbBuildFree(true);
 				}
-				else {
-					SDK::FFortBaseWeaponStats* WeaponStats = nullptr;
-					WeaponStats = Weapon->WeaponStats();
 
-					if (WeaponStats) {
-						if (Config::Exploits::Pickaxe::Enabled && Weapon->IsPickaxe()) {
-							SDK::FFortMeleeWeaponStats* MeleeWeaponStats = (SDK::FFortMeleeWeaponStats*)WeaponStats;
-							MeleeWeaponStats->SetSwingPlaySpeed(Config::Exploits::Pickaxe::SpeedMultiplier);
-						}
-						else if (Config::Exploits::Weapon::Enabled && Weapon->IsA(SDK::AFortWeaponRanged::StaticClass())) {
-							SDK::FFortRangedWeaponStats* RangedWeaponStats = (SDK::FFortRangedWeaponStats*)WeaponStats;
-
-							if (Config::Exploits::Weapon::NoSpread) {
-								// you definetly dont need to do all of these, but yeah
-								RangedWeaponStats->SetSpread(0.f);
-								RangedWeaponStats->SetSpreadDownsights(0.f);
-								RangedWeaponStats->SetStandingStillSpreadMultiplier(0.f);
-								RangedWeaponStats->SetAthenaCrouchingSpreadMultiplier(0.f);
-								RangedWeaponStats->SetAthenaJumpingFallingSpreadMultiplier(0.f);
-								RangedWeaponStats->SetAthenaSprintingSpreadMultiplier(0.f);
-								RangedWeaponStats->SetMinSpeedForSpreadMultiplier(FLT_MAX);
-								RangedWeaponStats->SetMaxSpeedForSpreadMultiplier(FLT_MAX);
-							}
-
-							if (Config::Exploits::Weapon::CartridgePerFire != 1) {
-								//RangedWeaponStats->SetCartridgePerFire(Config::Exploits::Weapon::CartridgePerFire);
-							}
-						}
-					}
+				if (Config::Exploits::Player::InfiniteAmmo) {
+					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbInfiniteAmmo(true);
 				}
-			}
-
-			if (Input::IsKeyDown(Input::KeyName::H)) {
-				FortPawn->GetMovementComponent()->StopMovementImmediately();
 			}
 
 			continue;

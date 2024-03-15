@@ -22,7 +22,7 @@ void Actors::BuildingWeakSpot::Tick() {
 		SDK::FVector RootPosition = Actor->GetRootComponent()->GetPosition();
 		float DistanceFromLocal = LocalPawnCache.Position.Distance(RootPosition) / 100.f;
 
-		if (DistanceFromLocal > 5) continue;
+		if (DistanceFromLocal > 5.f) continue;
 
 		if (WeakSpot->GetWeakSpotInfo() & 0x4 && !(WeakSpot->GetWeakSpotInfo() & 0x2) && !(WeakSpot->GetWeakSpotInfo() & 0x1)) {
 			// Aimbot

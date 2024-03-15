@@ -51,9 +51,9 @@ namespace SDK {
 	public:
 		// VALUES
 
-		void SetCartridgePerFire(float NewCartridgePerFire) {
+		void SetReloadTime(float NewReloadTime) {
 			if (SDK::IsValidPointer(this) == false) return;
-			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::CartridgePerFire) = NewCartridgePerFire;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime) = NewReloadTime;
 		}
 	};
 
@@ -99,6 +99,21 @@ namespace SDK {
 		void SetMaxSpeedForSpreadMultiplier(float NewMaxSpeedForSpreadMultiplier) {
 			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier) = NewMaxSpeedForSpreadMultiplier;
+		}
+
+		void SetRecoilVert(float NewRecoilVert) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::RecoilVert) = NewRecoilVert;
+		}
+
+		void SetRecoilHoriz(float NewRecoilHoriz) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::RecoilHoriz) = NewRecoilHoriz;
+		}
+
+		void SetBulletsPerCartridge(int32 NewBulletsPerCartridge) {
+			if (SDK::IsValidPointer(this) == false) return;
+			*(int32*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::BulletsPerCartridge) = NewBulletsPerCartridge;
 		}
 	};
 

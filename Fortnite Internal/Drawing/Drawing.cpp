@@ -7,7 +7,7 @@
 #include "../Utilities/Math.h"
 
 #ifdef _IMGUI
-#include "ImGui/imgui.h"
+#include "../External-Libs/ImGui/imgui.h"
 #include "../Hooks/Hooks.h"
 
 std::vector<Drawing::LineCache> Drawing::RenderBufferLine, Drawing::UpdateBufferLine;

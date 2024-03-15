@@ -6,9 +6,9 @@
 #include <dxgi.h>
 #include <mutex>
 #include "RaaxDx/RaaxDx.h"
-#include "../Drawing/ImGui/imgui.h"
-#include "../Drawing/ImGui/imgui_impl_win32.h"
-#include "../Drawing/ImGui/imgui_impl_dx11.h"
+#include "../External-Libs/ImGui/imgui.h"
+#include "../External-Libs/ImGui/imgui_impl_win32.h"
+#include "../External-Libs/ImGui/imgui_impl_dx11.h"
 #endif
 
 #include "../Game/SDK/Classes/Basic.h"

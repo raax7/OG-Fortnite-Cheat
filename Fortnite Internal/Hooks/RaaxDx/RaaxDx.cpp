@@ -2,8 +2,8 @@
 
 #include <Psapi.h>
 
-#include "../../Utilities/LazyImporter.h"
-#include "../../Utilities/skCrypter.h"
+#include "../../External-Libs/LazyImporter.h"
+#include "../../External-Libs/skCrypter.h"
 
 #include "../Hooks.h"
 

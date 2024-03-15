@@ -2,9 +2,7 @@
 
 #include "CoreUObject_classes.h"
 
-#include "../../../Utilities/SpoofCall/SpoofCall.h"
 #include "../../../Utilities/Error.h"
-#include "../../../Utilities/Math.h"
 #include "../../Features/FortPawnHelper/Bone.h"
 #include "../../Game.h"
 
@@ -347,7 +345,7 @@ bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObjec
 		float DrawTime);
 	static LineTraceSingleParams OriginalLineTraceSingle;
 
-	if (!OriginalLineTraceSingle) OriginalLineTraceSingle = reinterpret_cast<LineTraceSingleParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::LineTraceSingle);
+	if (OriginalLineTraceSingle == nullptr) OriginalLineTraceSingle = reinterpret_cast<LineTraceSingleParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::LineTraceSingle);
 
 	// Calling through spoof_call doesn't work here. Most likely because some parameters are passed by reference
 

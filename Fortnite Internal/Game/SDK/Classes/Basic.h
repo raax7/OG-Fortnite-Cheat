@@ -4,8 +4,7 @@
 
 #include "../SDK.h"
 
-#include "../../../Utilities/SpoofCall/SpoofCall.h"
-#include "../../../Utilities/skCrypter.h"
+#include "../../../External-Libs/skCrypter.h"
 
 typedef __int8 int8;
 typedef __int16 int16;
@@ -479,62 +478,6 @@ namespace SDK {
 		float                                        Y;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		float                                        Z;                                                 // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		float                                        W;                                                 // 0xC(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	
-		FQuat()
-			: X(0.0), Y(0.0), Z(0.0), W(0.0)
-		{
-		}
-
-		FQuat(const struct FRotator& R);
-
-		FQuat(const FMatrix& Matrix)
-		{
-			float Trace = Matrix.M[0][0] + Matrix.M[1][1] + Matrix.M[2][2] + 1.0f;
-			float S = 0.0f;
-
-			if (Trace > 0.0f)
-			{
-				S = 0.5f / sqrt(Trace);
-				W = 0.25f / S;
-				X = (Matrix.M[1][2] - Matrix.M[2][1]) * S;
-				Y = (Matrix.M[2][0] - Matrix.M[0][2]) * S;
-				Z = (Matrix.M[0][1] - Matrix.M[1][0]) * S;
-			}
-			else
-			{
-				if (Matrix.M[0][0] > Matrix.M[1][1] && Matrix.M[0][0] > Matrix.M[2][2])
-				{
-					S = 2.0f * sqrt(1.0f + Matrix.M[0][0] - Matrix.M[1][1] - Matrix.M[2][2]);
-					W = (Matrix.M[1][2] - Matrix.M[2][1]) / S;
-					X = 0.25f * S;
-					Y = (Matrix.M[1][0] + Matrix.M[0][1]) / S;
-					Z = (Matrix.M[2][0] + Matrix.M[0][2]) / S;
-				}
-				else if (Matrix.M[1][1] > Matrix.M[2][2])
-				{
-					S = 2.0f * sqrt(1.0f + Matrix.M[1][1] - Matrix.M[0][0] - Matrix.M[2][2]);
-					W = (Matrix.M[2][0] - Matrix.M[0][2]) / S;
-					X = (Matrix.M[1][0] + Matrix.M[0][1]) / S;
-					Y = 0.25f * S;
-					Z = (Matrix.M[2][1] + Matrix.M[1][2]) / S;
-				}
-				else
-				{
-					S = 2.0f * sqrt(1.0f + Matrix.M[2][2] - Matrix.M[0][0] - Matrix.M[1][1]);
-					W = (Matrix.M[0][1] - Matrix.M[1][0]) / S;
-					X = (Matrix.M[2][0] + Matrix.M[0][2]) / S;
-					Y = (Matrix.M[2][1] + Matrix.M[1][2]) / S;
-					Z = 0.25f * S;
-				}
-			}
-		}
-
-		FVector RotateVector(FVector V) const;
-
-		inline FVector GetForwardVector() const
-		{
-			return RotateVector(FVector(1.f, 0.f, 0.f));
-		}
 	};
 
 	struct FRotator
@@ -590,7 +533,7 @@ namespace SDK {
 		}
 
 		inline float GetPitchDistance(const FRotator& Other) const {
-			float delta = fmod(Pitch - Other.Pitch, 360.0);
+			float delta = (float)fmod(Pitch - Other.Pitch, 360.0);
 			while (delta > 180.0) {
 				delta -= 360.0;
 			}
@@ -601,7 +544,7 @@ namespace SDK {
 		}
 
 		inline float GetYawDistance(const FRotator& Other) const {
-			float delta = fmod(Yaw - Other.Yaw, 360.0);
+			float delta = (float)fmod(Yaw - Other.Yaw, 360.0);
 			while (delta > 180.0) {
 				delta -= 360.0;
 			}

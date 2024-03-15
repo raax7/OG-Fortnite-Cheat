@@ -50,26 +50,26 @@
     <ClCompile Include="Game\Input\Input.cpp">
       <Filter>Game\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui_demo.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui_demo.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui_draw.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui_draw.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui_impl_dx11.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui_impl_win32.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui_impl_win32.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui_tables.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui_tables.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing\ImGui\imgui_widgets.cpp">
-      <Filter>Drawing\ImGui</Filter>
+    <ClCompile Include="External-Libs\ImGui\imgui_widgets.cpp">
+      <Filter>External-Libs\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Game\Features\FortPawnHelper\FortPawnHelper.cpp">
       <Filter>Game\Features\FortPawnHelper</Filter>
@@ -122,6 +122,9 @@
     <ClCompile Include="Game\Features\Exploits\Vehicles.cpp">
       <Filter>Game\Features\Exploits</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Features\Exploits\Weapons.cpp">
+      <Filter>Game\Features\Exploits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -151,9 +154,6 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{36945110-583f-4825-bf11-094271508aae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utilities\SpoofCall">
-      <UniqueIdentifier>{ac108337-b100-4823-b1d0-99a6823babb0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Drawing">
       <UniqueIdentifier>{e0950f03-5579-4101-9077-b538a01bdd1b}</UniqueIdentifier>
     </Filter>
@@ -172,9 +172,6 @@
     <Filter Include="Drawing\RaaxGUI">
       <UniqueIdentifier>{cf03b6bf-0d0d-49c1-afdb-4b5e64336048}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Drawing\ImGui">
-      <UniqueIdentifier>{8a875f6b-aabd-4aed-bbd2-0832f581750b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Features\FortPawnHelper">
       <UniqueIdentifier>{c7195b69-6869-4b49-8a00-440ea8ff337f}</UniqueIdentifier>
     </Filter>
@@ -192,6 +189,12 @@
     </Filter>
     <Filter Include="Hooks\RaaxDx\minhook\src\hde">
       <UniqueIdentifier>{d6d213c1-5045-4e09-b7d3-a08635004238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External-Libs">
+      <UniqueIdentifier>{9b9c5c0f-f5a5-484a-a42b-ea5406917e59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External-Libs\ImGui">
+      <UniqueIdentifier>{8a875f6b-aabd-4aed-bbd2-0832f581750b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -235,13 +238,7 @@
     <ClInclude Include="Game\SDK\Classes\Engine_Structs.h">
       <Filter>Game\SDK\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities\skCrypter.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="Utilities\Error.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\LazyImporter.h">
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\Logger.h">
@@ -283,29 +280,29 @@
     <ClInclude Include="Game\Input\Input.h">
       <Filter>Game\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imconfig.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imconfig.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imgui.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imgui.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imgui_impl_dx11.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imgui_impl_dx11.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imgui_impl_win32.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imgui_impl_win32.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imgui_internal.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imgui_internal.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imstb_rectpack.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imstb_rectpack.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imstb_textedit.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imstb_textedit.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Drawing\ImGui\imstb_truetype.h">
-      <Filter>Drawing\ImGui</Filter>
+    <ClInclude Include="External-Libs\ImGui\imstb_truetype.h">
+      <Filter>External-Libs\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\Font.h">
       <Filter>Utilities</Filter>
@@ -341,6 +338,15 @@
       <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
     </ClInclude>
     <ClInclude Include="Game\Features\Exploits\Vehicles.h">
+      <Filter>Game\Features\Exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="External-Libs\skCrypter.h">
+      <Filter>External-Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="External-Libs\LazyImporter.h">
+      <Filter>External-Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\Exploits\Weapons.h">
       <Filter>Game\Features\Exploits</Filter>
     </ClInclude>
   </ItemGroup>

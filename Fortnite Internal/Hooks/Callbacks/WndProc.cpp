@@ -1,7 +1,6 @@
 #include "../Hooks.h"
 
-#include "../../Utilities/LazyImporter.h"
-#include "../../Utilities/Logger.h"
+#include "../../External-Libs/LazyImporter.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

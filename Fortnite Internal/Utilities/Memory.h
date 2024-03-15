@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 
-#include "LazyImporter.h"
+#include "../External-Libs/LazyImporter.h"
 
 namespace Memory {
 	// The worlds gayest pattern scanner. Improve later

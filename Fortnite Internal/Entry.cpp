@@ -1,5 +1,7 @@
 #include <Windows.h>
 
+#include "Globals.h"
+
 #ifdef _ENGINE
 #include "Drawing/RaaxGUI/RaaxGUI.h"
 #endif // _ENGINE
@@ -8,10 +10,17 @@
 #include "Game/SDK/SDK.h"
 #include "Hooks/Hooks.h"
 
-#include "Utilities/LazyImporter.h"
+#include "External-Libs/LazyImporter.h"
 #include "Utilities/Logger.h"
 
-#include "Globals.h"
+/*
+* NOTES
+* 
+* All specific offsets, VFT indexes, function addresses etc
+* mentioned in comments are from Fortnite 7.40.
+* 
+* 
+*/
 
 // TO-DO:
 // - Fix unloading crashing on ImGui on some versions of Fortnite
@@ -68,12 +77,6 @@ VOID Main() {
     // Init logger (REPLACE WITH YOUR OWN PATH)
     Logger::InitLogger(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log").decrypt());
 #endif // _DEBUG
-
-    // output fortnite base address
-    DEBUG_LOG(LOG_INFO, skCrypt("Fortnite base address: ").decrypt() + std::to_string(SDK::GetBaseAddress()));
-
-    // output our module base address
-    DEBUG_LOG(LOG_INFO, skCrypt("Our module base address: ").decrypt() + std::to_string((uintptr_t)ThisModule));
 
     SDK::Init();    // Init base address, GObjects, function addresses, offsets etc
     Hooks::Init();  // Init hooks

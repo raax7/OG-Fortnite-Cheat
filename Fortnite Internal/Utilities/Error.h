@@ -1,11 +1,11 @@
 #pragma once
 #include <Windows.h>
-#include <iostream>
 #include <string>
 
-#include "LazyImporter.h"
-#include "skCrypter.h"
 #include "../Globals.h"
+
+#include "../External-Libs/LazyImporter.h"
+#include "../External-Libs/skCrypter.h"
 
 class ErrorManager {
 private:

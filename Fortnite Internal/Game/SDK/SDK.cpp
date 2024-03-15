@@ -3,8 +3,10 @@
 
 #include "../../Globals.h"
 
+#include "../../External-Libs/skCrypter.h"
+
 #include "../../Utilities/Logger.h"
-#include "../../Utilities/skCrypter.h"
+
 #include "Classes/CoreUObject_classes.h"
 #include "Classes/Engine_classes.h"
 
@@ -16,7 +18,7 @@ bool SDK::IsValidPointer(void* Address) {
 		return false;
 	}
 
-	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obselete win api func
+	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obsolete win api func
 	if (LI_FN(IsBadReadPtr).safe_cached()(Address, 8)) {
 		return false;
 	}
@@ -134,6 +136,10 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("FortPlayerPawn").decrypt(),			skCrypt("VehicleStateLocal").decrypt(),			&SDK::Cached::Offsets::FortPawn::VehicleStateLocal,				nullptr },
 			OffsetSearch { skCrypt("BuildingWeakSpot").decrypt(),		skCrypt("bHit").decrypt(),						&SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField,	nullptr },
 			OffsetSearch { skCrypt("FortWeapon").decrypt(),				skCrypt("WeaponData").decrypt(),				&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
+			
+			OffsetSearch { skCrypt("FortPlayerController").decrypt(),	skCrypt("bBuildFree").decrypt(),				&SDK::Cached::Offsets::FortPlayerController::bBuildFree,		&SDK::Cached::Masks::FortPlayerController::bBuildFree },
+			
+			OffsetSearch { skCrypt("FortPlayerController").decrypt(),	skCrypt("bInfiniteAmmo").decrypt(),				&SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo,		&SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo },
 
 			OffsetSearch { skCrypt("FortItemEntry").decrypt(),			skCrypt("ItemDefinition").decrypt(),			&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
 			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Location").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
@@ -149,8 +155,11 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("AthenaSprintingSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier, nullptr },
 			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("MinSpeedForSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier, nullptr },
 			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("MaxSpeedForSpreadMultiplier").decrypt(), &SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier, nullptr },
-			
-			OffsetSearch { skCrypt("FortBaseWeaponStats").decrypt(),	skCrypt("CartridgePerFire").decrypt(),			&SDK::Cached::Offsets::FortRangedWeaponStats::CartridgePerFire, nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("RecoilVert").decrypt(),				&SDK::Cached::Offsets::FortRangedWeaponStats::RecoilVert,		nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("RecoilHoriz").decrypt(),				&SDK::Cached::Offsets::FortRangedWeaponStats::RecoilHoriz,		nullptr },
+			OffsetSearch { skCrypt("FortRangedWeaponStats").decrypt(),	skCrypt("BulletsPerCartridge").decrypt(),		&SDK::Cached::Offsets::FortRangedWeaponStats::BulletsPerCartridge, nullptr },
+
+			OffsetSearch { skCrypt("FortBaseWeaponStats").decrypt(),	skCrypt("ReloadTime").decrypt(),				&SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime,		nullptr },
 			
 			OffsetSearch { skCrypt("FortAthenaAntelopeVehicle").decrypt(), skCrypt("FortAntelopeVehicleConfigs").decrypt(), &SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs, nullptr },
 			

@@ -9,7 +9,7 @@
 #include "../Configs/Config.h"
 
 #ifdef _IMGUI
-#include "../Drawing/ImGui/imgui.h"
+#include "../External-Libs/ImGui/imgui.h"
 #endif
 #ifdef _ENGINE
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
@@ -75,8 +75,6 @@ void Game::MenuCallback() {
 	if (test) {
 		ImGui::Begin(skCrypt("Settings").decrypt());
 
-
-
 		// Menu Tabs
 		if (ImGui::Button(skCrypt("Aimbot").decrypt(), ImVec2(150, 30))) {
 			Tab = 0;
@@ -129,19 +127,19 @@ void Game::MenuCallback() {
 
 				ImGui::Checkbox(skCrypt("Standard").decrypt(), &Config::Aimbot::Standard::Enabled);
 				if (Config::Aimbot::Standard::Enabled) {
-					ImGui::SliderInt(skCrypt("Standard FOV").decrypt(), &Config::Aimbot::Standard::FOV, 0.f, 180.f);
+					ImGui::SliderInt(skCrypt("Standard FOV").decrypt(), &Config::Aimbot::Standard::FOV, 0, 180);
 					ImGui::SliderFloat(skCrypt("Standard Smoothing").decrypt(), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
 				}
 
 				ImGui::Checkbox(skCrypt("Close Aim").decrypt(), &Config::Aimbot::CloseAim::Enabled);
 				if (Config::Aimbot::CloseAim::Enabled) {
-					ImGui::SliderInt(skCrypt("Close FOV").decrypt(), &Config::Aimbot::CloseAim::FOV, 0.f, 180.f);
+					ImGui::SliderInt(skCrypt("Close FOV").decrypt(), &Config::Aimbot::CloseAim::FOV, 0, 180);
 					ImGui::SliderFloat(skCrypt("Smoothing").decrypt(), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
 				}
 
 				ImGui::Checkbox(skCrypt("Weakspot").decrypt(), &Config::Aimbot::Weakspot::Enabled);
 				if (Config::Aimbot::Weakspot::Enabled) {
-					ImGui::SliderInt(skCrypt("Weakspot FOV").decrypt(), &Config::Aimbot::Weakspot::FOV, 0.f, 180.f);
+					ImGui::SliderInt(skCrypt("Weakspot FOV").decrypt(), &Config::Aimbot::Weakspot::FOV, 0, 180);
 					ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
 				}
 			}
@@ -164,10 +162,18 @@ void Game::MenuCallback() {
 		}
 		case 2:
 		{
+			ImGui::Checkbox(skCrypt("Player Mods").decrypt(), &Config::Exploits::Player::Enabled);
+			if (Config::Exploits::Player::Enabled) {
+				ImGui::Checkbox(skCrypt("Infinite Builds").decrypt(), &Config::Exploits::Player::InfiniteBuilds);
+				ImGui::Checkbox(skCrypt("Infinite Ammo").decrypt(), &Config::Exploits::Player::InfiniteAmmo);
+			}
+
 			ImGui::Checkbox(skCrypt("Weapon Mods").decrypt(), &Config::Exploits::Weapon::Enabled);
 			if (Config::Exploits::Weapon::Enabled) {
 				ImGui::Checkbox(skCrypt("No Spread").decrypt(), &Config::Exploits::Weapon::NoSpread);
-				ImGui::SliderInt("CartridgePerFire", &Config::Exploits::Weapon::CartridgePerFire, 1, 10);
+				ImGui::Checkbox(skCrypt("No Recoil").decrypt(), &Config::Exploits::Weapon::NoRecoil);
+				ImGui::Checkbox(skCrypt("No Reload").decrypt(), &Config::Exploits::Weapon::NoReload);
+				ImGui::SliderInt(skCrypt("Damage Multiplier").decrypt(), &Config::Exploits::Weapon::DamageMultiplier, 1, 100);
 			}
 
 			ImGui::Checkbox(skCrypt("Pickaxe Mods").decrypt(), &Config::Exploits::Pickaxe::Enabled);

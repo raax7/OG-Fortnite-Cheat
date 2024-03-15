@@ -2,9 +2,8 @@
 
 #include "../SDK.h"
 #include "../../Game.h"
+
 #include "../../../Utilities/Logger.h"
-#include "../../../Utilities/Memory.h"
-#include "../../../Utilities/SpoofCall/SpoofCall.h"
 
 namespace SDK {
 	TUObjectArray UObject::ObjectArray;
@@ -157,6 +156,7 @@ namespace SDK {
 							}
 
 							if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
+								DEBUG_LOG(LOG_INFO, skCrypt("Found bool property! - ").decrypt() + Offset.PropertyName + " - " + std::to_string((uintptr_t)((SDK::FBoolProperty*)ChildProperty)));
 								*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
 							}
 
@@ -176,7 +176,7 @@ namespace SDK {
 								}
 
 								if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && Child->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
-									*Offset.Mask = ((SDK::UBoolProperty*)Child)->ByteMaskOffset;
+									*Offset.Mask = ((SDK::UBoolProperty*)Child)->ByteMask();
 								}
 
 								OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());
