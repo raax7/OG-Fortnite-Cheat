@@ -71,6 +71,9 @@ namespace SDK {
 
 			namespace FortWeapon {
 				inline uintptr_t WeaponData;
+
+				inline uintptr_t LastFireTime;
+				inline uintptr_t LastFireTimeVerified;
 			}
 
 			namespace FortItemDefinition {
@@ -95,8 +98,8 @@ namespace SDK {
 			}
 
 			namespace MinimalViewInfo {
-				inline uintptr_t Location = 0x0;
-				inline uintptr_t Rotation = 0xC;
+				inline uintptr_t Location;
+				inline uintptr_t Rotation;
 			}
 
 			namespace FortMeleeWeaponStats {
@@ -154,14 +157,20 @@ namespace SDK {
 			namespace FortPlayerController {
 				inline uintptr_t bBuildFree;
 				inline uintptr_t bInfiniteAmmo;
+				inline uintptr_t TargetedBuilding;
 			}
 		}
 
 		namespace Functions {
+			namespace SceneComponent {
+				inline void* SetPhysicsLinearVelocity;
+			}
+
 			namespace Actor {
 				inline void* K2_TeleportTo;
 				inline void* K2_SetActorRotation;
 				inline void* K2_SetActorLocation;
+				inline void* SetActorEnableCollision;
 			}
 
 			namespace Pawn {
@@ -221,6 +230,14 @@ namespace SDK {
 			namespace FortWeapon {
 				inline void* IsProjectileWeapon;
 				inline void* GetProjectileSpeed;
+			}
+
+			namespace FortPlayerPawn {
+				inline void* ServerHandlePickup;
+			}
+
+			namespace BuildingActor {
+				inline void* SetTeam;
 			}
 
 			inline uintptr_t AppendString = 0x0;

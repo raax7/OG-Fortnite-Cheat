@@ -80,12 +80,12 @@ public:
 #ifdef _IMGUI
 	static void SwapBuffers() {
 		std::lock_guard<std::mutex> lock(SwapMutex);
-		RenderBufferLine = UpdateBufferLine;
-		RenderBufferText = UpdateBufferText;
-		RenderBufferCircle = UpdateBufferCircle;
-		RenderBufferFilledRect = UpdateBufferFilledRect;
-		RenderBufferRect = UpdateBufferRect;
-		RenderBufferCorneredRect = UpdateBufferCorneredRect;
+		std::swap(RenderBufferLine, UpdateBufferLine);
+		std::swap(RenderBufferText, UpdateBufferText);
+		std::swap(RenderBufferCircle, UpdateBufferCircle);
+		std::swap(RenderBufferFilledRect, UpdateBufferFilledRect);
+		std::swap(RenderBufferRect, UpdateBufferRect);
+		std::swap(RenderBufferCorneredRect, UpdateBufferCorneredRect);
 
 		UpdateBufferLine.clear();
 		UpdateBufferText.clear();

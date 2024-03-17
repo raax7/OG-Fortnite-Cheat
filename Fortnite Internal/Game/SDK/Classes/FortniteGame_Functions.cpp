@@ -36,6 +36,25 @@ SDK::UClass* SDK::UFortWeaponMeleeItemDefinition::StaticClass() {
 	return Clss;
 }
 
+void SDK::AFortPawn::ServerHandlePickup(class AFortPickup* Pickup, float InFlyTime, const struct FVector& InStartDirection, bool bPlayPickupSound) {
+	if (!SDK::IsValidPointer(this)) return;
+
+	struct {
+		class AFortPickup* Pickup;
+		float InFlyTime;
+		struct FVector InStartDirection;
+		bool bPlayPickupSound;
+		uint8 Pad_2B6C[0x7];
+	} params_ServerHandlePickup{};
+
+	params_ServerHandlePickup.Pickup = Pickup;
+	params_ServerHandlePickup.InFlyTime = InFlyTime;
+	params_ServerHandlePickup.InStartDirection = InStartDirection;
+	params_ServerHandlePickup.bPlayPickupSound = bPlayPickupSound;
+
+	this->ProcessEvent(SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup, &params_ServerHandlePickup);
+}
+
 SDK::UClass* SDK::AFortPickup::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -50,7 +69,7 @@ SDK::FFortBaseWeaponStats* SDK::AFortWeapon::WeaponStats() {
 	auto VFT = *reinterpret_cast<void***>(this);
 
 	if (VFT != nullptr && VFT[SDK::Cached::VFT::GetWeaponStats] != nullptr) {
-		return reinterpret_cast<FFortBaseWeaponStats * (*)(void*)>(VFT[SDK::Cached::VFT::GetWeaponStats])(this);
+		return reinterpret_cast<FFortBaseWeaponStats*(*)(void*)>(VFT[SDK::Cached::VFT::GetWeaponStats])(this);
 	}
 }
 

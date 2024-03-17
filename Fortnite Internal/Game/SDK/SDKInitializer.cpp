@@ -118,7 +118,14 @@ void SDKInitializer::InitPRIndex() {
 		THROW_ERROR(skCrypt("Failed to find VFT for UGameViewportClient!").decrypt(), false);
 	}
 
-	int bSuppressTransitionMessage = (int)SDK::Cached::Offsets::GameViewportClient::GameInstance + sizeof(void*);
+	uintptr_t GameInstance = 0;
+
+	std::vector<FunctionSearch> Functions = {};
+	std::vector<OffsetSearch> Offsets = { OffsetSearch{ skCrypt("GameViewportClient").decrypt(), skCrypt("GameInstance").decrypt(), &GameInstance, nullptr }};
+
+	SDK::UObject::SetupObjects(Functions, Offsets);
+
+	int bSuppressTransitionMessage = (int)GameInstance + sizeof(void*);
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
 	{
@@ -228,38 +235,26 @@ void SDKInitializer::InitGPVIndex() {
 		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
 			continue;
 
-		DEBUG_LOG(LOG_INFO, skCrypt("Checking VFT index ").decrypt() + std::to_string(i) + " - " + std::to_string((uintptr_t)Vft[i]));
-
-		if ((Memory::FindPatternInRange({ 0x80, 0xBB, -0x01, -0x01, 0x00, 0x00, 0x03 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+		if (// Signature for most builds
+			(Memory::FindPatternInRange({ 0x80, 0xBB, -0x01, -0x01, 0x00, 0x00, 0x03 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 			&& Memory::FindPatternInRange({ 0x84, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 			&& Memory::FindPatternInRange({ 0x48, 0x8B, 0xCB }, Resolve32BitRelativeJump(Vft[i]), 0x70))
+
+			// Signature for builds where Fortnite added their own wrapper for it
 			|| (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x30, 0x48, 0x8B, 0x81, -0x01, -0x01, -0x01, -0x01, 0x49, 0x8B, 0xD8, 0x48, 0x85, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x70))
+
+			// Another general signature
 			|| (Memory::FindPatternInRange({ 0x0F, 0x10, 0x89, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 			&& Memory::FindPatternInRange({ 0x0F, 0xC6, -0x01, -0x01, 0x0F, 0xC6, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70))
-			|| (Memory::FindPatternInRange({ 0x48, 0x81, 0xEC, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+			
+			// Signature for UE5 builds (19.00+)
+			|| (SDK::GetGameVersion() >= 19.00 && Memory::FindPatternInRange({ 0x48, 0x81, 0xEC, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 			&& Memory::FindPatternInRange({ 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01, 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70)))
 		{
 			SDK::Cached::VFT::GetPlayerViewpoint = i;
 			DEBUG_LOG(LOG_OFFSET, skCrypt("GetPlayerViewpoint VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::GetPlayerViewpoint));
 
 			return;
-		}
-	}
-
-	if (SDK::Cached::VFT::GetPlayerViewpoint == 0x0) {
-		for (int i = 0; i < 0x150; i++)
-		{
-			if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
-				continue;
-
-			DEBUG_LOG(LOG_INFO, skCrypt("Checking VFT index ").decrypt() + std::to_string(i) + " - " + std::to_string((uintptr_t)Vft[i]));
-			if (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x30, 0x48, 0x8B, 0x81, -0x01, -0x01, -0x01, -0x01, 0x49, 0x8B, 0xD8, 0x48, 0x85, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x60))
-			{
-				SDK::Cached::VFT::GetPlayerViewpoint = i;
-				DEBUG_LOG(LOG_OFFSET, skCrypt("GetPlayerViewpoint VFT index found: ").decrypt() + std::to_string(SDK::Cached::VFT::GetPlayerViewpoint));
-
-				return;
-			}
 		}
 	}
 

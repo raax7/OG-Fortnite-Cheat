@@ -21,13 +21,23 @@ namespace SDK {
 	public:
 		// VALUES
 
-		void SetBoostAccumulationRate(float Value) {
+		void SetBoostAccumulationRate(float Value, bool* AutoRevertFeature = nullptr) {
 			if (!SDK::IsValidPointer(this)) return;
+
+			if (AutoRevertFeature) {
+				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate), AutoRevertFeature);
+			}
+
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate) = Value;
 		}
 
-		void SetBoostExpenseRate(float Value) {
+		void SetBoostExpenseRate(float Value, bool* AutoRevertFeature = nullptr) {
 			if (!SDK::IsValidPointer(this)) return;
+
+			if (AutoRevertFeature) {
+				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate), AutoRevertFeature);
+			}
+
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate) = Value;
 		}
 	};
@@ -127,9 +137,9 @@ namespace SDK {
 	public:
 		// VALUES
 
-		FFortItemEntry PrimaryPickupItemEntry() {
-			if (!this) return FFortItemEntry{};
-			return *(FFortItemEntry*)((uintptr_t)this + SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry);
+		FFortItemEntry* PrimaryPickupItemEntry() {
+			if (!this) return nullptr;
+			return (FFortItemEntry*)((uintptr_t)this + SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry);
 		}
 
 
@@ -145,6 +155,21 @@ namespace SDK {
 		UFortWeaponItemDefinition* WeaponData() {
 			if (!SDK::IsValidPointer(this)) return nullptr;
 			return (UFortWeaponItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::WeaponData));
+		}
+
+		float LastFireTime() {
+			if (!SDK::IsValidPointer(this)) return 0.f;
+			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::LastFireTime);
+		}
+
+		float LastFireTimeVerified() {
+			if (!SDK::IsValidPointer(this)) return 0.f;
+			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified);
+		}
+
+		void SetLastFireTime(float NewLastFireTime) {
+			if (!SDK::IsValidPointer(this)) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::LastFireTime) = NewLastFireTime;
 		}
 
 
@@ -218,6 +243,12 @@ namespace SDK {
 
 
 
+		// FUNCTIONS
+
+		void ServerHandlePickup(class AFortPickup* Pickup, float InFlyTime, const struct FVector& InStartDirection, bool bPlayPickupSound);
+
+
+
 		// STATIC FUNCTIONS
 
 		static UClass* StaticClass();
@@ -228,34 +259,6 @@ namespace SDK {
 
 		AFortAthenaVehicle* GetVehicle();
 	};
-	class AFortPlayerController : public APlayerController {
-	public:
-		// VALUES
-
-		void SetbBuildFree(bool NewbBuildFree) {
-			if (!SDK::IsValidPointer(this)) return;
-
-			if (SDK::Cached::Masks::FortPlayerController::bBuildFree) {
-				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree);
-				*BitField = NewbBuildFree ? *BitField | SDK::Cached::Masks::FortPlayerController::bBuildFree : *BitField & ~SDK::Cached::Masks::FortPlayerController::bBuildFree;
-			}
-			else {
-				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree) = NewbBuildFree;
-			}
-		}
-
-		void SetbInfiniteAmmo(bool NewbInfiniteAmmo) {
-			if (!SDK::IsValidPointer(this)) return;
-
-			if (SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo) {
-				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo);
-				*BitField = NewbInfiniteAmmo ? *BitField | SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo : *BitField & ~SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo;
-			}
-			else {
-				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo) = NewbInfiniteAmmo;
-			}
-		}
-	};
 	class ABuildingActor : public AActor {
 	public:
 		// VALUES
@@ -265,9 +268,65 @@ namespace SDK {
 			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex);
 		}
 
-		void SetTeamIndex(uint8 NewTeamIndex) {
+		void SetTeamIndex(uint8 NewTeamIndex, bool* AutoRevertFeature = nullptr) {
 			if (!SDK::IsValidPointer(this)) return;
+
+			if (AutoRevertFeature) {
+				Features::CreateAutoRevertFeature<uint8>((uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex), AutoRevertFeature);
+			}
+
 			*(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex) = NewTeamIndex;
+		}
+	};
+	class AFortPlayerController : public APlayerController {
+	public:
+		// VALUES
+
+		ABuildingActor* TargetedBuilding() {
+			if (!SDK::IsValidPointer(this)) return nullptr;
+			return (ABuildingActor*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::TargetedBuilding));
+		}
+
+		void SetbBuildFree(bool NewbBuildFree, bool* AutoRevertFeature = nullptr) {
+			if (!SDK::IsValidPointer(this)) return;
+
+			if (SDK::Cached::Masks::FortPlayerController::bBuildFree) {
+				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree);
+
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertBitFeature(BitField, SDK::Cached::Masks::FortPlayerController::bBuildFree, AutoRevertFeature);
+				}
+
+				*BitField = NewbBuildFree ? *BitField | SDK::Cached::Masks::FortPlayerController::bBuildFree : *BitField & ~SDK::Cached::Masks::FortPlayerController::bBuildFree;
+			}
+			else {
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertFeature<bool>((bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree), AutoRevertFeature);
+				}
+
+				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree) = NewbBuildFree;
+			}
+		}
+
+		void SetbInfiniteAmmo(bool NewbInfiniteAmmo, bool* AutoRevertFeature = nullptr) {
+			if (!SDK::IsValidPointer(this)) return;
+
+			if (SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo) {
+				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo);
+
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertBitFeature(BitField, SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo, AutoRevertFeature);
+				}
+
+				*BitField = NewbInfiniteAmmo ? *BitField | SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo : *BitField & ~SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo;
+			}
+			else {
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertFeature<bool>((bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo), AutoRevertFeature);
+				}
+
+				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo) = NewbInfiniteAmmo;
+			}
 		}
 	};
 	class ABuildingWeakSpot : public AActor {

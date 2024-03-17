@@ -52,7 +52,7 @@ namespace Config {
 		namespace Standard {
 			inline bool Enabled = true;
 			inline int FOV = 20;
-			inline float Smoothing = 1.f;
+			inline float Smoothing = 8.f;
 		}
 
 		namespace Weakspot {
@@ -81,48 +81,29 @@ namespace Config {
 	}
 
 	namespace Exploits {
-		namespace RapidFire {
-			inline bool Enabled = false;
-			inline float SpeedMultiplier = 1.f;
-		}
-
-		namespace InstantReload {
-			inline bool Enabled = false;
-			inline float SpeedMultiplier = 1.f;
-		}
-
-		namespace SilentGun {
-			inline bool Enabled = false;
-		}
-
 		namespace Pickaxe {
-			inline bool Enabled = false;
+			inline bool FastPickaxe = false;
 			inline float SpeedMultiplier = 1.f;
 		}
 
 		namespace Player {
-			inline bool Enabled = false;
+			inline bool EditEnemyBuilds = false;
 
 			inline bool InfiniteBuilds = false;
 			inline bool InfiniteAmmo = false;
 		}
 
 		namespace Weapon {
-			inline bool Enabled = false;
-
-			inline bool ReloadSpeed = false;
-			inline float ReloadSpeedMultiplier = 1.f; // 10.f is instant
-
-			inline bool FireRate = false;
-			inline float FireRateMultiplier = 1.f; // 10.f is instant
-
 			inline bool NoSpread = false;
 			inline bool NoRecoil = false;
 			inline bool NoReload = false;
 
+			inline bool RapidFire = false;
+
 			inline bool Recoil = false;
 			inline float RecoilMultiplier = 1.f; // 0.f is none
 
+			inline bool UseDamageMultiplier = false;
 			inline int DamageMultiplier = 1;
 		}
 
@@ -131,7 +112,21 @@ namespace Config {
 			
 			inline bool InfiniteBoost = false;
 			inline bool Fly = false;
-			inline float FlySpeed = 1.f;
+			inline bool FlyThroughWalls = false;
+			inline bool FreezeInAir = false;
+			inline float FlySpeed = 35.f;
+		}
+
+		namespace Pickup {
+			inline bool PrioritizeFarthestWeapons = false;
+
+			inline bool AutoPickup = false;
+			inline float AutoPickupDelaySecs = 1.f;
+
+			inline int MaxDistance = 300;
+			inline int MaxItems = 5;
+
+			inline KeyName PickupAllKey;
 		}
 	}
 }

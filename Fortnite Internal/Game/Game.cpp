@@ -91,7 +91,7 @@ void Game::MenuCallback() {
 		switch (Tab) {
 		case 0:
 		{
-			ImGui::Checkbox(skCrypt("Aimbot").decrypt(), &Config::Aimbot::Enabled);
+			ImGui::Checkbox(skCrypt("Aimbot Enabled").decrypt(), &Config::Aimbot::Enabled);
 			if (Config::Aimbot::Enabled) {
 				std::string ButtonName = skCrypt("None").decrypt();
 				if ((uint8)Config::Aimbot::AimKey) {
@@ -121,7 +121,7 @@ void Game::MenuCallback() {
 				}
 
 				ImGui::Checkbox(skCrypt("Silent Aim").decrypt(), &Config::Aimbot::SilentAim);
-				if (Config::Aimbot::SilentAim) ImGui::Checkbox(skCrypt("Use Aimkey For Silent").decrypt(), &Config::Aimbot::UseAimKeyForSilent);
+				if (Config::Aimbot::SilentAim) ImGui::Checkbox(skCrypt("Use Aim-Key For Silent").decrypt(), &Config::Aimbot::UseAimKeyForSilent);
 				ImGui::Checkbox(skCrypt("Show Aim Line").decrypt(), &Config::Aimbot::ShowAimLine);
 				ImGui::Checkbox(skCrypt("Show FOV").decrypt(), &Config::Aimbot::ShowFOV);
 
@@ -143,9 +143,8 @@ void Game::MenuCallback() {
 					ImGui::SliderFloat(skCrypt("Weakspot Smoothing").decrypt(), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
 				}
 			}
-
-			break;
 		}
+		break;
 		case 1:
 		{
 			ImGui::Checkbox(skCrypt("Weapon ESP").decrypt(), &Config::Visuals::Weapons::Enabled);
@@ -157,44 +156,127 @@ void Game::MenuCallback() {
 				ImGui::Checkbox(skCrypt("Distance").decrypt(), &Config::Visuals::Players::Distance);
 				ImGui::Checkbox(skCrypt("Name").decrypt(), &Config::Visuals::Players::Name);
 			}
-
-			break;
 		}
+		break;
 		case 2:
 		{
-			ImGui::Checkbox(skCrypt("Player Mods").decrypt(), &Config::Exploits::Player::Enabled);
-			if (Config::Exploits::Player::Enabled) {
-				ImGui::Checkbox(skCrypt("Infinite Builds").decrypt(), &Config::Exploits::Player::InfiniteBuilds);
-				ImGui::Checkbox(skCrypt("Infinite Ammo").decrypt(), &Config::Exploits::Player::InfiniteAmmo);
+			static int SubTab = 0;
+
+			// Sub Tabs
+			if (ImGui::Button(skCrypt("Player").decrypt(), ImVec2(80, 25))) {
+				SubTab = 0;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(skCrypt("Weapon").decrypt(), ImVec2(80, 25))) {
+				SubTab = 1;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(skCrypt("Pickaxe").decrypt(), ImVec2(80, 25))) {
+				SubTab = 2;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(skCrypt("Vehicle").decrypt(), ImVec2(80, 25))) {
+				SubTab = 3;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(skCrypt("Pickup").decrypt(), ImVec2(80, 25))) {
+				SubTab = 4;
 			}
 
-			ImGui::Checkbox(skCrypt("Weapon Mods").decrypt(), &Config::Exploits::Weapon::Enabled);
-			if (Config::Exploits::Weapon::Enabled) {
+			switch (SubTab) {
+			case 0:
+			{
+				ImGui::Checkbox(skCrypt("Infinite Builds").decrypt(), &Config::Exploits::Player::InfiniteBuilds);
+				ImGui::Checkbox(skCrypt("Infinite Ammo").decrypt(), &Config::Exploits::Player::InfiniteAmmo);
+				ImGui::Checkbox(skCrypt("Edit Enemy Builds").decrypt(), &Config::Exploits::Player::EditEnemyBuilds);
+			}
+			break;
+			case 1:
+			{
 				ImGui::Checkbox(skCrypt("No Spread").decrypt(), &Config::Exploits::Weapon::NoSpread);
 				ImGui::Checkbox(skCrypt("No Recoil").decrypt(), &Config::Exploits::Weapon::NoRecoil);
 				ImGui::Checkbox(skCrypt("No Reload").decrypt(), &Config::Exploits::Weapon::NoReload);
-				ImGui::SliderInt(skCrypt("Damage Multiplier").decrypt(), &Config::Exploits::Weapon::DamageMultiplier, 1, 100);
+				ImGui::Checkbox(skCrypt("Rapid Fire").decrypt(), &Config::Exploits::Weapon::RapidFire);
+				ImGui::Checkbox(skCrypt("Damage Multiplier").decrypt(), &Config::Exploits::Weapon::UseDamageMultiplier);
+				//ImGui::SliderFloat(skCrypt("Rapid Fire Amount").decrypt(), &Config::Exploits::Weapon::RapidFireAmount, 1.f, 100.f);
+				if (Config::Exploits::Weapon::UseDamageMultiplier) {
+					ImGui::SameLine();
+					ImGui::SliderInt(skCrypt("Multiplier Amount").decrypt(), &Config::Exploits::Weapon::DamageMultiplier, 1, 100);
+				}
 			}
-
-			ImGui::Checkbox(skCrypt("Pickaxe Mods").decrypt(), &Config::Exploits::Pickaxe::Enabled);
-			if (Config::Exploits::Pickaxe::Enabled) {
-				ImGui::SliderFloat(skCrypt("Pickaxe Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
+			break;
+			case 2:
+			{
+				ImGui::Checkbox(skCrypt("Fast Pickaxe").decrypt(), &Config::Exploits::Pickaxe::FastPickaxe);
+				if (Config::Exploits::Pickaxe::FastPickaxe) {
+					ImGui::SameLine();
+					ImGui::SliderFloat(skCrypt("Speed").decrypt(), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
+				}
 			}
+			break;
+			case 3:
+			{
+				ImGui::Checkbox(skCrypt("Enabled").decrypt(), &Config::Exploits::Vehicle::Enabled);
 
-			ImGui::Checkbox(skCrypt("Vehicle Mods").decrypt(), &Config::Exploits::Vehicle::Enabled);
-			if (Config::Exploits::Vehicle::Enabled) {
 				ImGui::Checkbox(skCrypt("Infinite Boost").decrypt(), &Config::Exploits::Vehicle::InfiniteBoost);
 				ImGui::Checkbox(skCrypt("Fly").decrypt(), &Config::Exploits::Vehicle::Fly);
-				ImGui::SliderFloat(skCrypt("Fly Speed").decrypt(), &Config::Exploits::Vehicle::FlySpeed, 0.f, 1000.f);
+				ImGui::Checkbox(skCrypt("Fly Through Walls").decrypt(), &Config::Exploits::Vehicle::FlyThroughWalls);
+				ImGui::Checkbox(skCrypt("Freeze In Air").decrypt(), &Config::Exploits::Vehicle::FreezeInAir);
+				ImGui::SliderFloat(skCrypt("Fly Speed").decrypt(), &Config::Exploits::Vehicle::FlySpeed, 35.f, 1000.f);
 			}
-
 			break;
+			case 4:
+			{
+				std::string ButtonName = skCrypt("None").decrypt();
+				if ((uint8)Config::Exploits::Pickup::PickupAllKey) {
+					ButtonName = skCrypt("Pickup Key: ").decrypt() + Input::GetKeyNameString((Input::KeyName)Config::Exploits::Pickup::PickupAllKey);
+				}
+
+				if (WaitingForKeyInput) {
+					ButtonName = skCrypt("...").decrypt();
+
+					std::vector<Input::KeyName> Keys = Input::GetAllDownKeys();
+
+					if (Keys.size() > 0) {
+						for (int i = 0; i < Keys.size(); i++) {
+							if (Keys[i] != Input::KeyName::AnyKey
+								&& Keys[i] != Input::KeyName::MouseX
+								&& Keys[i] != Input::KeyName::MouseY
+								&& Keys[i] != Input::KeyName::LeftMouseButton) {
+								Config::Exploits::Pickup::PickupAllKey = (KeyName)Keys[i];
+								WaitingForKeyInput = false;
+							}
+						}
+					}
+				}
+
+				if (ImGui::Button(ButtonName.c_str(), ImVec2(250, 40))) {
+					WaitingForKeyInput = true;
+				}
+
+				ImGui::Checkbox(skCrypt("Prioritize Farthest Weapons").decrypt(), &Config::Exploits::Pickup::PrioritizeFarthestWeapons);
+
+				ImGui::Checkbox(skCrypt("Auto Pickup").decrypt(), &Config::Exploits::Pickup::AutoPickup);
+				if (Config::Exploits::Pickup::AutoPickup) {
+					ImGui::SliderFloat(skCrypt("Auto Pickup Delay (MS)").decrypt(), &Config::Exploits::Pickup::AutoPickupDelaySecs, 0.f, 10.f);
+				}
+
+				ImGui::SliderInt(skCrypt("Max Pickup Distance").decrypt(), &Config::Exploits::Pickup::MaxDistance, 1, 500);
+				ImGui::SliderInt(skCrypt("Max Pickup Amount").decrypt(), &Config::Exploits::Pickup::MaxItems, 1, 500);
+			}
+			break;
+			}
 		}
+		break;
 		}
 
 		ImGui::End();
 	}
 #endif
+
+	if (test) {
+		Drawing::Circle(Input::GetMousePosition(), 4.f, 16, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+	}
 }
 void Game::DrawCallback() {
 	if (!SDK::GetLocalPlayer()) return;
@@ -207,10 +289,6 @@ void Game::DrawCallback() {
 
 	if (Input::WasKeyJustReleased(Input::KeyName::Insert)) {
 		test = !test;
-	}
-
-	if (test) {
-		Drawing::Circle(Input::GetMousePosition(), 4.f, 16, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 	}
 
 	Actors::Draw();

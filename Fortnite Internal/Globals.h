@@ -11,7 +11,7 @@
 #define LOG_OFFSET 2				// Error logs and offset logs
 #define LOG_INFO 3					// Error logs, offset logs and general info logs
 #define LOG_ALL 3					// Log everything
-#define LOG_LEVEL_MAX 4	
+#define LOG_LEVEL_MAX 4
 
 
 
@@ -22,6 +22,9 @@
 #ifdef NODEBUG
 	#define LOG_LEVEL		LOG_NONE// No logs in release mode by default
 #endif // NODEBUG
+
+// Only enable this if you are sure your injector supports SEH
+#define USING_SEH			TRUE	// Enables the use oh SEH (Structured Exception Handler) for verifying if a pointer is valid
 
 #define SHOW_MESSAGE_BOX	TRUE	// Enables the display of error message boxes
 #define CRASH_ON_NOT_FOUND	FALSE	// Crashes the game when an offset/VFT index is not found

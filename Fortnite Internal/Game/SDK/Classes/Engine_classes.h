@@ -25,6 +25,12 @@ namespace SDK {
 			if (!SDK::IsValidPointer(this)) return FVector{};
 			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
 		}
+
+
+
+		// FUNCTIONS
+
+		void SetPhysicsLinearVelocity(FVector NewVel, bool bAddToCurrent, FName BoneName);
 	};
 	class UMovementComponent : public UObject {
 	public:
@@ -53,6 +59,8 @@ namespace SDK {
 		bool K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics);
 
 		bool K2_SetActorLocation(const struct FVector& NewLocation, bool bSweep, struct FHitResult* SweepHitResult, bool bTeleport);
+
+		void SetActorEnableCollision(bool bNewActorEnableCollision);
 	};
 	class USkeletalMeshComponent : public UObject {
 	public:

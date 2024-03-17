@@ -24,6 +24,8 @@ namespace Actors {
 
 		inline const float IntervalSeconds = 0.10f;
 		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
+
+		inline std::chrono::steady_clock::time_point LastAutoPickupTime = std::chrono::steady_clock::now();
 	}
 
 	namespace BuildingWeakSpot {

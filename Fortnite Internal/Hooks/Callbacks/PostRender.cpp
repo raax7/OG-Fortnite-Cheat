@@ -28,6 +28,8 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	Actors::Tick();
 	Actors::UpdateCaches();
 
+	Features::Tick();
+
 	Game::DrawCallback();
 
 #ifdef _IMGUI

@@ -37,19 +37,26 @@ void Actors::FortPawn::Tick() {
 		CurrentPlayer.Mesh									= Character->Mesh();									if (!CurrentPlayer.Mesh) continue;
 
 		if (FortPawn == SDK::GetLocalPawn()) {
-			LocalPawnCache.Position = CurrentPlayer.FortPawn->GetRootComponent()->GetPosition();
+			LocalPawnCache.Position = CurrentPlayer.Mesh->GetBonePosition(Features::FortPawnHelper::Bone::Head);
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
 			Features::Exploits::Vehicle::Tick();
 			Features::Exploits::Weapons::Tick(FortPawn->CurrentWeapon());
 
-			if (Config::Exploits::Player::Enabled && SDK::GetLocalController()) {
+			if (SDK::GetLocalController()) {
 				if (Config::Exploits::Player::InfiniteBuilds) {
-					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbBuildFree(true);
+					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbBuildFree(true, &Config::Exploits::Player::InfiniteBuilds);
 				}
 
 				if (Config::Exploits::Player::InfiniteAmmo) {
-					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbInfiniteAmmo(true);
+					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbInfiniteAmmo(true, &Config::Exploits::Player::InfiniteAmmo);
+				}
+			}
+
+			if (Config::Exploits::Player::EditEnemyBuilds) {
+				SDK::ABuildingActor* TargetedBuilding = reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->TargetedBuilding();
+				if (TargetedBuilding) {
+					TargetedBuilding->SetTeamIndex(LocalPawnCache.TeamIndex, & Config::Exploits::Player::EditEnemyBuilds);
 				}
 			}
 
@@ -165,7 +172,7 @@ void Actors::FortPawn::Tick() {
 
 				BoneVisible = true;
 
-				if (Config::Visuals::Players::Skeleton) {
+				if (Config::Visuals::Players::Enabled && Config::Visuals::Players::Skeleton) {
 					Drawing::Line(
 						SDK::FVector2D(ScreenPos[0].X, ScreenPos[0].Y),
 						SDK::FVector2D(ScreenPos[1].X, ScreenPos[1].Y),

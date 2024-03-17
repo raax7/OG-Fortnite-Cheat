@@ -83,13 +83,6 @@ RaaxDx::Status RaaxDx::Init() {
 
 		HRESULT Result = ((HRESULT(*)(IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL*, UINT, UINT, const DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**, ID3D11Device**, D3D_FEATURE_LEVEL*, ID3D11DeviceContext**))D3D11CreateDeviceAndSwapChain)(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, FeatureLevels, 1, D3D11_SDK_VERSION, &SwapChainDesc, &SwapChain, &Device, &FeatureLevel, &DeviceContext);
 		if (FAILED(Result)) {
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
-			DEBUG_LOG(LOG_ERROR, skCrypt("Failed to create D3D11 Device and SwapChain - ").decrypt() + std::to_string(Result));
 			return Status::CreateFailed;
 		}
 

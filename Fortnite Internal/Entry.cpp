@@ -11,7 +11,9 @@
 #include "Hooks/Hooks.h"
 
 #include "External-Libs/LazyImporter.h"
+#if LOG_LEVEL > LOG_NONE
 #include "Utilities/Logger.h"
+#endif // LOG_LEVEL > LOG_NONE
 
 /*
 * NOTES
@@ -36,8 +38,7 @@
 // - Add a PCH
 // - Make everything in Memory.h my own code (no pasting)
 // - Add WndProc as an option for Engine rendering
-// - Add DX12 support for ImGui
-// - Fix target selection issues
+// - Add bitfield support for AutoRevertFeature
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
@@ -76,7 +77,7 @@ VOID Main() {
 #if LOG_LEVEL > LOG_NONE
     // Init logger (REPLACE WITH YOUR OWN PATH)
     Logger::InitLogger(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log").decrypt());
-#endif // _DEBUG
+#endif // LOG_LEVEL > LOG_NONE
 
     SDK::Init();    // Init base address, GObjects, function addresses, offsets etc
     Hooks::Init();  // Init hooks

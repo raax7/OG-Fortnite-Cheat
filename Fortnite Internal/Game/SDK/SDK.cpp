@@ -13,23 +13,6 @@
 #include "../Input/Input.h"
 #include "../Features/FortPawnHelper/Bone.h"
 
-bool SDK::IsValidPointer(void* Address) {
-	if (!Address) {
-		return false;
-	}
-
-	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obsolete win api func
-	if (LI_FN(IsBadReadPtr).safe_cached()(Address, 8)) {
-		return false;
-	}
-
-	return true;
-}
-
-uintptr_t SDK::GetBaseAddress() {
-	return *(uintptr_t*)(__readgsqword(0x60) + 0x10);
-}
-
 void SDK::Init() {
 	DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing SDK...").decrypt());
 
@@ -56,22 +39,26 @@ void SDK::Init() {
 
 		// Init VFT Indexes
 		SDKInitializer::InitPEIndex();
-		SDKInitializer::InitGVIndex();
-	}
 
-	// Check Engine Version
-	{
-		SDK::Cached::Functions::KismetSystemLibrary::GetEngineVersion = SDK::UObject::FindObjectFast(skCrypt("GetEngineVersion").decrypt());
+		// Check Game Version
+		{
+			SDK::Cached::Functions::KismetSystemLibrary::GetEngineVersion = SDK::UObject::FindObjectFast(skCrypt("GetEngineVersion").decrypt());
 
-		if (GetGameVersion() < 3.00 || GetGameVersion() >= 20.00) {
-			THROW_ERROR(
-				skCrypt("Unsupported game version! (").decrypt() +
-				std::to_string(GetGameVersion()) +
-				skCrypt(")\nSeason 3 to Season 15 are the only seasons supported currently").decrypt(),
-				true);
+			if (GetGameVersion() < 3.00 || GetGameVersion() >= 20.00) {
+				THROW_ERROR(
+					skCrypt("Unsupported game version! (").decrypt() +
+					std::to_string(GetGameVersion()) +
+					skCrypt(")\nSeason 3 to Season 15 are the only seasons supported currently").decrypt(),
+					true);
+			}
+
+			DEBUG_LOG(LOG_OFFSET, skCrypt("Game Version: ").decrypt() + std::to_string(GetGameVersion()));
 		}
 
-		DEBUG_LOG(LOG_OFFSET, skCrypt("Game Version: ").decrypt() + std::to_string(GetGameVersion()));
+		// Continue VFT Indexes
+		SDKInitializer::InitPRIndex();
+		SDKInitializer::InitGVIndex();
+		SDKInitializer::InitGPVIndex();
 	}
 
 	// Init Cached Objects
@@ -101,16 +88,19 @@ void SDK::Init() {
 			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_TeleportTo").decrypt(),				&SDK::Cached::Functions::Actor::K2_TeleportTo							},
 			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorRotation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorRotation						},
 			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("K2_SetActorLocation").decrypt(),		&SDK::Cached::Functions::Actor::K2_SetActorLocation						},
+			FunctionSearch { skCrypt("Actor").decrypt(),				skCrypt("SetActorEnableCollision").decrypt(),	&SDK::Cached::Functions::Actor::SetActorEnableCollision					},
+			FunctionSearch { skCrypt("PrimitiveComponent").decrypt(),	skCrypt("SetPhysicsLinearVelocity").decrypt(),	&SDK::Cached::Functions::SceneComponent::SetPhysicsLinearVelocity		},
 			FunctionSearch { skCrypt("Pawn").decrypt(),					skCrypt("GetMovementComponent").decrypt(),		&SDK::Cached::Functions::Pawn::GetMovementComponent						},
 			FunctionSearch { skCrypt("MovementComponent").decrypt(),	skCrypt("StopMovementImmediately").decrypt(),	&SDK::Cached::Functions::MovementComponent::StopMovementImmediately		},
 			FunctionSearch { skCrypt("FortWeapon").decrypt(),			skCrypt("IsProjectileWeapon").decrypt(),		&SDK::Cached::Functions::FortWeapon::IsProjectileWeapon					},
 			FunctionSearch { skCrypt("FortWeapon").decrypt(),			skCrypt("GetProjectileSpeed").decrypt(),		&SDK::Cached::Functions::FortWeapon::GetProjectileSpeed					},
+			FunctionSearch { skCrypt("FortPlayerPawn").decrypt(),		skCrypt("ServerHandlePickup").decrypt(),		&SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup				},
 		};
 
 		std::vector<OffsetSearch> Offsets {
-			// REQUIRED FOR POST-RENDER VFT INDEX
+			// REQUIRED FOR INITIALIZATION
 			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("GameInstance").decrypt(),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		nullptr },
-			// REQUIRED FOR POST-RENDER VFT INDEX
+			// REQUIRED FOR INITIALIZATION
 
 			OffsetSearch { skCrypt("Engine").decrypt(),					skCrypt("GameViewport").decrypt(),				&SDK::Cached::Offsets::Engine::GameViewport,					nullptr },
 			OffsetSearch { skCrypt("GameViewportClient").decrypt(),		skCrypt("World").decrypt(),						&SDK::Cached::Offsets::GameViewportClient::World,				nullptr },
@@ -122,7 +112,7 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("Pawn").decrypt(),					skCrypt("PlayerState").decrypt(),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
 			OffsetSearch { skCrypt("Character").decrypt(),				skCrypt("Mesh").decrypt(),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
 			OffsetSearch { skCrypt("Font").decrypt(),					skCrypt("LegacyFontSize").decrypt(),			&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
-
+			
 			OffsetSearch { skCrypt("FortPickup").decrypt(),				skCrypt("PrimaryPickupItemEntry").decrypt(),	&SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry,		nullptr },
 			OffsetSearch { skCrypt("FortItemDefinition").decrypt(),		skCrypt("DisplayName").decrypt(),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			nullptr },
 			OffsetSearch { skCrypt("FortItemDefinition").decrypt(),		skCrypt("Tier").decrypt(),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				nullptr },
@@ -130,16 +120,18 @@ void SDK::Init() {
 			OffsetSearch { skCrypt("SceneComponent").decrypt(),			skCrypt("RelativeLocation").decrypt(),			&SDK::Cached::Offsets::SceneComponent::RelativeLocation,		nullptr },
 			OffsetSearch { skCrypt("Canvas").decrypt(),					skCrypt("SizeX").decrypt(),						&SDK::Cached::Offsets::Canvas::SizeX,							nullptr },
 			OffsetSearch { skCrypt("Canvas").decrypt(),					skCrypt("SizeY").decrypt(),						&SDK::Cached::Offsets::Canvas::SizeY,							nullptr },
-			OffsetSearch { skCrypt("FortPlayerStateAthena").decrypt(),	skCrypt("TeamIndex").decrypt(),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		nullptr },
 			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("CurrentWeapon").decrypt(),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
 			OffsetSearch { skCrypt("FortPawn").decrypt(),				skCrypt("bIsDying").decrypt(),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
 			OffsetSearch { skCrypt("FortPlayerPawn").decrypt(),			skCrypt("VehicleStateLocal").decrypt(),			&SDK::Cached::Offsets::FortPawn::VehicleStateLocal,				nullptr },
 			OffsetSearch { skCrypt("BuildingWeakSpot").decrypt(),		skCrypt("bHit").decrypt(),						&SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField,	nullptr },
 			OffsetSearch { skCrypt("FortWeapon").decrypt(),				skCrypt("WeaponData").decrypt(),				&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
+			OffsetSearch { skCrypt("FortWeapon").decrypt(),				skCrypt("LastFireTime").decrypt(),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },
 			
 			OffsetSearch { skCrypt("FortPlayerController").decrypt(),	skCrypt("bBuildFree").decrypt(),				&SDK::Cached::Offsets::FortPlayerController::bBuildFree,		&SDK::Cached::Masks::FortPlayerController::bBuildFree },
-			
 			OffsetSearch { skCrypt("FortPlayerController").decrypt(),	skCrypt("bInfiniteAmmo").decrypt(),				&SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo,		&SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo },
+			OffsetSearch { skCrypt("FortPlayerController").decrypt(),	skCrypt("TargetedBuilding").decrypt(),			&SDK::Cached::Offsets::FortPlayerController::TargetedBuilding,	nullptr },
+
+			OffsetSearch { skCrypt("FortPlayerStateAthena").decrypt(),	skCrypt("TeamIndex").decrypt(),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		nullptr },
 
 			OffsetSearch { skCrypt("FortItemEntry").decrypt(),			skCrypt("ItemDefinition").decrypt(),			&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
 			OffsetSearch { skCrypt("MinimalViewInfo").decrypt(),		skCrypt("Location").decrypt(),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
@@ -161,34 +153,42 @@ void SDK::Init() {
 
 			OffsetSearch { skCrypt("FortBaseWeaponStats").decrypt(),	skCrypt("ReloadTime").decrypt(),				&SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime,		nullptr },
 			
-			OffsetSearch { skCrypt("FortAthenaAntelopeVehicle").decrypt(), skCrypt("FortAntelopeVehicleConfigs").decrypt(), &SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs, nullptr },
-			
-			OffsetSearch { skCrypt("FortAthenaJackalVehicle").decrypt(), skCrypt("BoostTimers").decrypt(),				&SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers,	nullptr },
-			
-			OffsetSearch { skCrypt("FortAthenaDoghouseVehicle").decrypt(), skCrypt("BoostAction").decrypt(),			&SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction,	nullptr },
-			
-			OffsetSearch { skCrypt("FortAntelopeVehicleConfigs").decrypt(), skCrypt("BoostAccumulationRate").decrypt(), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate, nullptr },
-			OffsetSearch { skCrypt("FortAntelopeVehicleConfigs").decrypt(), skCrypt("BoostExpenseRate").decrypt(), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate, nullptr },
-			
-			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("ChargeRate").decrypt(),				&SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate,	nullptr },
-			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("ActiveExpenseRate").decrypt(),		&SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate, nullptr },
-			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("PassiveExpenseRate").decrypt(),		&SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate, nullptr },
-			OffsetSearch { skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("Charge").decrypt(),					&SDK::Cached::Offsets::FortRechargingActionTimer::Charge,		nullptr },
-			
 			OffsetSearch { skCrypt("VehiclePawnState").decrypt(),		skCrypt("Vehicle").decrypt(),					&SDK::Cached::Offsets::VehiclePawnState::Vehicle,				nullptr },
 		};
+
+		if (SDK::GetGameVersion() >= 6.00) {
+			Offsets.push_back(OffsetSearch{ skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("ChargeRate").decrypt(), &SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate, nullptr });
+			Offsets.push_back(OffsetSearch{ skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("ActiveExpenseRate").decrypt(), &SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate, nullptr });
+			Offsets.push_back(OffsetSearch{ skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("PassiveExpenseRate").decrypt(), &SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate, nullptr });
+			Offsets.push_back(OffsetSearch{ skCrypt("FortRechargingActionTimer").decrypt(), skCrypt("Charge").decrypt(), &SDK::Cached::Offsets::FortRechargingActionTimer::Charge, nullptr });
+
+			Offsets.push_back(OffsetSearch{ skCrypt("FortAntelopeVehicleConfigs").decrypt(), skCrypt("BoostAccumulationRate").decrypt(), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate, nullptr });
+			Offsets.push_back(OffsetSearch{ skCrypt("FortAntelopeVehicleConfigs").decrypt(), skCrypt("BoostExpenseRate").decrypt(), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate, nullptr });
+
+			Offsets.push_back(OffsetSearch{ skCrypt("FortAthenaAntelopeVehicle").decrypt(), skCrypt("FortAntelopeVehicleConfigs").decrypt(), &SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs, nullptr });
+
+			Offsets.push_back(OffsetSearch{ skCrypt("FortAthenaJackalVehicle").decrypt(), skCrypt("BoostTimers").decrypt(), &SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers, nullptr });
+		}
+
+		if (SDK::GetGameVersion() >= 7.00) {
+			// Bit of a hacky way to do it since its not 100% accurate if its using the enum for teams or the direct value, but they both have the same type so it doesn't matter
+			Offsets.push_back(OffsetSearch{ skCrypt("BuildingActor").decrypt(), skCrypt("TeamIndex").decrypt(), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
+		
+			Offsets.push_back(OffsetSearch{ skCrypt("FortAthenaDoghouseVehicle").decrypt(), skCrypt("BoostAction").decrypt(),	&SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction, nullptr });
+		}
+		else {
+			Offsets.push_back(OffsetSearch{ skCrypt("BuildingActor").decrypt(), skCrypt("Team").decrypt(), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
+		}
+
+		if (SDK::GetGameVersion() >= 10.00) {
+			Offsets.push_back(OffsetSearch{ skCrypt("FortWeapon").decrypt(), skCrypt("LastFireTimeVerified").decrypt(), &SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified, nullptr });
+		}
 
 		SDK::UObject::SetupObjects(Functions, Offsets);
 	}
 
-	// Init PostRender VFT index after due to it relying on one of the offsets found in the previous step
-	SDKInitializer::InitPRIndex();
-	SDKInitializer::InitGPVIndex();
-
 	Input::Init();
 	Features::FortPawnHelper::Bone::Init();
-
-	DEBUG_LOG(LOG_OFFSET, skCrypt("SDK Initialized!").decrypt());
 
 #if OBJECT_DUMP
 	for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++) {
@@ -208,4 +208,31 @@ void SDK::Init() {
 		DEBUG_LOG(skCrypt("[").decrypt() + std::to_string(i) + skCrypt("] ").decrypt() + Name.GetRawString());
 	}
 #endif
+}
+
+bool SDK::IsValidPointer(void* Address) {
+	if (!Address) {
+		return false;
+	}
+
+#ifdef USING_SEH
+	__try {
+		volatile auto value = *static_cast<char*>(Address);
+		(void)value;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+#else
+	// IMPROVVE THIS!!! IsBadWritePtr is a very bad and obsolete win api func
+	if (LI_FN(IsBadReadPtr).safe_cached()(Address, 8)) {
+		return false;
+	}
+#endif // USING_SEH
+
+	return true;
+}
+
+uintptr_t SDK::GetBaseAddress() {
+	return *(uintptr_t*)(__readgsqword(0x60) + 0x10);
 }

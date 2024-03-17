@@ -44,15 +44,6 @@ namespace Hooks {
 
 	// Hooks
 
-	namespace PostRender {
-		using PostRenderParams = void(*)(uintptr_t this_, uintptr_t Canvas);
-		inline PostRenderParams PostRenderOriginal = nullptr;
-
-		void PostRender(uintptr_t this_, uintptr_t Canvas);
-
-		inline Hooks::VFTHook* Hook = nullptr;
-	}
-
 #ifdef _IMGUI
 	namespace Present {
 		typedef HRESULT(__stdcall* oPresent) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
@@ -90,6 +81,15 @@ namespace Hooks {
 		LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	}
 #endif // INPUT_TYPE == WNDPROC_INPUT
+
+	namespace PostRender {
+		using PostRenderParams = void(*)(uintptr_t this_, uintptr_t Canvas);
+		inline PostRenderParams PostRenderOriginal = nullptr;
+
+		void PostRender(uintptr_t this_, uintptr_t Canvas);
+
+		inline Hooks::VFTHook* Hook = nullptr;
+	}
 
 	namespace GetPlayerViewpoint {
 		using GetPlayerViewpointParams = void(*)(void* this_, SDK::FVector* Location, SDK::FRotator* Rotation);

@@ -10,6 +10,24 @@
 
 // Classes
 
+void SDK::USceneComponent::SetPhysicsLinearVelocity(FVector NewVel, bool bAddToCurrent, FName BoneName) {
+	if (!SDK::IsValidPointer(this)) return;
+
+	struct {
+		FVector NewVel;
+		bool bAddToCurrent;
+		FName BoneName;
+	} params_SetPhysicsLinearVelocity{};
+
+	params_SetPhysicsLinearVelocity.NewVel = NewVel;
+	params_SetPhysicsLinearVelocity.bAddToCurrent = bAddToCurrent;
+	params_SetPhysicsLinearVelocity.BoneName = BoneName;
+
+	this->ProcessEvent(SDK::Cached::Functions::SceneComponent::SetPhysicsLinearVelocity, &params_SetPhysicsLinearVelocity);
+
+	return;
+}
+
 void SDK::UMovementComponent::StopMovementImmediately() {
 	if (!SDK::IsValidPointer(this)) return;
 
@@ -78,6 +96,20 @@ bool SDK::AActor::K2_SetActorLocation(const struct FVector& NewLocation, bool bS
 	this->ProcessEvent(SDK::Cached::Functions::Actor::K2_SetActorLocation, &params_K2_SetActorLocation);
 
 	return params_K2_SetActorLocation.return_value;
+}
+
+void SDK::AActor::SetActorEnableCollision(bool bNewActorEnableCollision) {
+	if (!SDK::IsValidPointer(this)) return;
+
+	struct {
+		bool bNewActorEnableCollision;
+	} params_SetActorEnableCollision{};
+
+	params_SetActorEnableCollision.bNewActorEnableCollision = bNewActorEnableCollision;
+
+	this->ProcessEvent(SDK::Cached::Functions::Actor::SetActorEnableCollision, &params_SetActorEnableCollision);
+
+	return;
 }
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
