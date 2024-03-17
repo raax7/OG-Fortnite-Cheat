@@ -137,6 +137,10 @@ namespace Features {
         }
     }
 
+    inline void RevertAll() {
+		AutoRevertFeatures.clear();
+	}
+
 
 
 	namespace Aimbot {

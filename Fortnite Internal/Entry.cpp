@@ -6,6 +6,7 @@
 #include "Drawing/RaaxGUI/RaaxGUI.h"
 #endif // _ENGINE
 
+#include "Game/Features/Features.h"
 #include "Game/Input/Input.h"
 #include "Game/SDK/SDK.h"
 #include "Hooks/Hooks.h"
@@ -57,6 +58,8 @@ VOID UnloadThread() {
             LI_FN(SetWindowLongPtrA).safe()(RaaxDx::Window, GWLP_WNDPROC, (LONG_PTR)Hooks::WndProc::WndProcOriginal);
             RaaxDx::Unhook();
 #endif // _IMGUI
+
+            Features::RevertAll();
 
             // Free library
             LI_FN(FreeLibraryAndExitThread).safe()(ThisModule, 0);

@@ -216,13 +216,14 @@ void Game::MenuCallback() {
 			break;
 			case 3:
 			{
-				ImGui::Checkbox(skCrypt("Enabled").decrypt(), &Config::Exploits::Vehicle::Enabled);
-
 				ImGui::Checkbox(skCrypt("Infinite Boost").decrypt(), &Config::Exploits::Vehicle::InfiniteBoost);
 				ImGui::Checkbox(skCrypt("Fly").decrypt(), &Config::Exploits::Vehicle::Fly);
-				ImGui::Checkbox(skCrypt("Fly Through Walls").decrypt(), &Config::Exploits::Vehicle::FlyThroughWalls);
-				ImGui::Checkbox(skCrypt("Freeze In Air").decrypt(), &Config::Exploits::Vehicle::FreezeInAir);
-				ImGui::SliderFloat(skCrypt("Fly Speed").decrypt(), &Config::Exploits::Vehicle::FlySpeed, 35.f, 1000.f);
+				if (Config::Exploits::Vehicle::Fly) {
+					ImGui::Checkbox(skCrypt("Fly Through Walls (also makes flying better)").decrypt(), &Config::Exploits::Vehicle::FlyThroughWalls);
+					ImGui::Checkbox(skCrypt("Freeze In Air").decrypt(), &Config::Exploits::Vehicle::FreezeInAir);
+					ImGui::Checkbox(skCrypt("No Tilting").decrypt(), &Config::Exploits::Vehicle::NoTilting);
+					ImGui::SliderFloat(skCrypt("Fly Speed").decrypt(), &Config::Exploits::Vehicle::FlySpeed, 35.f, 1000.f);
+				}
 			}
 			break;
 			case 4:

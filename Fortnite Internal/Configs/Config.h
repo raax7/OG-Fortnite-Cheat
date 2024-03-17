@@ -108,12 +108,11 @@ namespace Config {
 		}
 
 		namespace Vehicle {
-			inline bool Enabled = false;
-			
 			inline bool InfiniteBoost = false;
 			inline bool Fly = false;
 			inline bool FlyThroughWalls = false;
 			inline bool FreezeInAir = false;
+			inline bool NoTilting = false;
 			inline float FlySpeed = 35.f;
 		}
 
