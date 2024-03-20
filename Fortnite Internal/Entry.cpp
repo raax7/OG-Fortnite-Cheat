@@ -79,7 +79,7 @@ VOID Main() {
 
 #if LOG_LEVEL > LOG_NONE
     // Init logger (REPLACE WITH YOUR OWN PATH)
-    Logger::InitLogger(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log").decrypt());
+    Logger::InitLogger(std::string(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log")));
 #endif // LOG_LEVEL > LOG_NONE
 
     SDK::Init();    // Init base address, GObjects, function addresses, offsets etc

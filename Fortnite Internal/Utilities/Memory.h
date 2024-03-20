@@ -1,15 +1,17 @@
-#ifndef MEMORY_H
-#define MEMORY_H
-
-// Huge thanks to Dumper-7 for making this possible
-// Without their open source dumper I wouldn't have been able to do this
-// Pretty much all of this is pasted from Dumper-7, so make sure to star their repository
+#pragma once
 
 #include <Windows.h>
 #include <vector>
 #include <string>
 
 #include "../External-Libs/LazyImporter.h"
+
+// Huge thanks to Dumper-7 for making this possible
+// Without their open source dumper I wouldn't have been able to do this
+// Pretty much all of this is pasted from Dumper-7, so make sure to check out his amazing work
+//
+// Later down the line, I will probably recode this in my own way, but for now, it's not a very big priority
+// since this works perfectly fine
 
 namespace Memory {
 	// The worlds gayest pattern scanner. Improve later
@@ -44,12 +46,7 @@ namespace Memory {
 		return NULL;
 	}
 
-
-
-	// Everything below is from Dumper-7
-
-	inline bool IsInProcessRange(uintptr_t Address)
-	{
+	inline bool IsInProcessRange(uintptr_t Address) {
 		uintptr_t ImageBase = SDK::GetBaseAddress();
 		PIMAGE_NT_HEADERS NtHeader = reinterpret_cast<PIMAGE_NT_HEADERS>(ImageBase + reinterpret_cast<PIMAGE_DOS_HEADER>(ImageBase)->e_lfanew);
 
@@ -269,5 +266,3 @@ namespace Memory {
 		return FuncEnd % 0x10 != 0 ? FuncEnd + (0x10 - (FuncEnd % 0x10)) : FuncEnd;
 	}
 }
-
-#endif

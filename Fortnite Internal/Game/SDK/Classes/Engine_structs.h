@@ -88,12 +88,12 @@ namespace SDK {
 		// VALUES
 
 		void SetLocation(SDK::FVector NewLocation) {
-			if (!this) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(SDK::FVector*)((uintptr_t)this + SDK::Cached::Offsets::MinimalViewInfo::Location) = NewLocation;
 		}
 
 		void SetRotation(SDK::FRotator NewRotation) {
-			if (!this) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(SDK::FRotator*)((uintptr_t)this + SDK::Cached::Offsets::MinimalViewInfo::Rotation) = NewRotation;
 		}
 	};

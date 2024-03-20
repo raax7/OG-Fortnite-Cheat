@@ -7,43 +7,44 @@
 
 namespace Actors {
 	namespace Caches {
-		/* Cache for FortPaws, stores information like bone registeres, distance, visibilities, etc */
+		/* Cache for FortPawns, stores information like bone positions, distance from local pawn, visibilities etc */
 		struct FortPawnCache {
-			SDK::AFortPawn*					FortPawn = nullptr;
-			SDK::USkeletalMeshComponent*	Mesh = nullptr;
+			SDK::AFortPawn*					FortPawn = nullptr;					// FortPawn
+			SDK::USkeletalMeshComponent*	Mesh = nullptr;						// Player mesh
 
-			int								TeamIndex{};
-			SDK::FString					PlayerName;
+			int								TeamIndex = -1;						// Team index
+			SDK::FString					PlayerName = SDK::FString();		// Player name
 
-			float							DistanceFromLocal{};
-			bool							AnyBoneVisible;
-			bool							IsOnScreen;
-			bool							DidPopulate2D;
+			float							DistanceFromLocalPawn = 0.f;		// Distance from the local player (meters)
+			bool							IsAnyBoneVisible = false;			// If any bones were visible from LineTraceSingle
+			bool							IsPlayerVisibleOnScreen = false;	// If the player is on the screen
+			bool							IsBoneRegister2DPopulated = false;	// If the 2D bone register was fully populated
 
-			std::vector<SDK::FVector>		BoneRegister;
-			std::vector<SDK::FVector2D>		BoneRegister2D;
-			std::vector<bool>				BoneVisibilities;
+			std::vector<SDK::FVector>		BonePositions3D;					// Contains all bones
+			std::vector<SDK::FVector2D>		BonePositions2D;					// Contains all bones in 2D (world to screen)
+			std::vector<bool>				BoneVisibilityStates;				// Contains all bones visibilities (from LineTraceSingle)
+		};
+
+		/* Minimal Cache for FortPawns, stores position and team index */
+		struct MinimalFortPawnCache {
+			SDK::FVector Position = SDK::FVector();
+			uint8_t TeamIndex = 0;
+		};
+
+		/* Cache for the camera, stores position, rotation and FOV */
+		struct CameraCache {
+			SDK::FVector Position = SDK::FVector();
+			SDK::FRotator Rotation = SDK::FRotator();
+			float FOV = 0.f;
 		};
 	}
-
-	// Structs
-
-	struct LocalCache {
-		SDK::FVector Position;
-		uint8_t TeamIndex = UINT8_MAX;
-	};
-	struct CameraCache {
-		SDK::FVector Position;
-		SDK::FRotator Rotation;
-		float FOV = 0.f;
-	};
 
 
 
 	// Cache
 
-	inline CameraCache MainCamera;
-	inline CameraCache AimbotCamera;
+	inline Caches::CameraCache MainCamera;					// Cache for the main camera
+	inline Caches::CameraCache AimbotCamera;				// Cache for the aimbot camera (used for silent aim)
 
-	inline LocalCache LocalPawnCache;
+	inline Caches::MinimalFortPawnCache LocalPawnCache;		// Cache for the local pawn (position, team index)
 }

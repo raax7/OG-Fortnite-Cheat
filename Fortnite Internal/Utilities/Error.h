@@ -14,7 +14,7 @@ private:
             return "";
         }
 
-        size_t LastSlash = std::string(FilePath).find_last_of(skCrypt("/\\").decrypt());
+        size_t LastSlash = std::string(FilePath).find_last_of(skCrypt("/\\"));
         return (LastSlash != std::string::npos) ?
             std::string(FilePath).substr(LastSlash + 1) :
             std::string(FilePath);
@@ -29,18 +29,18 @@ public:
         std::string FileName = GetFileName(FilePath);
 
         if (!FileName.empty()) {
-            ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n").decrypt() + FileName + skCrypt(":").decrypt() + std::to_string(Line) + skCrypt("\n\n").decrypt();
+            ErrorMessageInfo = Close ? std::string(skCrypt("A fatal error has occurred!\n")) : std::string(skCrypt("An error has occurred!\n")) + FileName + std::string(skCrypt(":")) + std::to_string(Line) + std::string(skCrypt("\n\n"));
         }
         else {
-            ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
+            ErrorMessageInfo = Close ? std::string(skCrypt("A fatal error has occurred!\n\n")) : std::string(skCrypt("An error has occurred!\n\n"));
         }
 #else
-        ErrorMessageInfo = Close ? skCrypt("A fatal error has occurred!\n").decrypt() : skCrypt("An error has occurred!\n\n").decrypt();
+        ErrorMessageInfo = Close ? std::string(skCrypt("A fatal error has occurred!\n")) : std::string(skCrypt("An error has occurred!\n\n"));
 #endif
 
         ErrorMessage = ErrorMessageInfo + Message;
 
-        LI_FN(MessageBoxA).safe()(NULL, ErrorMessage.c_str(), skCrypt("Error!").decrypt(), MB_ICONERROR);
+        LI_FN(MessageBoxA).safe()(NULL, ErrorMessage.c_str(), Close ? skCrypt("Fatal Error! (closing)") : skCrypt("Error!"), MB_ICONERROR);
 #endif
         ErrorMessage.clear();
         ErrorMessageInfo.clear();

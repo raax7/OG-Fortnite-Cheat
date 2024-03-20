@@ -123,6 +123,7 @@ void RaaxGUIInput::Tick() {
 			}
 		}
 		else {
+			if (ClickedWindow) ClickedWindow->OnClickTick(MousePosition);
 			if (DraggingWindow) ProcessDraggingWindow();
 			if (ResizingWindow) ProcessResizingWindow();
 		}
@@ -131,5 +132,9 @@ void RaaxGUIInput::Tick() {
 		if (DraggingWindow) ClearDraggingWindow();
 		if (ResizingWindow) ClearResizingWindow();
 		if (ClickedWindow) ClickedWindow->OnClickEnd();
+	}
+
+	if (Input::IsKeyDown(Input::KeyName::MouseX) || Input::IsKeyDown(Input::KeyName::MouseY)) {
+
 	}
 }

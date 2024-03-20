@@ -55,12 +55,12 @@ namespace SDK {
 	{
 	public:
 		static TUObjectArray						 ObjectArray;
-		void** Vft;                                               // (0x00[0x08]) NOT AUTO-GENERATED PROPERTY
+		void**										 Vft;                                               // (0x00[0x08]) NOT AUTO-GENERATED PROPERTY
 		int32                                        Flags;                                             // (0x08[0x04]) NOT AUTO-GENERATED PROPERTY
 		int32                                        Index;                                             // (0x0C[0x04]) NOT AUTO-GENERATED PROPERTY
-		class UClass* Class;                                             // (0x10[0x08]) NOT AUTO-GENERATED PROPERTY
+		class UClass*								 Class;                                             // (0x10[0x08]) NOT AUTO-GENERATED PROPERTY
 		class FName                                  Name;                                              // (0x18[0x08]) NOT AUTO-GENERATED PROPERTY
-		class UObject* Outer;                                             // (0x20[0x08]) NOT AUTO-GENERATED PROPERTY
+		class UObject*								 Outer;                                             // (0x20[0x08]) NOT AUTO-GENERATED PROPERTY
 
 		void ProcessEvent(void* fn, void* parms);
 

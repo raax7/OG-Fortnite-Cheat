@@ -99,9 +99,7 @@ void Features::Aimbot::Target::TargetTick(bool SeenTargetThisFrame) {
 	}
 }
 bool Features::Aimbot::Target::ShouldSetTarget(Target PotentialTarget) {
-	// Long reason to why we have to do this goofy method, but it's pretty much because the player camera isn't first person
-	// and our calculate rotation angles function doesn't take that into account.
-	// So we have to do this goofy method to simulate the distance from the crosshair in degrees. It's not perfect, but it's good enough and not noticeable.
+	// We have to do this goofy method to simulate the distance from the crosshair in degrees. It's not perfect, but it's good enough and not noticeable.
 
 	// Update the info so that we use the correct FOV size for verifying if we should update the target
 	UpdateLocalInfoAndType(PotentialTarget);
@@ -176,7 +174,7 @@ void Features::Aimbot::Target::SetTarget(Target NewTarget, bool ForceSetTarget) 
 	}
 }
 
-void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& MainCamera, const Actors::CameraCache& AimbotCamera, const float FPSScale) {
+void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::Caches::CameraCache& MainCamera, const Actors::Caches::CameraCache& AimbotCamera, const float FPSScale) {
 	// Update global information
 	Target.GlobalInfo.TargetActor = TargetCache.FortPawn;
 	Target.GlobalInfo.TargetBoneId = Features::FortPawnHelper::Bone::FindBestBone(Features::FortPawnHelper::Bone::Head, TargetCache);
@@ -185,24 +183,26 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 	Target.GlobalInfo.Type = (Target.LocalInfo.DistanceFromPlayer <= Config::Aimbot::CloseAim::Range && Config::Aimbot::CloseAim::Enabled) ? Target::TargetType::ClosePlayer : Target::TargetType::FarPlayer;
 
 	// Update positions
-	Target.GlobalInfo.TargetActorPosition = TargetCache.BoneRegister[Features::FortPawnHelper::Bone::Root];
-	Target.GlobalInfo.TargetActorPosition2D = TargetCache.BoneRegister2D[Features::FortPawnHelper::Bone::Root];
-	Target.GlobalInfo.TargetBonePosition = TargetCache.BoneRegister[Target.GlobalInfo.TargetBoneId];
-	Target.GlobalInfo.TargetBonePosition2D = TargetCache.BoneRegister2D[Target.GlobalInfo.TargetBoneId];
+	Target.GlobalInfo.TargetActorPosition = TargetCache.BonePositions3D[Features::FortPawnHelper::Bone::Root];
+	Target.GlobalInfo.TargetActorPosition2D = TargetCache.BonePositions2D[Features::FortPawnHelper::Bone::Root];
+	Target.GlobalInfo.TargetBonePosition = TargetCache.BonePositions3D[Target.GlobalInfo.TargetBoneId];
+	Target.GlobalInfo.TargetBonePosition2D = TargetCache.BonePositions2D[Target.GlobalInfo.TargetBoneId];
 
 	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetBonePosition);
 
 	// Update local information
 	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
 	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetBonePosition2D.X, Target.GlobalInfo.TargetBonePosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
-	Target.LocalInfo.DistanceFromPlayer = TargetCache.DistanceFromLocal;
+	Target.LocalInfo.DistanceFromPlayer = TargetCache.DistanceFromLocalPawn;
 	Target.LocalInfo.SmartTargetingDistance = (Target.LocalInfo.DistanceFromCrosshairDegrees * 20) + Target.LocalInfo.DistanceFromPlayer;
-	Target.LocalInfo.IsOnScreen = TargetCache.IsOnScreen;
+	Target.LocalInfo.IsOnScreen = TargetCache.IsPlayerVisibleOnScreen;
 
 	// Apply FPS scaling for smoothing
 	if (FPSScale) {
+		UpdateLocalInfoAndType(Target);
+
 		float AimbotSpeed;
-		if (Target.LocalInfo.CurrentSmoothing <= 1) {
+		if (Target.LocalInfo.CurrentSmoothing <= 1.f) {
 			AimbotSpeed = Target.LocalInfo.CurrentSmoothing;
 		}
 		else {
@@ -223,7 +223,7 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 	}
 }
 
-void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::CameraCache& MainCamera, const Actors::CameraCache& AimbotCamera, const float FPSScale) {
+void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::Caches::CameraCache& MainCamera, const Actors::Caches::CameraCache& AimbotCamera, const float FPSScale) {
 	// Update global information
 	Target.GlobalInfo.TargetActor = WeakSpot;
 
@@ -239,7 +239,7 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 	Target.GlobalInfo.TargetBonePosition = RootComponentPosition;
 	Target.GlobalInfo.TargetBonePosition2D = RootComponentPosition2D;
 
-	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetBonePosition);
+	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetActorPosition);
 
 	// Update local information
 	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
@@ -250,6 +250,8 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 
 	// Apply FPS scaling for smoothing
 	if (FPSScale) {
+		UpdateLocalInfoAndType(Target);
+
 		float AimbotSpeed;
 		if (Target.LocalInfo.CurrentSmoothing <= 1) {
 			AimbotSpeed = Target.LocalInfo.CurrentSmoothing;

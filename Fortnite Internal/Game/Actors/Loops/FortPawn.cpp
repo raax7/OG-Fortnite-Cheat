@@ -10,14 +10,11 @@
 #include "../../Features/FortPawnHelper/Bone.h"
 #include "../../Features/FortPawnHelper/FortPawnHelper.h"
 #include "../../Features/Aimbot/Aimbot.h"
-#include "../../Features/Exploits/Vehicles.h"
-#include "../../Features/Exploits/Weapons.h"
+#include "../../Features/Exploits/Vehicle.h"
+#include "../../Features/Exploits/Weapon.h"
 
 #include "../../../Utilities/Math.h"
-
-#include "../../SDK/SDKInitializer.h"
 #include "../../../Utilities/Logger.h"
-#include "../../Input/Input.h"
 
 void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
@@ -36,12 +33,13 @@ void Actors::FortPawn::Tick() {
 		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (!Character) continue;
 		CurrentPlayer.Mesh									= Character->Mesh();									if (!CurrentPlayer.Mesh) continue;
 
+		// LocalPawn caching and exploit ticks
 		if (FortPawn == SDK::GetLocalPawn()) {
 			LocalPawnCache.Position = CurrentPlayer.Mesh->GetBonePosition(Features::FortPawnHelper::Bone::Head);
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
 			Features::Exploits::Vehicle::Tick();
-			Features::Exploits::Weapons::Tick(FortPawn->CurrentWeapon());
+			Features::Exploits::Weapon::Tick(FortPawn->CurrentWeapon());
 
 			if (SDK::GetLocalController()) {
 				if (Config::Exploits::Player::InfiniteBuilds) {
@@ -63,37 +61,40 @@ void Actors::FortPawn::Tick() {
 			continue;
 		}
 
+		// Player state validation
 		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
 		if (CurrentPlayer.FortPawn->IsDying()) continue;
 
-		CurrentPlayer.DidPopulate2D = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
+		// Bone positions and visibility caching
+		// If this returns false, the player isn't on the screen and only 5 of the bones were WorldToScreen'd
+		CurrentPlayer.IsBoneRegister2DPopulated = Features::FortPawnHelper::PopulateBones(CurrentPlayer);
 		Features::FortPawnHelper::PopulateVisibilities(CurrentPlayer);
 
-		CurrentPlayer.IsOnScreen = false;
+		//
+		CurrentPlayer.IsPlayerVisibleOnScreen = false;
+		for (int i = 0; i < CurrentPlayer.BonePositions2D.size(); i++) {
+			if (CurrentPlayer.BonePositions2D[i] == SDK::FVector2D()) continue;
 
-		for (int i = 0; i < CurrentPlayer.BoneRegister2D.size(); i++) {
-			if (CurrentPlayer.BoneRegister2D[i] == 0 && CurrentPlayer.BoneRegister2D[i] == 0) continue;
-
-			if (Math::IsOnScreen(CurrentPlayer.BoneRegister2D[i])) {
-				CurrentPlayer.IsOnScreen = true;
+			if (Math::IsOnScreen(CurrentPlayer.BonePositions2D[i])) {
+				CurrentPlayer.IsPlayerVisibleOnScreen = true;
 			}
 		}
 		
-		CurrentPlayer.DistanceFromLocal = LocalPawnCache.Position.Distance(CurrentPlayer.BoneRegister[Features::FortPawnHelper::Bone::Root]) / 100.f;
+		CurrentPlayer.DistanceFromLocalPawn = LocalPawnCache.Position.Distance(CurrentPlayer.BonePositions3D[Features::FortPawnHelper::Bone::Root]) / 100.f;
 
 		// Hardcoded max distance, should move to bone population for optimisation
-		if (CurrentPlayer.DistanceFromLocal > 500.f) continue;
+		if (CurrentPlayer.DistanceFromLocalPawn > 500.f) continue;
 
 		// Update any bone visibility
-		CurrentPlayer.AnyBoneVisible = false;
-		for (int i = 0; i < CurrentPlayer.BoneVisibilities.size(); i++) {
-			if (CurrentPlayer.BoneVisibilities[i]) {
-				CurrentPlayer.AnyBoneVisible = true;
+		CurrentPlayer.IsAnyBoneVisible = false;
+		for (int i = 0; i < CurrentPlayer.BoneVisibilityStates.size(); i++) {
+			if (CurrentPlayer.BoneVisibilityStates[i]) {
+				CurrentPlayer.IsAnyBoneVisible = true;
 				break;
 			}
 		}
 
-		if (CurrentPlayer.DidPopulate2D) {
+		if (CurrentPlayer.IsBoneRegister2DPopulated) {
 			//if (FortPawn == Objects::target.Actor) {
 			//	Colour = SDK::FLinearColor(0.9f, 0.5f, 0.1f, 1.f);
 			//}
@@ -103,11 +104,11 @@ void Actors::FortPawn::Tick() {
 			float Left		= FLT_MAX;
 			float Right		= FLT_MIN;
 
-			for (int i2 = 0; i2 < CurrentPlayer.BoneRegister2D.size(); i2++) {
+			for (int i2 = 0; i2 < CurrentPlayer.BonePositions2D.size(); i2++) {
 				if (i2 == Features::FortPawnHelper::Bone::None) continue;
 
-				if (CurrentPlayer.BoneRegister2D[i2].X && CurrentPlayer.BoneRegister2D[i2].Y) {
-					SDK::FVector2D BonePos = CurrentPlayer.BoneRegister2D[i2];
+				if (CurrentPlayer.BonePositions2D[i2].X && CurrentPlayer.BonePositions2D[i2].Y) {
+					SDK::FVector2D BonePos = CurrentPlayer.BonePositions2D[i2];
 
 					if (!(BonePos.X > 0) && !(BonePos.X < Game::ScreenWidth)) continue;
 					if (!(BonePos.Y > 0) && !(BonePos.Y < Game::ScreenHeight)) continue;
@@ -133,9 +134,9 @@ void Actors::FortPawn::Tick() {
 			float MaxDistance = 150.0f;
 			float MinFontSize = 10.0f;
 			float MaxFontSize = 20.0f;
-			float FontSize = MaxFontSize - (MaxFontSize - MinFontSize) * (CurrentPlayer.DistanceFromLocal / MaxDistance);
+			float FontSize = MaxFontSize - (MaxFontSize - MinFontSize) * (CurrentPlayer.DistanceFromLocalPawn / MaxDistance);
 			FontSize = (FontSize < MinFontSize) ? MinFontSize : ((FontSize > MaxFontSize) ? MaxFontSize : FontSize);
-
+			
 			bool BoneVisible = false;
 
 			for (const auto& Pair : Features::FortPawnHelper::Bone::SkeletonBonePairs) {
@@ -153,9 +154,9 @@ void Actors::FortPawn::Tick() {
 						break;
 					}
 
-					ScreenPos[i] = CurrentPlayer.BoneRegister2D[BoneID];
+					ScreenPos[i] = CurrentPlayer.BonePositions2D[BoneID];
 
-					if (CurrentPlayer.BoneVisibilities[BoneID]) {
+					if (CurrentPlayer.BoneVisibilityStates[BoneID]) {
 						BoneVisibleToPlayer = true;
 					}
 
@@ -184,14 +185,14 @@ void Actors::FortPawn::Tick() {
 			}
 
 			SDK::FLinearColor Colour = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
-			if (CurrentPlayer.AnyBoneVisible) {
+			if (CurrentPlayer.IsAnyBoneVisible) {
 				Colour = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
 			}
 
 			if (BoneVisible){
 				if (Config::Visuals::Players::Enabled) {
 					if (Config::Visuals::Players::Box) {
-						if (CurrentPlayer.DistanceFromLocal > 50) {
+						if (CurrentPlayer.DistanceFromLocalPawn > 50) {
 							Drawing::CorneredRect(SDK::FVector2D(bottomLeft.X, topRight.Y), SDK::FVector2D((topRight.X - bottomLeft.X), (bottomLeft.Y - topRight.Y)), 1, Colour, false);
 						}
 						else {
@@ -210,8 +211,8 @@ void Actors::FortPawn::Tick() {
 		}
 
 		// Aimbot
-		if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
-			if (CurrentPlayer.AnyBoneVisible && (!MainTarget.LocalInfo.IsTargeting || !MainTarget.GlobalInfo.TargetActor)) {
+		if (Config::Aimbot::Enabled && SDK::GetLocalPawn()) {
+			if (CurrentPlayer.IsAnyBoneVisible && (!MainTarget.LocalInfo.IsTargeting || !MainTarget.GlobalInfo.TargetActor)) {
 				Features::Aimbot::Target PotentialNewTarget{};
 
 				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer, MainCamera, AimbotCamera);
@@ -219,7 +220,7 @@ void Actors::FortPawn::Tick() {
 			}
 
 			if (MainTarget.GlobalInfo.TargetActor == FortPawn) {
-				if (CurrentPlayer.AnyBoneVisible == false) {
+				if (CurrentPlayer.IsAnyBoneVisible == false) {
 					MainTarget.ResetTarget();
 				}
 				else {

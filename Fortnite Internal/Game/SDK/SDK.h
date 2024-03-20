@@ -186,6 +186,7 @@ namespace SDK {
 				inline void* K2_DrawText;
 				inline void* K2_TextSize;
 				inline void* K2_Project;
+				inline void* K2_DrawBox;
 			}
 
 			namespace KismetSystemLibrary {

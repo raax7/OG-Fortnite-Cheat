@@ -7,9 +7,8 @@
 #include <mutex>
 
 /* A wrapper for drawing functions */
-class Drawing {
+namespace Drawing {
 #ifdef _IMGUI
-private:
 	/* Cache lines for ImGui processing */
 	struct LineCache {
 		SDK::FVector2D ScreenPositionA;
@@ -67,19 +66,16 @@ private:
 
 
 
-	static std::vector<LineCache> RenderBufferLine, UpdateBufferLine;
-	static std::vector<TextCache> RenderBufferText, UpdateBufferText;
-	static std::vector<CircleCache> RenderBufferCircle, UpdateBufferCircle;
-	static std::vector<FilledRectCache> RenderBufferFilledRect, UpdateBufferFilledRect;
-	static std::vector<RectCache> RenderBufferRect, UpdateBufferRect;
-	static std::vector<CorneredRectCache> RenderBufferCorneredRect, UpdateBufferCorneredRect;
-
-	static std::mutex SwapMutex; // Used for swapping buffers safely
+	inline std::vector<LineCache> RenderBufferLine, UpdateBufferLine;
+	inline std::vector<TextCache> RenderBufferText, UpdateBufferText;
+	inline std::vector<CircleCache> RenderBufferCircle, UpdateBufferCircle;
+	inline std::vector<FilledRectCache> RenderBufferFilledRect, UpdateBufferFilledRect;
+	inline std::vector<RectCache> RenderBufferRect, UpdateBufferRect;
+	inline std::vector<CorneredRectCache> RenderBufferCorneredRect, UpdateBufferCorneredRect;
 #endif
-public:
+
 #ifdef _IMGUI
-	static void SwapBuffers() {
-		std::lock_guard<std::mutex> lock(SwapMutex);
+	inline void SwapBuffers() {
 		std::swap(RenderBufferLine, UpdateBufferLine);
 		std::swap(RenderBufferText, UpdateBufferText);
 		std::swap(RenderBufferCircle, UpdateBufferCircle);
@@ -96,7 +92,7 @@ public:
 	}
 
 	/* Render the queued data for drawing */
-	static void RenderQueuedDrawingInfo();
+	void RenderQueuedDrawingInfo();
 #endif
 
 	/*
@@ -108,7 +104,7 @@ public:
 	* @param RenderColor - The color of the line
 	* @param Outlined - Whether or not the line should be outlined
 	*/
-	static void Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	void Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Overloaded function for drawing text on the screen (char*)
@@ -121,7 +117,7 @@ public:
 	* @param CenteredY - Whether or not the text should be centered on the Y axis
 	* @param Outlined - Whether or not the text should be outlined
 	*/
-	static void Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined);
+	void Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined);
 
 	/*
 	* @brief Overloaded function for drawing text on the screen (wchar_t*)
@@ -134,25 +130,33 @@ public:
 	* @param CenteredY - Whether or not the text should be centered on the Y axis
 	* @param Outlined - Whether or not the text should be outlined
 	*/
-	static void Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined);
+	void Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined);
 	
 	/*
-	* @brief Gets the estimated size of text drawn on the screen
+	* @brief Gets the estimated size of text drawn on the screen (char*)
+	*
+	* @param RenderText - The text to get the size of
+	* @param FontSize - The size of the text
+	*/
+	SDK::FVector2D TextSize(const char* RenderText, float FontSize);
+
+	/*
+	* @brief Gets the estimated size of text drawn on the screen (wchar_t*)
 	* 
 	* @param RenderText - The text to get the size of
 	* @param FontSize - The size of the text
 	*/
-	static SDK::FVector2D TextSize(const wchar_t* RenderText, float FontSize);
+	SDK::FVector2D TextSize(const wchar_t* RenderText, float FontSize);
 
 	/*
-	* @brief Draws a circle on the screen
+	* @brief Draws a circle on the screen (wchar_t*)
 	* 
 	* @param ScreenPosition - The position of the circle
 	* @param Radius - The radius of the circle
 	* @param Segments - The amount of segments the circle should have
 	* @param RenderColor - The color of the circle
 	*/
-	static void Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined);
+	void Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Draws a filled rectangle on the screen
@@ -161,7 +165,7 @@ public:
 	* @param ScreenSize - The size of the rectangle
 	* @param RenderColor - The color of the rectangle
 	*/
-	static void FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined);
+	void FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Draws a hollow rectangle on the screen
@@ -172,7 +176,7 @@ public:
 	* @param RenderColor - The color of the rectangle
 	* @param Outlined - Whether or not the rectangle should be outlined
 	*/
-	static void Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	void Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Draws a cornered rectangle on the screen
@@ -182,5 +186,5 @@ public:
 	* @param Thickness - The thickness of the rectangle
 	* @param RenderColor - The color of the rectangle
 	*/
-	static void CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	void CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 };

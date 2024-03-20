@@ -30,7 +30,7 @@ void Actors::BuildingWeakSpot::Tick() {
 				if ((MainTarget.LocalInfo.IsTargeting == false || MainTarget.GlobalInfo.TargetActor == nullptr)) {
 					Features::Aimbot::Target PotentialNewTarget{};
 
-					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot, AimbotCamera);
+					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot, MainCamera, AimbotCamera);
 					MainTarget.SetTarget(PotentialNewTarget);
 				}
 

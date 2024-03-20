@@ -3,11 +3,12 @@
 #include "../SDK/Classes/FortniteGame_Classes.h"
 
 #include "../Features/Aimbot/Target.h"
+#include "../Features/FortPawnHelper/Bone.h"
+
 #include "../../Drawing/Drawing.h"
 #include "../../Configs/Config.h"
+
 #include "../Game.h"
-#include "../../Utilities/Math.h"
-#include "../../Utilities/Logger.h"
 
 void Actors::Tick() {
 	// Update FPS scale
@@ -71,7 +72,7 @@ void Actors::Draw() {
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowAimLine && Config::Aimbot::Enabled) {
 				if (MainTarget.GlobalInfo.TargetActor) {
-					// If the target is behind us, we need to flip the aim line (K2_Project is weird with things behind us)
+					// If the target is behind us, we need to flip the aim line to make it look correct (K2_Project is weird with things behind us)
 					SDK::FVector AimLineEnd = SDK::Project3D(MainTarget.GlobalInfo.TargetBonePosition);
 					if (AimLineEnd.Z <= 0.f) {
 						AimLineEnd.Y *= -1;
@@ -96,14 +97,16 @@ void Actors::Draw() {
 	{
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowFOV && Config::Aimbot::Enabled) {
-				if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::ClosePlayer) {
-					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::CloseAim::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
-				}
-				else if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Weakspot::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
-				}
-				else {
-					Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::Standard::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+				switch (MainTarget.GlobalInfo.Type) {
+				case Features::Aimbot::Target::TargetType::ClosePlayer:
+					Drawing::Circle(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), Config::Aimbot::CloseAim::FOV * Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+					break;
+				case Features::Aimbot::Target::TargetType::Weakspot:
+					Drawing::Circle(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), Config::Aimbot::Weakspot::FOV * Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+					break;
+				default:
+					Drawing::Circle(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), Config::Aimbot::Standard::FOV * Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+					break;
 				}
 			}
 
@@ -137,9 +140,9 @@ void Actors::UpdateCaches() {
 					FortPawnCache.TeamIndex = static_cast<SDK::AFortPlayerState*>(PlayerState)->TeamIndex();
 				}
 
-				FortPawnCache.BoneRegister.resize(100);
-				FortPawnCache.BoneRegister2D.resize(100);
-				FortPawnCache.BoneVisibilities.resize(100);
+				FortPawnCache.BonePositions3D.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
+				FortPawnCache.BonePositions2D.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
+				FortPawnCache.BoneVisibilityStates.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
 
 				TempCache.push_back(FortPawnCache);
 			}

@@ -1,5 +1,4 @@
 #pragma once
-#include <Windows.h>
 #include "ConfigTypes.h"
 
 extern enum class KeyName;
@@ -15,7 +14,7 @@ namespace Config {
 	namespace Aimbot {
 		inline bool Enabled = true;
 
-		inline KeyName AimKey;
+		inline KeyName AimKey = (KeyName)7;
 
 		inline bool SilentAim = false;
 		inline bool UseAimKeyForSilent = false;
@@ -45,7 +44,7 @@ namespace Config {
 		namespace CloseAim {
 			inline bool Enabled = true;
 			inline int FOV = 30;
-			inline float Smoothing = 4.f;
+			inline float Smoothing = 5.f;
 			inline int Range = 15;
 		}
 

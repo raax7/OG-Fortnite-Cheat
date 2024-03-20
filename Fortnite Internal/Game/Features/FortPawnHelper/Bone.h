@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+
 #include "../../SDK/Classes/Basic.h"
 
 #include "../../Actors/ActorCache.h"
@@ -7,10 +8,9 @@
 namespace Features {
     namespace FortPawnHelper {
         /* Stores the BoneID enum and is used in aimbot to calculate target bone */
-        class Bone {
-        public:
+        namespace Bone {
             /* Represents the bone names of a FortPawn */
-            static struct BoneNames {
+            struct BoneNames {
                 SDK::FName Head;
                 SDK::FName Neck;
 
@@ -38,7 +38,7 @@ namespace Features {
             };
 
             /* The bone names of a FortPawn */
-            static BoneNames Names;
+            inline BoneNames Names;
 
             /* Represents the bone IDs of a FortPawn (THE ORDER OF THE ENUM AFFECTS VARIOUS FUNCTIONS, AVOID CHANGING ORDER) */
             enum BoneID_ : uint8_t {
@@ -70,19 +70,47 @@ namespace Features {
 
                 Pelvis = 19,	    // "pelvis"
 
-                MAX = 20,           // Max value for looping
+                BONEID_MAX = 20,           // Max value for looping
 
                 None = 0,		    // "None"
             };
             /* Intermediary type for BoneID */
             typedef uint8_t BoneID;
-        private:
+
             /* The order of the bone hierarchy, used to determine which bone to aim at based on the visibilities of the bones */
-            static const std::vector<std::pair<Bone::BoneID, Bone::BoneID>> BoneHierarchyOrder;
-        public:
+            inline const std::vector<std::pair<Bone::BoneID, Bone::BoneID>> BoneHierarchyOrder{
+                {Head,          Head},
+                {Neck,          Neck},
+                {Chest,         Chest},
+                {LeftShoulder,  RightShoulder},
+                {LeftElbow,     RightElbow},
+                {LeftHand,      RightHand},
+                {LeftLeg,       RightLeg},
+                {LeftKnee,      RightKnee},
+                {LeftFoot,      RightFoot},
+                {Pelvis,        Pelvis}
+            };
+
             /* The pairs of bones that are connected to each other in the player skeleton */
-            static const std::vector<std::pair<Bone::BoneID, Bone::BoneID>> SkeletonBonePairs;
-        public:
+            inline const inline std::vector<std::pair<BoneID, BoneID>> SkeletonBonePairs = {
+                {Head,            Chest},
+                {Chest,           LeftShoulder},
+                {Chest,           RightShoulder},
+                {LeftShoulder,    LeftElbow},
+                {RightShoulder,   RightElbow},
+                {LeftElbow,       LeftHand},
+                {RightElbow,      RightHand},
+                {Pelvis,          LeftLeg},
+                {Pelvis,          RightLeg},
+                {LeftLeg,         LeftKnee},
+                {RightLeg,        RightKnee},
+                {LeftKnee,        LeftFoot},
+                {RightKnee,       RightFoot},
+                {Chest,           Pelvis},
+            };
+
+
+
             /*
             * @brief Choose the closest bone to crosshair between 2 bones
             *
@@ -91,7 +119,7 @@ namespace Features {
             * @param BoneID1 - The ID of the first bone
             * @param BoneID2 - The ID of the second bone
             */
-            static BoneID FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2);
+            BoneID FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2);
 
             /*
             * @brief Find the best bone to aim at based on the bone hierarchy and visibilities
@@ -99,7 +127,7 @@ namespace Features {
             * @param TargetBone - The optimal bone to aim at
             * @param FortPawnCache - The pawn cache of the target
             */
-            static BoneID FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache);
+            BoneID FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache);
 
             /*
             * @brief Get a cached bone FName from BoneID
@@ -108,10 +136,10 @@ namespace Features {
             *
             * @return The FName of the bone
             */
-            static SDK::FName GetBoneName(BoneID BoneID);
+            SDK::FName GetBoneName(BoneID BoneID);
 
             /* Initiate bone FNames for GetSocketLocation */
-            static void Init();
+            void Init();
         };
     }
 }

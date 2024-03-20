@@ -29,10 +29,10 @@ RaaxDx::Status RaaxDx::Init() {
 	// Detect DX Version
 	HMODULE DXModule = NULL;
 
-	if (DXModule = LI_FN(GetModuleHandleA).safe()(skCrypt("d3d11.dll").decrypt()); DXModule != NULL) {
+	if (DXModule = LI_FN(GetModuleHandleA).safe()(skCrypt("d3d11.dll")); DXModule != NULL) {
 		DXVersion = 11;
 	}
-	else if (DXModule = LI_FN(GetModuleHandleA).safe()(skCrypt("d3d12.dll").decrypt()); DXModule != NULL) {
+	else if (DXModule = LI_FN(GetModuleHandleA).safe()(skCrypt("d3d12.dll")); DXModule != NULL) {
 		DXVersion = 12;
 	}
 	else {
@@ -40,7 +40,7 @@ RaaxDx::Status RaaxDx::Init() {
 	}
 
 	if (DXVersion == 11) {
-		void* D3D11CreateDeviceAndSwapChain = LI_FN(GetProcAddress).safe()(DXModule, skCrypt("D3D11CreateDeviceAndSwapChain").decrypt());
+		void* D3D11CreateDeviceAndSwapChain = LI_FN(GetProcAddress).safe()(DXModule, skCrypt("D3D11CreateDeviceAndSwapChain"));
 		if (D3D11CreateDeviceAndSwapChain == NULL) {
 			return Status::DxFunctionNotFound;
 		}
@@ -127,7 +127,7 @@ RaaxDx::Status RaaxDx::Hook() {
 	}
 
 	// If not initalized, throw error
-	THROW_ERROR(skCrypt("RaaxDx not initalized").decrypt(), false);
+	THROW_ERROR(std::string(skCrypt("RaaxDx not initalized")), false);
 }
 void RaaxDx::Unhook() {
 	// Init MinHook
@@ -147,13 +147,13 @@ void RaaxDx::Unhook() {
 		delete VFT;
 		VFT = nullptr;
 
-		DEBUG_LOG(LOG_INFO, skCrypt("Unhooked").decrypt());
+		DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked")));
 
 		return;
 	}
 
 	// If not initalized, throw error
-	THROW_ERROR(skCrypt("RaaxDx not initalized").decrypt(), false);
+	THROW_ERROR(std::string(skCrypt("RaaxDx not initalized")), false);
 }
 
 void RaaxDx::InitImGui(IDXGISwapChain* Swapchain) {

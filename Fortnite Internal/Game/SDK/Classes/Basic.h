@@ -1,6 +1,7 @@
 #pragma once
-#include <Windows.h>
 #include <string>
+
+#include "../../../Globals.h"
 
 #include "../SDK.h"
 
@@ -145,12 +146,18 @@ namespace SDK {
 	{
 	public:
 		FName()
-			: ComparisonIndex(0), Number(0)
+			: ComparisonIndex(0)
+#if SEASON_20_PLUS == false
+			, Number(0)
+#endif
 		{
 		}
 
 		FName(const wchar_t* Name)
-			: ComparisonIndex(0), Number(0)
+			: ComparisonIndex(0)
+#if SEASON_20_PLUS == false
+			, Number(0)
+#endif
 		{
 			if (this == nullptr || SDK::Cached::Functions::FNameConstructor == 0x0) return;
 
@@ -167,7 +174,9 @@ namespace SDK {
 	public:
 		// Members of FName - depending on configuration [WITH_CASE_PRESERVING_NAME | FNAME_OUTLINE_NUMBER]
 		int32 ComparisonIndex;
+#if SEASON_20_PLUS == false
 		int32 Number;
+#endif
 
 
 		// GetDisplayIndex - returns the Id of the string depending on the configuration [default: ComparisonIndex, WITH_CASE_PRESERVING_NAME: DisplayIndex]
@@ -179,7 +188,7 @@ namespace SDK {
 		// GetRawString - returns an unedited string as the engine uses it
 		inline std::string GetRawString() const
 		{
-			if (this == nullptr || SDK::Cached::Functions::AppendString == 0x0) return skCrypt("").decrypt();
+			if (this == nullptr || SDK::Cached::Functions::AppendString == 0x0) return "";
 
 			thread_local FString TempString(1024);
 
@@ -212,12 +221,20 @@ namespace SDK {
 
 		inline bool operator==(const FName& Other) const
 		{
+#if SEASON_20_PLUS
+			return ComparisonIndex == Other.ComparisonIndex;
+#else
 			return ComparisonIndex == Other.ComparisonIndex && Number == Other.Number;
+#endif
 		}
 
 		inline bool operator!=(const FName& Other) const
 		{
+#if SEASON_20_PLUS
+			return ComparisonIndex != Other.ComparisonIndex;
+#else
 			return ComparisonIndex != Other.ComparisonIndex || Number != Other.Number;
+#endif
 		}
 	};
 
@@ -375,16 +392,25 @@ namespace SDK {
 	struct FMatrix
 	{
 	public:
+#if SEASON_20_PLUS
+		double M[4][4];
+#else
 		float M[4][4];
+#endif
 	};
 
 	struct FVector
 	{
 	public:
-		float                                        X;                                                 // 0x0(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Y;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Z;                                                 // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-
+#if SEASON_20_PLUS
+		double X;
+		double Y;
+		double Z;
+#else
+		float X;
+		float Y;
+		float Z;
+#endif
 		inline FVector()
 			: X(0.0), Y(0.0), Z(0.0)
 		{
@@ -474,18 +500,31 @@ namespace SDK {
 	struct FQuat
 	{
 	public:
-		float                                        X;                                                 // 0x0(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Y;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Z;                                                 // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        W;                                                 // 0xC(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+#if SEASON_20_PLUS
+		double X;
+		double Y;
+		double Z;
+		double W;
+#else
+		float X;
+		float Y;
+		float Z;
+		float W;
+#endif
 	};
 
 	struct FRotator
 	{
 	public:
-		float                                        Pitch;                                              // 0x0(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Yaw;                                                // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Roll;                                               // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+#if SEASON_20_PLUS
+		double Pitch;
+		double Yaw;
+		double Roll;
+#else
+		float Pitch;
+		float Yaw;
+		float Roll;
+#endif
 
 		inline FRotator()
 			: Pitch(0.0), Yaw(0.0), Roll(0.0)
@@ -560,8 +599,13 @@ namespace SDK {
 	struct FVector2D
 	{
 	public:
-		float                                        X;                                                 // 0x0(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Y;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+#if SEASON_20_PLUS
+		double X;
+		double Y;
+#else
+		float X;
+		float Y;
+#endif
 
 		inline FVector2D()
 			: X(0.0), Y(0.0)
@@ -613,6 +657,8 @@ namespace SDK {
 			return float(sqrt(pow(v.X - X, 2.0) + pow(v.Y - Y, 2.0)));
 		}
 	};
+
+
 
 	struct FLinearColor
 	{

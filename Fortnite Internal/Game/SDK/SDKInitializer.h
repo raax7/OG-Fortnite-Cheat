@@ -31,7 +31,7 @@ private:
 			++Position;
 		}
 
-		THROW_ERROR(skCrypt("Failed to extract first wildcard!").decrypt(), true);
+		THROW_ERROR(std::string(skCrypt("Failed to extract first wildcard!")), true);
 		return 0;
 	}
 
@@ -119,37 +119,37 @@ public:
 	// CREDITS TO: Dumper-7
 	static uint32 FindCastFlagsOffset() {
 		std::vector<std::pair<void*, SDK::EClassCastFlags>> infos = {
-			{ SDK::UObject::FindObjectFast(skCrypt("Actor").decrypt()), SDK::EClassCastFlags::Actor},
-			{ SDK::UObject::FindObjectFast(skCrypt("Class").decrypt()), SDK::EClassCastFlags::Field | SDK::EClassCastFlags::Struct | SDK::EClassCastFlags::Class }
+			{ SDK::UObject::FindObjectFast(std::string(skCrypt("Actor"))), SDK::EClassCastFlags::Actor},
+			{ SDK::UObject::FindObjectFast(std::string(skCrypt("Class"))), SDK::EClassCastFlags::Field | SDK::EClassCastFlags::Struct | SDK::EClassCastFlags::Class }
 		};
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
 	static uint32 FindDefaultObjectOffset() {
 		std::vector<std::pair<void*, void*>> infos = {
-			{ SDK::UObject::FindObjectFast(skCrypt("Object").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Default__Object").decrypt()) },
-			{ SDK::UObject::FindObjectFast(skCrypt("Field").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Default__Field").decrypt()) }
+			{ SDK::UObject::FindObjectFast(std::string(skCrypt("Object"))), SDK::UObject::FindObjectFast(std::string(skCrypt("Default__Object"))) },
+			{ SDK::UObject::FindObjectFast(std::string(skCrypt("Field"))), SDK::UObject::FindObjectFast(std::string(skCrypt("Default__Field"))) }
 		};
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
 	static uint32 FindSuperOffset() {
 		std::vector<std::pair<void*, void*>> infos = {
-			{ SDK::UObject::FindObjectFast(skCrypt("Struct").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Field").decrypt()) },
-			{ SDK::UObject::FindObjectFast(skCrypt("Class").decrypt()), SDK::UObject::FindObjectFast(skCrypt("Struct").decrypt()) }
+			{ SDK::UObject::FindObjectFast(std::string(skCrypt("Struct"))), SDK::UObject::FindObjectFast(std::string(skCrypt("Field"))) },
+			{ SDK::UObject::FindObjectFast(std::string(skCrypt("Class"))), SDK::UObject::FindObjectFast(std::string(skCrypt("Struct"))) }
 		};
 
 		// Thanks to the ue4 dev who decided UStruct should be spelled Ustruct
 		if (infos[0].first == nullptr) {
-			infos[0].first = infos[1].second = SDK::UObject::FindObjectFast(skCrypt("struct").decrypt());
+			infos[0].first = infos[1].second = SDK::UObject::FindObjectFast(std::string(skCrypt("struct")));
 		}
 
 		return Memory::FindOffset(infos);
 	}
 	// CREDITS TO: Dumper-7
 	static uint32 FindChildPropertiesOffset() {
-		uint8* ObjA = (uint8*)SDK::UObject::FindObjectFast(skCrypt("Color").decrypt());
-		uint8* ObjB = (uint8*)SDK::UObject::FindObjectFast(skCrypt("Guid").decrypt());
+		uint8* ObjA = (uint8*)SDK::UObject::FindObjectFast(std::string(skCrypt("Color")));
+		uint8* ObjB = (uint8*)SDK::UObject::FindObjectFast(std::string(skCrypt("Guid")));
 
 		return Memory::GetValidPointerOffset(ObjA, ObjB, SDK::UStruct::SuperOffset + (sizeof(void*) * 2), 0x80);
 	}
@@ -157,9 +157,9 @@ public:
 	static uint32 FindFunctionFlagsOffset() {
 		std::vector<std::pair<void*, SDK::EFunctionFlags>> Infos;
 
-		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("WasInputKeyJustPressed").decrypt()), SDK::EFunctionFlags::Final | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public | SDK::EFunctionFlags::BlueprintCallable | SDK::EFunctionFlags::BlueprintPure | SDK::EFunctionFlags::Const });
-		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("ToggleSpeaking").decrypt()), SDK::EFunctionFlags::Exec | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public });
-		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("SwitchLevel").decrypt()), SDK::EFunctionFlags::Exec | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public });
+		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("WasInputKeyJustPressed"))), SDK::EFunctionFlags::Final | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public | SDK::EFunctionFlags::BlueprintCallable | SDK::EFunctionFlags::BlueprintPure | SDK::EFunctionFlags::Const });
+		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("ToggleSpeaking"))), SDK::EFunctionFlags::Exec | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public });
+		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("SwitchLevel"))), SDK::EFunctionFlags::Exec | SDK::EFunctionFlags::Native | SDK::EFunctionFlags::Public });
 
 		int32 Ret = Memory::FindOffset(Infos);
 
@@ -175,8 +175,8 @@ public:
 	static uint32 FindChildrenOffset() {
 		std::vector<std::pair<void*, void*>> Infos;
 
-		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("PlayerController").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("WasInputKeyJustReleased").decrypt(), skCrypt("PlayerController").decrypt())});
-		Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Controller").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("UnPossess").decrypt(), skCrypt("Controller").decrypt()) });
+		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("PlayerController"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("WasInputKeyJustReleased")), std::string(skCrypt("PlayerController")))});
+		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("Controller"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("UnPossess")), std::string(skCrypt("Controller"))) });
 
 		uint32 Ret = Memory::FindOffset(Infos);
 
@@ -184,10 +184,10 @@ public:
 		{
 			Infos.clear();
 
-			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Vector").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("X").decrypt(), skCrypt("Vector").decrypt()) });
-			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Vector4").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("X").decrypt(), skCrypt("Vector4").decrypt()) });
-			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Vector2D").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("X").decrypt(), skCrypt("Vector2D").decrypt()) });
-			Infos.push_back({ SDK::UObject::FindObjectFast(skCrypt("Guid").decrypt()), SDK::UObject::FindObjectFastInOuter(skCrypt("A").decrypt(), skCrypt("Guid").decrypt()) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("Vector"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("X")), std::string(skCrypt("Vector"))) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("Vector4"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("X")), std::string(skCrypt("Vector4"))) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("Vector2D"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("X")), std::string(skCrypt("Vector2D"))) });
+			Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("Guid"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("A")), std::string(skCrypt("Guid"))) });
 
 			return Memory::FindOffset(Infos);
 		}
@@ -196,8 +196,8 @@ public:
 	}
 	// CREDITS TO: Dumper-7
 	static uint32 FindUFieldNextOffset() {
-		uint8_t* KismetSystemLibraryChild = reinterpret_cast<uint8_t*>(SDK::UObject::FindObjectFast<SDK::UStruct>(skCrypt("KismetSystemLibrary").decrypt())->Children());
-		uint8_t* KismetStringLibraryChild = reinterpret_cast<uint8_t*>(SDK::UObject::FindObjectFast<SDK::UStruct>(skCrypt("KismetStringLibrary").decrypt())->Children());
+		uint8_t* KismetSystemLibraryChild = reinterpret_cast<uint8_t*>(SDK::UObject::FindObjectFast<SDK::UStruct>(std::string(skCrypt("KismetSystemLibrary")))->Children());
+		uint8_t* KismetStringLibraryChild = reinterpret_cast<uint8_t*>(SDK::UObject::FindObjectFast<SDK::UStruct>(std::string(skCrypt("KismetStringLibrary")))->Children());
 
 		return Memory::GetValidPointerOffset(KismetSystemLibraryChild, KismetStringLibraryChild, 0x20 + 0x08, 0x48);
 	}

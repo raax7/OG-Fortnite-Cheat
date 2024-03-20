@@ -4,8 +4,12 @@
 #include "../../SDK/Classes/FortniteGame_classes.h"
 
 #include "../../../Drawing/Drawing.h"
+
 #include "../../../Configs/Config.h"
+
 #include "../../Input/Input.h"
+
+#include "../../../Utilities/Math.h"
 
 #include <algorithm>
 
@@ -17,18 +21,15 @@ void Actors::FortWeapon::Tick() {
 			SDK::AActor* Actor = CachedWeapons[i];												if (!Actor) continue;
 
 			SDK::FVector RootPosition = Actor->GetRootComponent()->GetPosition();
-			if (RootPosition.Distance(SDK::GetLocalController()->AcknowledgedPawn()->GetRootComponent()->GetPosition()) / 100 >= Config::Visuals::Weapons::WeaponMaxDistance) {
+			if (RootPosition.Distance(Actors::LocalPawnCache.Position) / 100 >= Config::Visuals::Weapons::WeaponMaxDistance) {
 				continue;
 			}
 
 			SDK::FVector2D Project = SDK::Project(RootPosition);
-			if (!Project.X && !Project.Y) continue;
+			if (Math::IsOnScreen(Project) == false) continue;
 
 			SDK::AFortPickup* FortPickup = reinterpret_cast<SDK::AFortPickup*>(Actor);			if (!FortPickup) continue;
 
-
-
-		
 			SDK::FFortItemEntry* FortItemEntry = FortPickup->PrimaryPickupItemEntry();			if (!FortItemEntry) continue;
 			SDK::UFortItemDefinition* FortItemDefinition = FortItemEntry->ItemDefinition();		if (!FortItemDefinition) continue;
 
@@ -65,8 +66,6 @@ void Actors::FortWeapon::Tick() {
 					WeaponColor = SDK::FLinearColor(0.74f, 0.74f, 0.71f, 1.0f); // Set color for Default rarity
 					break;
 				}
-
-				DEBUG_LOG(LOG_INFO, "WeaponName: ", WeaponName.ToString());
 
 				Drawing::Text(WeaponName.ToString().c_str(), Project, 16.f, WeaponColor, true, true, true);
 			}

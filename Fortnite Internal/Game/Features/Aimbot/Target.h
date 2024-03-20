@@ -5,7 +5,7 @@
 
 namespace Features {
 	namespace Aimbot {
-		/* Represents an AActor target */
+		/* Represents an Actor target */
 		class Target {
 		public:
 			// The type of the target (Affects the priority of the target)
@@ -41,7 +41,6 @@ namespace Features {
 				// Target distance information (FLT_MAX so that any value is less than it)
 				float DistanceFromCrosshairPixels = FLT_MAX;								// The distance from the crosshair in pixels
 				float DistanceFromCrosshairDegrees = FLT_MAX;								// The distance from the crosshair in degrees
-				//float DistanceFromCrosshairDegreesRealCamera = FLT_MAX;						// The distance from the crosshair in degrees from the REAL camera (used for silent aim FOV checks)
 				float DistanceFromPlayer = FLT_MAX;											// The distance from the local player in meters
 				float SmartTargetingDistance = FLT_MAX;										// The physical distance and the crosshair distance combined (hence smart targeting)
 
@@ -62,14 +61,10 @@ namespace Features {
 			GlobalTargetInfo GlobalInfo{};		// Information about the target, not relative to any player
 			LocalTargetInfo LocalInfo{};		// Information about the target, relative to the local player
 		private:
-			/*
-			* @brief Update the FOV, smoothing and type of the target
-			*/
-			virtual void UpdateLocalInfoAndType(Target& TargetToUpdate);
+			/* Update the FOV, smoothing and type of the target */
+			static void UpdateLocalInfoAndType(Target& TargetToUpdate);
 		public:
-			/*
-			* @brief Reset the target data to default values
-			*/
+			/* Reset the target data to default values */
 			virtual void ResetTarget();
 
 			/*
@@ -93,6 +88,12 @@ namespace Features {
 			* @param ForceSetTarget - Should the target be set regardless
 			*/
 			virtual void SetTarget(Target NewTarget, bool ForceSetTarget = false);
+
+
+
+			// Allow access to private functions like UpdateLocalInfoAndType
+			friend class PlayerTarget;
+			friend class WeakSpotTarget;
 		};
 
 
@@ -111,7 +112,7 @@ namespace Features {
 			 * @param AimbotCamera - The aimbot camera (optional) (used for silent aim)
 			 * @param FPSScale - The scale to apply to the smoothing (optional)
 			 */
-			static void UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::CameraCache& MainCamera, const Actors::CameraCache& AimbotCamera, const float FPSScale = float());
+			static void UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::Caches::CameraCache& MainCamera = Actors::Caches::CameraCache(), const Actors::Caches::CameraCache& AimbotCamera = Actors::Caches::CameraCache(), const float FPSScale = 0.f);
 		};
 
 		/* Represents a building weak spot target, inherits from Target with extended functions for dealing with building weak spot targets */
@@ -128,7 +129,7 @@ namespace Features {
 			 * @param AimbotCamera - The aimbot camera (optional) (used for silent aim)
 			 * @param FPSScale - The scale to apply to the smoothing (optional)
 			 */
-			static void UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::CameraCache& MainCamera = Actors::CameraCache(), const Actors::CameraCache& AimbotCamera = Actors::CameraCache(), const float FPSScale = float());
+			static void UpdateTargetInfo(Target& Target, SDK::ABuildingWeakSpot* WeakSpot, const Actors::Caches::CameraCache& MainCamera = Actors::Caches::CameraCache(), const Actors::Caches::CameraCache& AimbotCamera = Actors::Caches::CameraCache(), const float FPSScale = 0.f);
 		};
 	}
 }

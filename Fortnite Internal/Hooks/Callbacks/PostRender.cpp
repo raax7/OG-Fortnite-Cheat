@@ -36,13 +36,13 @@ void Hooks::PostRender::PostRender(uintptr_t this_, uintptr_t Canvas) {
 	Drawing::SwapBuffers();
 
 	if (RaaxDx::Initalized == false) {
-		DEBUG_LOG(LOG_INFO, skCrypt("Initiating DirectX hooks").decrypt());
+		DEBUG_LOG(LOG_INFO, std::string(skCrypt("Initiating DirectX hooks")));
 
-		RaaxDx::Status Status = RaaxDx::Init();
-		DEBUG_LOG(LOG_INFO, skCrypt("Status: ").decrypt() + std::to_string((int)Status));
-		RaaxDx::Status Status2 = RaaxDx::Hook();
+		RaaxDx::Status InitStatus = RaaxDx::Init();
+		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Init Status: ")) + std::to_string((int)InitStatus));
 
-		DEBUG_LOG(LOG_INFO, skCrypt("Status2: ").decrypt() + std::to_string((int)Status2));
+		RaaxDx::Status HookStatus = RaaxDx::Hook();
+		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Hook Status: ")) + std::to_string((int)HookStatus));
 	}
 #else
 	Game::MenuCallback();

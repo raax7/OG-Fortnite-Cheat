@@ -106,7 +106,7 @@ namespace SDK {
 
 
 	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
-		DEBUG_LOG(LOG_OFFSET, skCrypt("Setting up objects...").decrypt());
+		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Setting up objects...")));
 
 		std::vector<FunctionSearch> FunctionsNotFound = Functions;
 		std::vector<OffsetSearch> OffsetsNotFound = Offsets;
@@ -156,7 +156,6 @@ namespace SDK {
 							}
 
 							if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
-								DEBUG_LOG(LOG_INFO, skCrypt("Found bool property! - ").decrypt() + Offset.PropertyName + " - " + std::to_string((uintptr_t)((SDK::FBoolProperty*)ChildProperty)));
 								*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
 							}
 
@@ -202,21 +201,21 @@ namespace SDK {
 				MissingFunctions += Function.ClassName + " " + Function.FunctionName + "\n";
 			}
 
-			std::string Output = skCrypt("").decrypt();
+			std::string Output = "";
 
 			if (MissingOffsets.empty() == false) {
-				Output += skCrypt("Missing offsets: \n").decrypt();
+				Output += std::string(skCrypt("Missing offsets: \n"));
 				Output += MissingOffsets;
 			}
 
 			if (MissingFunctions.empty() == false) {
-				Output += skCrypt("\nMissing functions: \n").decrypt();
+				Output += std::string(skCrypt("\nMissing functions: \n"));
 				Output += MissingFunctions;
 			}
 			
-			THROW_ERROR(skCrypt("Failed to find all offsets and functions!\n\n").decrypt() + Output, CRASH_ON_NOT_FOUND);
+			THROW_ERROR(std::string(skCrypt("Failed to find all offsets and functions!\n\n")) + Output, CRASH_ON_NOT_FOUND);
 		}
 
-		DEBUG_LOG(LOG_OFFSET, skCrypt("Setup objects!").decrypt());
+		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Setup objects!")));
 	}
 }

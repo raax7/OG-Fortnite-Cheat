@@ -11,7 +11,7 @@
 // Classes
 
 void SDK::USceneComponent::SetPhysicsLinearVelocity(FVector NewVel, bool bAddToCurrent, FName BoneName) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct {
 		FVector NewVel;
@@ -29,7 +29,7 @@ void SDK::USceneComponent::SetPhysicsLinearVelocity(FVector NewVel, bool bAddToC
 }
 
 void SDK::UMovementComponent::StopMovementImmediately() {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct {
 	} params_StopMovementImmediately{};
@@ -58,7 +58,7 @@ bool SDK::AActor::K2_TeleportTo(const struct FVector& DestLocation, const struct
 }
 
 bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool bTeleportPhysics) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		FRotator NewRotation;
@@ -76,7 +76,7 @@ bool SDK::AActor::K2_SetActorRotation(const struct FRotator& NewRotation, bool b
 }
 
 bool SDK::AActor::K2_SetActorLocation(const struct FVector& NewLocation, bool bSweep, struct FHitResult* SweepHitResult, bool bTeleport) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		FVector NewLocation;
@@ -99,7 +99,7 @@ bool SDK::AActor::K2_SetActorLocation(const struct FVector& NewLocation, bool bS
 }
 
 void SDK::AActor::SetActorEnableCollision(bool bNewActorEnableCollision) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct {
 		bool bNewActorEnableCollision;
@@ -113,7 +113,7 @@ void SDK::AActor::SetActorEnableCollision(bool bNewActorEnableCollision) {
 }
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
-	if (!SDK::IsValidPointer(this)) return FName{};
+	if (SDK::IsValidPointer(this) == false) return FName{};
 
 	struct {
 		int32 BoneIndex;
@@ -128,7 +128,7 @@ SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
 	return params_GetBoneName.return_value;
 }
 SDK::FVector SDK::USkeletalMeshComponent::GetSocketLocation(FName InSocketName) {
-	if (!SDK::IsValidPointer(this)) return FVector();
+	if (SDK::IsValidPointer(this) == false) return FVector();
 
 	struct {
 		FName InSocketName;
@@ -144,7 +144,7 @@ SDK::FVector SDK::USkeletalMeshComponent::GetSocketLocation(FName InSocketName) 
 }
 
 SDK::UPawnMovementComponent* SDK::APawn::GetMovementComponent() {
-	if (!SDK::IsValidPointer(this)) return nullptr;
+	if (SDK::IsValidPointer(this) == false) return nullptr;
 
 	struct {
 		UPawnMovementComponent* return_value;
@@ -156,7 +156,7 @@ SDK::UPawnMovementComponent* SDK::APawn::GetMovementComponent() {
 }
 
 SDK::FString SDK::APlayerState::GetPlayerName() {
-	if (!SDK::IsValidPointer(this)) return FString{};
+	if (SDK::IsValidPointer(this) == false) return FString{};
 
 	struct {
 		FString return_value;
@@ -168,7 +168,7 @@ SDK::FString SDK::APlayerState::GetPlayerName() {
 }
 
 SDK::FVector SDK::APlayerCameraManager::GetCameraLocation() {
-	if (!this) return SDK::FVector();
+	if (SDK::IsValidPointer(this) == false) return SDK::FVector();
 
 	struct {
 		SDK::FVector        return_value;
@@ -179,7 +179,7 @@ SDK::FVector SDK::APlayerCameraManager::GetCameraLocation() {
 	return params_GetCameraLocation.return_value;
 }
 SDK::FRotator SDK::APlayerCameraManager::GetCameraRotation() {
-	if (!this) return SDK::FRotator();
+	if (SDK::IsValidPointer(this) == false) return SDK::FRotator();
 
 	struct {
 		SDK::FRotator        return_value;
@@ -190,7 +190,7 @@ SDK::FRotator SDK::APlayerCameraManager::GetCameraRotation() {
 	return params_GetCameraRotation.return_value;
 }
 float SDK::APlayerCameraManager::GetFOVAngle() {
-	if (!this) return 0.f;
+	if (SDK::IsValidPointer(this) == false) return 0.f;
 
 	struct {
 		float				return_value;
@@ -202,7 +202,7 @@ float SDK::APlayerCameraManager::GetFOVAngle() {
 }
 
 void SDK::APlayerController::ClientSetRotation(FRotator& NewRotation, bool bResetCamera) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct {
 		FRotator NewRotation;
@@ -217,7 +217,7 @@ void SDK::APlayerController::ClientSetRotation(FRotator& NewRotation, bool bRese
 	return;
 }
 void SDK::APlayerController::SetControlRotation(FRotator NewRotation) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct {
 		FRotator NewRotation;
@@ -230,7 +230,7 @@ void SDK::APlayerController::SetControlRotation(FRotator NewRotation) {
 	return;
 }
 bool SDK::APlayerController::WasInputKeyJustReleased(FKey& Key) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		FKey Key;
@@ -245,7 +245,7 @@ bool SDK::APlayerController::WasInputKeyJustReleased(FKey& Key) {
 	return params_WasInputKeyJustReleased.return_value;
 }
 bool SDK::APlayerController::WasInputKeyJustPressed(FKey& Key) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		FKey Key;
@@ -260,7 +260,7 @@ bool SDK::APlayerController::WasInputKeyJustPressed(FKey& Key) {
 	return params_WasInputKeyJustPressed.return_value;
 }
 bool SDK::APlayerController::IsInputKeyDown(FKey& Key) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		FKey Key;
@@ -275,7 +275,7 @@ bool SDK::APlayerController::IsInputKeyDown(FKey& Key) {
 	return params_IsInputKeyDown.return_value;
 }
 bool SDK::APlayerController::GetMousePosition(float* LocationX, float* LocationY) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		float LocationX;
@@ -295,7 +295,7 @@ SDK::UClass* SDK::APlayerController::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("PlayerController").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("PlayerController")));
 
 	return Clss;
 }
@@ -304,7 +304,7 @@ SDK::UClass* SDK::UGameViewportClient::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("GameViewportClient").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("GameViewportClient")));
 
 	return Clss;
 }
@@ -312,7 +312,7 @@ SDK::UClass* SDK::UEngine::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("Engine").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("Engine")));
 
 	return Clss;
 }
@@ -326,7 +326,7 @@ SDK::UEngine* SDK::UEngine::GetDefaultObj() {
 }
 
 SDK::TArray<SDK::AActor*> SDK::UGameplayStatics::GetAllActorsOfClass(UObject* WorldContextObject, UObject* ActorClass) {
-	if (!SDK::IsValidPointer(this)) return TArray<AActor*>{};
+	if (SDK::IsValidPointer(this) == false) return TArray<AActor*>{};
 
 	struct {
 		UObject* WorldContextObject;
@@ -345,13 +345,13 @@ SDK::UGameplayStatics* SDK::UGameplayStatics::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("GameplayStatics").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("GameplayStatics")));
 
 	return reinterpret_cast<UGameplayStatics*>(Clss);
 }
 
 SDK::FString SDK::UKismetSystemLibrary::GetEngineVersion() {
-	if (!this) return FString{};
+	if (SDK::IsValidPointer(this) == false) return FString{};
 
 	struct {
 		FString return_value;
@@ -392,13 +392,13 @@ SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("KismetSystemLibrary").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("KismetSystemLibrary")));
 
 	return Clss;
 }
 
 SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
-	if (!SDK::IsValidPointer(this)) return FVector{};
+	if (SDK::IsValidPointer(this) == false) return FVector{};
 
 	struct {
 		FRotator InRot;
@@ -413,7 +413,7 @@ SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
 	return params_GetForwardVector.return_value;
 }
 SDK::FVector SDK::UKismetMathLibrary::GetRightVector(const FRotator& InRot) {
-	if (!SDK::IsValidPointer(this)) return FVector{};
+	if (SDK::IsValidPointer(this) == false) return FVector{};
 
 	struct {
 		FRotator InRot;
@@ -428,7 +428,7 @@ SDK::FVector SDK::UKismetMathLibrary::GetRightVector(const FRotator& InRot) {
 	return params_GetRightVector.return_value;
 }
 SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, struct FVector Target) {
-	if (!SDK::IsValidPointer(this)) return FRotator{};
+	if (SDK::IsValidPointer(this) == false) return FRotator{};
 
 	struct {
 		FVector Start;
@@ -448,7 +448,7 @@ SDK::UKismetMathLibrary* SDK::UKismetMathLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("KismetMathLibrary").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("KismetMathLibrary")));
 
 	return reinterpret_cast<UKismetMathLibrary*>(Clss);
 }
@@ -457,13 +457,13 @@ SDK::UFont* SDK::Roboto::StaticFont() {
 	static class UFont* Font = nullptr;
 
 	if (!Font)
-		Font = reinterpret_cast<SDK::UFont*>(UObject::FindObject(skCrypt("Font Roboto.Roboto").decrypt()));
+		Font = reinterpret_cast<SDK::UFont*>(UObject::FindObject(std::string(skCrypt("Font Roboto.Roboto"))));
 
 	return Font;
 }
 
 void SDK::UCanvas::K2_DrawLine(const FVector2D& ScreenPositionA, const FVector2D& ScreenPositionB, float Thickness, const FLinearColor& RenderColor) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct
 	{
@@ -481,7 +481,7 @@ void SDK::UCanvas::K2_DrawLine(const FVector2D& ScreenPositionA, const FVector2D
 	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawLine, &params_K2_DrawLine);
 }
 SDK::FVector SDK::UCanvas::K2_Project(FVector& WorldLocation) {
-	if (!SDK::IsValidPointer(this)) return FVector();
+	if (SDK::IsValidPointer(this) == false) return FVector();
 
 	struct {
 		FVector WorldLocation;
@@ -496,7 +496,7 @@ SDK::FVector SDK::UCanvas::K2_Project(FVector& WorldLocation) {
 	return params_K2_Project.return_value;
 }
 void SDK::UCanvas::K2_DrawText(FString& RenderText, FVector2D ScreenPosition, int32 FontSize, FLinearColor RenderColor, bool bCentreX, bool bCentreY, bool bOutlined) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	int32 OriginalFontSize = reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->GetFontSize();
 	reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->SetFontSize(FontSize);
@@ -567,7 +567,7 @@ void SDK::UCanvas::K2_DrawText(FString& RenderText, FVector2D ScreenPosition, in
 	return;
 }
 SDK::FVector2D SDK::UCanvas::K2_TextSize(const FString& RenderText, int32 FontSize) {
-	if (!SDK::IsValidPointer(this)) return FVector2D{};
+	if (SDK::IsValidPointer(this) == false) return FVector2D{};
 
 	int32 OriginalFontSize = reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->GetFontSize();
 	reinterpret_cast<SDK::Roboto*>(Roboto::StaticFont())->SetFontSize(FontSize);
@@ -590,6 +590,23 @@ SDK::FVector2D SDK::UCanvas::K2_TextSize(const FString& RenderText, int32 FontSi
 
 	return params_K2_TextSize.return_value;
 }
+void SDK::UCanvas::K2_DrawBox(FVector2D ScreenPosition, FVector2D ScreenSize, float Thickness, const FLinearColor& RenderColor) {
+	if (SDK::IsValidPointer(this) == false) return;
+
+	struct {
+		FVector2D ScreenPosition;
+		FVector2D ScreenSize;
+		float Thickness;
+		FLinearColor RenderColor;
+	} params_K2_DrawBox{};
+
+	params_K2_DrawBox.ScreenPosition = ScreenPosition;
+	params_K2_DrawBox.ScreenSize = ScreenSize;
+	params_K2_DrawBox.Thickness = Thickness;
+	params_K2_DrawBox.RenderColor = RenderColor;
+
+	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawBox, &params_K2_DrawBox);
+}
 
 
 
@@ -600,9 +617,6 @@ SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 }
 
 SDK::FVector2D SDK::Project(FVector WorldLocation) {
-//#if _IMGUI
-//	return ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
-//#else
 	SDK::FVector ScreenLocation = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
 
 	if (ScreenLocation.Z > 0.f) {
@@ -610,16 +624,9 @@ SDK::FVector2D SDK::Project(FVector WorldLocation) {
 	}
 
 	return SDK::FVector2D(-1.f, -1.f);
-//#endif
 }
 SDK::FVector SDK::Project3D(FVector WorldLocation) {
-	// IMPROVE THIS SO IT WORKS THE SAME ON ENGINE AND IMGUI
-///#if _IMGUI
-//	SDK::FVector2D ScreenLocation = ProjectWorldToScreen(WorldLocation, Actors::MainCamera.Position, Actors::MainCamera.Rotation, Actors::MainCamera.FOV);
-//	return SDK::FVector(ScreenLocation.X, ScreenLocation.Y, 1.f);
-//#else
 	return SDK::GetLocalCanvas()->K2_Project(WorldLocation);
-//#endif
 }
 bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};
@@ -660,7 +667,7 @@ float SDK::GetGameVersion() {
 		Game::GameVersion = std::stof(VersionSubstring);
 
 		if (!Game::GameVersion) {
-			THROW_ERROR(skCrypt("Failed to determine game version!").decrypt(), true);
+			THROW_ERROR(std::string(skCrypt("Failed to determine game version!")), true);
 		}
 	}
 

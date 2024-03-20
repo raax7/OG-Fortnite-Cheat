@@ -2,37 +2,8 @@
 
 #include "../../../Utilities/Math.h"
 #include "../../../Utilities/Logger.h"
-#include "../../Game.h"
 
-inline Features::FortPawnHelper::Bone::BoneNames Features::FortPawnHelper::Bone::Names;
-const inline std::vector<std::pair<Features::FortPawnHelper::Bone::BoneID, Features::FortPawnHelper::Bone::BoneID>> Features::FortPawnHelper::Bone::BoneHierarchyOrder = {
-    {Head,          Head},
-    {Neck,          Neck},
-    {Chest,         Chest},
-    {LeftShoulder,  RightShoulder},
-    {LeftElbow,     RightElbow},
-    {LeftHand,      RightHand},
-    {LeftLeg,       RightLeg},
-    {LeftKnee,      RightKnee},
-    {LeftFoot,      RightFoot},
-    {Pelvis,        Pelvis}
-};
-const inline std::vector<std::pair<Features::FortPawnHelper::Bone::BoneID, Features::FortPawnHelper::Bone::BoneID>> Features::FortPawnHelper::Bone::SkeletonBonePairs = {
-    {Head,            Chest},
-    {Chest,           LeftShoulder},
-    {Chest,           RightShoulder},
-    {LeftShoulder,    LeftElbow},
-    {RightShoulder,   RightElbow},
-    {LeftElbow,       LeftHand},
-    {RightElbow,      RightHand},
-    {Pelvis,          LeftLeg},
-    {Pelvis,          RightLeg},
-    {LeftLeg,         LeftKnee},
-    {RightLeg,        RightKnee},
-    {LeftKnee,        LeftFoot},
-    {RightKnee,       RightFoot},
-    {Chest,           Pelvis},
-};
+#include "../../Game.h"
 
 Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2) {
     float Bone1Distance = Math::GetDistance2D(BonePosition1.X, BonePosition1.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
@@ -42,7 +13,7 @@ Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClose
     else return BoneID2;
 }
 Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache) {
-    if (FortPawnCache.BoneVisibilities.size() != 100 || FortPawnCache.BoneRegister2D.size() != 100) {
+    if (FortPawnCache.BoneVisibilityStates.size() < BONEID_MAX || FortPawnCache.BonePositions2D.size() < BONEID_MAX) {
         return None;
     }
 
@@ -50,14 +21,14 @@ Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestB
         BoneID LeftBone = BonePair.first;
         BoneID RightBone = BonePair.second;
 
-        if (FortPawnCache.BoneVisibilities[LeftBone] && FortPawnCache.BoneVisibilities[RightBone]) {
-            return FindClosestBoneBetweenTwo(FortPawnCache.BoneRegister2D[LeftBone], FortPawnCache.BoneRegister2D[RightBone], LeftBone, RightBone);
+        if (FortPawnCache.BoneVisibilityStates[LeftBone] && FortPawnCache.BoneVisibilityStates[RightBone]) {
+            return FindClosestBoneBetweenTwo(FortPawnCache.BonePositions2D[LeftBone], FortPawnCache.BonePositions2D[RightBone], LeftBone, RightBone);
         }
 
-        if (FortPawnCache.BoneVisibilities[LeftBone]) {
+        if (FortPawnCache.BoneVisibilityStates[LeftBone]) {
             return LeftBone;
         }
-        else if (FortPawnCache.BoneVisibilities[RightBone]) {
+        else if (FortPawnCache.BoneVisibilityStates[RightBone]) {
             return RightBone;
         }
     }
@@ -90,35 +61,35 @@ SDK::FName Features::FortPawnHelper::Bone::GetBoneName(BoneID BoneID) {
     return Names.None;
 }
 void Features::FortPawnHelper::Bone::Init() {
-    DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing bone names...").decrypt());
+    DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing bone names..."));
 
     // Init Names
     {
-        Names.Head = SDK::FName(skCrypt(L"head").decrypt());
-        Names.Neck = SDK::FName(skCrypt(L"neck_01").decrypt());
+        Names.Head = SDK::FName(skCrypt(L"head"));
+        Names.Neck = SDK::FName(skCrypt(L"neck_01"));
 
-        Names.ChestLeft = SDK::FName(skCrypt(L"clavicle_l").decrypt());
-        Names.ChestRight = SDK::FName(skCrypt(L"clavicle_r").decrypt());
+        Names.ChestLeft = SDK::FName(skCrypt(L"clavicle_l"));
+        Names.ChestRight = SDK::FName(skCrypt(L"clavicle_r"));
 
-        Names.LeftShoulder = SDK::FName(skCrypt(L"upperarm_l").decrypt());
-        Names.LeftElbow = SDK::FName(skCrypt(L"lowerarm_l").decrypt());
-        Names.LeftHand = SDK::FName(skCrypt(L"Hand_L").decrypt());
-        Names.RightShoulder = SDK::FName(skCrypt(L"upperarm_r").decrypt());
-        Names.RightElbow = SDK::FName(skCrypt(L"lowerarm_r").decrypt());
-        Names.RightHand = SDK::FName(skCrypt(L"hand_r").decrypt());
+        Names.LeftShoulder = SDK::FName(skCrypt(L"upperarm_l"));
+        Names.LeftElbow = SDK::FName(skCrypt(L"lowerarm_l"));
+        Names.LeftHand = SDK::FName(skCrypt(L"Hand_L"));
+        Names.RightShoulder = SDK::FName(skCrypt(L"upperarm_r"));
+        Names.RightElbow = SDK::FName(skCrypt(L"lowerarm_r"));
+        Names.RightHand = SDK::FName(skCrypt(L"hand_r"));
 
-        Names.LeftLeg = SDK::FName(skCrypt(L"thigh_l").decrypt());
-        Names.LeftKnee = SDK::FName(skCrypt(L"calf_l").decrypt());
-        Names.LeftFoot = SDK::FName(skCrypt(L"foot_l").decrypt());
-        Names.RightLeg = SDK::FName(skCrypt(L"thigh_r").decrypt());
-        Names.RightKnee = SDK::FName(skCrypt(L"calf_r").decrypt());
-        Names.RightFoot = SDK::FName(skCrypt(L"foot_r").decrypt());
+        Names.LeftLeg = SDK::FName(skCrypt(L"thigh_l"));
+        Names.LeftKnee = SDK::FName(skCrypt(L"calf_l"));
+        Names.LeftFoot = SDK::FName(skCrypt(L"foot_l"));
+        Names.RightLeg = SDK::FName(skCrypt(L"thigh_r"));
+        Names.RightKnee = SDK::FName(skCrypt(L"calf_r"));
+        Names.RightFoot = SDK::FName(skCrypt(L"foot_r"));
 
-        Names.Pelvis = SDK::FName(skCrypt(L"pelvis").decrypt());
+        Names.Pelvis = SDK::FName(skCrypt(L"pelvis"));
 
-        Names.Root = SDK::FName(skCrypt(L"Root").decrypt());
-        Names.None = SDK::FName(skCrypt(L"None").decrypt());
+        Names.Root = SDK::FName(skCrypt(L"Root"));
+        Names.None = SDK::FName(skCrypt(L"None"));
     }
 
-    DEBUG_LOG(LOG_OFFSET, skCrypt("Bone names initialized!").decrypt());
+    DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Bone names initialized!")));
 }

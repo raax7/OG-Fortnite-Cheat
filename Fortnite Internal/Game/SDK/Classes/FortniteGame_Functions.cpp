@@ -4,7 +4,7 @@ SDK::UClass* SDK::AFortAthenaAntelopeVehicle::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortAthenaAntelopeVehicle").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortAthenaAntelopeVehicle")));
 
 	return Clss;
 }
@@ -13,7 +13,7 @@ SDK::UClass* SDK::AFortAthenaJackalVehicle::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortAthenaJackalVehicle").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortAthenaJackalVehicle")));
 
 	return Clss;
 }
@@ -22,7 +22,7 @@ SDK::UClass* SDK::AFortAthenaDoghouseVehicle::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortAthenaDoghouseVehicle").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortAthenaDoghouseVehicle")));
 
 	return Clss;
 }
@@ -31,13 +31,13 @@ SDK::UClass* SDK::UFortWeaponMeleeItemDefinition::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortWeaponMeleeItemDefinition").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortWeaponMeleeItemDefinition")));
 
 	return Clss;
 }
 
 void SDK::AFortPawn::ServerHandlePickup(class AFortPickup* Pickup, float InFlyTime, const struct FVector& InStartDirection, bool bPlayPickupSound) {
-	if (!SDK::IsValidPointer(this)) return;
+	if (SDK::IsValidPointer(this) == false) return;
 
 	struct {
 		class AFortPickup* Pickup;
@@ -59,13 +59,13 @@ SDK::UClass* SDK::AFortPickup::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortPickup").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortPickup")));
 
 	return Clss;
 }
 
 SDK::FFortBaseWeaponStats* SDK::AFortWeapon::WeaponStats() {
-	if (!SDK::IsValidPointer(this)) return nullptr;
+	if (SDK::IsValidPointer(this) == false) return nullptr;
 	auto VFT = *reinterpret_cast<void***>(this);
 
 	if (VFT != nullptr && VFT[SDK::Cached::VFT::GetWeaponStats] != nullptr) {
@@ -74,7 +74,7 @@ SDK::FFortBaseWeaponStats* SDK::AFortWeapon::WeaponStats() {
 }
 
 bool SDK::AFortWeapon::IsProjectileWeapon() {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		bool return_value;
@@ -86,7 +86,7 @@ bool SDK::AFortWeapon::IsProjectileWeapon() {
 }
 
 float SDK::AFortWeapon::GetProjectileSpeed(float ChargePercent) {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	struct {
 		float ChargePercent;
@@ -100,10 +100,10 @@ float SDK::AFortWeapon::GetProjectileSpeed(float ChargePercent) {
 }
 
 bool SDK::AFortWeapon::IsPickaxe() {
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	UFortWeaponItemDefinition* WeaponData = this->WeaponData();
-	if (!SDK::IsValidPointer(this)) return false;
+	if (SDK::IsValidPointer(this) == false) return false;
 
 	return WeaponData->IsA(UFortWeaponMeleeItemDefinition::StaticClass());
 }
@@ -112,7 +112,7 @@ SDK::UClass* SDK::AFortWeapon::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortWeapon").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortWeapon")));
 
 	return Clss;
 }
@@ -121,7 +121,7 @@ SDK::UClass* SDK::AFortWeaponRanged::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = SDK::UObject::FindClass(skCrypt("Class FortniteGame.FortWeaponRanged").decrypt());
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortWeaponRanged")));
 
 	return Clss;
 }
@@ -130,7 +130,7 @@ SDK::UClass* SDK::AFortPawn::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("FortPawn").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("FortPawn")));
 
 	return Clss;
 }
@@ -140,11 +140,29 @@ SDK::AFortAthenaVehicle* SDK::AFortPawn::GetVehicle() {
 	return VehicleStateLocal()->GetVehicle();
 }
 
+SDK::UClass* SDK::AFortPlayerController::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("FortPlayerController")));
+
+	return Clss;
+}
+
+SDK::UClass* SDK::UFortLocalPlayer::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("FortLocalPlayer")));
+
+	return Clss;
+}
+
 SDK::UClass* SDK::ABuildingWeakSpot::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
-		Clss = UObject::FindClassFast(skCrypt("BuildingWeakSpot").decrypt());
+		Clss = UObject::FindClassFast(std::string(skCrypt("BuildingWeakSpot")));
 
 	return Clss;
 }

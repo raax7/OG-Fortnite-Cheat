@@ -1,48 +1,42 @@
 #include "Drawing.h"
-
 #include <string>
+
+#include "../External-Libs/LazyImporter.h"
 
 #ifdef _IMGUI
 #include "../External-Libs/ImGui/imgui.h"
 #include "../Hooks/Hooks.h"
 #include "../Utilities/Logger.h"
 
-std::vector<Drawing::LineCache> Drawing::RenderBufferLine, Drawing::UpdateBufferLine;
-std::vector<Drawing::TextCache> Drawing::RenderBufferText, Drawing::UpdateBufferText;
-std::vector<Drawing::CircleCache> Drawing::RenderBufferCircle, Drawing::UpdateBufferCircle;
-std::vector<Drawing::FilledRectCache> Drawing::RenderBufferFilledRect, Drawing::UpdateBufferFilledRect;
-std::vector<Drawing::RectCache> Drawing::RenderBufferRect, Drawing::UpdateBufferRect;
-std::vector<Drawing::CorneredRectCache> Drawing::RenderBufferCorneredRect, Drawing::UpdateBufferCorneredRect;
-
-std::mutex Drawing::SwapMutex;
-
 void Drawing::RenderQueuedDrawingInfo() {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	for (auto& Line : RenderBufferLine) {
 		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X, Line.ScreenPositionA.Y), ImVec2(Line.ScreenPositionB.X, Line.ScreenPositionB.Y), ImColor(Line.RenderColor.R, Line.RenderColor.G, Line.RenderColor.B, Line.RenderColor.A), Line.Thickness);
 	}
 
 	for (auto& Text : RenderBufferText) {
+		ImVec2 TextPosition = ImVec2(Text.ScreenPosition.X, Text.ScreenPosition.Y);
+
 		if (Text.CenteredX || Text.CenteredY) {
 			ImVec2 TextSize = ImGui::GetFont()->CalcTextSizeA(Text.FontSize, FLT_MAX, 0.0f, Text.RenderText.c_str());
 			ImVec2 CenteredPos = ImVec2(Text.ScreenPosition.X - TextSize.x / 2, Text.ScreenPosition.Y - TextSize.y / 2);
 
-			if (Text.CenteredX) Text.ScreenPosition.X = CenteredPos.x;
-			if (Text.CenteredY) Text.ScreenPosition.Y = CenteredPos.y;
+			if (Text.CenteredX) TextPosition.x = CenteredPos.x;
+			if (Text.CenteredY) TextPosition.y = CenteredPos.y;
 		}
 
 		if (Text.Outlined) {
 			ImU32 OutlineColor = IM_COL32_BLACK;
 			OutlineColor = (OutlineColor & 0x00FFFFFF) | (ImColor(Text.RenderColor.R, Text.RenderColor.G, Text.RenderColor.B, Text.RenderColor.A) & 0xFF000000);
 
-			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { Text.ScreenPosition.X + 1, Text.ScreenPosition.Y }, OutlineColor, Text.RenderText.c_str());
-			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { Text.ScreenPosition.X - 1, Text.ScreenPosition.Y }, OutlineColor, Text.RenderText.c_str());
-			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { Text.ScreenPosition.X, Text.ScreenPosition.Y + 1 }, OutlineColor, Text.RenderText.c_str());
-			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { Text.ScreenPosition.X, Text.ScreenPosition.Y - 1 }, OutlineColor, Text.RenderText.c_str());
+			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { TextPosition.x + 1, TextPosition.y }, OutlineColor, Text.RenderText.c_str());
+			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { TextPosition.x - 1, TextPosition.y }, OutlineColor, Text.RenderText.c_str());
+			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { TextPosition.x, TextPosition.y + 1 }, OutlineColor, Text.RenderText.c_str());
+			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { TextPosition.x, TextPosition.y - 1 }, OutlineColor, Text.RenderText.c_str());
 		}
 
-		ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, ImVec2(Text.ScreenPosition.X, Text.ScreenPosition.Y), ImColor(Text.RenderColor.R, Text.RenderColor.G, Text.RenderColor.B, Text.RenderColor.A), Text.RenderText.c_str());
+		ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, TextPosition, ImColor(Text.RenderColor.R, Text.RenderColor.G, Text.RenderColor.B, Text.RenderColor.A), Text.RenderText.c_str());
 	}
 
 	for (auto& Circle : RenderBufferCircle) {
@@ -74,7 +68,7 @@ void Drawing::RenderQueuedDrawingInfo() {
 }
 
 void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 	
 	LineCache Cache;
 	Cache.ScreenPositionA = ScreenPositionA;
@@ -86,7 +80,7 @@ void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPosition
 	UpdateBufferLine.push_back(Cache);
 }
 void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	TextCache Cache;
 	Cache.RenderText = RenderText;
@@ -104,8 +98,19 @@ void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, flo
 
 	Text(str.c_str(), ScreenPosition, FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
+SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
+	//std::lock_guard<std::mutex> lock(SwapMutex);
+
+	if (Hooks::Present::LargeFont == nullptr) {
+		return SDK::FVector2D();
+	}
+
+	std::string str = std::string(RenderText, RenderText + strlen(RenderText));
+	ImVec2 TextSize = Hooks::Present::LargeFont->CalcTextSizeA(FontSize, FLT_MAX, 0.0f, str.c_str());
+	return SDK::FVector2D(TextSize.x, TextSize.y);
+}
 SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	if (Hooks::Present::LargeFont == nullptr) {
 		return SDK::FVector2D();
@@ -116,7 +121,7 @@ SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	return SDK::FVector2D(TextSize.x, TextSize.y);
 }
 void Drawing::Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	CircleCache Cache;
 	Cache.ScreenPosition = ScreenPosition;
@@ -128,7 +133,7 @@ void Drawing::Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segmen
 	UpdateBufferCircle.push_back(Cache);
 }
 void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	FilledRectCache Cache;
 	Cache.ScreenPosition = ScreenPosition;
@@ -139,7 +144,7 @@ void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSiz
 	UpdateBufferFilledRect.push_back(Cache);
 }
 void Drawing::Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	RectCache Cache;
 	Cache.ScreenPositionA = ScreenPositionA;
@@ -151,7 +156,7 @@ void Drawing::Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, fl
 	UpdateBufferRect.push_back(Cache);
 }
 void Drawing::CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
-	std::lock_guard<std::mutex> lock(SwapMutex);
+	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	CorneredRectCache Cache;
 	Cache.ScreenPositionA = ScreenPositionA;
@@ -176,9 +181,9 @@ void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPosition
 	SDK::GetLocalCanvas()->K2_DrawLine(ScreenPositionA, ScreenPositionB, Thickness, RenderColor);
 }
 void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
-	int WideStrLength = MultiByteToWideChar(CP_UTF8, 0, RenderText, -1, nullptr, 0);
+	int WideStrLength = LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, nullptr, 0);
 	std::wstring WideString(WideStrLength, L'\0');
-	MultiByteToWideChar(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
+	LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
 
 	// Fix text size being innacurate on engine rendering. (Maybe UFont::ScalingFactor?)
 
@@ -191,11 +196,17 @@ void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, flo
 
 	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, (int32)FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
+SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
+	int WideStrLength = LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, nullptr, 0);
+	std::wstring WideString(WideStrLength, L'\0');
+	LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
+
+	return TextSize(WideString.c_str(), FontSize);
+}
 SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	SDK::FString FString(RenderText);
 
 	// Only use 3/4ths of the font size to make the size accurate. Unreal Engine is weird
-	FontSize *= 0.75f;
 
 	return SDK::GetLocalCanvas()->K2_TextSize(FString, (int32)FontSize);
 }
@@ -222,17 +233,21 @@ void Drawing::Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segmen
 	}
 }
 void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined) {
-	for (float i = 0.0f; i < ScreenSize.Y; i += 1.0f) {
-		Line(SDK::FVector2D{ ScreenPosition.X, ScreenPosition.Y + i }, SDK::FVector2D{ ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + i }, 1.0f, RenderColor, Outlined);
+	for (int i = 0; i < ScreenSize.X; i++) {
+		Line(SDK::FVector2D(ScreenPosition.X + i, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + i, ScreenPosition.Y + ScreenSize.Y), 1.f, RenderColor, false);
+	}
+
+	if (Outlined) {
+		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPosition, ScreenSize, 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
 	}
 }
 void Drawing::Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
-	SDK::FVector2D ScreenPositionB = SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y + ScreenSize.Y);
+	if (Outlined) {
+		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness + 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
+		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness - 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
+	}
 
-	Line(ScreenPositionA, SDK::FVector2D(ScreenPositionB.X, ScreenPositionA.Y), Thickness, RenderColor, Outlined);
-	Line(ScreenPositionA, SDK::FVector2D(ScreenPositionA.X, ScreenPositionB.Y), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X, ScreenPositionB.Y), ScreenPositionB, Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionB.X, ScreenPositionA.Y), ScreenPositionB, Thickness, RenderColor, Outlined);
+	SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness, RenderColor);
 }
 void Drawing::CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	float lineW = ScreenSize.X / 4;

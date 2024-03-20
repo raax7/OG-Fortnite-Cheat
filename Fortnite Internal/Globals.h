@@ -25,6 +25,7 @@
 
 // Only enable this if you are sure your injector supports SEH
 #define USING_SEH			TRUE	// Enables the use oh SEH (Structured Exception Handler) for verifying if a pointer is valid
+#define SEASON_20_PLUS		FALSE	// REQUIRED ON SEASON 20 AND FORWARD! Enables the use of doubles instead of floats on structures like FVector, FRotator etc. Changes a few other structures too
 
 #define SHOW_MESSAGE_BOX	TRUE	// Enables the display of error message boxes
 #define CRASH_ON_NOT_FOUND	FALSE	// Crashes the game when an offset/VFT index is not found

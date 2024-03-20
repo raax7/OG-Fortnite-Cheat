@@ -1,5 +1,4 @@
 #pragma once
-#include <Windows.h>
 #include <chrono>
 
 #include "../Features/Aimbot/Target.h"

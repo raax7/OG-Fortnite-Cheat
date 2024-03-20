@@ -1,9 +1,8 @@
 #pragma once
-#include <Windows.h>
 #include <vector>
 #include <memory>
 
-#include "../../Utilities/Logger.h"
+#include "../SDK/SDK.h"
 
 namespace Features {
     class IAutoRevertFeature {
@@ -23,13 +22,13 @@ namespace Features {
         bool* Enabled;
     public:
         AutoRevertFeature(T* Address, bool* Enabled) : Address(Address), Enabled(Enabled) {
-            if (Address && Enabled) {
+            if (SDK::IsValidPointer(Address) && SDK::IsValidPointer(Enabled)) {
                 OriginalValue = *Address;
             }
         }
 
         ~AutoRevertFeature() override {
-            if (Address) *Address = OriginalValue;
+            if (SDK::IsValidPointer(Address)) *Address = OriginalValue;
         }
 
         bool IsDuplicate(void* Address, bool* Enabled, uint8_t BitMask) const override {
@@ -37,7 +36,7 @@ namespace Features {
         }
 
         bool Tick() override {
-            if (Address && Enabled) {
+            if (SDK::IsValidPointer(Address) && SDK::IsValidPointer(Enabled)) {
                 if (*Enabled == false) {
                     *Address = OriginalValue;
 
@@ -145,13 +144,17 @@ namespace Features {
 
 	namespace Aimbot {
 		class Target;
-	};
+	}
 
 	namespace Exploits {
-		class Vehicle;
-	};
+        namespace Vehicle {
+
+        }
+	}
 
 	namespace FortPawnHelper {
-		class Bone;
-	};
+        namespace Bone {
+
+        }
+	}
 }

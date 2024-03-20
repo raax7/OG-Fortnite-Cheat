@@ -119,10 +119,10 @@
     <ClCompile Include="Hooks\RaaxDx\minhook\src\hde\hde64.c">
       <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Features\Exploits\Vehicles.cpp">
+    <ClCompile Include="Game\Features\Exploits\Vehicle.cpp">
       <Filter>Game\Features\Exploits</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Features\Exploits\Weapons.cpp">
+    <ClCompile Include="Game\Features\Exploits\Weapon.cpp">
       <Filter>Game\Features\Exploits</Filter>
     </ClCompile>
   </ItemGroup>
@@ -337,7 +337,7 @@
     <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\table64.h">
       <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\Exploits\Vehicles.h">
+    <ClInclude Include="Game\Features\Exploits\Vehicle.h">
       <Filter>Game\Features\Exploits</Filter>
     </ClInclude>
     <ClInclude Include="External-Libs\skCrypter.h">
@@ -346,7 +346,7 @@
     <ClInclude Include="External-Libs\LazyImporter.h">
       <Filter>External-Libs</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\Exploits\Weapons.h">
+    <ClInclude Include="Game\Features\Exploits\Weapon.h">
       <Filter>Game\Features\Exploits</Filter>
     </ClInclude>
   </ItemGroup>

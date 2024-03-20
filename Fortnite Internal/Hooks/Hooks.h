@@ -61,9 +61,7 @@ namespace Hooks {
 
 	namespace ResizeBuffers {
 		using ResizeBuffersParams = HRESULT(*)(IDXGISwapChain* pThis, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
-		using ResizeBuffersParams2 = void(*)(ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 		inline ResizeBuffersParams ResizeBuffersOriginal = nullptr;
-		inline ResizeBuffersParams2 ResizeBuffersOriginalff = nullptr;
 
 		inline bool Resized = false;
 
@@ -80,7 +78,7 @@ namespace Hooks {
 
 		LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	}
-#endif // INPUT_TYPE == WNDPROC_INPUT
+#endif // _IMGUI
 
 	namespace PostRender {
 		using PostRenderParams = void(*)(uintptr_t this_, uintptr_t Canvas);

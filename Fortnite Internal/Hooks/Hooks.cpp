@@ -2,6 +2,7 @@
 
 #include "../Game/SDK/SDK.h"
 #include "../Game/SDK/Classes/Engine_Classes.h"
+#include "../Game/SDK/Classes/FortniteGame_Classes.h"
 
 #include "../External-Libs/LazyImporter.h"
 
@@ -11,7 +12,7 @@
 
 template <typename T>
 Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void* Hook) {
-	DEBUG_LOG(LOG_INFO, skCrypt("Create VFTHook called").decrypt());
+	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Create VFTHook called")));
 
 	DWORD OldProtection{};
 	LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
@@ -25,13 +26,13 @@ Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void*
 	this->VFTIndex = VFTIndex;
 	this->Original = Original;
 
-	DEBUG_LOG(LOG_INFO, skCrypt("Hooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
+	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Hooked VFTIndex: ")) + std::to_string(VFTIndex));
 }
 Hooks::VFTHook::~VFTHook() {
-	DEBUG_LOG(LOG_INFO, skCrypt("Destroy VFTHook called").decrypt());
+	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Destroy VFTHook called")));
 
 	if (!VFT || !Original) {
-		DEBUG_LOG(LOG_INFO, skCrypt("Failed to destroy hook! VFT or Original is nullptr").decrypt());
+		DEBUG_LOG(LOG_INFO, std::string(skCrypt("Failed to destroy hook! VFT or Original is nullptr")));
 		return;
 	}
 
@@ -42,20 +43,23 @@ Hooks::VFTHook::~VFTHook() {
 
 	LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
 
-	DEBUG_LOG(LOG_INFO, skCrypt("Unhooked VFTIndex: ").decrypt() + std::to_string(VFTIndex));
+	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked VFTIndex: ")) + std::to_string(VFTIndex));
 }
 
 void Hooks::Init() {
-	PostRender::Hook = new Hooks::VFTHook(
-		SDK::GetEngine()->GameViewport()->Vft,
-		SDK::Cached::VFT::PostRender,
-		Hooks::PostRender::PostRenderOriginal,
-		Hooks::PostRender::PostRender);
+	if (SDK::Cached::VFT::PostRender) {
+		PostRender::Hook = new Hooks::VFTHook(
+			SDK::GetEngine()->GameViewport()->Vft,
+			SDK::Cached::VFT::PostRender,
+			Hooks::PostRender::PostRenderOriginal,
+			Hooks::PostRender::PostRender);
+	}
 }
 void Hooks::Tick() {
 	if (Config::Aimbot::SilentAim && SDK::Cached::VFT::GetPlayerViewpoint != 0x0 && SDK::Cached::VFT::GetViewpoint != 0x0) {
 		SDK::APlayerController* PlayerController = SDK::GetLocalController();
-		if (!Hooks::GetPlayerViewpoint::Hook || (Hooks::GetPlayerViewpoint::PlayerControllerHooked != PlayerController && PlayerController)) {
+		if ((Hooks::GetPlayerViewpoint::Hook == nullptr || (Hooks::GetPlayerViewpoint::PlayerControllerHooked != PlayerController && PlayerController))
+			&& PlayerController->IsA(SDK::AFortPlayerController::StaticClass()) && SDK::GetLocalPawn()) {
 			if (Hooks::GetPlayerViewpoint::Hook) delete Hooks::GetPlayerViewpoint::Hook;
 
 			Hooks::GetPlayerViewpoint::Hook = new Hooks::VFTHook(
@@ -68,7 +72,8 @@ void Hooks::Tick() {
 		}
 
 		SDK::ULocalPlayer* LocalPlayer = SDK::GetLocalPlayer();
-		if (!Hooks::GetViewpoint::Hook || (Hooks::GetViewpoint::LocalPlayerHooked != LocalPlayer && LocalPlayer)) {
+		if ((Hooks::GetViewpoint::Hook == nullptr || (Hooks::GetViewpoint::LocalPlayerHooked != LocalPlayer && LocalPlayer))
+			&& LocalPlayer->IsA(SDK::UFortLocalPlayer::StaticClass()) && SDK::GetLocalPawn()) {
 			if (Hooks::GetViewpoint::Hook) delete Hooks::GetViewpoint::Hook;
 
 			Hooks::GetViewpoint::Hook = new Hooks::VFTHook(

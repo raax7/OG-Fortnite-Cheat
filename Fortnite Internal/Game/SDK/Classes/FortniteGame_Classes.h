@@ -22,7 +22,7 @@ namespace SDK {
 		// VALUES
 
 		void SetBoostAccumulationRate(float Value, bool* AutoRevertFeature = nullptr) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate), AutoRevertFeature);
@@ -32,7 +32,7 @@ namespace SDK {
 		}
 
 		void SetBoostExpenseRate(float Value, bool* AutoRevertFeature = nullptr) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate), AutoRevertFeature);
@@ -52,7 +52,7 @@ namespace SDK {
 		// VALUES
 
 		TArray<struct FFortRechargingActionTimer> BoostTimers() {
-			if (!SDK::IsValidPointer(this)) return TArray<struct FFortRechargingActionTimer>{};
+			if (SDK::IsValidPointer(this) == false) return TArray<struct FFortRechargingActionTimer>{};
 			return *(TArray<struct FFortRechargingActionTimer>*)((uintptr_t)this + SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers);
 		}
 
@@ -68,7 +68,7 @@ namespace SDK {
 		// VALUES
 
 		FFortRechargingActionTimer* BoostAction() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (FFortRechargingActionTimer*)((uintptr_t)this + SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction);
 		}
 
@@ -84,7 +84,7 @@ namespace SDK {
 		// VALUES
 
 		UFortAntelopeVehicleConfigs* FortAntelopeVehicleConfigs() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (UFortAntelopeVehicleConfigs*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs));
 		}
 
@@ -110,12 +110,12 @@ namespace SDK {
 		// VALUES
 
 		FText DisplayName() {
-			if (!this) return FText{};
+			if (SDK::IsValidPointer(this) == false) return FText();
 			return *(FText*)((uintptr_t)this + SDK::Cached::Offsets::FortItemDefinition::DisplayName);
 		}
 
 		EFortItemTier Tier() {
-			if (!this) return EFortItemTier{};
+			if (SDK::IsValidPointer(this) == false) return EFortItemTier();
 			return *(EFortItemTier*)((uintptr_t)this + SDK::Cached::Offsets::FortItemDefinition::Tier);
 		}
 
@@ -129,7 +129,7 @@ namespace SDK {
 		// VALUES
 
 		UFortItemDefinition* ItemDefinition() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (UFortItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortItemEntry::ItemDefinition));
 		}
 	};
@@ -138,7 +138,7 @@ namespace SDK {
 		// VALUES
 
 		FFortItemEntry* PrimaryPickupItemEntry() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (FFortItemEntry*)((uintptr_t)this + SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry);
 		}
 
@@ -153,22 +153,22 @@ namespace SDK {
 		// VALUES
 
 		UFortWeaponItemDefinition* WeaponData() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (UFortWeaponItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::WeaponData));
 		}
 
 		float LastFireTime() {
-			if (!SDK::IsValidPointer(this)) return 0.f;
+			if (SDK::IsValidPointer(this) == false) return 0.f;
 			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::LastFireTime);
 		}
 
 		float LastFireTimeVerified() {
-			if (!SDK::IsValidPointer(this)) return 0.f;
+			if (SDK::IsValidPointer(this) == false) return 0.f;
 			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified);
 		}
 
 		void SetLastFireTime(float NewLastFireTime) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::LastFireTime) = NewLastFireTime;
 		}
 
@@ -206,7 +206,7 @@ namespace SDK {
 		// VALUES
 
 		uint8 TeamIndex() {
-			if (!SDK::IsValidPointer(this)) return uint8{};
+			if (SDK::IsValidPointer(this) == false) return uint8{};
 			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex);
 		}
 	};
@@ -215,22 +215,22 @@ namespace SDK {
 		// VALUES
 
 		AFortPlayerState* PlayerState() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (AFortPlayerState*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Pawn::PlayerState));
 		}
 
 		AFortWeapon* CurrentWeapon() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (AFortWeapon*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::CurrentWeapon));
 		}
 
 		FVehiclePawnState* VehicleStateLocal() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (FVehiclePawnState*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::VehicleStateLocal);
 		}
 
 		bool IsDying() {
-			if (!SDK::IsValidPointer(this)) return false;
+			if (SDK::IsValidPointer(this) == false) return false;
 
 			if (SDK::Cached::Masks::FortPawn::bIsDying) {
 				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::bIsDying);
@@ -264,12 +264,12 @@ namespace SDK {
 		// VALUES
 
 		uint8 TeamIndex() {
-			if (!SDK::IsValidPointer(this)) return 0;
+			if (SDK::IsValidPointer(this) == false) return 0;
 			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex);
 		}
 
 		void SetTeamIndex(uint8 NewTeamIndex, bool* AutoRevertFeature = nullptr) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<uint8>((uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex), AutoRevertFeature);
@@ -283,12 +283,12 @@ namespace SDK {
 		// VALUES
 
 		ABuildingActor* TargetedBuilding() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (ABuildingActor*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::TargetedBuilding));
 		}
 
 		void SetbBuildFree(bool NewbBuildFree, bool* AutoRevertFeature = nullptr) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 
 			if (SDK::Cached::Masks::FortPlayerController::bBuildFree) {
 				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bBuildFree);
@@ -309,7 +309,7 @@ namespace SDK {
 		}
 
 		void SetbInfiniteAmmo(bool NewbInfiniteAmmo, bool* AutoRevertFeature = nullptr) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 
 			if (SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo) {
 				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo);
@@ -328,13 +328,25 @@ namespace SDK {
 				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo) = NewbInfiniteAmmo;
 			}
 		}
+	
+	
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
+	class UFortLocalPlayer : public ULocalPlayer {
+	public:
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
 	};
 	class ABuildingWeakSpot : public AActor {
 	public:
 		// VALUES
 
 		uint8 GetWeakSpotInfo() {
-			if (!this) return 0;
+			if (SDK::IsValidPointer(this) == false) return 0;
 			return *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField);
 		}
 

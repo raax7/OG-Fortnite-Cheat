@@ -22,7 +22,7 @@ namespace SDK {
 		// VALUES
 
 		FVector GetPosition() {
-			if (!SDK::IsValidPointer(this)) return FVector{};
+			if (SDK::IsValidPointer(this) == false) return FVector{};
 			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
 		}
 
@@ -47,7 +47,7 @@ namespace SDK {
 		// VALUES
 
 		USceneComponent* GetRootComponent() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
 		}
 
@@ -85,7 +85,7 @@ namespace SDK {
 		// VALUES
 
 		USkeletalMeshComponent* Mesh() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (USkeletalMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Character::Mesh));
 		}
 	};
@@ -110,12 +110,12 @@ namespace SDK {
 		// VALUES
 
 		APawn* AcknowledgedPawn() {
-			if (!SDK::IsValidPointer(this)) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (APawn*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::AcknowledgedPawn));
 		}
 
 		APlayerCameraManager* PlayerCameraManager() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (APlayerCameraManager*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::PlayerCameraManager));
 		}
 
@@ -146,7 +146,7 @@ namespace SDK {
 		// VALUES
 
 		APlayerController* PlayerController() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (APlayerController*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Player::PlayerController));
 		}
 	};
@@ -159,7 +159,7 @@ namespace SDK {
 		// VALUES
 
 		TArray<ULocalPlayer*> LocalPlayers() {
-			if (!SDK::IsValidPointer(this)) return TArray<ULocalPlayer*>{};
+			if (SDK::IsValidPointer(this) == false) return TArray<ULocalPlayer*>{};
 			return *(TArray<ULocalPlayer*>*)((uintptr_t)this + SDK::Cached::Offsets::GameInstance::LocalPlayers);
 		}
 	};
@@ -172,12 +172,12 @@ namespace SDK {
 		// VALUES
 
 		UWorld* World() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (UWorld*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::World));
 		}
 
 		UGameInstance* GameInstance() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (UGameInstance*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::GameInstance));
 		}
 
@@ -192,7 +192,7 @@ namespace SDK {
 		// VALUES
 
 		UGameViewportClient* GameViewport() {
-			if (!this) return nullptr;
+			if (SDK::IsValidPointer(this) == false) return nullptr;
 			return (UGameViewportClient*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Engine::GameViewport));
 		}
 
@@ -264,12 +264,12 @@ namespace SDK {
 		// VALUES
 
 		void SetFontSize(int32 NewFontSize) {
-			if (!SDK::IsValidPointer(this)) return;
+			if (SDK::IsValidPointer(this) == false) return;
 			*(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize) = NewFontSize;
 		}
 
 		int32 GetFontSize() {
-			if (!SDK::IsValidPointer(this)) return 0;
+			if (SDK::IsValidPointer(this) == false) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize);
 		}
 	};
@@ -284,12 +284,12 @@ namespace SDK {
 		// VALUES
 
 		int32 SizeX() {
-			if (!this) return 0;
+			if (SDK::IsValidPointer(this) == false) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Canvas::SizeX);;
 		}
 
 		int32 SizeY() {
-			if (!this) return 0;
+			if (SDK::IsValidPointer(this) == false) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Canvas::SizeY);
 		}
 
@@ -304,6 +304,8 @@ namespace SDK {
 		void K2_DrawText(FString& RenderText, FVector2D ScreenPosition, int32 FontSize, FLinearColor RenderColor, bool bCentreX, bool bCentreY, bool bOutlined);
 
 		FVector2D K2_TextSize(const FString& RenderText, int32 FontSize);
+
+		void K2_DrawBox(FVector2D ScreenPosition, FVector2D ScreenSize, float Thickness, const FLinearColor& RenderColor);
 	};
 
 
