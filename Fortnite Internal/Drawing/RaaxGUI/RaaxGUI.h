@@ -73,6 +73,7 @@ namespace RaaxGUI {
 
 	RAAXGUI_API bool Checkbox(const char* Name, bool* Value);		// Draws a checkbox
 	RAAXGUI_API void SliderFloat(const char* Name, float* Value, float MinValue, float MaxValue); // Draws a float slider
+	RAAXGUI_API void SliderInt(const char* Name, int* Value, int MinValue, int MaxValue); // Draws an int slider
 
 
 

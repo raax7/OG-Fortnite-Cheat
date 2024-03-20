@@ -496,8 +496,8 @@ void RaaxGUI::CheckboxElement::Draw() {
 
 
 /* SLIDER */
-void RaaxGUI::SliderFloat(const char* Name, float* Value, float MinValue, float MaxValue) {
-	Window* CurrentWindow = GetContext()->GetCurrentWindow();
+template<typename SliderValueType> void CreateSliderInternal(const char* Name, SliderValueType* Value, SliderValueType MinValue, SliderValueType MaxValue) {
+	RaaxGUI::Window* CurrentWindow = RaaxGUI::GetContext()->GetCurrentWindow();
 
 	if (CurrentWindow == nullptr) {
 		THROW_ERROR(std::string(skCrypt("Attempted to create a GUI element with no current window!")), false);
@@ -506,13 +506,13 @@ void RaaxGUI::SliderFloat(const char* Name, float* Value, float MinValue, float 
 
 	int Id = HashString(Name);
 
-	SliderElement<float>* ThisElement = FindElementByIdAndWindow<SliderElement<float>>(Id, CurrentWindow);
+	RaaxGUI::SliderElement<SliderValueType>* ThisElement = RaaxGUI::FindElementByIdAndWindow<RaaxGUI::SliderElement<SliderValueType>>(Id, CurrentWindow);
 	if (ThisElement == nullptr) {
-		ThisElement = RegisterNewElement<SliderElement<float>>(Id, CurrentWindow);
+		ThisElement = RaaxGUI::RegisterNewElement<RaaxGUI::SliderElement<SliderValueType>>(Id, CurrentWindow);
 		ThisElement->ID = Id;
 
 		ThisElement->Name = Name;
-		ThisElement->Type = ElementType::Slider;
+		ThisElement->Type = RaaxGUI::ElementType::Slider;
 
 		// Slider exclusive data
 		ThisElement->Value = Value;
@@ -525,11 +525,19 @@ void RaaxGUI::SliderFloat(const char* Name, float* Value, float MinValue, float 
 
 	ThisElement->Seen = true;
 
-	if (ThisElement->Type != ElementType::Slider) {
+	if (ThisElement->Type != RaaxGUI::ElementType::Slider) {
 		THROW_ERROR(std::string(skCrypt("Found another element in the window with the same name! Please keep element and window names unique.")), false);
 		return;
 	}
 }
+
+void RaaxGUI::SliderFloat(const char* Name, float* Value, float MinValue, float MaxValue) {
+	CreateSliderInternal<float>(Name, Value, MinValue, MaxValue);
+}
+void RaaxGUI::SliderInt(const char* Name, int* Value, int MinValue, int MaxValue) {
+	CreateSliderInternal<int>(Name, Value, MinValue, MaxValue);
+}
+
 template<typename SliderValueType> bool RaaxGUI::SliderElement<SliderValueType>::IsInElementBounds(const SDK::FVector2D Position) {
 	if (Position.X > BoundsPosition.X && Position.X < BoundsPosition.X + BoundsSize.X) {
 		if (Position.Y > BoundsPosition.Y && Position.Y < BoundsPosition.Y + BoundsSize.Y) {
@@ -575,7 +583,8 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 	}
 
 	// Calculate the how far along the slider the value is
-	float PercentComplete = std::clamp((*Value - MinValue) / (MaxValue - MinValue), 0.f, 1.f);
+	float PercentComplete = (*Value - MinValue) / (MaxValue - MinValue);
+	PercentComplete = std::clamp(PercentComplete, 0.f, 1.f);
 
 	// Determine the size of the slider based on the current value
 	SDK::FVector2D SliderValueSize = SDK::FVector2D(SliderSize.X * PercentComplete, SliderSize.Y);
