@@ -97,7 +97,7 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 	}
 }
 
-void SDKInitializer::InitPRIndex() {
+void SDKInitializer::InitDTIndex() {
 	void** Vft = nullptr;
 
 	for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++)
@@ -154,15 +154,15 @@ void SDKInitializer::InitPRIndex() {
 
 		if (Memory::FindPatternInRange({ 0x80, 0xB9, bSuppressTransitionMessage, 0x00, 0x00, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x35))
 		{
-			SDK::Cached::VFT::PostRender = i;
-			DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("PostRender VFT index found: ")) + std::to_string(SDK::Cached::VFT::PostRender));
+			SDK::Cached::VFT::DrawTransition = i;
+			DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("DrawTransition VFT index found: ")) + std::to_string(SDK::Cached::VFT::DrawTransition));
 
 			return;
 		}
 	}
 
-	if (SDK::Cached::VFT::PostRender == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find PostRender VFT index!")), CRASH_ON_NOT_FOUND);
+	if (SDK::Cached::VFT::DrawTransition == 0x0) {
+		THROW_ERROR(std::string(skCrypt("Failed to find DrawTransition VFT index!")), CRASH_ON_NOT_FOUND);
 	}
 }
 void SDKInitializer::InitPEIndex() {
@@ -406,6 +406,61 @@ void SDKInitializer::InitLineTraceSingle() {
 	SDK::Cached::Functions::LineTraceSingle -= SDK::GetBaseAddress();
 
 	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("LineTraceSingle function offset found: ")) + std::to_string(SDK::Cached::Functions::LineTraceSingle));
+}
+void SDKInitializer::InitCalculateShot() {
+	uintptr_t CalculateShotAddress = 0x0;
+
+	if (SDK::GetGameVersion() > 16.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 8B C4 48 89 58 18 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 B8 0F 29 78 A8 44 0F 29 40 ? 44 0F 29 48 ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4C 8D A1"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() > 14.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 89 5C 24 ? 4C 89 4C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B F9 4C"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() > 12.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 4C 89 4C 24 ? 55 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B F1 4C 8D"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() > 11.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 8B C4 48 89 58 10 4C 89 48 20 55 56 57 41 54 41 55 41 56 41 57 48 8D 68 98"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() > 8.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 8B C4 48 89 58 10 4C 89 48 20 55 56 57 41 54 41 55 41 56 41 57 48 8D 68 98"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() > 7.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 54 41 56 41 57 48 8D 68 88"),
+			0,
+			false);
+	}
+
+	if (CalculateShotAddress) {
+		SDK::Cached::Functions::CalculateShot = CalculateShotAddress - SDK::GetBaseAddress();
+
+		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("CalculateShot offset found: ")) + std::to_string(SDK::Cached::Functions::CalculateShot));
+	}
+	else {
+		THROW_ERROR(std::string(skCrypt("Failed to find CalculateShot!")), false);
+	}
 }
 
 void SDKInitializer::InitGObjects() {

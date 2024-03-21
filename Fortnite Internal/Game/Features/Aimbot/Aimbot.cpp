@@ -1,5 +1,7 @@
 #include "Aimbot.h"
 
+#include "../../../Utilities/Math.h"
+
 #include "../../../Configs/Config.h"
 #include "../../Input/Input.h"
 #include "Target.h"
@@ -19,11 +21,17 @@ void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
 	}
 }
 
-// Moved functionality of GetPlayerViewpoint hook and GetViewpoint hook from "Hooks/Callbacks" to here for better organization
+// Moved functionality of CalculateShot hook, GetPlayerViewpoint hook and GetViewpoint hook from "Hooks/Callbacks" to here for better organization
+
+void Features::Aimbot::CalculateShotCallback(SDK::FTransform* BulletTransform) {
+	if (Config::Aimbot::BulletTP && Actors::MainTarget.GlobalInfo.TargetActor) {
+		BulletTransform->Translation = Actors::MainTarget.GlobalInfo.TargetBonePosition;
+	}
+}
 
 void Features::Aimbot::GetViewpointCallback(SDK::FMinimalViewInfo* OutViewInfo) {
-	if (!Config::Aimbot::SilentAim) return;
-	if (!Actors::MainTarget.LocalInfo.IsTargeting && Config::Aimbot::UseAimKeyForSilent) return;
+	if (Config::Aimbot::SilentAim == false) return;
+	if (!Actors::MainTarget.LocalInfo.IsTargeting == false && Config::Aimbot::UseAimKeyForSilent) return;
 
 	if (Actors::MainTarget.GlobalInfo.TargetActor) {
 		OutViewInfo->SetRotation(Actors::MainCamera.Rotation);
@@ -32,8 +40,8 @@ void Features::Aimbot::GetViewpointCallback(SDK::FMinimalViewInfo* OutViewInfo) 
 }
 
 void Features::Aimbot::GetPlayerViewpointCallback(SDK::FRotator* Rotation) {
-	if (!Config::Aimbot::SilentAim) return;
-	if (!Actors::MainTarget.LocalInfo.IsTargeting && Config::Aimbot::UseAimKeyForSilent) return;
+	if (Config::Aimbot::SilentAim == false) return;
+	if (Actors::MainTarget.LocalInfo.IsTargeting == false && Config::Aimbot::UseAimKeyForSilent) return;
 
 	if (Actors::MainTarget.GlobalInfo.TargetActor) {
 		*Rotation = Actors::MainTarget.LocalInfo.TargetRotationWithSmooth;

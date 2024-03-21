@@ -13,6 +13,13 @@ namespace Features {
 		void AimbotTarget(Aimbot::Target& TargetToAimot);
 
 		/*
+		* @brief Callback for the CalculateShot hook (used for silent aim and bullet TP)
+		* 
+		* @param ShotTransform The bullet transform
+		*/
+		void CalculateShotCallback(SDK::FTransform* BulletTransform);
+
+		/*
 		* @brief Callback for the GetViewpoint hook (used for silent aim)
 		* 
 		* @param OutViewInfo The view info

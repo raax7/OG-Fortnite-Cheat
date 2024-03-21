@@ -65,8 +65,11 @@ void SDK::Init() {
 			DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Game Version: ")) + std::to_string(GetGameVersion()));
 		}
 
+		// Init CalculateShot function offset (requires game version)
+		SDKInitializer::InitCalculateShot();
+
 		// Continue initiating VFT Indexes
-		SDKInitializer::InitPRIndex();
+		SDKInitializer::InitDTIndex();
 		SDKInitializer::InitGVIndex();
 		SDKInitializer::InitGPVIndex();
 	}

@@ -48,7 +48,7 @@ namespace Drawing {
 
 	/* Cache hollow rectangles for ImGui processing */
 	struct RectCache {
-		SDK::FVector2D ScreenPositionA;
+		SDK::FVector2D ScreenPosition;
 		SDK::FVector2D ScreenSize;
 		float Thickness;
 		SDK::FLinearColor RenderColor;
@@ -57,7 +57,7 @@ namespace Drawing {
 
 	/* Cache cornered rectangles for ImGui processing */
 	struct CorneredRectCache {
-		SDK::FVector2D ScreenPositionA;
+		SDK::FVector2D ScreenPosition;
 		SDK::FVector2D ScreenSize;
 		float Thickness;
 		SDK::FLinearColor RenderColor;
@@ -170,21 +170,21 @@ namespace Drawing {
 	/*
 	* @brief Draws a hollow rectangle on the screen
 	* 
-	* @param ScreenPositionA - The starting position of the rectangle
+	* @param ScreenPosition - The starting position of the rectangle
 	* @param ScreenSize - The size of the rectangle
 	* @param Thickness - The thickness of the rectangle
 	* @param RenderColor - The color of the rectangle
 	* @param Outlined - Whether or not the rectangle should be outlined
 	*/
-	void Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	void Rect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 
 	/*
 	* @brief Draws a cornered rectangle on the screen
 	* 
-	* @param ScreenPositionA - The starting position of the rectangle
+	* @param ScreenPosition - The starting position of the rectangle
 	* @param ScreenSize - The size of the rectangle
 	* @param Thickness - The thickness of the rectangle
 	* @param RenderColor - The color of the rectangle
 	*/
-	void CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+	void CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
 };

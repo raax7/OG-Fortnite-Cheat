@@ -126,8 +126,9 @@ namespace Features {
             *
             * @param TargetBone - The optimal bone to aim at
             * @param FortPawnCache - The pawn cache of the target
+            * @param VisibleCheck - If true, 
             */
-            BoneID FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache);
+            BoneID FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache, bool VisibleCheck);
 
             /*
             * @brief Get a cached bone FName from BoneID

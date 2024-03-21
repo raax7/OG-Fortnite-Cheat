@@ -1,4 +1,7 @@
 #pragma once
+#include "../Globals.h"
+
+#if LOG_LEVEL > LOG_NONE
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -6,7 +9,7 @@
 #include <sstream>
 
 #include "Error.h"
-#include "../Globals.h"
+#endif
 
 // Only log if the log level is not LOG_NO
 #if LOG_LEVEL > LOG_NONE

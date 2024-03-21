@@ -19,7 +19,7 @@
 /*
 * NOTES
 * 
-* All specific offsets, VFT indexes, function addresses etc
+* All specific offsets, VFT indexes, function addresses, visual explanations etc
 * mentioned in comments are from Fortnite 7.40.
 * 
 * 
@@ -29,9 +29,8 @@
 // - Fix unloading crashing on ImGui on some versions of Fortnite
 // - Improve input class even more (less reliance on tick based UE functions and force input events for WndProc input)
 // - Improve GetPlayerViewpoint and GetViewpoint VFT index getting
-// - Fix text size being innacurate on Engine rendering
 // - Add WndProc hook for Engine
-// - Add a season based feature system(allow / forbid features only on specific seasons)
+// - Add a season based feature system (allow/forbid features only on specific seasons)
 // - Add more menu elements types to RaaxGUI
 // - Add more features
 // - Add a batch line processor for better line outlne handling
@@ -39,7 +38,6 @@
 // - Add a PCH
 // - Make everything in Memory.h my own code (no pasting)
 // - Add WndProc as an option for Engine rendering
-// - Add bitfield support for AutoRevertFeature
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
@@ -51,9 +49,10 @@ VOID UnloadThread() {
             LI_FN(Beep).safe()(500, 250);
 
             // Unhook all hooks
-            if (Hooks::PostRender::Hook)            delete Hooks::PostRender::Hook;
+            if (Hooks::DrawTransition::Hook)        delete Hooks::DrawTransition::Hook;
             if (Hooks::GetPlayerViewpoint::Hook)    delete Hooks::GetPlayerViewpoint::Hook;
             if (Hooks::GetViewpoint::Hook)          delete Hooks::GetViewpoint::Hook;
+
 #ifdef _IMGUI
             LI_FN(SetWindowLongPtrA).safe()(RaaxDx::Window, GWLP_WNDPROC, (LONG_PTR)Hooks::WndProc::WndProcOriginal);
             RaaxDx::Unhook();
@@ -74,7 +73,7 @@ VOID Main() {
     // Beep to notify that the cheat has been injected
     LI_FN(Beep).safe()(500, 500);
 
-    // Seed random
+    // Set random seed
     LI_FN(srand).safe()(time(NULL));
 
 #if LOG_LEVEL > LOG_NONE
@@ -111,8 +110,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 #else
         Main();
 #endif // INIT_THREAD
-        break;
     }
+    break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:

@@ -127,8 +127,8 @@ bool Features::Aimbot::Target::ShouldSetTarget(Target PotentialTarget) {
 	}
 	else if (PotentialTarget.GlobalInfo.Type == GlobalInfo.Type) {
 		// If the target priority is the same as the current target, then check the parameters
-		if (LocalInfo.IsTargeting) {
-			// If we are targeting, then don't update
+		if (LocalInfo.IsTargeting && Config::Aimbot::StickyAim) {
+			// If we are targeting and using sticky aim, then don't update
 			return false;
 		}
 
@@ -177,7 +177,7 @@ void Features::Aimbot::Target::SetTarget(Target NewTarget, bool ForceSetTarget) 
 void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::Caches::CameraCache& MainCamera, const Actors::Caches::CameraCache& AimbotCamera, const float FPSScale) {
 	// Update global information
 	Target.GlobalInfo.TargetActor = TargetCache.FortPawn;
-	Target.GlobalInfo.TargetBoneId = Features::FortPawnHelper::Bone::FindBestBone(Features::FortPawnHelper::Bone::Head, TargetCache);
+	Target.GlobalInfo.TargetBoneId = Features::FortPawnHelper::Bone::FindBestBone(Features::FortPawnHelper::Bone::Head, TargetCache, Config::Aimbot::VisibleCheck);
 
 	// Determine target type
 	Target.GlobalInfo.Type = (Target.LocalInfo.DistanceFromPlayer <= Config::Aimbot::CloseAim::Range && Config::Aimbot::CloseAim::Enabled) ? Target::TargetType::ClosePlayer : Target::TargetType::FarPlayer;

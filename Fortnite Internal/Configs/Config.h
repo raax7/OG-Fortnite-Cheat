@@ -16,8 +16,13 @@ namespace Config {
 
 		inline KeyName AimKey = (KeyName)7;
 
+		inline bool BulletTP = false;
+
 		inline bool SilentAim = false;
 		inline bool UseAimKeyForSilent = false;
+
+		inline bool StickyAim = true;
+		inline bool VisibleCheck = true;
 
 		inline bool ShowAimLine = true;
 		inline bool ShowFOV = true;

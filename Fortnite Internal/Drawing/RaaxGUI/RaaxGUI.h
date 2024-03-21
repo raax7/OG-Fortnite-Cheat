@@ -204,7 +204,7 @@ namespace RaaxGUI {
 			DefaultWindowStyle.TitleBarTextColor = { 0.7f, 0.7f, 0.7f, 1.f }; // Dark grey for title text
 			DefaultWindowStyle.TitleBarTextAlignment = TextAlignment::Center;
 			DefaultWindowStyle.AutoTitleBarTextSize = true;
-			DefaultWindowStyle.TitleBarTextSize = 8.f;
+			DefaultWindowStyle.TitleBarTextSize = 16.f;
 
 			// Checkbox
 			DefaultElementStyle.CheckboxStyle.CheckboxButtonSize = SDK::FVector2D(15.f, 15.f);
@@ -215,7 +215,7 @@ namespace RaaxGUI {
 			DefaultElementStyle.CheckboxStyle.CheckboxEnabledInnerBoxColor = { 0.0f, 0.6f, 0.7f, 1.f }; // Adjusted aqua for enabled state
 
 			DefaultElementStyle.CheckboxStyle.CheckboxTextColor = { 0.7f, 0.7f, 0.7f, 1.f }; // Dark grey text
-			DefaultElementStyle.CheckboxStyle.CheckboxTextSize = 12.f;
+			DefaultElementStyle.CheckboxStyle.CheckboxTextSize = 14.f;
 			DefaultElementStyle.CheckboxStyle.CheckboxTextOffset = 5.f;
 
 			DefaultElementStyle.CheckboxStyle.CheckboxPadding = { 5.f, 5.f };
@@ -231,8 +231,8 @@ namespace RaaxGUI {
 			DefaultElementStyle.SliderStyle.SliderValueBarColor = { 0.0f, 0.6f, 0.7f, 1.f }; // Adjusted aqua for value bar
 
 			DefaultElementStyle.SliderStyle.SliderValueTextColor = { 0.7f, 0.7f, 0.7f, 1.f }; // Dark grey for value text
-			DefaultElementStyle.SliderStyle.SliderValueTextSize = 8.f;
-			DefaultElementStyle.SliderStyle.SliderValueTextOffset = 3.f;
+			DefaultElementStyle.SliderStyle.SliderValueTextSize = 10.f;
+			DefaultElementStyle.SliderStyle.SliderValueTextOffset = 2.f;
 
 			DefaultElementStyle.SliderStyle.SliderBarColor = { 0.12f, 0.12f, 0.12f, 1.f }; // Darker grey
 			DefaultElementStyle.SliderStyle.SliderBarHoverColor = { 0.16f, 0.16f, 0.16f, 1.f }; // Dark grey hover

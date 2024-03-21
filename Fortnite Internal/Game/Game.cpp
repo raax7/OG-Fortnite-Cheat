@@ -14,6 +14,7 @@
 #ifdef _ENGINE
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
 #endif
+#include "../Utilities/Logger.h"
 
 bool MenuOpen = true;
 
@@ -43,31 +44,100 @@ void Game::MenuCallback() {
 			RaaxGUI::Checkbox(skCrypt("Show Aim Line"), &Config::Aimbot::ShowAimLine);
 			RaaxGUI::Checkbox(skCrypt("Show FOV"), &Config::Aimbot::ShowFOV);
 
-			if (RaaxGUI::Checkbox(skCrypt("Standard"), &Config::Aimbot::Standard::Enabled)) {
-				//RaaxGUI::SliderFloat(skCrypt("FOV"), &Config::Aimbot::Standard::FOV, 0.f, 1000.f);
-				//RaaxGUI::SliderFloat(skCrypt("Smoothing"), &Config::Aimbot::Standard::Smoothing, 0.f, 100.f);
+			RaaxGUI::Checkbox(skCrypt("Standard"), &Config::Aimbot::Standard::Enabled);
+			if (Config::Aimbot::Standard::Enabled) {
+				RaaxGUI::SliderInt(skCrypt("Standard FOV"), &Config::Aimbot::Standard::FOV, 0, 180);
+				RaaxGUI::SliderFloat(skCrypt("Standard Smoothing"), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
 			}
 
-			if (RaaxGUI::Checkbox(skCrypt("Close Aim"), &Config::Aimbot::CloseAim::Enabled)) {
-				//RaaxGUI::SliderFloat(skCrypt("FOV"), &Config::Aimbot::CloseAim::FOV, 0.f, 1000.f);
-				//RaaxGUI::SliderFloat(skCrypt("Smoothing"), &Config::Aimbot::CloseAim::Smoothing, 0.f, 100.f);
+			RaaxGUI::Checkbox(skCrypt("Close Aim"), &Config::Aimbot::CloseAim::Enabled);
+			if (Config::Aimbot::CloseAim::Enabled) {
+				RaaxGUI::SliderInt(skCrypt("Close FOV"), &Config::Aimbot::CloseAim::FOV, 0, 180);
 				RaaxGUI::SliderFloat(skCrypt("Smoothing"), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
 			}
 
-			if (RaaxGUI::Checkbox(skCrypt("Weakspot"), &Config::Aimbot::Weakspot::Enabled)) {
-				//RaaxGUI::SliderFloat(skCrypt("FOV"), &Config::Aimbot::Weakspot::FOV, 0.f, 1000.f);
-				//RaaxGUI::SliderFloat(skCrypt("Smoothing"), &Config::Aimbot::Weakspot::Smoothing, 0.f, 100.f);
+			RaaxGUI::Checkbox(skCrypt("Weakspot"), &Config::Aimbot::Weakspot::Enabled);
+			if (Config::Aimbot::Weakspot::Enabled) {
+				RaaxGUI::SliderInt(skCrypt("Weakspot FOV"), &Config::Aimbot::Weakspot::FOV, 0, 180);
+				RaaxGUI::SliderFloat(skCrypt("Weakspot Smoothing"), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
 			}
 		}
 	}
 	RaaxGUI::EndWindow();
 
 	if (RaaxGUI::BeginWindow(skCrypt("Visual Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
-		if (RaaxGUI::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled)) {
+		RaaxGUI::Checkbox(skCrypt("Weapon ESP"), &Config::Visuals::Weapons::Enabled);
+
+		RaaxGUI::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
+		if (Config::Visuals::Players::Enabled) {
 			RaaxGUI::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
 			RaaxGUI::Checkbox(skCrypt("Skeleton"), &Config::Visuals::Players::Skeleton);
 			RaaxGUI::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
 			RaaxGUI::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
+		}
+	}
+	RaaxGUI::EndWindow();
+
+	if (RaaxGUI::BeginWindow(skCrypt("Exploit Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
+		// Sub Tabs
+		// the worlds GOOFIEST tab switcher
+		RaaxGUI::SliderInt(skCrypt("Sub Tab"), &SubTab, 0, 4);
+
+		switch (SubTab) {
+		case 0:
+		{
+			RaaxGUI::Checkbox(skCrypt("Infinite Builds (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteBuilds);
+			RaaxGUI::Checkbox(skCrypt("Infinite Ammo (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteAmmo);
+			RaaxGUI::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
+		}
+		break;
+		case 1:
+		{
+			RaaxGUI::Checkbox(skCrypt("No Spread"), &Config::Exploits::Weapon::NoSpread);
+			RaaxGUI::Checkbox(skCrypt("No Recoil"), &Config::Exploits::Weapon::NoRecoil);
+			RaaxGUI::Checkbox(skCrypt("No Reload"), &Config::Exploits::Weapon::NoReload);
+			RaaxGUI::Checkbox(skCrypt("Rapid Fire"), &Config::Exploits::Weapon::RapidFire);
+			RaaxGUI::Checkbox(skCrypt("Damage Multiplier"), &Config::Exploits::Weapon::UseDamageMultiplier);
+			//ImGui::SliderFloat(skCrypt("Rapid Fire Amount"), &Config::Exploits::Weapon::RapidFireAmount, 1.f, 100.f);
+			if (Config::Exploits::Weapon::UseDamageMultiplier) {
+				RaaxGUI::SliderInt(skCrypt("Amount"), &Config::Exploits::Weapon::DamageMultiplier, 1, 100);
+			}
+		}
+		break;
+		case 2:
+		{
+			RaaxGUI::Checkbox(skCrypt("Fast Pickaxe"), &Config::Exploits::Pickaxe::FastPickaxe);
+			if (Config::Exploits::Pickaxe::FastPickaxe) {
+				//RaaxGUI::SameLine();
+				RaaxGUI::SliderFloat(skCrypt("Speed"), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
+			}
+		}
+		break;
+		case 3:
+		{
+			RaaxGUI::Checkbox(skCrypt("Infinite Boost"), &Config::Exploits::Vehicle::InfiniteBoost);
+			RaaxGUI::Checkbox(skCrypt("Fly"), &Config::Exploits::Vehicle::Fly);
+			if (Config::Exploits::Vehicle::Fly) {
+				RaaxGUI::Checkbox(skCrypt("Fly Through Walls (also makes flying better)"), &Config::Exploits::Vehicle::FlyThroughWalls);
+				RaaxGUI::Checkbox(skCrypt("Freeze In Air"), &Config::Exploits::Vehicle::FreezeInAir);
+				RaaxGUI::Checkbox(skCrypt("No Tilting"), &Config::Exploits::Vehicle::NoTilting);
+				RaaxGUI::SliderFloat(skCrypt("Fly Speed"), &Config::Exploits::Vehicle::FlySpeed, 35.f, 1000.f);
+			}
+		}
+		break;
+		case 4:
+		{
+			RaaxGUI::Checkbox(skCrypt("Prioritize Farthest Weapons"), &Config::Exploits::Pickup::PrioritizeFarthestWeapons);
+
+			RaaxGUI::Checkbox(skCrypt("Auto Pickup"), &Config::Exploits::Pickup::AutoPickup);
+			if (Config::Exploits::Pickup::AutoPickup) {
+				RaaxGUI::SliderFloat(skCrypt("Auto Pickup Delay (MS)"), &Config::Exploits::Pickup::AutoPickupDelaySecs, 0.f, 10.f);
+			}
+
+			RaaxGUI::SliderInt(skCrypt("Max Pickup Distance"), &Config::Exploits::Pickup::MaxDistance, 1, 500);
+			RaaxGUI::SliderInt(skCrypt("Max Pickup Amount"), &Config::Exploits::Pickup::MaxItems, 1, 500);
+		}
+		break;
 		}
 	}
 	RaaxGUI::EndWindow();
@@ -130,10 +200,19 @@ void Game::MenuCallback() {
 					WaitingForKeyInput = true;
 				}
 
+				if (SDK::Cached::Functions::CalculateShot) {
+					ImGui::Checkbox(skCrypt("Bullet TP"), &Config::Aimbot::BulletTP);
+				}
+
 				ImGui::Checkbox(skCrypt("Silent Aim"), &Config::Aimbot::SilentAim);
-				if (Config::Aimbot::SilentAim) ImGui::Checkbox(skCrypt("Use Aim-Key For Silent"), &Config::Aimbot::UseAimKeyForSilent);
+				if (Config::Aimbot::SilentAim) {
+					ImGui::Checkbox(skCrypt("Use Aim-Key For Silent"), &Config::Aimbot::UseAimKeyForSilent);
+				}
 				ImGui::Checkbox(skCrypt("Show Aim Line"), &Config::Aimbot::ShowAimLine);
 				ImGui::Checkbox(skCrypt("Show FOV"), &Config::Aimbot::ShowFOV);
+
+				ImGui::Checkbox(skCrypt("Sticky Aim"), &Config::Aimbot::StickyAim);
+				ImGui::Checkbox(skCrypt("Visible Check"), &Config::Aimbot::VisibleCheck);
 
 				ImGui::Checkbox(skCrypt("Standard"), &Config::Aimbot::Standard::Enabled);
 				if (Config::Aimbot::Standard::Enabled) {

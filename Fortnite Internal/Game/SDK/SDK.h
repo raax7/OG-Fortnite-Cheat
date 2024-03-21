@@ -3,8 +3,10 @@
 
 namespace SDK {
 	namespace Cached {
+		inline bool UsingCalculateShot = false;
+
 		namespace VFT {
-			inline uintptr_t PostRender;
+			inline uintptr_t DrawTransition;
 			inline uintptr_t ProcessEvent;
 			inline uintptr_t GetPlayerViewpoint;
 			inline uintptr_t GetViewpoint;
@@ -244,6 +246,7 @@ namespace SDK {
 			inline uintptr_t AppendString = 0x0;
 			inline uintptr_t FNameConstructor = 0x0;
 			inline uintptr_t LineTraceSingle = 0x0;
+			inline uintptr_t CalculateShot = 0x0;
 		}
 
 		namespace Masks {

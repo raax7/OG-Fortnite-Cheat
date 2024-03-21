@@ -38,7 +38,7 @@
     <ClCompile Include="Hooks\Hooks.cpp">
       <Filter>Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\Callbacks\PostRender.cpp">
+    <ClCompile Include="Hooks\Callbacks\DrawTransition.cpp">
       <Filter>Hooks\Callbacks</Filter>
     </ClCompile>
     <ClCompile Include="Hooks\Callbacks\GetPlayerViewpoint.cpp">
@@ -124,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="Game\Features\Exploits\Weapon.cpp">
       <Filter>Game\Features\Exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\CalculateShot.cpp">
+      <Filter>Hooks\Callbacks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

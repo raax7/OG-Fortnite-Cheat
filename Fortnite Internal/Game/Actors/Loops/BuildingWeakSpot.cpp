@@ -27,7 +27,7 @@ void Actors::BuildingWeakSpot::Tick() {
 		if (WeakSpot->GetWeakSpotInfo() & 0x4 && !(WeakSpot->GetWeakSpotInfo() & 0x2) && !(WeakSpot->GetWeakSpotInfo() & 0x1)) {
 			// Aimbot
 			if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
-				if ((MainTarget.LocalInfo.IsTargeting == false || MainTarget.GlobalInfo.TargetActor == nullptr)) {
+				if (((MainTarget.LocalInfo.IsTargeting == false || Config::Aimbot::StickyAim == false) || MainTarget.GlobalInfo.TargetActor == nullptr)) {
 					Features::Aimbot::Target PotentialNewTarget{};
 
 					Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(PotentialNewTarget, WeakSpot, MainCamera, AimbotCamera);

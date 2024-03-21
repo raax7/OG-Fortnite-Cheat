@@ -212,7 +212,7 @@ void Actors::FortPawn::Tick() {
 
 		// Aimbot
 		if (Config::Aimbot::Enabled && SDK::GetLocalPawn()) {
-			if (CurrentPlayer.IsAnyBoneVisible && (!MainTarget.LocalInfo.IsTargeting || !MainTarget.GlobalInfo.TargetActor)) {
+			if ((CurrentPlayer.IsAnyBoneVisible || Config::Aimbot::VisibleCheck == false) && ((MainTarget.LocalInfo.IsTargeting == false || Config::Aimbot::StickyAim == false) || MainTarget.GlobalInfo.TargetActor == nullptr)) {
 				Features::Aimbot::Target PotentialNewTarget{};
 
 				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer, MainCamera, AimbotCamera);
@@ -220,7 +220,7 @@ void Actors::FortPawn::Tick() {
 			}
 
 			if (MainTarget.GlobalInfo.TargetActor == FortPawn) {
-				if (CurrentPlayer.IsAnyBoneVisible == false) {
+				if (CurrentPlayer.IsAnyBoneVisible == false && Config::Aimbot::VisibleCheck == true) {
 					MainTarget.ResetTarget();
 				}
 				else {

@@ -175,7 +175,10 @@ void RaaxGUI::Window::Draw() {
 		Drawing::FilledRect(Position, Size, Style.BackgroundColor, false);
 
 		// Draw title bar
-		Drawing::FilledRect(Position, SDK::FVector2D(Size.X, Style.TitleBarSize.Y), { 0.2f, 0.2f, 0.2f, 1.f }, false);
+		Drawing::FilledRect(Position, SDK::FVector2D(Size.X, Style.TitleBarSize.Y), SDK::FLinearColor(0.2f, 0.2f, 0.2f, 1.f), false);
+
+		// Draw border
+		Drawing::Rect(Position, Size, 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f), true);
 
 		SDK::FVector2D TextPosition = SDK::FVector2D();
 
@@ -191,7 +194,7 @@ void RaaxGUI::Window::Draw() {
 			break;
 		}
 
-		Drawing::Text(Name.c_str(), TextPosition, Style.TitleBarTextSize, {1.f, 1.f, 1.f, 1.f}, Style.TitleBarTextAlignment == TextAlignment::Center ? true : false, false, true);
+		Drawing::Text(Name.c_str(), TextPosition, Style.TitleBarTextSize, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), Style.TitleBarTextAlignment == TextAlignment::Center ? true : false, false, true);
 
 		// Draw elements
 		for (int i = 0; i < Elements.size(); i++) {
@@ -552,7 +555,7 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 		float CalculatedValue = (ClickPosition.X - BoundsPosition.X) / BoundsSize.X;
 		CalculatedValue = std::clamp(CalculatedValue, 0.f, 1.f);
 
-		*Value = (MaxValue - MinValue) * CalculatedValue + MinValue;
+		*Value = (SliderValueType)((MaxValue - MinValue) * CalculatedValue + MinValue);
 	}
 }
 template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::OnClickBegin(const SDK::FVector2D ClickPosition) {
@@ -560,7 +563,7 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 		float CalculatedValue = (ClickPosition.X - BoundsPosition.X) / BoundsSize.X;
 		CalculatedValue = std::clamp(CalculatedValue, 0.f, 1.f);
 
-		*Value = (MaxValue - MinValue) * CalculatedValue + MinValue;
+		*Value = (SliderValueType)((MaxValue - MinValue) * CalculatedValue + MinValue);
 
 		BeingClicked = true;
 	}
@@ -583,7 +586,7 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 	}
 
 	// Calculate the how far along the slider the value is
-	float PercentComplete = (*Value - MinValue) / (MaxValue - MinValue);
+	float PercentComplete = ((float)*Value - (float)MinValue) / ((float)MaxValue - (float)MinValue);
 	PercentComplete = std::clamp(PercentComplete, 0.f, 1.f);
 
 	// Determine the size of the slider based on the current value

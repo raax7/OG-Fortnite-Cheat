@@ -9,6 +9,8 @@
 #include "../Utilities/Logger.h"
 
 #include "../Configs/Config.h"
+#include "../Utilities/Memory.h"
+#include "RaaxDx/minhook/include/MinHook.h"
 
 template <typename T>
 Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void* Hook) {
@@ -47,12 +49,21 @@ Hooks::VFTHook::~VFTHook() {
 }
 
 void Hooks::Init() {
-	if (SDK::Cached::VFT::PostRender) {
-		PostRender::Hook = new Hooks::VFTHook(
+	MH_Initialize();
+
+	MH_STATUS CreateCalculateShotHook = MH_CreateHook((void*)(SDK::Cached::Functions::CalculateShot + SDK::GetBaseAddress()), &Hooks::CalculateShot::CalculateShotHook, (void**)&Hooks::CalculateShot::CalculateShotOriginal);
+	MH_STATUS EnableCalculateShotHook = MH_EnableHook((void*)(SDK::Cached::Functions::CalculateShot + SDK::GetBaseAddress()));
+
+	if (CreateCalculateShotHook != MH_OK || EnableCalculateShotHook != MH_OK) {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook CalculateShot! Create Status: ")) + std::to_string(CreateCalculateShotHook) + std::string(skCrypt(" Enable Status: ")) + std::to_string(EnableCalculateShotHook));
+	}
+
+	if (SDK::Cached::VFT::DrawTransition) {
+		DrawTransition::Hook = new Hooks::VFTHook(
 			SDK::GetEngine()->GameViewport()->Vft,
-			SDK::Cached::VFT::PostRender,
-			Hooks::PostRender::PostRenderOriginal,
-			Hooks::PostRender::PostRender);
+			SDK::Cached::VFT::DrawTransition,
+			Hooks::DrawTransition::DrawTransitionOriginal,
+			Hooks::DrawTransition::DrawTransition);
 	}
 }
 void Hooks::Tick() {

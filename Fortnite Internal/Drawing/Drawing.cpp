@@ -12,6 +12,15 @@ void Drawing::RenderQueuedDrawingInfo() {
 	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	for (auto& Line : RenderBufferLine) {
+		if (Line.Outlined) {
+			ImU32 OutlineColor = ImColor(0.f, 0.f, 0.f, Line.RenderColor.A);
+
+			ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X + 1, Line.ScreenPositionA.Y), ImVec2(Line.ScreenPositionB.X + 1, Line.ScreenPositionB.Y), OutlineColor, Line.Thickness);
+			ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X - 1, Line.ScreenPositionA.Y), ImVec2(Line.ScreenPositionB.X - 1, Line.ScreenPositionB.Y), OutlineColor, Line.Thickness);
+			ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X, Line.ScreenPositionA.Y + 1), ImVec2(Line.ScreenPositionB.X, Line.ScreenPositionB.Y + 1), OutlineColor, Line.Thickness);
+			ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X, Line.ScreenPositionA.Y - 1), ImVec2(Line.ScreenPositionB.X, Line.ScreenPositionB.Y - 1), OutlineColor, Line.Thickness);
+		}
+
 		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(Line.ScreenPositionA.X, Line.ScreenPositionA.Y), ImVec2(Line.ScreenPositionB.X, Line.ScreenPositionB.Y), ImColor(Line.RenderColor.R, Line.RenderColor.G, Line.RenderColor.B, Line.RenderColor.A), Line.Thickness);
 	}
 
@@ -27,8 +36,7 @@ void Drawing::RenderQueuedDrawingInfo() {
 		}
 
 		if (Text.Outlined) {
-			ImU32 OutlineColor = IM_COL32_BLACK;
-			OutlineColor = (OutlineColor & 0x00FFFFFF) | (ImColor(Text.RenderColor.R, Text.RenderColor.G, Text.RenderColor.B, Text.RenderColor.A) & 0xFF000000);
+			ImU32 OutlineColor = ImColor(0.f, 0.f, 0.f, Text.RenderColor.A);
 
 			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { TextPosition.x + 1, TextPosition.y }, OutlineColor, Text.RenderText.c_str());
 			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, Text.FontSize, { TextPosition.x - 1, TextPosition.y }, OutlineColor, Text.RenderText.c_str());
@@ -48,22 +56,22 @@ void Drawing::RenderQueuedDrawingInfo() {
 	}
 
 	for (auto& Rect : RenderBufferRect) {
-		ImGui::GetBackgroundDrawList()->AddRect(ImVec2(Rect.ScreenPositionA.X, Rect.ScreenPositionA.Y), ImVec2(Rect.ScreenPositionA.X + Rect.ScreenSize.X, Rect.ScreenPositionA.Y + Rect.ScreenSize.Y), ImColor(Rect.RenderColor.R, Rect.RenderColor.G, Rect.RenderColor.B, Rect.RenderColor.A), 0, 0, Rect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddRect(ImVec2(Rect.ScreenPosition.X, Rect.ScreenPosition.Y), ImVec2(Rect.ScreenPosition.X + Rect.ScreenSize.X, Rect.ScreenPosition.Y + Rect.ScreenSize.Y), ImColor(Rect.RenderColor.R, Rect.RenderColor.G, Rect.RenderColor.B, Rect.RenderColor.A), 0, 0, Rect.Thickness);
 	}
 
 	for (auto& CorneredRect : RenderBufferCorneredRect) {
 		float lineW = CorneredRect.ScreenSize.X / 4;
 		float lineH = CorneredRect.ScreenSize.Y / 4;
 
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X, CorneredRect.ScreenPositionA.Y), ImVec2(CorneredRect.ScreenPositionA.X + lineW, CorneredRect.ScreenPositionA.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X, CorneredRect.ScreenPositionA.Y), ImVec2(CorneredRect.ScreenPositionA.X, CorneredRect.ScreenPositionA.Y + lineH), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPositionA.Y), ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPositionA.Y + lineH), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X - lineW, CorneredRect.ScreenPositionA.Y), ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPositionA.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X, CorneredRect.ScreenPosition.Y), ImVec2(CorneredRect.ScreenPosition.X + lineW, CorneredRect.ScreenPosition.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X, CorneredRect.ScreenPosition.Y), ImVec2(CorneredRect.ScreenPosition.X, CorneredRect.ScreenPosition.Y + lineH), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPosition.Y), ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPosition.Y + lineH), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X - lineW, CorneredRect.ScreenPosition.Y), ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPosition.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
 
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y), ImVec2(CorneredRect.ScreenPositionA.X + lineW, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y - lineH), ImVec2(CorneredRect.ScreenPositionA.X, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y - lineH), ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
-		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X - lineW, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y), ImVec2(CorneredRect.ScreenPositionA.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPositionA.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y), ImVec2(CorneredRect.ScreenPosition.X + lineW, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y - lineH), ImVec2(CorneredRect.ScreenPosition.X, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y - lineH), ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
+		ImGui::GetBackgroundDrawList()->AddLine(ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X - lineW, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y), ImVec2(CorneredRect.ScreenPosition.X + CorneredRect.ScreenSize.X, CorneredRect.ScreenPosition.Y + CorneredRect.ScreenSize.Y), ImColor(CorneredRect.RenderColor.R, CorneredRect.RenderColor.G, CorneredRect.RenderColor.B, CorneredRect.RenderColor.A), CorneredRect.Thickness);
 	}
 }
 
@@ -143,11 +151,11 @@ void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSiz
 
 	UpdateBufferFilledRect.push_back(Cache);
 }
-void Drawing::Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+void Drawing::Rect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	RectCache Cache;
-	Cache.ScreenPositionA = ScreenPositionA;
+	Cache.ScreenPosition = ScreenPosition;
 	Cache.ScreenSize = ScreenSize;
 	Cache.Thickness = Thickness;
 	Cache.RenderColor = RenderColor;
@@ -155,11 +163,11 @@ void Drawing::Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, fl
 
 	UpdateBufferRect.push_back(Cache);
 }
-void Drawing::CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+void Drawing::CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	//std::lock_guard<std::mutex> lock(SwapMutex);
 
 	CorneredRectCache Cache;
-	Cache.ScreenPositionA = ScreenPositionA;
+	Cache.ScreenPosition = ScreenPosition;
 	Cache.ScreenSize = ScreenSize;
 	Cache.Thickness = Thickness;
 	Cache.RenderColor = RenderColor;
@@ -185,16 +193,16 @@ void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float 
 	std::wstring WideString(WideStrLength, L'\0');
 	LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
 
-	// Fix text size being innacurate on engine rendering. (Maybe UFont::ScalingFactor?)
+	// Fix text size being inaccurate on engine rendering. (Maybe UFont::ScalingFactor?)
 
 	Text(WideString.c_str(), ScreenPosition, FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
 void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
 	SDK::FString FString(RenderText);
 
-	// Fix text size being innacurate on engine rendering. (Maybe UFont::ScalingFactor?)
+	// Fix text size being inaccurate on engine rendering. (Maybe UFont::ScalingFactor?)
 
-	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, (int32)FontSize, RenderColor, CenteredX, CenteredY, Outlined);
+	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, Outlined ? (int32)FontSize - 2 : (int32)FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
 SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
 	int WideStrLength = LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, nullptr, 0);
@@ -241,15 +249,15 @@ void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSiz
 		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPosition, ScreenSize, 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
 	}
 }
-void Drawing::Rect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+void Drawing::Rect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	if (Outlined) {
 		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness + 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
 		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness - 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
 	}
 
-	SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness, RenderColor);
+	SDK::GetLocalCanvas()->K2_DrawBox(ScreenPosition, ScreenSize, Thickness, RenderColor);
 }
-void Drawing::CorneredRect(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+void Drawing::CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	float lineW = ScreenSize.X / 4;
 	float lineH = ScreenSize.Y / 4;
 

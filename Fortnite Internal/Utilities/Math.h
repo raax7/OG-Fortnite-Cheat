@@ -135,6 +135,21 @@ namespace Math {
 		return degrees * (M_PI / 180.0f);
 	}
 
+	inline SDK::FQuat FRotatorToQuat(SDK::FRotator Rotator) {
+		float SP, SY, SR, CP, CY, CR;
+		Math::SinCos(&SP, &CP, Math::DegreesToRadians(Rotator.Pitch));
+		Math::SinCos(&SY, &CY, Math::DegreesToRadians(Rotator.Yaw));
+		Math::SinCos(&SR, &CR, Math::DegreesToRadians(Rotator.Roll));
+
+		SDK::FQuat RotationQuat;
+		RotationQuat.X = CR * SP * SY - SR * CP * CY;
+		RotationQuat.Y = -CR * SP * CY - SR * CP * SY;
+		RotationQuat.Z = CR * CP * SY - SR * SP * CY;
+		RotationQuat.W = CR * CP * CY + SR * SP * SY;
+
+		return RotationQuat;
+	}
+
 	inline float RadiansToDegrees(float radians) {
 		return radians * (180.0f / M_PI);
 	}

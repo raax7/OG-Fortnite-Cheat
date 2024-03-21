@@ -20,7 +20,11 @@ private:
             std::string(FilePath);
     }
 public:
-    static void error(std::string Message, bool Close, const char* FilePath, int Line) {
+#if _DEBUG
+    static void ThrowError(std::string Message, bool Close, const char* FilePath, int Line) {
+#else
+    static void ThrowError(std::string Message, bool Close) {
+#endif
 #if SHOW_MESSAGE_BOX
         std::string ErrorMessageInfo = "";
         std::string ErrorMessage = "";
@@ -56,7 +60,7 @@ public:
 };
 
 #if _DEBUG
-    #define THROW_ERROR(message, close) ErrorManager::error(message, close, __FILE__, __LINE__)
+    #define THROW_ERROR(message, close) ErrorManager::ThrowError(message, close, __FILE__, __LINE__)
 #else
-    #define THROW_ERROR(message, close) ErrorManager::error(message, close, "", 0)
+    #define THROW_ERROR(message, close) ErrorManager::ThrowError(message, close)
 #endif

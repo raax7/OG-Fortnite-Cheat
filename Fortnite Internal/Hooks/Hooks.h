@@ -80,13 +80,20 @@ namespace Hooks {
 	}
 #endif // _IMGUI
 
-	namespace PostRender {
-		using PostRenderParams = void(*)(uintptr_t this_, uintptr_t Canvas);
-		inline PostRenderParams PostRenderOriginal = nullptr;
+	namespace DrawTransition {
+		using DrawTransitionParams = void(*)(uintptr_t this_, uintptr_t Canvas);
+		inline DrawTransitionParams DrawTransitionOriginal = nullptr;
 
-		void PostRender(uintptr_t this_, uintptr_t Canvas);
+		void DrawTransition(uintptr_t this_, uintptr_t Canvas);
 
 		inline Hooks::VFTHook* Hook = nullptr;
+	}
+
+	namespace CalculateShot {
+		using CalcShotParams = SDK::FTransform*(*)(void**, uintptr_t, uintptr_t);
+		inline CalcShotParams CalculateShotOriginal = nullptr;
+
+		SDK::FTransform* CalculateShotHook(void** arg0, uintptr_t arg1, uintptr_t arg2);
 	}
 
 	namespace GetPlayerViewpoint {

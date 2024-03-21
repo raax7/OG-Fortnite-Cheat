@@ -4,6 +4,7 @@
 #include "../../Game.h"
 
 #include "../../../Utilities/Logger.h"
+#include "../../../Utilities/Error.h"
 
 namespace SDK {
 	TUObjectArray UObject::ObjectArray;

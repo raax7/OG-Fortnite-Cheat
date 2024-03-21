@@ -658,6 +658,15 @@ namespace SDK {
 		}
 	};
 
+	struct FTransform {
+	public:
+		FQuat Rotation;
+		FVector Translation;
+		uint8 Pad_AE[0x4];
+		FVector Scale3D;
+		uint8 Pad_AF[0x4];
+	};
+
 
 
 	struct FLinearColor

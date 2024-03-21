@@ -12,7 +12,7 @@ Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClose
     if (Bone1Distance < Bone2Distance) return BoneID1;
     else return BoneID2;
 }
-Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache) {
+Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache, bool VisibleCheck) {
     if (FortPawnCache.BoneVisibilityStates.size() < BONEID_MAX || FortPawnCache.BonePositions2D.size() < BONEID_MAX) {
         return None;
     }
@@ -33,7 +33,12 @@ Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestB
         }
     }
 
-    return None;
+    if (VisibleCheck == false) {
+		return TargetBone;
+	}
+    else {
+        return None;
+    }
 }
 SDK::FName Features::FortPawnHelper::Bone::GetBoneName(BoneID BoneID) {
     switch (BoneID) {

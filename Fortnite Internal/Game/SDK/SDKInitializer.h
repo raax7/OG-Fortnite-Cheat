@@ -94,9 +94,12 @@ public:
 	/* Update the LineTraceSingle function offset (for visible check) */
 	static void InitLineTraceSingle();
 
+	/* Update the CalculateShot function offset (for bullet tp) */
+	static void InitCalculateShot();
 
-	/* Update the PostRender VFT index (for engine rendering) */
-	static void InitPRIndex();
+
+	/* Update the DrawTransition VFT index (for engine rendering, and on ImGui builds for caching draw data) */
+	static void InitDTIndex();
 
 	/* Update the PostRender VFT index (for calling UFunctions) */
 	static void InitPEIndex();
