@@ -70,6 +70,20 @@ namespace Config {
 		namespace Players {
 			inline bool Enabled = true;
 
+			namespace OffScreenIndicators {
+				inline bool Enabled = true;
+
+				inline bool ShowDistance = true;
+				inline bool ShowName = true;
+
+				inline bool CopyAimbotFOV = true;
+
+				inline float Height = 10.f;
+				inline float Size = 10.f;
+
+				inline int FOV = 20;
+			}
+
 			inline bool Box = true;
 			inline bool Skeleton = true;
 			inline bool Name = true;

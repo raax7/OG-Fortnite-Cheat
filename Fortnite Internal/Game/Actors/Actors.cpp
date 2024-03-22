@@ -74,13 +74,6 @@ void Actors::Draw() {
 				if (MainTarget.GlobalInfo.TargetActor) {
 					// If the target is behind us, we need to flip the aim line to make it look correct (K2_Project is weird with things behind us)
 					SDK::FVector AimLineEnd = SDK::Project3D(MainTarget.GlobalInfo.TargetBonePosition);
-					if (AimLineEnd.Z <= 0.f) {
-						AimLineEnd.Y *= -1;
-						AimLineEnd.X *= -1;
-
-						AimLineEnd.X += Game::ScreenWidth;
-						AimLineEnd.Y += Game::ScreenHeight;
-					}
 
 					if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
 						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);

@@ -57,7 +57,6 @@ namespace Features {
         uint8_t BitMask;
         bool OriginalValue;
         bool* Enabled;
-
     public:
         AutoRevertBitFeature(uint8_t* Address, uint8_t BitMask, bool* Enabled) : Address(Address), BitMask(BitMask), Enabled(Enabled) {
             if (Address && Enabled) {

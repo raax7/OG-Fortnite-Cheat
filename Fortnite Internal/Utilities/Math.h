@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <cmath>
 #include <emmintrin.h>
+#include <algorithm>
 
 #include "../Game/SDK/Classes/Engine_Classes.h"
 
@@ -167,6 +168,16 @@ namespace Math {
 		float AngleBetween = RadiansToDegrees(acos(DotProduct));
 
 		return AngleBetween;
+	}
+
+	inline float CalculateInterpolatedValue(float CurrentScalar, float MaxScalar, float MinValue, float MaxValue) {
+		MaxScalar = min(MaxScalar, CurrentScalar);
+
+		float InterpolatedValue = MaxValue - (MaxValue - MinValue) * (MaxScalar / CurrentScalar);
+
+		InterpolatedValue = std::clamp(InterpolatedValue, MinValue, MaxValue);
+
+		return InterpolatedValue;
 	}
 
 	inline bool IsOnScreen(const SDK::FVector2D& Position) {

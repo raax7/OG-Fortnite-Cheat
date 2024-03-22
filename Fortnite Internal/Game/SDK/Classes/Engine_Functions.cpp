@@ -626,7 +626,18 @@ SDK::FVector2D SDK::Project(FVector WorldLocation) {
 	return SDK::FVector2D(-1.f, -1.f);
 }
 SDK::FVector SDK::Project3D(FVector WorldLocation) {
-	return SDK::GetLocalCanvas()->K2_Project(WorldLocation);
+	SDK::FVector ReturnValue = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
+
+	// Invert X and Y if the player is behind the camera
+	if (ReturnValue.Z <= 0.f) {
+		ReturnValue.X *= -1.f;
+		ReturnValue.Y *= -1.f;
+
+		ReturnValue.X += Game::ScreenWidth;
+		ReturnValue.Y += Game::ScreenHeight;
+	}
+
+	return ReturnValue;
 }
 bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};

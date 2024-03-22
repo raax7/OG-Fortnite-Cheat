@@ -2,8 +2,8 @@
 <p align="center">
 	<img align="center" src="https://i.imgur.com/LbbSQUq.png" alt="Logo" width="235" height="140">
 </p>
-<p align="center">A Fortnite Internal cheat base that automatically gets all Offset and VTables for S3 to S15.</p>
-<p align="center">If you enjoy this, join the Discord and star the project!</p>
+<p align="center">Raax-OG-FN, a universal, internal Fortnite cheat.</p>
+<p align="center">If you found this useful, join the Discord and star the project!</p>
 <p align="center">
 	<a href="https://discord.gg/Hg5dTFP7jy">Discord Server</a> |
 	<a href="https://github.com/raax7/OG-Fortnite-Cheat/issues">Report an Issue</a>
@@ -19,7 +19,7 @@
 ## Table of Contents
 
 <ol>
-    <li><a href="#about-somethingidk-fn">About somethingidk-FN</a></li>
+    <li><a href="#about-somethingidk-fn">About Raax-OG-FN</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#instructions">Instructions</a></li>
     <li><a href="#license">License</a></li>

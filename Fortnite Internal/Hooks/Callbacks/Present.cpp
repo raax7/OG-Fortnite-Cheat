@@ -24,7 +24,7 @@ HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncI
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	Drawing::RenderQueuedDrawingInfo();
+	Drawing::RenderDrawingData();
 	Game::MenuCallback();
 
 	ImGui::EndFrame();

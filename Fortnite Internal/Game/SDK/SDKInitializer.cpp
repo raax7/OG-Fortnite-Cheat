@@ -322,10 +322,9 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
 			continue;
 
-		// 48 83 EC 58 48 8B 91 ? ? ? ? 48 85 D2 0F 84 ? ? ? ?
-		// 48 83 EC 58 48 8B 89 ? ? ? ? 48 85 C9 0F 84 ? ? ? ?
 		if (Memory::FindPatternInRange({ 0x48, 0x83, 0xEC, 0x58, 0x48, 0x8B, -0x01, -0x01, -0x01, -0x01, -0x01, 0x48, 0x85 }, Resolve32BitRelativeJump(Vft[i]), 0x50)
-			|| Memory::FindPatternInRange({ 0x48, 0x8B, 0x89, -0x01, -0x01, 0x00, 0x00, 0x48, -0x01, -0x01, 0x74, 0x13 }, Resolve32BitRelativeJump(Vft[i]), 0x50))
+			|| Memory::FindPatternInRange({ 0x48, 0x8B, 0x89, -0x01, -0x01, 0x00, 0x00, 0x48, -0x01, -0x01, 0x74, 0x13 }, Resolve32BitRelativeJump(Vft[i]), 0x50)
+			|| Memory::FindPatternInRange({ 0x48, 0x8B, 0x60, -0x01, -0x01, 0x00, 0x00, 0x48, -0x01, -0x01, 0x8B, 0xFA }, Resolve32BitRelativeJump(Vft[i]), 0x50))
 		{
 			SDK::Cached::VFT::GetWeaponStats = i;
 			DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("GetWeaponStats VFT index found: ")) + std::to_string(SDK::Cached::VFT::GetWeaponStats));
@@ -335,17 +334,21 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 	}
 
 	if (SDK::Cached::VFT::GetWeaponStats == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find GetWeaponStats VFT index!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find GetWeaponStats VFT index! (Going to use guessed 0xD0 VFT index, may cause crashes)")), CRASH_ON_NOT_FOUND);
+
+		// This is usually the VFT index for GetWeaponStats, but it's not guaranteed
+		// Later, make it follow the jnz to find the sub routine
+		SDK::Cached::VFT::GetWeaponStats = 0xD0;
 	}
 }
 
 void SDKInitializer::InitAppendString() {
 	// FName::AppendString documentation: https://docs.unrealengine.com/4.26/en-US/API/Runtime/Core/UObject/FName/AppendString/1/
-	// "ForwardShadingQuality_" reference in UE source: https://github.com/EpicGames/UnrealEngine/blob/4.26/Engine/Source/Runtime/MaterialShaderQualitySettings/Private/MaterialShaderQualitySettings.cpp#L55
+	// "ForwardShadingQuality_" reference in UE source: https://github.com/EpicGames/UnrealEngine/blob/4.22/Engine/Source/Runtime/MaterialShaderQualitySettings/Private/MaterialShaderQualitySettings.cpp#L52
 	// Visual explanation: https://imgur.com/a/mCe1SF6
 	// 
 	// AppendString is used to convert an FName to an FString.
-	// It is very easy to find as in nearly ever Unreal Engine game it is
+	// It is very easy to find as in nearly every Unreal Engine game it is
 	// called directly after the reference of "ForwardShadingQuality_"
 
 	InitFunctionOffset(

@@ -33,11 +33,12 @@
 // - Add a season based feature system (allow/forbid features only on specific seasons)
 // - Add more menu elements types to RaaxGUI
 // - Add more features
-// - Add a batch line processor for better line outlne handling
 // - Add a proper config system
 // - Add a PCH
 // - Make everything in Memory.h my own code (no pasting)
 // - Add WndProc as an option for Engine rendering
+// - Add proper outline for ImGui drawing
+// - Add batch-line support for ImGui and Engine line drawing (Drawing::BeginBatch, Drawing::EndBatch)
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;

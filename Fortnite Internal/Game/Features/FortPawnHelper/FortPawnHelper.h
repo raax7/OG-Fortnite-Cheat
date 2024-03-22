@@ -16,5 +16,7 @@ namespace Features {
 		* @param FortPawn The FortPawn to populate visibilities
 		*/
 		void PopulateVisibilities(Actors::Caches::FortPawnCache& FortPawnCache);
+
+		void PopulateBoundCorners(Actors::Caches::FortPawnCache& FortPawnCache, SDK::FVector2D& BottomLeft, SDK::FVector2D& TopRight);
 	};
 }

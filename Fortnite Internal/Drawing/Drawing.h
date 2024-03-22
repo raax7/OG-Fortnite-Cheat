@@ -1,16 +1,29 @@
 #pragma once
 #ifdef _IMGUI
 #include <vector>
+#include <memory>
 #endif
 
 #include "../Game/SDK/Classes/Basic.h"
-#include <mutex>
 
 /* A wrapper for drawing functions */
 namespace Drawing {
 #ifdef _IMGUI
+	class IDrawingCache {
+	public:
+		virtual void Draw() = 0;
+	};
+
 	/* Cache lines for ImGui processing */
-	struct LineCache {
+	class LineCache : public IDrawingCache {
+	public:
+		LineCache(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) : ScreenPositionA(ScreenPositionA), ScreenPositionB(ScreenPositionB), Thickness(Thickness), RenderColor(RenderColor), Outlined(Outlined) { }
+
+		void DrawOutline();
+		void DrawLine();
+
+		void Draw() override;
+	public:
 		SDK::FVector2D ScreenPositionA;
 		SDK::FVector2D ScreenPositionB;
 		float Thickness;
@@ -18,19 +31,37 @@ namespace Drawing {
 		bool Outlined;
 	};
 
+	/* Cache for multiple lines in batch for ImGui processing */
+	class BatchLineCache : public IDrawingCache {
+	public:
+		void Draw() override;
+	public:
+		std::vector<LineCache> Lines;
+	};
+
 	/* Cache texts for ImGui processing */
-	struct TextCache {
+	class TextCache : public IDrawingCache {
+	public:
+		TextCache(std::string RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) : RenderText(RenderText), ScreenPosition(ScreenPosition), FontSize(FontSize), RenderColor(RenderColor), CentredX(CentredX), CentredY(CentredY), Outlined(Outlined) { }
+
+		void Draw() override;
+	public:
 		std::string RenderText;
 		SDK::FVector2D ScreenPosition;
 		float FontSize;
 		SDK::FLinearColor RenderColor;
-		bool CenteredX;
-		bool CenteredY;
+		bool CentredX;
+		bool CentredY;
 		bool Outlined;
 	};
 
 	/* Cache circles for ImGui processing */
-	struct CircleCache {
+	class CircleCache : public IDrawingCache {
+	public:
+		CircleCache(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined) : ScreenPosition(ScreenPosition), Radius(Radius), Segments(Segments), RenderColor(RenderColor), Outlined(Outlined) { }
+
+		void Draw() override;
+	public:
 		SDK::FVector2D ScreenPosition;
 		float Radius;
 		int32_t Segments;
@@ -39,7 +70,12 @@ namespace Drawing {
 	};
 
 	/* Cache filled rectangles for ImGui processing */
-	struct FilledRectCache {
+	class FilledRectCache : public IDrawingCache {
+	public:
+		FilledRectCache(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined) : ScreenPosition(ScreenPosition), ScreenSize(ScreenSize), RenderColor(RenderColor), Outlined(Outlined) { }
+
+		void Draw() override;
+	public:
 		SDK::FVector2D ScreenPosition;
 		SDK::FVector2D ScreenSize;
 		SDK::FLinearColor RenderColor;
@@ -47,7 +83,12 @@ namespace Drawing {
 	};
 
 	/* Cache hollow rectangles for ImGui processing */
-	struct RectCache {
+	class RectCache : public IDrawingCache {
+	public:
+		RectCache(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) : ScreenPosition(ScreenPosition), ScreenSize(ScreenSize), Thickness(Thickness), RenderColor(RenderColor), Outlined(Outlined) { }
+
+		void Draw() override;
+	public:
 		SDK::FVector2D ScreenPosition;
 		SDK::FVector2D ScreenSize;
 		float Thickness;
@@ -55,44 +96,36 @@ namespace Drawing {
 		bool Outlined;
 	};
 
-	/* Cache cornered rectangles for ImGui processing */
-	struct CorneredRectCache {
-		SDK::FVector2D ScreenPosition;
-		SDK::FVector2D ScreenSize;
+	/* Cache triangles for ImGui processing */
+	class TriangleCache : public IDrawingCache {
+	public:
+		TriangleCache(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, SDK::FVector2D ScreenPositionC, float Thickness, SDK::FLinearColor RenderColor, bool Filled, bool Outlined) : ScreenPositionA(ScreenPositionA), ScreenPositionB(ScreenPositionB), ScreenPositionC(ScreenPositionC), Thickness(Thickness), RenderColor(RenderColor), Filled(Filled), Outlined(Outlined) { }
+
+		void Draw() override;
+	public:
+		SDK::FVector2D ScreenPositionA;
+		SDK::FVector2D ScreenPositionB;
+		SDK::FVector2D ScreenPositionC;
 		float Thickness;
 		SDK::FLinearColor RenderColor;
+		bool Filled;
 		bool Outlined;
 	};
 
 
 
-	inline std::vector<LineCache> RenderBufferLine, UpdateBufferLine;
-	inline std::vector<TextCache> RenderBufferText, UpdateBufferText;
-	inline std::vector<CircleCache> RenderBufferCircle, UpdateBufferCircle;
-	inline std::vector<FilledRectCache> RenderBufferFilledRect, UpdateBufferFilledRect;
-	inline std::vector<RectCache> RenderBufferRect, UpdateBufferRect;
-	inline std::vector<CorneredRectCache> RenderBufferCorneredRect, UpdateBufferCorneredRect;
+	inline std::vector<std::unique_ptr<IDrawingCache>> RenderBuffer, DrawingQueue;
 #endif
 
 #ifdef _IMGUI
 	inline void SwapBuffers() {
-		std::swap(RenderBufferLine, UpdateBufferLine);
-		std::swap(RenderBufferText, UpdateBufferText);
-		std::swap(RenderBufferCircle, UpdateBufferCircle);
-		std::swap(RenderBufferFilledRect, UpdateBufferFilledRect);
-		std::swap(RenderBufferRect, UpdateBufferRect);
-		std::swap(RenderBufferCorneredRect, UpdateBufferCorneredRect);
+		std::swap(RenderBuffer, DrawingQueue);
 
-		UpdateBufferLine.clear();
-		UpdateBufferText.clear();
-		UpdateBufferCircle.clear();
-		UpdateBufferFilledRect.clear();
-		UpdateBufferRect.clear();
-		UpdateBufferCorneredRect.clear();
+		DrawingQueue.clear();
 	}
 
 	/* Render the queued data for drawing */
-	void RenderQueuedDrawingInfo();
+	void RenderDrawingData();
 #endif
 
 	/*
@@ -187,4 +220,17 @@ namespace Drawing {
 	* @param RenderColor - The color of the rectangle
 	*/
 	void CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined);
+
+	/*
+	* @brief Draws a triangle on the screen
+	* 
+	* @param ScreenPositionA - The first position of the triangle
+	* @param ScreenPositionB - The second position of the triangle
+	* @param ScreenPositionC - The third position of the triangle
+	* @param Thickness - The thickness of the triangle
+	* @param RenderColor - The color of the triangle
+	* @param Filled - Whether or not the triangle should be filled
+	* @param Outlined - Whether or not the triangle should be outlined
+	*/
+	void Triangle(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, SDK::FVector2D ScreenPositionC, float Thickness, SDK::FLinearColor RenderColor, bool Filled, bool Outlined);
 };
