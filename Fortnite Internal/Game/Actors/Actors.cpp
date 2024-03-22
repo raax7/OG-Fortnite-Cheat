@@ -65,6 +65,24 @@ void Actors::Tick() {
 			LocalPawnCache.TeamIndex = INT_FAST8_MAX;
 		}
 	}
+
+	// Update the current FOV size
+	{
+		switch (MainTarget.GlobalInfo.Type) {
+		case Features::Aimbot::Target::TargetType::ClosePlayer:
+			CurrentFOVSizeDegrees = Config::Aimbot::CloseAim::FOV;
+			CurrentFOVSizePixels = CurrentFOVSizeDegrees * Game::PixelsPerDegree;
+			break;
+		case Features::Aimbot::Target::TargetType::Weakspot:
+			CurrentFOVSizeDegrees = Config::Aimbot::Weakspot::FOV;
+			CurrentFOVSizePixels = CurrentFOVSizeDegrees * Game::PixelsPerDegree;
+			break;
+		default:
+			CurrentFOVSizeDegrees = Config::Aimbot::Standard::FOV;
+			CurrentFOVSizePixels = CurrentFOVSizeDegrees * Game::PixelsPerDegree;
+			break;
+		}
+	}
 }
 void Actors::Draw() {
 	// Draw the aim line
@@ -76,10 +94,10 @@ void Actors::Draw() {
 					SDK::FVector AimLineEnd = SDK::Project3D(MainTarget.GlobalInfo.TargetBonePosition);
 
 					if (MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot) {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenCenterX, Game::ScreenCenterY), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
 					}
 					else {
-						Drawing::Line(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+						Drawing::Line(SDK::FVector2D(Game::ScreenCenterX, Game::ScreenCenterY), SDK::FVector2D(AimLineEnd.X, AimLineEnd.Y), 1.f, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 					}
 				}
 			}
@@ -90,21 +108,14 @@ void Actors::Draw() {
 	{
 		if (SDK::GetLocalController()->AcknowledgedPawn()) {
 			if (Config::Aimbot::ShowFOV && Config::Aimbot::Enabled) {
-				switch (MainTarget.GlobalInfo.Type) {
-				case Features::Aimbot::Target::TargetType::ClosePlayer:
-					Drawing::Circle(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), Config::Aimbot::CloseAim::FOV * Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
-					break;
-				case Features::Aimbot::Target::TargetType::Weakspot:
-					Drawing::Circle(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), Config::Aimbot::Weakspot::FOV * Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 0.f, 0.f, 1.f), true);
-					break;
-				default:
-					Drawing::Circle(SDK::FVector2D(Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f), Config::Aimbot::Standard::FOV * Game::PixelsPerDegree, 32, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
-					break;
-				}
-			}
+				// Only do high segment count for ImGui (since we don't have overhead of ProcessEvent)
+#ifdef _IMGUI
+				const int Segments = 128;
+#else
+				const int Segments = 32;
+#endif
 
-			if (Config::Aimbot::TriggerBot::ShowFOV && Config::Aimbot::TriggerBot::Enabled) {
-				Drawing::Circle(SDK::FVector2D((float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f), (float)Config::Aimbot::TriggerBot::FOV * (float)Game::PixelsPerDegree, 32, SDK::FLinearColor(0.75f, 0.25f, 0.75f, 1.f), true);
+				Drawing::Circle(SDK::FVector2D(Game::ScreenCenterX, Game::ScreenCenterY), Actors::CurrentFOVSizePixels , Segments, MainTarget.GlobalInfo.Type == Features::Aimbot::Target::TargetType::Weakspot ? SDK::FLinearColor(1.f, 0.f, 0.f, 1.f) : SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
 			}
 		}
 	}

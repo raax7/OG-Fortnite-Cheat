@@ -238,12 +238,27 @@ void Game::MenuCallback() {
 		{
 			ImGui::Checkbox(skCrypt("Weapon ESP"), &Config::Visuals::Weapons::Enabled);
 
+			ImGui::Separator();
+
 			ImGui::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
 			if (Config::Visuals::Players::Enabled) {
 				ImGui::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
 				ImGui::Checkbox(skCrypt("Skeleton"), &Config::Visuals::Players::Skeleton);
 				ImGui::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
 				ImGui::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
+
+				ImGui::Separator();
+
+				ImGui::Checkbox(skCrypt("Offscreen Indicators"), &Config::Visuals::Players::OffScreenIndicators::Enabled);
+				if (Config::Visuals::Players::OffScreenIndicators::Enabled) {
+					ImGui::SliderFloat(skCrypt("Offscreen Indicator Width"), &Config::Visuals::Players::OffScreenIndicators::Width, 1.f, 50.f);
+					ImGui::SliderFloat(skCrypt("Offscreen Indicator Height"), &Config::Visuals::Players::OffScreenIndicators::Height, 1.f, 50.f);
+					ImGui::Checkbox(skCrypt("Offscreen Indicator Copy Aimbot FOV"), &Config::Visuals::Players::OffScreenIndicators::CopyAimbotFOV);
+
+					if (Config::Visuals::Players::OffScreenIndicators::CopyAimbotFOV == false) {
+						ImGui::SliderInt(skCrypt("Offscreen Indicator FOV"), &Config::Visuals::Players::OffScreenIndicators::FOV, 1, 180);
+					}
+				}
 			}
 		}
 		break;

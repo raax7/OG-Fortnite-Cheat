@@ -63,6 +63,13 @@ void Drawing::TextCache::Draw() {
 	ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, FontSize, TextPosition, ImColor(RenderColor.R, RenderColor.G, RenderColor.B, RenderColor.A), RenderText.c_str());
 }
 void Drawing::CircleCache::Draw() {
+	if (Outlined) {
+		ImU32 OutlineColor = ImColor(0.f, 0.f, 0.f, RenderColor.A);
+
+		ImGui::GetBackgroundDrawList()->AddCircle(ImVec2(ScreenPosition.X, ScreenPosition.Y), Radius + 1.f, OutlineColor, Segments);
+		ImGui::GetBackgroundDrawList()->AddCircle(ImVec2(ScreenPosition.X, ScreenPosition.Y), Radius - 1.f, OutlineColor, Segments);
+	}
+
 	ImGui::GetBackgroundDrawList()->AddCircle(ImVec2(ScreenPosition.X, ScreenPosition.Y), Radius, ImColor(RenderColor.R, RenderColor.G, RenderColor.B, RenderColor.A), Segments);
 }
 void Drawing::FilledRectCache::Draw() {
@@ -115,8 +122,7 @@ SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
 		return SDK::FVector2D();
 	}
 
-	std::string str = std::string(RenderText, RenderText + strlen(RenderText));
-	ImVec2 TextSize = Hooks::Present::LargeFont->CalcTextSizeA(FontSize, FLT_MAX, 0.0f, str.c_str());
+	ImVec2 TextSize = Hooks::Present::LargeFont->CalcTextSizeA(FontSize, FLT_MAX, 0.0f, RenderText);
 	return SDK::FVector2D(TextSize.x, TextSize.y);
 }
 SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {

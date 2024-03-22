@@ -5,6 +5,8 @@ namespace Game {
 	inline float GameVersion		= 0.f;
 	inline int ScreenWidth			= 0;
 	inline int ScreenHeight			= 0;
+	inline float ScreenCenterX		= 0.f;
+	inline float ScreenCenterY		= 0.f;
 	inline float PixelsPerDegree	= 0.f;
 
 	inline unsigned __int64 CurrentFrame = 0;

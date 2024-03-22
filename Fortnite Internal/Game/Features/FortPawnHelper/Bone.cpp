@@ -6,8 +6,8 @@
 #include "../../Game.h"
 
 Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2) {
-    float Bone1Distance = Math::GetDistance2D(BonePosition1.X, BonePosition1.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
-    float Bone2Distance = Math::GetDistance2D(BonePosition2.X, BonePosition2.Y, (float)Game::ScreenWidth / 2.f, (float)Game::ScreenHeight / 2.f);
+    float Bone1Distance = Math::GetDistance2D(BonePosition1.X, BonePosition1.Y, (float)Game::ScreenCenterX, (float)Game::ScreenCenterY);
+    float Bone2Distance = Math::GetDistance2D(BonePosition2.X, BonePosition2.Y, (float)Game::ScreenCenterX, (float)Game::ScreenCenterY);
 
     if (Bone1Distance < Bone2Distance) return BoneID1;
     else return BoneID2;

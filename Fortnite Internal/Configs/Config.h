@@ -73,13 +73,13 @@ namespace Config {
 			namespace OffScreenIndicators {
 				inline bool Enabled = true;
 
-				inline bool ShowDistance = true;
-				inline bool ShowName = true;
+				//inline bool ShowDistance = true;
+				//inline bool ShowName = true;
 
 				inline bool CopyAimbotFOV = true;
 
 				inline float Height = 10.f;
-				inline float Size = 10.f;
+				inline float Width = 10.f;
 
 				inline int FOV = 20;
 			}

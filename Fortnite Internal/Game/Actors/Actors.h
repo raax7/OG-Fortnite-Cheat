@@ -42,6 +42,9 @@ namespace Actors {
 
 	inline Features::Aimbot::Target MainTarget;
 
+	inline float CurrentFOVSizeDegrees;
+	inline float CurrentFOVSizePixels;
+
 
 
 	// FPS Scaling

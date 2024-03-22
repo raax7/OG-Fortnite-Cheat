@@ -192,7 +192,7 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 
 	// Update local information
 	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
-	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetBonePosition2D.X, Target.GlobalInfo.TargetBonePosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
+	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetBonePosition2D.X, Target.GlobalInfo.TargetBonePosition2D.Y, Game::ScreenCenterX, Game::ScreenCenterY);
 	Target.LocalInfo.DistanceFromPlayer = TargetCache.DistanceFromLocalPawn;
 	Target.LocalInfo.SmartTargetingDistance = (Target.LocalInfo.DistanceFromCrosshairDegrees * 20) + Target.LocalInfo.DistanceFromPlayer;
 	Target.LocalInfo.IsOnScreen = TargetCache.IsPlayerVisibleOnScreen;
@@ -243,7 +243,7 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 
 	// Update local information
 	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
-	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetActorPosition2D.X, Target.GlobalInfo.TargetActorPosition2D.Y, Game::ScreenWidth / 2.f, Game::ScreenHeight / 2.f);
+	Target.LocalInfo.DistanceFromCrosshairPixels = Math::GetDistance2D(Target.GlobalInfo.TargetActorPosition2D.X, Target.GlobalInfo.TargetActorPosition2D.Y, Game::ScreenCenterX, Game::ScreenCenterY);
 	Target.LocalInfo.DistanceFromPlayer = Actors::LocalPawnCache.Position.Distance(Target.GlobalInfo.TargetActorPosition) / 100.f;
 	Target.LocalInfo.SmartTargetingDistance = (Target.LocalInfo.DistanceFromCrosshairDegrees * 20) + Target.LocalInfo.DistanceFromPlayer;
 	Target.LocalInfo.IsOnScreen = Math::IsOnScreen(Target.GlobalInfo.TargetActorPosition2D);

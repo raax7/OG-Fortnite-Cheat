@@ -54,27 +54,27 @@ void Features::FortPawnHelper::PopulateVisibilities(Actors::Caches::FortPawnCach
 	FortPawnCache.BoneVisibilityStates[Bone::RightFoot] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightFoot], FortPawnCache.FortPawn, SDK::GetLocalPawn());
 	FortPawnCache.BoneVisibilityStates[Bone::Pelvis] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::Pelvis], FortPawnCache.FortPawn, SDK::GetLocalPawn());
 }
-void Features::FortPawnHelper::PopulateBoundCorners(Actors::Caches::FortPawnCache& FortPawnCache, SDK::FVector2D& BottomLeft, SDK::FVector2D& TopRight) {
-	BottomLeft = SDK::FVector2D(FLT_MAX, FLT_MAX);
-	TopRight = SDK::FVector2D(-FLT_MAX, -FLT_MAX);
+void Features::FortPawnHelper::PopulateBoundCorners(Actors::Caches::FortPawnCache& FortPawnCache, SDK::FVector2D& TopLeft, SDK::FVector2D& BottomRight) {
+	TopLeft = SDK::FVector2D(FLT_MAX, FLT_MAX);
+	BottomRight = SDK::FVector2D(-FLT_MAX, -FLT_MAX);
 
 	for (int i = Bone::Head; i < Bone::BONEID_MAX; i++) {
-		BottomLeft.X = min(BottomLeft.X, FortPawnCache.BonePositions2D[i].X);
-		BottomLeft.Y = min(BottomLeft.Y, FortPawnCache.BonePositions2D[i].Y);
+		TopLeft.X = min(TopLeft.X, FortPawnCache.BonePositions2D[i].X);
+		TopLeft.Y = min(TopLeft.Y, FortPawnCache.BonePositions2D[i].Y);
 
-		TopRight.X = max(TopRight.X, FortPawnCache.BonePositions2D[i].X);
-		TopRight.Y = max(TopRight.Y, FortPawnCache.BonePositions2D[i].Y);
+		BottomRight.X = max(BottomRight.X, FortPawnCache.BonePositions2D[i].X);
+		BottomRight.Y = max(BottomRight.Y, FortPawnCache.BonePositions2D[i].Y);
 	}
 
 	// Adjust the bounding box to make it more visually appealing
 	float BoxSizeMultiplier = Math::CalculateInterpolatedValue(FortPawnCache.DistanceFromLocalPawn, 100.f, 1.f, 6.0f);
 
-	float LeftRightOffset = (TopRight.X - BottomLeft.X) * (0.36f * BoxSizeMultiplier);
-	float TopBottomOffset = (TopRight.Y - BottomLeft.Y) * (0.22f * BoxSizeMultiplier);
+	float LeftRightOffset = (BottomRight.X - TopLeft.X) * (0.36f * BoxSizeMultiplier);
+	float TopBottomOffset = (BottomRight.Y - TopLeft.Y) * (0.22f * BoxSizeMultiplier);
 
-	BottomLeft.X -= LeftRightOffset;
-	BottomLeft.Y -= TopBottomOffset * 0.75f;
+	TopLeft.X -= LeftRightOffset;
+	TopLeft.Y -= TopBottomOffset * 0.75f;
 
-	TopRight.X += LeftRightOffset;
-	TopRight.Y += TopBottomOffset;
+	BottomRight.X += LeftRightOffset;
+	BottomRight.Y += TopBottomOffset;
 }

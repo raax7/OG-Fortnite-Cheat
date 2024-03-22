@@ -95,8 +95,8 @@ void Actors::FortPawn::Tick() {
 
 		// Visuals
 		if (CurrentPlayer.IsPlayerVisibleOnScreen) {
-			SDK::FVector2D BottomLeft, TopRight;
-			Features::FortPawnHelper::PopulateBoundCorners(CurrentPlayer, BottomLeft, TopRight);
+			SDK::FVector2D TopLeft, BottomRight;
+			Features::FortPawnHelper::PopulateBoundCorners(CurrentPlayer, TopLeft, BottomRight);
 
 			float FontSize = Math::CalculateInterpolatedValue(CurrentPlayer.DistanceFromLocalPawn, 150.f, 10.f, 20.f);
 			float PrimaryThicknessMultiplier = Math::CalculateInterpolatedValue(75.f, CurrentPlayer.DistanceFromLocalPawn, 1.f, 3.f);
@@ -148,45 +148,49 @@ void Actors::FortPawn::Tick() {
 					}
 
 					if (Config::Visuals::Players::Box) {
-						Drawing::CorneredRect(BottomLeft, SDK::FVector2D(TopRight - BottomLeft), PrimaryThickness, Color, true);
+						Drawing::CorneredRect(TopLeft, SDK::FVector2D(BottomRight - TopLeft), PrimaryThickness, Color, true);
 					}
 
 					if (Config::Visuals::Players::Name) {
-						SDK::FVector2D PlayerNameTextSize = Drawing::TextSize(CurrentPlayer.PlayerName.ToWString().c_str(), FontSize);
-						SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(TopRight.X - ((TopRight.X / 2) - (BottomLeft.X / 2)), TopRight.Y - PlayerNameTextSize.Y - 1);
+						SDK::FVector2D PlayerNameTextSize = Drawing::TextSize(CurrentPlayer.PlayerName.ToString().c_str(), FontSize);
+						SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2 - PlayerNameTextSize.X / 2, TopLeft.Y - PlayerNameTextSize.Y - 2.f);
 
-						Drawing::Text(CurrentPlayer.PlayerName.ToWString().c_str(), PlayerNameTextPos, FontSize, Color, true, false, true);
+						Drawing::Text(CurrentPlayer.PlayerName.ToString().c_str(), PlayerNameTextPos, FontSize, Color, true, false, true);
 					}
 				}
 			}
 		}
 		else if (Config::Visuals::Players::Enabled) {
 			if (Config::Visuals::Players::OffScreenIndicators::Enabled) {
-				SDK::FVector pos = CurrentPlayer.BonePositions3D[Features::FortPawnHelper::Bone::Head]/* + SDK::FVector(0, 0, 75.f)*/; // make the arrows point more towards the body, but also not move when they crouch/uncrouch
-				SDK::FVector screen = SDK::Project3D(pos);
+				SDK::FVector2D TipPoint, BasePoint1, BasePoint2;
 
-				const float radius = (Config::Visuals::Players::OffScreenIndicators::CopyAimbotFOV ? 250 - Config::Visuals::Players::OffScreenIndicators::Height - 3.f : Config::Visuals::Players::OffScreenIndicators::FOV);
+				// Calculate offscreen indicator triangle points
+				{
+					// TO-DO: Cache this so we don't have to get the head pos twice per tick
+					const SDK::FVector HeadPosition = CurrentPlayer.BonePositions3D[Features::FortPawnHelper::Bone::Head];
+					SDK::FVector HeadPosition2D = SDK::Project3D(HeadPosition);
 
-				SDK::FVector2D toPlayer = { screen.X - Game::ScreenWidth / 2, screen.Y - Game::ScreenHeight / 2 };
+					// Calculate the indicator's position
+					float Radius = Config::Visuals::Players::OffScreenIndicators::CopyAimbotFOV ? Actors::CurrentFOVSizePixels : Config::Visuals::Players::OffScreenIndicators::FOV * Game::PixelsPerDegree;
+					SDK::FVector2D DirectionToPlayer = SDK::FVector2D(HeadPosition2D.X - Game::ScreenCenterX, HeadPosition2D.Y - Game::ScreenCenterY);
+					float Magnitude = std::sqrt(DirectionToPlayer.X * DirectionToPlayer.X + DirectionToPlayer.Y * DirectionToPlayer.Y);
+					DirectionToPlayer = DirectionToPlayer / Magnitude;
 
-				toPlayer = toPlayer / std::sqrt(toPlayer.X * toPlayer.X + toPlayer.Y * toPlayer.Y);
+					float Angle = std::atan2(DirectionToPlayer.Y, DirectionToPlayer.X);
+					SDK::FVector2D IndicatorPosition = {
+						Game::ScreenCenterX + std::cos(Angle) * Radius,
+						Game::ScreenCenterY + std::sin(Angle) * Radius
+					};
 
+					// Calculate the points for the indicator triangle
+					TipPoint = IndicatorPosition + DirectionToPlayer * Config::Visuals::Players::OffScreenIndicators::Height;
+					BasePoint1 = IndicatorPosition + SDK::FVector2D(-DirectionToPlayer.Y, DirectionToPlayer.X) * Config::Visuals::Players::OffScreenIndicators::Width;
+					BasePoint2 = IndicatorPosition - SDK::FVector2D(-DirectionToPlayer.Y, DirectionToPlayer.X) * Config::Visuals::Players::OffScreenIndicators::Width;
 
-				const float angle = std::atan2(toPlayer.Y, toPlayer.X);
-				const float xOffset = std::cos(angle) * radius;
-				const float yOffset = std::sin(angle) * radius;
+				}
 
-				const SDK::FVector2D Point = { Game::ScreenWidth / 2 + xOffset, Game::ScreenHeight / 2 + yOffset };
-
-				const SDK::FVector2D p3 = { Point.X + toPlayer.X * Config::Visuals::Players::OffScreenIndicators::Height, Point.Y + toPlayer.Y * Config::Visuals::Players::OffScreenIndicators::Height };
-
-				toPlayer = toPlayer * Config::Visuals::Players::OffScreenIndicators::Size;
-				const SDK::FVector2D p1 = { Point.X - toPlayer.Y, Point.Y + toPlayer.X };
-				const SDK::FVector2D p2 = { Point.X + toPlayer.Y, Point.Y - toPlayer.X };
-
-				const SDK::FLinearColor col = CurrentPlayer.IsAnyBoneVisible ? SDK::FLinearColor(1.f, 1.f, 1.f, 1.f) : SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
-
-				Drawing::Triangle(p1, p2, p3, 1.f, col, true, true);
+				SDK::FLinearColor IndicatorColor = CurrentPlayer.IsAnyBoneVisible ? SDK::FLinearColor(0.2f, 1.f, 0.2f, 1.f) : SDK::FLinearColor(1.f, 0.2f, 0.2f, 1.f);
+				Drawing::Triangle(BasePoint1, BasePoint2, TipPoint, 1.f, IndicatorColor, true, true);
 			}
 		}
 
