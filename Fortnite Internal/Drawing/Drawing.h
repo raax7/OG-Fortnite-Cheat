@@ -2,6 +2,7 @@
 #ifdef _IMGUI
 #include <vector>
 #include <memory>
+#include <mutex>
 #endif
 
 #include "../Game/SDK/Classes/Basic.h"
@@ -114,11 +115,14 @@ namespace Drawing {
 
 
 
+	inline std::mutex DrawingMutex;
 	inline std::vector<std::unique_ptr<IDrawingCache>> RenderBuffer, DrawingQueue;
-#endif
 
-#ifdef _IMGUI
+
+
 	inline void SwapBuffers() {
+		std::lock_guard<std::mutex> Lock(DrawingMutex);
+
 		std::swap(RenderBuffer, DrawingQueue);
 
 		DrawingQueue.clear();

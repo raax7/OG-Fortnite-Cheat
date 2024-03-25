@@ -44,6 +44,9 @@ void Game::MenuCallback() {
 			RaaxGUI::Checkbox(skCrypt("Show Aim Line"), &Config::Aimbot::ShowAimLine);
 			RaaxGUI::Checkbox(skCrypt("Show FOV"), &Config::Aimbot::ShowFOV);
 
+			RaaxGUI::Checkbox(skCrypt("Sticky Aim"), &Config::Aimbot::StickyAim);
+			RaaxGUI::Checkbox(skCrypt("Visible Check"), &Config::Aimbot::VisibleCheck);
+
 			RaaxGUI::Checkbox(skCrypt("Standard"), &Config::Aimbot::Standard::Enabled);
 			if (Config::Aimbot::Standard::Enabled) {
 				RaaxGUI::SliderInt(skCrypt("Standard FOV"), &Config::Aimbot::Standard::FOV, 0, 180);
@@ -201,7 +204,10 @@ void Game::MenuCallback() {
 				}
 
 				if (SDK::Cached::Functions::CalculateShot) {
-					ImGui::Checkbox(skCrypt("Bullet TP"), &Config::Aimbot::BulletTP);
+					ImGui::Checkbox(skCrypt("Bullet TP V1 (CalculateShot)"), &Config::Aimbot::BulletTP);
+				}
+				if (SDK::Cached::Functions::RaycastMulti) {
+					ImGui::Checkbox(skCrypt("Bullet TP V2 (RaycastMulti)"), &Config::Aimbot::BulletTPV2);
 				}
 
 				ImGui::Checkbox(skCrypt("Silent Aim"), &Config::Aimbot::SilentAim);
@@ -243,7 +249,16 @@ void Game::MenuCallback() {
 			ImGui::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
 			if (Config::Visuals::Players::Enabled) {
 				ImGui::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
+
+				if (Config::Visuals::Players::Box) {
+					// Fix skCrypter messing up the strings here
+					const char* Items[] = { skCrypt("3D Full").decrypt(), skCrypt("3D Cornered").decrypt(), skCrypt("2D Full").decrypt(), skCrypt("2D Cornered").decrypt() };
+					ImGui::Combo(skCrypt("Box Type").decrypt(), (int*)&Config::Visuals::Players::BoxType, Items, 4);
+				}
+
 				ImGui::Checkbox(skCrypt("Skeleton"), &Config::Visuals::Players::Skeleton);
+				ImGui::Checkbox(skCrypt("Display Individual Bone Visibilities"), &Config::Visuals::Players::IndividualBoneVisibilities);
+
 				ImGui::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
 				ImGui::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
 
@@ -288,9 +303,15 @@ void Game::MenuCallback() {
 			switch (SubTab) {
 			case 0:
 			{
+				ImGui::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
+
+				ImGui::Checkbox(skCrypt("ADS While Not On Ground"), &Config::Exploits::Player::ADSWhileNotOnGround);
+				ImGui::Checkbox(skCrypt("Double Pump"), &Config::Exploits::Player::DoublePump);
+
+				ImGui::Checkbox(skCrypt("Allow Redeploy (client sided 99% of the time)"), &Config::Exploits::Player::AllowRedeploy);
+
 				ImGui::Checkbox(skCrypt("Infinite Builds (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteBuilds);
 				ImGui::Checkbox(skCrypt("Infinite Ammo (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteAmmo);
-				ImGui::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
 			}
 			break;
 			case 1:

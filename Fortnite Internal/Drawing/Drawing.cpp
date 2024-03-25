@@ -36,14 +36,6 @@ void Drawing::BatchLineCache::Draw() {
 void Drawing::TextCache::Draw() {
 	ImVec2 TextPosition = ImVec2(ScreenPosition.X, ScreenPosition.Y);
 
-	if (CentredX || CentredY) {
-		ImVec2 TextSize = ImGui::GetFont()->CalcTextSizeA(FontSize, FLT_MAX, 0.0f, RenderText.c_str());
-		ImVec2 CentredPos = ImVec2(ScreenPosition.X - TextSize.x / 2, ScreenPosition.Y - TextSize.y / 2);
-
-		if (CentredX) TextPosition.x = CentredPos.x;
-		if (CentredY) TextPosition.y = CentredPos.y;
-	}
-
 	if (Outlined) {
 		ImU32 OutlineColor = ImColor(0.f, 0.f, 0.f, RenderColor.A);
 
@@ -55,8 +47,8 @@ void Drawing::TextCache::Draw() {
 		};
 
 		for (ImVec2& Offset : Offsets) {
-			ImVec2 outlinePos = ImVec2(TextPosition.x + Offset.x, TextPosition.y + Offset.y);
-			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, FontSize, outlinePos, OutlineColor, RenderText.c_str());
+			ImVec2 OutlinePos = ImVec2(TextPosition.x + Offset.x, TextPosition.y + Offset.y);
+			ImGui::GetBackgroundDrawList()->AddText(Hooks::Present::LargeFont, FontSize, OutlinePos, OutlineColor, RenderText.c_str());
 		}
 	}
 
@@ -73,9 +65,21 @@ void Drawing::CircleCache::Draw() {
 	ImGui::GetBackgroundDrawList()->AddCircle(ImVec2(ScreenPosition.X, ScreenPosition.Y), Radius, ImColor(RenderColor.R, RenderColor.G, RenderColor.B, RenderColor.A), Segments);
 }
 void Drawing::FilledRectCache::Draw() {
+	if (Outlined) {
+		ImU32 OutlineColor = ImColor(0.f, 0.f, 0.f, RenderColor.A);
+
+		ImGui::GetBackgroundDrawList()->AddRectFilled(ImVec2(ScreenPosition.X, ScreenPosition.Y), ImVec2(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), OutlineColor);
+	}
+	
 	ImGui::GetBackgroundDrawList()->AddRectFilled(ImVec2(ScreenPosition.X, ScreenPosition.Y), ImVec2(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), ImColor(RenderColor.R, RenderColor.G, RenderColor.B, RenderColor.A));
 }
 void Drawing::RectCache::Draw() {
+	if (Outlined) {
+		ImU32 OutlineColor = ImColor(0.f, 0.f, 0.f, RenderColor.A);
+
+		ImGui::GetBackgroundDrawList()->AddRect(ImVec2(ScreenPosition.X, ScreenPosition.Y), ImVec2(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), OutlineColor, 0, 0, Thickness + 1.f);
+	}
+	
 	ImGui::GetBackgroundDrawList()->AddRect(ImVec2(ScreenPosition.X, ScreenPosition.Y), ImVec2(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), ImColor(RenderColor.R, RenderColor.G, RenderColor.B, RenderColor.A), 0, 0, Thickness);
 }
 void Drawing::TriangleCache::Draw() {
@@ -100,17 +104,40 @@ void Drawing::TriangleCache::Draw() {
 }
 
 void Drawing::RenderDrawingData() {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
+
 	for (auto& RenderObject : RenderBuffer) {
 		RenderObject->Draw();
 	}
 }
 
 void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	auto Cache = std::make_unique<LineCache>(ScreenPositionA, ScreenPositionB, Thickness, RenderColor, Outlined);
 	DrawingQueue.push_back(std::move(Cache));
 }
 void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
+	if (Hooks::Present::LargeFont == nullptr) {
+		return;
+	}
+	
 	auto Cache = std::make_unique<TextCache>(RenderText, ScreenPosition, FontSize, RenderColor, CentredX, CentredY, Outlined);
+	
+	// Handle centred text here so it doesn't go crazy
+	if (CentredX || CentredY) {
+		ImVec2 TextSize = Hooks::Present::LargeFont->CalcTextSizeA(FontSize, FLT_MAX, FLT_MAX, RenderText);
+		ImVec2 CentredPos = ImVec2(ScreenPosition.X - TextSize.x / 2.f, ScreenPosition.Y - TextSize.y / 2.f);
+
+		if (CentredX) {
+			Cache->ScreenPosition.X = CentredPos.x;
+		}
+
+		if (CentredY) {
+			Cache->ScreenPosition.Y = CentredPos.y;
+		}
+	}
+	
 	DrawingQueue.push_back(std::move(Cache));
 }
 void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
@@ -135,39 +162,51 @@ SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	return SDK::FVector2D(TextSize.x, TextSize.y);
 }
 void Drawing::Circle(SDK::FVector2D ScreenPosition, float Radius, int32_t Segments, SDK::FLinearColor RenderColor, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	auto Cache = std::make_unique<CircleCache>(ScreenPosition, Radius, Segments, RenderColor, Outlined);
 	DrawingQueue.push_back(std::move(Cache));
 }
 void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, SDK::FLinearColor RenderColor, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	auto Cache = std::make_unique<FilledRectCache>(ScreenPosition, ScreenSize, RenderColor, Outlined);
 	DrawingQueue.push_back(std::move(Cache));
 }
 void Drawing::Rect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	auto Cache = std::make_unique<RectCache>(ScreenPosition, ScreenSize, Thickness, RenderColor, Outlined);
 	DrawingQueue.push_back(std::move(Cache));
 }
 void Drawing::CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	float LineW = ScreenSize.X / 4;
 	float LineH = ScreenSize.Y / 4;
-	float Overlap = max(Thickness, 1.0f);
+
+	float Correction = Thickness;
+	Correction -= 2.f;
+	Correction *= -1;
 
 	auto Cache = std::make_unique<BatchLineCache>();
 
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + LineW - Thickness / 2 + Overlap, ScreenPosition.Y), Thickness, RenderColor, Outlined));
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + LineH - Thickness / 2 + Overlap), Thickness, RenderColor, Outlined));
+	// Top-left corner horizontal and vertical
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + Correction, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + LineW, ScreenPosition.Y), Thickness, RenderColor, Outlined));
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + Correction), SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + LineH), Thickness, RenderColor, Outlined));
 
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - LineW + Thickness / 2 - Overlap, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y), Thickness, RenderColor, Outlined));
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + LineH - Thickness / 2 + Overlap), Thickness, RenderColor, Outlined));
+	// Top-right corner horizontal and vertical
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - LineW, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X - Correction, ScreenPosition.Y), Thickness, RenderColor, Outlined));
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + Correction), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + LineH), Thickness, RenderColor, Outlined));
 
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y - LineH + Thickness / 2 - Overlap), SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined));
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + LineW - Thickness / 2 + Overlap, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined));
+	// Bottom-left corner horizontal and vertical
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + Correction, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + LineW, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined));
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y - LineH), SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y - Correction), Thickness, RenderColor, Outlined));
 
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - LineW + Thickness / 2 - Overlap, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined));
-	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y - LineH + Thickness / 2 - Overlap), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined));
+	// Bottom-right corner horizontal and vertical
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - LineW, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X - Correction, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined));
+	Cache->Lines.push_back(Drawing::LineCache(SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y - LineH), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y - Correction), Thickness, RenderColor, Outlined));
 
 	DrawingQueue.push_back(std::move(Cache));
 }
 void Drawing::Triangle(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, SDK::FVector2D ScreenPositionC, float Thickness, SDK::FLinearColor RenderColor, bool Filled, bool Outlined) {
+	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	auto Cache = std::make_unique<TriangleCache>(ScreenPositionA, ScreenPositionB, ScreenPositionC, Thickness, RenderColor, Filled, Outlined);
 	DrawingQueue.push_back(std::move(Cache));
 }
@@ -247,8 +286,8 @@ void Drawing::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSiz
 }
 void Drawing::Rect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	if (Outlined) {
-		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness + 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
-		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPositionA, ScreenSize, Thickness - 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
+		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPosition, ScreenSize, Thickness + 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
+		SDK::GetLocalCanvas()->K2_DrawBox(ScreenPosition, ScreenSize, Thickness - 1.f, SDK::FLinearColor(0.f, 0.f, 0.f, 1.f));
 	}
 
 	SDK::GetLocalCanvas()->K2_DrawBox(ScreenPosition, ScreenSize, Thickness, RenderColor);
@@ -257,14 +296,18 @@ void Drawing::CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenS
 	float lineW = ScreenSize.X / 4;
 	float lineH = ScreenSize.Y / 4;
 
-	Line(SDK::FVector2D(ScreenPositionA.X, ScreenPositionA.Y), SDK::FVector2D(ScreenPositionA.X + lineW, ScreenPositionA.Y), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X, ScreenPositionA.Y), SDK::FVector2D(ScreenPositionA.X, ScreenPositionA.Y + lineH), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y), SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y + lineH), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X + ScreenSize.X - lineW, ScreenPositionA.Y), SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + lineW, ScreenPosition.Y), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + lineH), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + lineH), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - lineW, ScreenPosition.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y), Thickness, RenderColor, Outlined);
 
-	Line(SDK::FVector2D(ScreenPositionA.X, ScreenPositionA.Y + ScreenSize.Y), SDK::FVector2D(ScreenPositionA.X + lineW, ScreenPositionA.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X, ScreenPositionA.Y + ScreenSize.Y - lineH), SDK::FVector2D(ScreenPositionA.X, ScreenPositionA.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y + ScreenSize.Y - lineH), SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
-	Line(SDK::FVector2D(ScreenPositionA.X + ScreenSize.X - lineW, ScreenPositionA.Y + ScreenSize.Y), SDK::FVector2D(ScreenPositionA.X + ScreenSize.X, ScreenPositionA.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + lineW, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y - lineH), SDK::FVector2D(ScreenPosition.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y - lineH), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
+	Line(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - lineW, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
 }
+void Drawing::Triangle(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, SDK::FVector2D ScreenPositionC, float Thickness, SDK::FLinearColor RenderColor, bool Filled, bool Outlined) {
+
+}
+
 #endif // _ENGINE

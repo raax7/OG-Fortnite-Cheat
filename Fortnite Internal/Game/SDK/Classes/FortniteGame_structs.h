@@ -19,7 +19,7 @@ namespace SDK {
 		// VALUES
 
 		class AFortAthenaVehicle* GetVehicle() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::VehiclePawnState::Vehicle == -0x1) return nullptr;
 			return (AFortAthenaVehicle*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::VehiclePawnState::Vehicle));
 		}
 	};
@@ -29,7 +29,7 @@ namespace SDK {
 		// VALUES
 
 		void SetChargeRate(float NewChargeRate, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate), AutoRevertFeature);
@@ -39,7 +39,7 @@ namespace SDK {
 		}
 	
 		void SetActiveExpenseRate(float NewActiveExpenseRate, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate), AutoRevertFeature);
@@ -49,7 +49,7 @@ namespace SDK {
 		}
 
 		void SetPassiveExpenseRate(float NewPassiveExpenseRate, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate), AutoRevertFeature);
@@ -59,7 +59,7 @@ namespace SDK {
 		}
 
 		void SetCharge(float NewCharge) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRechargingActionTimer::Charge == -0x1) return;
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortRechargingActionTimer::Charge) = NewCharge;
 		}
 	};
@@ -69,7 +69,7 @@ namespace SDK {
 		// VALUES
 
 		void SetReloadTime(float NewReloadTime, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime), AutoRevertFeature);
@@ -84,7 +84,7 @@ namespace SDK {
 		// VALUES
 
 		void SetSpread(float NewSpread, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::Spread == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::Spread), AutoRevertFeature);
@@ -94,7 +94,7 @@ namespace SDK {
 		}
 
 		void SetSpreadDownsights(float NewSpreadDownsights, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::SpreadDownsights == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::SpreadDownsights), AutoRevertFeature);
@@ -104,7 +104,7 @@ namespace SDK {
 		}
 
 		void SetStandingStillSpreadMultiplier(float NewStandingStillSpreadMultiplier, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::StandingStillSpreadMultiplier == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::StandingStillSpreadMultiplier), AutoRevertFeature);
@@ -114,7 +114,7 @@ namespace SDK {
 		}
 
 		void SetAthenaCrouchingSpreadMultiplier(float NewAthenaCrouchingSpreadMultiplier, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::AthenaCrouchingSpreadMultiplier == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::AthenaCrouchingSpreadMultiplier), AutoRevertFeature);
@@ -124,7 +124,7 @@ namespace SDK {
 		}
 
 		void SetAthenaJumpingFallingSpreadMultiplier(float NewAthenaJumpingFallingSpreadMultiplier, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::AthenaJumpingFallingSpreadMultiplier == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::AthenaJumpingFallingSpreadMultiplier), AutoRevertFeature);
@@ -134,7 +134,7 @@ namespace SDK {
 		}
 
 		void SetAthenaSprintingSpreadMultiplier(float NewAthenaSprintingSpreadMultiplier, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier), AutoRevertFeature);
@@ -144,7 +144,7 @@ namespace SDK {
 		}
 
 		void SetMinSpeedForSpreadMultiplier(float NewMinSpeedForSpreadMultiplier, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier), AutoRevertFeature);
@@ -154,7 +154,7 @@ namespace SDK {
 		}
 
 		void SetMaxSpeedForSpreadMultiplier(float NewMaxSpeedForSpreadMultiplier, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier), AutoRevertFeature);
@@ -164,7 +164,7 @@ namespace SDK {
 		}
 
 		void SetRecoilVert(float NewRecoilVert, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::RecoilVert == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::RecoilVert), AutoRevertFeature);
@@ -174,7 +174,7 @@ namespace SDK {
 		}
 
 		void SetRecoilHoriz(float NewRecoilHoriz, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::RecoilHoriz == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::RecoilHoriz), AutoRevertFeature);
@@ -184,7 +184,7 @@ namespace SDK {
 		}
 
 		void SetBulletsPerCartridge(int32 NewBulletsPerCartridge, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortRangedWeaponStats::BulletsPerCartridge == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<int32>((int32*)((uintptr_t)this + SDK::Cached::Offsets::FortRangedWeaponStats::BulletsPerCartridge), AutoRevertFeature);
@@ -200,12 +200,12 @@ namespace SDK {
 		// VALUES
 
 		float GetSwingPlaySpeed() {
-			if (SDK::IsValidPointer(this) == false) return 0;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed == -0x1) return 0;
 			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed);
 		}
 
 		void SetSwingPlaySpeed(float NewSwingPlaySpeed, bool* AutoRevertFeature = nullptr) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed == -0x1) return;
 
 			if (AutoRevertFeature) {
 				Features::CreateAutoRevertFeature<float>((float*)((uintptr_t)this + SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed), AutoRevertFeature);

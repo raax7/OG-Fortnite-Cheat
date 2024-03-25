@@ -17,6 +17,7 @@ namespace Config {
 		inline KeyName AimKey = (KeyName)7;
 
 		inline bool BulletTP = false;
+		inline bool BulletTPV2 = false;
 
 		inline bool SilentAim = false;
 		inline bool UseAimKeyForSilent = false;
@@ -84,11 +85,16 @@ namespace Config {
 				inline int FOV = 20;
 			}
 
+			inline ConfigTypes::BoxType BoxType = ConfigTypes::BoxType::Cornered2D;
+
 			inline bool Box = true;
+
 			inline bool Skeleton = true;
+			inline bool IndividualBoneVisibilities = true;
+
 			inline bool Name = true;
 			inline bool Distance = true;
-			inline bool Weapon = true;
+			inline bool CurrentWeapon = true;
 		}
 
 		namespace Weapons {
@@ -106,6 +112,11 @@ namespace Config {
 
 		namespace Player {
 			inline bool EditEnemyBuilds = false;
+
+			inline bool ADSWhileNotOnGround = false;
+			inline bool DoublePump = false;
+
+			inline bool AllowRedeploy = false;
 
 			inline bool InfiniteBuilds = false;
 			inline bool InfiniteAmmo = false;

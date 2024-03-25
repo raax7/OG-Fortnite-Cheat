@@ -6,4 +6,11 @@ namespace ConfigTypes {
 		Crosshair,
 		Distance,
 	};
+
+	enum class BoxType {
+		Full3D,
+		Cornered3D,
+		Full2D,
+		Cornered2D,
+	};
 }

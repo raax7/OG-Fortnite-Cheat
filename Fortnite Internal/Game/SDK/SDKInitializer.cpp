@@ -115,10 +115,11 @@ void SDKInitializer::InitDTIndex() {
 	}
 
 	if (Vft == nullptr) {
-		THROW_ERROR(std::string(skCrypt("Failed to find VFT for UGameViewportClient!")), false);
+		THROW_ERROR(std::string(skCrypt("Failed to find VFT for UGameViewportClient!")), true);
+		return;
 	}
 
-	uintptr_t GameInstance = 0;
+	uintptr_t GameInstance = -0x1;
 
 	std::vector<FunctionSearch> Functions = {};
 	std::vector<OffsetSearch> Offsets = { OffsetSearch{ std::string(skCrypt("GameViewportClient")), std::string(skCrypt("GameInstance")), &GameInstance, nullptr }};
@@ -220,6 +221,7 @@ void SDKInitializer::InitGPVIndex() {
 
 	if (Vft == nullptr) {
 		THROW_ERROR(std::string(skCrypt("Failed to find VFT for APlayerController!")), CRASH_ON_NOT_FOUND);
+		return;
 	}
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
@@ -258,8 +260,9 @@ void SDKInitializer::InitGPVIndex() {
 			
 			// Signature for UE5 builds (19.00+)
 			|| (SDK::GetGameVersion() >= 19.00 && Memory::FindPatternInRange({ 0x48, 0x81, 0xEC, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
-				&& (Memory::FindPatternInRange({ 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01, 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
-					|| Memory::FindPatternInRange({ 0x44, 0x0F, -0x01, -0x01, -0x01, 0x44, 0x0F, -0x01, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70))
+				&& Memory::FindPatternInRange({ 0x48, 0x8B, -0x01, -0x01, 0x48, 0x8B }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+				&& (Memory::FindPatternInRange({ 0x44, 0x0F, -0x01, -0x01, -0x01, -0x01, 0x44 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+					|| Memory::FindPatternInRange({ 0x44, 0x0F, -0x01, -0x01, -0x01, 0x44, 0x0F }, Resolve32BitRelativeJump(Vft[i]), 0x70))
 				)
 			)
 		{
@@ -334,7 +337,7 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 	}
 
 	if (SDK::Cached::VFT::GetWeaponStats == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find GetWeaponStats VFT index! (Using fall back VFT index, may cause crashes)")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find GetWeaponStats VFT index! (Using fall back VFT index, may cause crashes)")), false);
 
 		// This is usually the VFT index for GetWeaponStats, but it's not guaranteed
 		// Later, make it follow the jnz to find the sub routine
@@ -413,45 +416,66 @@ void SDKInitializer::InitLineTraceSingle() {
 void SDKInitializer::InitCalculateShot() {
 	uintptr_t CalculateShotAddress = 0x0;
 
-	if (SDK::GetGameVersion() > 16.00) {
+	if (SDK::GetGameVersion() >= 16.00) {
 		CalculateShotAddress = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("48 8B C4 48 89 58 18 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 B8 0F 29 78 A8 44 0F 29 40 ? 44 0F 29 48 ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4C 8D A1"),
 			0,
 			false);
 	}
-	else if (SDK::GetGameVersion() > 14.00) {
+	else if (SDK::GetGameVersion() >= 14.00) {
 		CalculateShotAddress = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("48 89 5C 24 ? 4C 89 4C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B F9 4C"),
 			0,
 			false);
 	}
-	else if (SDK::GetGameVersion() > 12.00) {
+	else if (SDK::GetGameVersion() >= 12.00) {
 		CalculateShotAddress = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 4C 89 4C 24 ? 55 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B F1 4C 8D"),
 			0,
 			false);
 	}
-	else if (SDK::GetGameVersion() > 11.00) {
+	else if (SDK::GetGameVersion() >= 11.00) {
 		CalculateShotAddress = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("48 8B C4 48 89 58 10 4C 89 48 20 55 56 57 41 54 41 55 41 56 41 57 48 8D 68 98"),
 			0,
 			false);
 	}
-	else if (SDK::GetGameVersion() > 8.00) {
+	else if (SDK::GetGameVersion() >= 8.00) {
 		CalculateShotAddress = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("48 8B C4 48 89 58 10 4C 89 48 20 55 56 57 41 54 41 55 41 56 41 57 48 8D 68 98"),
 			0,
 			false);
 	}
-	else if (SDK::GetGameVersion() > 7.00) {
+	else if (SDK::GetGameVersion() >= 7.00) {
 		CalculateShotAddress = Memory::PatternScan(
 			SDK::GetBaseAddress(),
 			skCrypt("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 54 41 56 41 57 48 8D 68 88"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() >= 4.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 89 5C 24 ? 48 89 74 24 ? 55 57 41 54 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 44 0F"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() >= 3.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 54 41 56 41 57 48 8D 68 88"),
+			0,
+			false);
+	}
+	else if (SDK::GetGameVersion() >= 1.00) {
+		CalculateShotAddress = Memory::PatternScan(
+			SDK::GetBaseAddress(),
+			skCrypt("48 89 5C 24 ? 48 89 74 24 ? 55 57 41 54 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 44 0F"),
 			0,
 			false);
 	}
@@ -463,6 +487,28 @@ void SDKInitializer::InitCalculateShot() {
 	}
 	else {
 		THROW_ERROR(std::string(skCrypt("Failed to find CalculateShot!")), false);
+	}
+}
+void SDKInitializer::InitRaycastMulti() {
+	uintptr_t RaycastMultiAddress = 0x0;
+
+#if SEASON_20_PLUS
+	// TO-DO: Find a better pattern for RaycastMulti on Season 20+ builds
+#else
+	RaycastMultiAddress = Memory::PatternScan(
+		SDK::GetBaseAddress(),
+		skCrypt("48 89 44 24 ? 48 8B 84 24 ? ? ? ? 48 89 44 24 ? 48 8B 44 24 ? 48 89 44 24 ? 8B 44 24 70 89 44 24 20 E8 ? ? ? ?"),
+		41,
+		true);
+#endif
+
+	if (RaycastMultiAddress) {
+		SDK::Cached::Functions::RaycastMulti = RaycastMultiAddress - SDK::GetBaseAddress();
+
+		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("RaycastMulti offset found: ")) + std::to_string(SDK::Cached::Functions::RaycastMulti));
+	}
+	else {
+		THROW_ERROR(std::string(skCrypt("Failed to find RaycastMulti!")), false);
 	}
 }
 

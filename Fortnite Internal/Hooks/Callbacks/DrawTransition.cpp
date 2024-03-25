@@ -8,6 +8,8 @@
 #include "../../Utilities/Logger.h"
 #include "../../Utilities/Math.h"
 
+#include <algorithm>
+
 void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas) {
 	if (Canvas == 0x0) {
 		return DrawTransitionOriginal(this_, Canvas);
@@ -24,7 +26,7 @@ void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas) {
 	Game::ScreenCenterY = Game::ScreenHeight / 2.f;
 
 	// Clamp the FOV to fix target issues on extreme FOV's. This does make it inaccurate on FOV's above 120, but this doesn't really matter
-	Game::PixelsPerDegree = Game::ScreenWidth / Math::RadiansToDegrees((2 * tan(0.5f * Math::DegreesToRadians(Math::Clamp(Actors::MainCamera.FOV, 0, 120)))));
+	Game::PixelsPerDegree = Game::ScreenWidth / Math::RadiansToDegrees((2 * tan(0.5f * Math::DegreesToRadians(std::clamp(Actors::MainCamera.FOV, 0.f, 120.f)))));
 
 	Hooks::Tick();
 

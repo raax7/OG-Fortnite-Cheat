@@ -91,5 +91,5 @@ inline std::ofstream Logger::File;
 
 #define DEBUG_LOG(LogLevel, Message) Logger::Log(LogLevel, Message, __FILE__, __LINE__)
 #else
-    #define DEBUG_LOG(LogLevel, Message) ((void)0)
+    #define DEBUG_LOG(LogLevel, Message)
 #endif

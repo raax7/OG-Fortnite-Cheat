@@ -17,12 +17,26 @@ typedef unsigned __int64 uint64;
 namespace SDK {
 	// Classes
 
+	class UMaterial : public UObject {
+	public:
+
+	};
+	class UMaterialInterface : public UObject {
+	public:
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
+	class UMaterialInstanceDynamic : public UMaterialInterface {
+	public:
+
+	};
 	class USceneComponent : public UObject {
 	public:
 		// VALUES
 
 		FVector GetPosition() {
-			if (SDK::IsValidPointer(this) == false) return FVector{};
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::SceneComponent::RelativeLocation == -0x1) return FVector{};
 			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
 		}
 
@@ -31,6 +45,12 @@ namespace SDK {
 		// FUNCTIONS
 
 		void SetPhysicsLinearVelocity(FVector NewVel, bool bAddToCurrent, FName BoneName);
+	};
+	class UPrimitiveComponent : public USceneComponent {
+	public:
+		// FUNCTIONS
+
+		void SetMaterial(int32 ElementIndex, UMaterialInterface* Material);
 	};
 	class UMovementComponent : public UObject {
 	public:
@@ -47,7 +67,7 @@ namespace SDK {
 		// VALUES
 
 		USceneComponent* GetRootComponent() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Actor::RootComponent == -0x1) return nullptr;
 			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
 		}
 
@@ -62,7 +82,13 @@ namespace SDK {
 
 		void SetActorEnableCollision(bool bNewActorEnableCollision);
 	};
-	class USkeletalMeshComponent : public UObject {
+	class UMeshComponent : public UPrimitiveComponent {
+	public:
+		// FUNCTIONS
+
+		TArray<UMaterialInterface*> GetMaterials();
+	};
+	class USkeletalMeshComponent : public UMeshComponent {
 	public:
 		// FUNCTIONS
 
@@ -76,8 +102,25 @@ namespace SDK {
 
 		FVector GetBonePosition(uint8_t BoneID);
 	};
+	class APlayerState : public AActor {
+	public:
+		// FUNCTIONS
+
+		FString GetPlayerName();
+	};
 	class APawn : public AActor {
 	public:
+		// VALUES
+
+		APlayerState* PlayerState() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Pawn::PlayerState == -0x1) return nullptr;
+			return (APlayerState*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Pawn::PlayerState));
+		}
+
+
+
+		// FUNCTIONS
+
 		UPawnMovementComponent* GetMovementComponent();
 	};
 	class ACharacter : public APawn {
@@ -85,15 +128,9 @@ namespace SDK {
 		// VALUES
 
 		USkeletalMeshComponent* Mesh() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Character::Mesh == -0x1) return nullptr;
 			return (USkeletalMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Character::Mesh));
 		}
-	};
-	class APlayerState : public AActor {
-	public:
-		// FUNCTIONS
-
-		FString GetPlayerName();
 	};
 	class APlayerCameraManager : public UObject {
 	public:
@@ -110,12 +147,12 @@ namespace SDK {
 		// VALUES
 
 		APawn* AcknowledgedPawn() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::PlayerController::AcknowledgedPawn == -0x1) return nullptr;
 			return (APawn*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::AcknowledgedPawn));
 		}
 
 		APlayerCameraManager* PlayerCameraManager() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::PlayerController::PlayerCameraManager == -0x1) return nullptr;
 			return (APlayerCameraManager*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::PlayerCameraManager));
 		}
 
@@ -146,7 +183,7 @@ namespace SDK {
 		// VALUES
 
 		APlayerController* PlayerController() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Player::PlayerController == -0x1) return nullptr;
 			return (APlayerController*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Player::PlayerController));
 		}
 	};
@@ -159,25 +196,34 @@ namespace SDK {
 		// VALUES
 
 		TArray<ULocalPlayer*> LocalPlayers() {
-			if (SDK::IsValidPointer(this) == false) return TArray<ULocalPlayer*>{};
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::GameInstance::LocalPlayers == -0x1) return TArray<ULocalPlayer*>{};
 			return *(TArray<ULocalPlayer*>*)((uintptr_t)this + SDK::Cached::Offsets::GameInstance::LocalPlayers);
 		}
 	};
-	class UWorld : public UObject {
+	class AGameState : public AActor {
 	public:
 
+	};
+	class UWorld : public UObject {
+	public:
+		// VALUES
+
+		AGameState* GameState() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::World::GameState == -0x1) return nullptr;
+			return (AGameState*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::World::GameState));
+		}
 	};
 	class UGameViewportClient : public UObject {
 	public:
 		// VALUES
 
 		UWorld* World() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::GameViewportClient::World == -0x1) return nullptr;
 			return (UWorld*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::World));
 		}
 
 		UGameInstance* GameInstance() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::GameViewportClient::GameInstance == -0x1) return nullptr;
 			return (UGameInstance*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::GameViewportClient::GameInstance));
 		}
 
@@ -192,7 +238,7 @@ namespace SDK {
 		// VALUES
 
 		UGameViewportClient* GameViewport() {
-			if (SDK::IsValidPointer(this) == false) return nullptr;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Engine::GameViewport == -0x1) return nullptr;
 			return (UGameViewportClient*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Engine::GameViewport));
 		}
 
@@ -243,6 +289,18 @@ namespace SDK {
 
 		static UClass* StaticClass();
 	};
+	class UKismetMaterialLibrary : public UObject {
+	public:
+		// FUNCTIONS
+
+		UMaterialInstanceDynamic* CreateDynamicMaterialInstance(class UObject* WorldContextObject, class UMaterialInterface* Parent, class FName OptionalName);
+
+
+
+		// STATIC FUNCTIONS
+
+		static UKismetMaterialLibrary* StaticClass();
+	};
 	class UKismetMathLibrary : public UObject {
 	public:
 		// FUNCTIONS
@@ -252,6 +310,8 @@ namespace SDK {
 		SDK::FVector GetRightVector(const FRotator& InRot);
 
 		FRotator FindLookAtRotation(struct FVector Start, struct FVector Target);
+
+		int32 FMod(float Dividend, float Divisor, float* Remainder);
 	
 
 
@@ -264,12 +324,12 @@ namespace SDK {
 		// VALUES
 
 		void SetFontSize(int32 NewFontSize) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Font::LegacyFontSize == -0x1) return;
 			*(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize) = NewFontSize;
 		}
 
 		int32 GetFontSize() {
-			if (SDK::IsValidPointer(this) == false) return 0;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Font::LegacyFontSize == -0x1) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Font::LegacyFontSize);
 		}
 	};
@@ -284,12 +344,12 @@ namespace SDK {
 		// VALUES
 
 		int32 SizeX() {
-			if (SDK::IsValidPointer(this) == false) return 0;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Canvas::SizeX == -0x1) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Canvas::SizeX);;
 		}
 
 		int32 SizeY() {
-			if (SDK::IsValidPointer(this) == false) return 0;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Canvas::SizeY == -0x1) return 0;
 			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::Canvas::SizeY);
 		}
 

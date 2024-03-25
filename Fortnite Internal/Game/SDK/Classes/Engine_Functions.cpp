@@ -28,6 +28,23 @@ void SDK::USceneComponent::SetPhysicsLinearVelocity(FVector NewVel, bool bAddToC
 	return;
 }
 
+void SDK::UPrimitiveComponent::SetMaterial(int32 ElementIndex, UMaterialInterface* Material) {
+	if (SDK::IsValidPointer(this) == false) return;
+
+	struct {
+		int32 ElementIndex;
+		uint8 Pad_677[0x4];
+		UMaterialInterface* Material;
+	} params_SetMaterial{};
+
+	params_SetMaterial.ElementIndex = ElementIndex;
+	params_SetMaterial.Material = Material;
+
+	this->ProcessEvent(SDK::Cached::Functions::PrimitiveComponent::SetMaterial, &params_SetMaterial);
+
+	return;
+}
+
 void SDK::UMovementComponent::StopMovementImmediately() {
 	if (SDK::IsValidPointer(this) == false) return;
 
@@ -110,6 +127,18 @@ void SDK::AActor::SetActorEnableCollision(bool bNewActorEnableCollision) {
 	this->ProcessEvent(SDK::Cached::Functions::Actor::SetActorEnableCollision, &params_SetActorEnableCollision);
 
 	return;
+}
+
+SDK::TArray<SDK::UMaterialInterface*> SDK::UMeshComponent::GetMaterials() {
+	if (SDK::IsValidPointer(this) == false) return TArray<UMaterialInterface*>{};
+
+	struct {
+		TArray<UMaterialInterface*> return_value;
+	} params_GetMaterials{};
+
+	this->ProcessEvent(SDK::Cached::Functions::MeshComponent::GetMaterials, &params_GetMaterials);
+
+	return params_GetMaterials.return_value;
 }
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
@@ -370,7 +399,7 @@ bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObjec
 		bool bTraceComplex,
 		TArray<class AActor*>& ActorsToIgnore,
 		EDrawDebugTrace DrawDebugType,
-		FHitResult OutHit,
+		FHitResult& OutHit,
 		bool bIgnoreSelf,
 		FLinearColor& TraceColor,
 		FLinearColor& TraceHitColor,
@@ -386,7 +415,7 @@ bool SDK::UKismetSystemLibrary::LineTraceSingle(class UObject* WorldContextObjec
 
 	SDK::FLinearColor EmptyColor = SDK::FLinearColor();
 
-	return OriginalLineTraceSingle(WorldContextObject, StartCopy, EndCopy, TraceChannel, bTraceComplex, ActorsToIgnore, EDrawDebugTrace::None, {}, bIgnoreSelf, EmptyColor, EmptyColor, 0.f);
+	return OriginalLineTraceSingle(WorldContextObject, StartCopy, EndCopy, TraceChannel, bTraceComplex, ActorsToIgnore, EDrawDebugTrace::None, OutHit, bIgnoreSelf, EmptyColor, EmptyColor, 0.f);
 }
 SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -395,6 +424,34 @@ SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 		Clss = UObject::FindClassFast(std::string(skCrypt("KismetSystemLibrary")));
 
 	return Clss;
+}
+
+SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMaterialInstance(class UObject* WorldContextObject, class UMaterialInterface* Parent, class FName OptionalName) {
+	if (SDK::IsValidPointer(this) == false) return nullptr;
+
+	struct {
+		class UObject* WorldContextObject;
+		class UMaterialInterface* Parent;
+		class FName OptionalName;
+		
+		class UMaterialInstanceDynamic* return_value;
+	} params_CreateDynamicMaterialInstance{};
+
+	params_CreateDynamicMaterialInstance.WorldContextObject = WorldContextObject;
+	params_CreateDynamicMaterialInstance.Parent = Parent;
+	params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
+
+	this->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
+
+	return params_CreateDynamicMaterialInstance.return_value;
+}
+SDK::UKismetMaterialLibrary* SDK::UKismetMaterialLibrary::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("KismetMaterialLibrary")));
+
+	return reinterpret_cast<UKismetMaterialLibrary*>(Clss);
 }
 
 SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
@@ -443,6 +500,27 @@ SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, 
 	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation, &params_FindLookAtRotation);
 
 	return params_FindLookAtRotation.return_value;
+}
+int32 SDK::UKismetMathLibrary::FMod(float Dividend, float Divisor, float* Remainder) {
+	if (SDK::IsValidPointer(this) == false) return 0;
+
+	struct {
+		float Dividend;
+		float Divisor;
+		float Remainder;
+		int32 return_value;
+	} params_FMod{};
+
+	params_FMod.Dividend = Dividend;
+	params_FMod.Divisor = Divisor;
+	params_FMod.Remainder = *Remainder;
+
+	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FMod, &params_FMod);
+
+	*Remainder = params_FMod.Remainder;
+
+	return params_FMod.return_value;
+
 }
 SDK::UKismetMathLibrary* SDK::UKismetMathLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -608,6 +686,15 @@ void SDK::UCanvas::K2_DrawBox(FVector2D ScreenPosition, FVector2D ScreenSize, fl
 	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawBox, &params_K2_DrawBox);
 }
 
+SDK::UClass* SDK::UMaterialInterface::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("MaterialInterface")));
+
+	return Clss;
+}
+
 
 
 // Wrapper Functions
@@ -647,9 +734,6 @@ bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPositio
 
 	if (ActorToIgnore) IgnoredActors.Add(ActorToIgnore);
 	if (ActorToIgnore2) IgnoredActors.Add(ActorToIgnore2);
-
-	Hit.TraceStart = CameraPosition;
-	Hit.TraceEnd = TargetPosition;
 
 	bool bHitSomething = SDK::UKismetSystemLibrary::LineTraceSingle(
 		WorldContextObj,

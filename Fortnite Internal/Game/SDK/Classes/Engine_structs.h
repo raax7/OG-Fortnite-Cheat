@@ -51,6 +51,43 @@ namespace SDK {
 		ETraceTypeQuery_MAX = 33,
 	};
 
+	enum class ECollisionChannel : uint8 {
+		ECC_WorldStatic = 0,
+		ECC_WorldDynamic = 1,
+		ECC_Pawn = 2,
+		ECC_Visibility = 3,
+		ECC_Camera = 4,
+		ECC_PhysicsBody = 5,
+		ECC_Vehicle = 6,
+		ECC_Destructible = 7,
+		ECC_EngineTraceChannel1 = 8,
+		ECC_EngineTraceChannel2 = 9,
+		ECC_EngineTraceChannel3 = 10,
+		ECC_EngineTraceChannel4 = 11,
+		ECC_EngineTraceChannel5 = 12,
+		ECC_EngineTraceChannel6 = 13,
+		ECC_GameTraceChannel1 = 14,
+		ECC_GameTraceChannel2 = 15,
+		ECC_GameTraceChannel3 = 16,
+		ECC_GameTraceChannel4 = 17,
+		ECC_GameTraceChannel5 = 18,
+		ECC_GameTraceChannel6 = 19,
+		ECC_GameTraceChannel7 = 20,
+		ECC_GameTraceChannel8 = 21,
+		ECC_GameTraceChannel9 = 22,
+		ECC_GameTraceChannel10 = 23,
+		ECC_GameTraceChannel11 = 24,
+		ECC_GameTraceChannel12 = 25,
+		ECC_GameTraceChannel13 = 26,
+		ECC_GameTraceChannel14 = 27,
+		ECC_GameTraceChannel15 = 28,
+		ECC_GameTraceChannel16 = 29,
+		ECC_GameTraceChannel17 = 30,
+		ECC_GameTraceChannel18 = 31,
+		ECC_OverlapAll_Deprecated = 32,
+		ECC_MAX = 33,
+	};
+
 	enum class EDrawDebugTrace : uint8 {
 		None = 0,
 		ForOneFrame = 1,
@@ -59,28 +96,33 @@ namespace SDK {
 		EDrawDebugTrace_MAX = 4,
 	};
 
-	struct FHitResult {
+	enum class EMIDCreationFlags : uint8 {
+		None = 0,
+		Transient = 1,
+		EMIDCreationFlags_MAX = 2,
+	};
+
+	struct FHitResult
+	{
 	public:
-		uint8                                        bBlockingHit : 1;                                  // Mask: 0x1, PropSize: 0x10x0(0x1)(NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		uint8                                        bStartPenetrating : 1;                             // Mask: 0x2, PropSize: 0x10x0(0x1)(NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		uint8                                        BitPad_1D0 : 6;                                    // Fixing Bit-Field Size  [ Dumper-7 ]
-		uint8                                        Pad_2126[0x3];                                     // Fixing Size After Last Property  [ Dumper-7 ]
-		int32                                        FaceIndex;                                         // 0x4(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Time;                                              // 0x8(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		float                                        Distance;                                          // 0xC(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		struct SDK::FVector							 Location;                                          // 0x10(0xC)(NoDestructor, NativeAccessSpecifierPublic)
-		struct SDK::FVector							 ImpactPoint;                                       // 0x1C(0xC)(NoDestructor, NativeAccessSpecifierPublic)
-		struct SDK::FVector							 Normal;                                            // 0x28(0xC)(NoDestructor, NativeAccessSpecifierPublic)
-		struct SDK::FVector							 ImpactNormal;                                      // 0x34(0xC)(NoDestructor, NativeAccessSpecifierPublic)
-		struct SDK::FVector							 TraceStart;                                        // 0x40(0xC)(NoDestructor, NativeAccessSpecifierPublic)
-		struct SDK::FVector							 TraceEnd;                                          // 0x4C(0xC)(NoDestructor, NativeAccessSpecifierPublic)
-		float                                        PenetrationDepth;                                  // 0x58(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		int32                                        Item;                                              // 0x5C(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		void*										 PhysMaterial;										// 0x60(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		void*										 Actor;												// 0x68(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		void*										 Component;											// 0x70(0x8)(ExportObject, ZeroConstructor, InstancedReference, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		SDK::FName                                   BoneName;                                          // 0x78(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		SDK::FName                                   MyBoneName;                                        // 0x80(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		char UnknownData[0x100]; // Dummy data
+
+		// Values
+
+		SDK::FVector TraceStart() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::HitResult::TraceStart == -0x1) return SDK::FVector();
+			return *(SDK::FVector*)((uintptr_t)this + SDK::Cached::Offsets::HitResult::TraceStart);
+		}
+
+		void SetTraceStart(FVector NewTraceStart) {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::HitResult::TraceStart == -0x1) return;
+			*(SDK::FVector*)((uintptr_t)this + SDK::Cached::Offsets::HitResult::TraceStart) = NewTraceStart;
+		}
+
+		void SetDistance(float NewDistance) {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::HitResult::Distance == -0x1) return;
+			*(float*)((uintptr_t)this + SDK::Cached::Offsets::HitResult::Distance) = NewDistance;
+		}
 	};
 
 	struct FMinimalViewInfo {
@@ -88,12 +130,12 @@ namespace SDK {
 		// VALUES
 
 		void SetLocation(SDK::FVector NewLocation) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::MinimalViewInfo::Location == -0x1) return;
 			*(SDK::FVector*)((uintptr_t)this + SDK::Cached::Offsets::MinimalViewInfo::Location) = NewLocation;
 		}
 
 		void SetRotation(SDK::FRotator NewRotation) {
-			if (SDK::IsValidPointer(this) == false) return;
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::MinimalViewInfo::Rotation == -0x1) return;
 			*(SDK::FRotator*)((uintptr_t)this + SDK::Cached::Offsets::MinimalViewInfo::Rotation) = NewRotation;
 		}
 	};

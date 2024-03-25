@@ -128,6 +128,12 @@
     <ClCompile Include="Hooks\Callbacks\CalculateShot.cpp">
       <Filter>Hooks\Callbacks</Filter>
     </ClCompile>
+    <ClCompile Include="Utilities\Math.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\RaycastMulti.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">

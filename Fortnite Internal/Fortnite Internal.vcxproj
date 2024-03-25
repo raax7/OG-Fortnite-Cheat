@@ -360,6 +360,8 @@
     </ClCompile>
     <ClCompile Include="Game\Features\Exploits\Vehicle.cpp" />
     <ClCompile Include="Game\Features\Exploits\Weapon.cpp" />
+    <ClCompile Include="Hooks\Callbacks\RaycastMulti.cpp" />
+    <ClCompile Include="Utilities\Math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configs\Config.h" />

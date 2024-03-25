@@ -592,8 +592,6 @@ namespace SDK {
 			}
 			return delta;
 		}
-
-		inline FVector Vector() const;
 	};
 
 	struct FVector2D

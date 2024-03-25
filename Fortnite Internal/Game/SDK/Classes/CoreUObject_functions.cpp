@@ -105,7 +105,6 @@ namespace SDK {
 	}
 
 
-
 	void UObject::SetupObjects(std::vector<FunctionSearch>& Functions, std::vector<OffsetSearch>& Offsets) {
 		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Setting up objects...")));
 
@@ -152,11 +151,11 @@ namespace SDK {
 					SDK::FField* ChildProperty = ObjectStruct->ChildProperties();
 					while (ChildProperty) {
 						if (ChildProperty->Name.ToString() == Offset.PropertyName) {
-							if (Offset.Offset != nullptr && *Offset.Offset == 0x0 && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::Property)) {
+							if (Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0) && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::Property)) {
 								*Offset.Offset = ((SDK::FProperty*)ChildProperty)->Offset;
 							}
 
-							if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
+							if (Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0) && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
 								*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
 							}
 
@@ -171,11 +170,11 @@ namespace SDK {
 						SDK::UField* Child = ObjectStruct->Children();
 						while (Child) {
 							if (Child->Name.ToString() == Offset.PropertyName) {
-								if (Offset.Offset != nullptr && *Offset.Offset == 0x0 && Child->HasTypeFlag(SDK::EClassCastFlags::Property)) {
+								if (Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0) && Child->HasTypeFlag(SDK::EClassCastFlags::Property)) {
 									*Offset.Offset = GetPropertyOffset((SDK::UProperty*)Child);
 								}
 
-								if (Offset.Mask != nullptr && *Offset.Mask == 0x0 && Child->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
+								if (Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0) && Child->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
 									*Offset.Mask = ((SDK::UBoolProperty*)Child)->ByteMask();
 								}
 

@@ -25,7 +25,40 @@ void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
 
 void Features::Aimbot::CalculateShotCallback(SDK::FTransform* BulletTransform) {
 	if (Config::Aimbot::BulletTP && Actors::MainTarget.GlobalInfo.TargetActor) {
-		BulletTransform->Translation = Actors::MainTarget.GlobalInfo.TargetBonePosition;
+		SDK::FVector Position = Actors::MainTarget.GlobalInfo.TargetBonePosition;
+		Position.Z += 10.f; // Add 0.01 meters to the Z axis to make sue it always hits the correct bone
+
+		BulletTransform->Translation = Position;
+	}
+}
+
+void Features::Aimbot::RaycastMultiCallback(SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, SDK::ECollisionChannel TraceChannel) {
+	if (Actors::MainTarget.GlobalInfo.TargetActor && Config::Aimbot::BulletTPV2) {
+		if (TraceChannel != SDK::ECollisionChannel::ECC_GameTraceChannel7) return; // Only modify the line trace for the bullet
+
+		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaycastMultiCallback - ")) + std::to_string((int)TraceChannel));
+
+		for (int i = 0; i < OutHits.Num(); i++) {
+			SDK::FHitResult OutHit = OutHits[i];
+
+			// Prepare data for our own line trace
+			SDK::TArray<SDK::AActor*> ActorsToIgnore;
+			SDK::FVector Position = Actors::MainTarget.GlobalInfo.TargetBonePosition;
+			Position.Z += 50.f;
+
+			// Save the original start position of the RaycastMulti
+			SDK::FVector OriginalStart = OutHits[i].TraceStart();
+
+			// Run our own line trace that is guaranteed to hit the target bone
+			SDK::UKismetSystemLibrary::LineTraceSingle(World, Position, Actors::MainTarget.GlobalInfo.TargetBonePosition, (SDK::ETraceTypeQuery)TraceChannel, true, ActorsToIgnore, SDK::EDrawDebugTrace::None, OutHit, false, SDK::FLinearColor(), SDK::FLinearColor(), 0.f);
+
+			// Revert some data back to the original RaycastMulti (to avoid some possible detections)
+			OutHit.SetTraceStart(OriginalStart);
+			OutHit.SetDistance(OriginalStart.Distance(Actors::MainTarget.GlobalInfo.TargetBonePosition));
+
+			// Set the new hit result
+			OutHits[i] = OutHit;
+		}
 	}
 }
 
@@ -39,7 +72,7 @@ void Features::Aimbot::GetViewpointCallback(SDK::FMinimalViewInfo* OutViewInfo) 
 	}
 }
 
-void Features::Aimbot::GetPlayerViewpointCallback(SDK::FRotator* Rotation) {
+void Features::Aimbot::GetPlayerViewpointCallback(SDK::FVector* Location, SDK::FRotator* Rotation) {
 	if (Config::Aimbot::SilentAim == false) return;
 	if (Actors::MainTarget.LocalInfo.IsTargeting == false && Config::Aimbot::UseAimKeyForSilent) return;
 

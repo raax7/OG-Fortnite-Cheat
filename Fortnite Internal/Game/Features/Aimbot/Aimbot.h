@@ -13,11 +13,20 @@ namespace Features {
 		void AimbotTarget(Aimbot::Target& TargetToAimot);
 
 		/*
-		* @brief Callback for the CalculateShot hook (used for silent aim and bullet TP)
+		* @brief Callback for the CalculateShot hook (used for silent aim and bullet TP V1)
 		* 
 		* @param ShotTransform The bullet transform
 		*/
 		void CalculateShotCallback(SDK::FTransform* BulletTransform);
+
+		/*
+		* @brief Callback for the RaycastMulti hook (used for bullet TP V2)
+		* 
+		* @param World The world (from the RaycastMulti hook)
+		* @param OutHits The hit results (from the RaycastMulti hook)
+		* @param TraceChannel The trace channel (from the RaycastMulti hook)
+		*/
+		void RaycastMultiCallback(SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, SDK::ECollisionChannel TraceChannel);
 
 		/*
 		* @brief Callback for the GetViewpoint hook (used for silent aim)
@@ -29,8 +38,9 @@ namespace Features {
 		/*
 		* @brief Callback for the GetPlayerViewpoint hook (used for silent aim)
 		* 
-		* @param this_ The player controller
+		* @param Location The location of the camera
+		* @param Rotation The rotation of the camera
 		*/
-		void GetPlayerViewpointCallback(SDK::FRotator* Rotation);
+		void GetPlayerViewpointCallback(SDK::FVector* Location, SDK::FRotator* Rotation);
 	};
 }

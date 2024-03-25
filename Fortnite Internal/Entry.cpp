@@ -39,6 +39,8 @@
 // - Add WndProc as an option for Engine rendering
 // - Add proper outline for ImGui drawing
 // - Add batch-line support for ImGui and Engine line drawing (Drawing::BeginBatch, Drawing::EndBatch)
+// - Add RaycastMulti offset finding for UE5
+// - Add build through walls using RaycastMulti hook
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;

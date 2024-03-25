@@ -5,6 +5,8 @@
 
 #include "../FortPawnHelper/Bone.h"
 
+#include "../../Game.h"
+
 void Features::Aimbot::Target::UpdateLocalInfoAndType(Target& TargetToUpdate) {
 	switch (TargetToUpdate.GlobalInfo.Type) {
 	case TargetType::ClosePlayer:

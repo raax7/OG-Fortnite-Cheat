@@ -14,6 +14,10 @@
 #include "../../Features/Exploits/Weapon.h"
 
 #include "../../../Utilities/Math.h"
+#include "../../../Utilities/Logger.h"
+#include "../../Input/Input.h"
+
+int num = 0;
 
 void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
@@ -26,11 +30,57 @@ void Actors::FortPawn::Tick() {
 	for (auto it = CachedPlayersLocal.begin(); it != CachedPlayersLocal.end(); ++it) {
 		Actors::Caches::FortPawnCache& CurrentPlayer = *it;
 
-		SDK::AActor*					Actor				= CurrentPlayer.FortPawn;								if (SDK::IsValidPointer(Actor) == false) continue;
-		SDK::AFortPawn*					FortPawn			= reinterpret_cast<SDK::AFortPawn*>(Actor);				if (SDK::IsValidPointer(FortPawn) == false) continue;
-		SDK::AFortPlayerState*			FortPlayerState		= FortPawn->PlayerState();								//if (SDK::IsValidPointer(FortPlayerState) == false) continue;
-		SDK::ACharacter*				Character			= static_cast<SDK::ACharacter*>((SDK::APawn*)FortPawn);	if (SDK::IsValidPointer(Character) == false) continue;
-		CurrentPlayer.Mesh									= Character->Mesh();									if (SDK::IsValidPointer(CurrentPlayer.Mesh) == false) continue;
+		SDK::AActor* Actor = CurrentPlayer.FortPawn;								if (SDK::IsValidPointer(Actor) == false) continue;
+		SDK::AFortPawn* FortPawn = reinterpret_cast<SDK::AFortPawn*>(Actor);				if (SDK::IsValidPointer(FortPawn) == false) continue;
+		SDK::AFortPlayerState* FortPlayerState = reinterpret_cast<SDK::AFortPlayerState*>(FortPawn->PlayerState()); //if (SDK::IsValidPointer(FortPlayerState) == false) continue;
+		SDK::ACharacter* Character = reinterpret_cast<SDK::ACharacter*>(FortPawn);			if (SDK::IsValidPointer(Character) == false) continue;
+		CurrentPlayer.Mesh = Character->Mesh();									if (SDK::IsValidPointer(CurrentPlayer.Mesh) == false) continue;
+
+		int loop = 0;
+		bool found = false;
+
+#if 0
+		for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++) {
+			SDK::UObject* Object = SDK::UObject::ObjectArray.GetByIndex(i);
+			if (Object == nullptr) continue;
+
+			if (Object->IsDefaultObject() == false && Object->IsA(SDK::UMaterialInterface::StaticClass())) {
+				found = true;
+
+				loop++;
+
+				if (loop < num) {
+					num++;
+					continue;
+				}
+
+				DEBUG_LOG(LOG_INFO, std::string(skCrypt("Material: ")) + Object->GetFullName());
+
+				num++;
+
+				SDK::UMaterialInstanceDynamic* MaterialInstanceDynamic = SDK::UKismetMaterialLibrary::StaticClass()->SDK::UKismetMaterialLibrary::CreateDynamicMaterialInstance(SDK::GetWorld(), reinterpret_cast<SDK::UMaterialInterface*>(Object), SDK::FName());
+				DEBUG_LOG(LOG_INFO, std::string(skCrypt("Material Made! - ")) + std::to_string((uintptr_t)MaterialInstanceDynamic));
+				if (MaterialInstanceDynamic) {
+					//DEBUG_LOG(LOG_INFO, std::string(skCrypt("Material: ")) + Object->GetFullName());
+					//test->SetScalarParameterValue(skCrypt("GlowAmount").decrypt(), 1.f);
+
+					SDK::TArray<SDK::UMaterialInterface*> Materials = CurrentPlayer.Mesh->GetMaterials();
+
+					for (int i2 = 0; i2 < Materials.Num(); i2++) {
+						DEBUG_LOG(LOG_INFO, "Num Mats: " + std::to_string(Materials.Num()));
+
+						CurrentPlayer.Mesh->SetMaterial(i2, MaterialInstanceDynamic);
+					}
+
+					break;
+				}
+			}
+		}
+#endif
+
+		if (found == false) {
+			num = 0;
+		}
 
 		// LocalPawn caching and exploit ticks
 		if (FortPawn == SDK::GetLocalPawn()) {
@@ -40,20 +90,36 @@ void Actors::FortPawn::Tick() {
 			Features::Exploits::Vehicle::Tick();
 			Features::Exploits::Weapon::Tick(FortPawn->CurrentWeapon());
 
-			if (SDK::GetLocalController()) {
-				if (Config::Exploits::Player::InfiniteBuilds) {
-					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbBuildFree(true, &Config::Exploits::Player::InfiniteBuilds);
+			{
+				if (SDK::GetLocalController()) {
+					if (Config::Exploits::Player::InfiniteBuilds) {
+						reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbBuildFree(true, &Config::Exploits::Player::InfiniteBuilds);
+					}
+
+					if (Config::Exploits::Player::InfiniteAmmo) {
+						reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbInfiniteAmmo(true, &Config::Exploits::Player::InfiniteAmmo);
+					}
 				}
 
-				if (Config::Exploits::Player::InfiniteAmmo) {
-					reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbInfiniteAmmo(true, &Config::Exploits::Player::InfiniteAmmo);
+				if (Config::Exploits::Player::ADSWhileNotOnGround) {
+					reinterpret_cast<SDK::AFortPlayerPawnAthena*>(FortPawn)->SetbADSWhileNotOnGround(true, &Config::Exploits::Player::ADSWhileNotOnGround);
 				}
-			}
 
-			if (Config::Exploits::Player::EditEnemyBuilds) {
-				SDK::ABuildingActor* TargetedBuilding = reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->TargetedBuilding();
-				if (TargetedBuilding) {
-					TargetedBuilding->SetTeamIndex(LocalPawnCache.TeamIndex, & Config::Exploits::Player::EditEnemyBuilds);
+				if (Config::Exploits::Player::DoublePump) {
+					FortPawn->CurrentWeapon()->SetbIgnoreTryToFireSlotCooldownRestriction(true, &Config::Exploits::Player::DoublePump);
+				}
+
+				if (Config::Exploits::Player::AllowRedeploy) {
+					if (SDK::GetWorld()->GameState()->IsA(SDK::AFortGameStateAthena::StaticClass())) {
+						reinterpret_cast<SDK::AFortGameStateAthena*>(SDK::GetWorld()->GameState())->SetDefaultGliderRedeployCanRedeploy(true, &Config::Exploits::Player::AllowRedeploy);
+					}
+				}
+
+				if (Config::Exploits::Player::EditEnemyBuilds) {
+					SDK::ABuildingActor* TargetedBuilding = reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->TargetedBuilding();
+					if (TargetedBuilding) {
+						TargetedBuilding->SetTeamIndex(LocalPawnCache.TeamIndex, &Config::Exploits::Player::EditEnemyBuilds);
+					}
 				}
 			}
 
@@ -78,7 +144,7 @@ void Actors::FortPawn::Tick() {
 				CurrentPlayer.IsPlayerVisibleOnScreen = true;
 			}
 		}
-		
+
 		CurrentPlayer.DistanceFromLocalPawn = LocalPawnCache.Position.Distance(CurrentPlayer.BonePositions3D[Features::FortPawnHelper::Bone::Root]) / 100.f;
 
 		// Hardcoded max distance, should move to bone population for optimisation
@@ -98,16 +164,21 @@ void Actors::FortPawn::Tick() {
 			SDK::FVector2D TopLeft, BottomRight;
 			Features::FortPawnHelper::PopulateBoundCorners(CurrentPlayer, TopLeft, BottomRight);
 
-			float FontSize = Math::CalculateInterpolatedValue(CurrentPlayer.DistanceFromLocalPawn, 150.f, 10.f, 20.f);
+			float FontSize = Math::CalculateInterpolatedValue(150.f, CurrentPlayer.DistanceFromLocalPawn, 12.f, 20.f);
 			float PrimaryThicknessMultiplier = Math::CalculateInterpolatedValue(75.f, CurrentPlayer.DistanceFromLocalPawn, 1.f, 3.f);
 			float SecondaryThicknessMultiplier = Math::CalculateInterpolatedValue(75.f, CurrentPlayer.DistanceFromLocalPawn, 1.f, 2.f);
 
 			float PrimaryThickness = 1.f * PrimaryThicknessMultiplier;
 			float SecondaryThickness = 1.f * SecondaryThicknessMultiplier;
 
-			SDK::FLinearColor Color = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
+			SDK::FLinearColor PrimaryColor = SDK::FLinearColor(1.f, 1.f, 1.f, 1.f);
 			if (CurrentPlayer.IsAnyBoneVisible) {
-				Color = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
+				PrimaryColor = SDK::FLinearColor(1.f, 0.f, 0.f, 1.f);
+			}
+
+			SDK::FLinearColor SecondaryColor = SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f);
+			if (CurrentPlayer.IsAnyBoneVisible) {
+				SecondaryColor = SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f);
 			}
 
 			if (CurrentPlayer.IsPlayerVisibleOnScreen){
@@ -141,21 +212,55 @@ void Actors::FortPawn::Tick() {
 								SDK::FVector2D(ScreenPos[0].X, ScreenPos[0].Y),
 								SDK::FVector2D(ScreenPos[1].X, ScreenPos[1].Y),
 								SecondaryThicknessMultiplier,
-								BoneVisibleToPlayer ? SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f) : SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f),
+								Config::Visuals::Players::IndividualBoneVisibilities ? BoneVisibleToPlayer ? SDK::FLinearColor(0.0f, 1.f, 1.f, 1.0f) : SDK::FLinearColor(1.0f, 0.f, 0.f, 1.0f) : SecondaryColor,
 								false
 							);
 						}
 					}
 
 					if (Config::Visuals::Players::Box) {
-						Drawing::CorneredRect(TopLeft, SDK::FVector2D(BottomRight - TopLeft), PrimaryThickness, Color, true);
+						switch (Config::Visuals::Players::BoxType) {
+						case ConfigTypes::BoxType::Full3D:
+							// ADD THIS LATER
+							break;
+						case ConfigTypes::BoxType::Cornered3D:
+							// ADD THIS LATER
+							break;
+						case ConfigTypes::BoxType::Full2D:
+							Drawing::Rect(TopLeft, SDK::FVector2D(BottomRight - TopLeft), PrimaryThickness, PrimaryColor, true);
+							break;
+						case ConfigTypes::BoxType::Cornered2D:
+							Drawing::CorneredRect(TopLeft, SDK::FVector2D(BottomRight - TopLeft), PrimaryThickness, PrimaryColor, true);
+							break;
+						}
 					}
 
 					if (Config::Visuals::Players::Name) {
-						SDK::FVector2D PlayerNameTextSize = Drawing::TextSize(CurrentPlayer.PlayerName.ToString().c_str(), FontSize);
-						SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2 - PlayerNameTextSize.X / 2, TopLeft.Y - PlayerNameTextSize.Y - 2.f);
+						// Text position at the top of the box
+						SDK::FVector2D PlayerNameTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2, TopLeft.Y - FontSize - 2);
 
-						Drawing::Text(CurrentPlayer.PlayerName.ToString().c_str(), PlayerNameTextPos, FontSize, Color, true, false, true);
+						Drawing::Text(CurrentPlayer.PlayerName.ToString().c_str(), PlayerNameTextPos, FontSize, PrimaryColor, true, false, true);
+					}
+
+					if (Config::Visuals::Players::Distance) {
+						// Text position at the bottom of the box
+						SDK::FVector2D PlayerDistanceTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2, BottomRight.Y + 2);
+
+						// Cast to int to remove decimal places
+						std::string DistanceString = skCrypt("[ ").decrypt() + std::to_string((int)CurrentPlayer.DistanceFromLocalPawn) + skCrypt(" m ]").decrypt();
+						Drawing::Text(DistanceString.c_str(), PlayerDistanceTextPos, FontSize, PrimaryColor, true, false, true);
+					}
+					
+					if (Config::Visuals::Players::CurrentWeapon) {
+						//SDK::AFortWeapon* CurrentWeapon = FortPawn->CurrentWeapon();
+						//if (CurrentWeapon) {
+						//	std::string WeaponName = CurrentWeapon->WeaponData()->DisplayName().ToString();
+
+						//	SDK::FVector2D WeaponTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2, BottomRight.Y);
+						//	WeaponTextPos.Y += Config::Visuals::Players::Distance ? FontSize + 1 : 0;
+
+						//	Drawing::Text(WeaponName.c_str(), WeaponTextPos, FontSize, CurrentWeapon->WeaponData()->GetRarityColor(), true, false, true);
+						//}
 					}
 				}
 			}

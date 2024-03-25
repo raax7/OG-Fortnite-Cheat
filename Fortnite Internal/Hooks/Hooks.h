@@ -5,14 +5,15 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <mutex>
-#include "RaaxDx/RaaxDx.h"
 #include "../External-Libs/ImGui/imgui.h"
 #include "../External-Libs/ImGui/imgui_impl_win32.h"
 #include "../External-Libs/ImGui/imgui_impl_dx11.h"
+#include "RaaxDx/RaaxDx.h"
 #endif
 
 #include "../Game/SDK/Classes/Basic.h"
 #include "../Game/SDK/Classes/Engine_Structs.h"
+#include "../Game/SDK/Classes/Engine_Classes.h"
 
 namespace Hooks {
 	// Virtual Function Table Hook
@@ -93,7 +94,18 @@ namespace Hooks {
 		using CalcShotParams = SDK::FTransform*(*)(void**, uintptr_t, uintptr_t);
 		inline CalcShotParams CalculateShotOriginal = nullptr;
 
-		SDK::FTransform* CalculateShotHook(void** arg0, uintptr_t arg1, uintptr_t arg2);
+		SDK::FTransform* CalculateShot(void** arg0, uintptr_t arg1, uintptr_t arg2);
+
+		inline bool Hooked = false;
+	}
+	
+	namespace RaycastMulti {
+		using RaycastMultiParams = bool(*)(const SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, const SDK::FVector Start, const SDK::FVector End, SDK::ECollisionChannel TraceChannel, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParams, const struct FCollisionObjectQueryParams& ObjectParams);
+		inline RaycastMultiParams RaycastMultiOriginal = nullptr;
+
+		bool RaycastMulti(SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, const SDK::FVector Start, const SDK::FVector End, SDK::ECollisionChannel TraceChannel, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParams, const struct FCollisionObjectQueryParams& ObjectParams);
+	
+		inline bool Hooked = false;
 	}
 
 	namespace GetPlayerViewpoint {
