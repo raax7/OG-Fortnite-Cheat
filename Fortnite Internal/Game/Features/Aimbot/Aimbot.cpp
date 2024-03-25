@@ -36,8 +36,6 @@ void Features::Aimbot::RaycastMultiCallback(SDK::UWorld* World, SDK::TArray<SDK:
 	if (Actors::MainTarget.GlobalInfo.TargetActor && Config::Aimbot::BulletTPV2) {
 		if (TraceChannel != SDK::ECollisionChannel::ECC_GameTraceChannel7) return; // Only modify the line trace for the bullet
 
-		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaycastMultiCallback - ")) + std::to_string((int)TraceChannel));
-
 		for (int i = 0; i < OutHits.Num(); i++) {
 			SDK::FHitResult OutHit = OutHits[i];
 

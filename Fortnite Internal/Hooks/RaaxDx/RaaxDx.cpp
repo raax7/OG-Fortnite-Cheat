@@ -113,6 +113,10 @@ RaaxDx::Status RaaxDx::Hook() {
 		return Status::UnknownError;
 	}
 
+	if (SDK::IsValidPointer(VFT) == false) {
+		THROW_ERROR(std::string(skCrypt("VFT not initalized!")), true);
+	}
+
 	// Hook Present
 	if (Initalized) {
 		if (MH_CreateHook((void*)VFT[8], &Hooks::Present::Present, (void**)&Hooks::Present::PresentOriginal) != MH_OK || MH_EnableHook((void*)VFT[8]) != MH_OK) {
