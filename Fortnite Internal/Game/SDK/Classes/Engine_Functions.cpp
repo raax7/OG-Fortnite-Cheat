@@ -355,8 +355,6 @@ SDK::UEngine* SDK::UEngine::GetDefaultObj() {
 }
 
 SDK::TArray<SDK::AActor*> SDK::UGameplayStatics::GetAllActorsOfClass(UObject* WorldContextObject, UObject* ActorClass) {
-	if (SDK::IsValidPointer(this) == false) return TArray<AActor*>{};
-
 	struct {
 		UObject* WorldContextObject;
 		UObject* ActorClass;
@@ -366,27 +364,25 @@ SDK::TArray<SDK::AActor*> SDK::UGameplayStatics::GetAllActorsOfClass(UObject* Wo
 	params_GetAllActorsOfClass.WorldContextObject = WorldContextObject;
 	params_GetAllActorsOfClass.ActorClass = ActorClass;
 
-	this->ProcessEvent(SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass, &params_GetAllActorsOfClass);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass, &params_GetAllActorsOfClass);
 
 	return params_GetAllActorsOfClass.OutActors;
 }
-SDK::UGameplayStatics* SDK::UGameplayStatics::StaticClass() {
+SDK::UClass* SDK::UGameplayStatics::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
 		Clss = UObject::FindClassFast(std::string(skCrypt("GameplayStatics")));
 
-	return reinterpret_cast<UGameplayStatics*>(Clss);
+	return Clss;
 }
 
 SDK::FString SDK::UKismetSystemLibrary::GetEngineVersion() {
-	if (SDK::IsValidPointer(this) == false) return FString{};
-
 	struct {
 		FString return_value;
 	} params_GetEngineVersion{};
 
-	this->ProcessEvent(SDK::Cached::Functions::KismetSystemLibrary::GetEngineVersion, &params_GetEngineVersion);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetSystemLibrary::GetEngineVersion, &params_GetEngineVersion);
 
 	return params_GetEngineVersion.return_value;
 }
@@ -427,8 +423,6 @@ SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 }
 
 SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMaterialInstance(class UObject* WorldContextObject, class UMaterialInterface* Parent, class FName OptionalName) {
-	if (SDK::IsValidPointer(this) == false) return nullptr;
-
 	struct {
 		class UObject* WorldContextObject;
 		class UMaterialInterface* Parent;
@@ -441,22 +435,20 @@ SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMateria
 	params_CreateDynamicMaterialInstance.Parent = Parent;
 	params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
 
-	this->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
 
 	return params_CreateDynamicMaterialInstance.return_value;
 }
-SDK::UKismetMaterialLibrary* SDK::UKismetMaterialLibrary::StaticClass() {
+SDK::UClass* SDK::UKismetMaterialLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
 		Clss = UObject::FindClassFast(std::string(skCrypt("KismetMaterialLibrary")));
 
-	return reinterpret_cast<UKismetMaterialLibrary*>(Clss);
+	return Clss;
 }
 
 SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
-	if (SDK::IsValidPointer(this) == false) return FVector{};
-
 	struct {
 		FRotator InRot;
 
@@ -465,13 +457,11 @@ SDK::FVector SDK::UKismetMathLibrary::GetForwardVector(const FRotator& InRot) {
 
 	params_GetForwardVector.InRot = InRot;
 
-	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetForwardVector, &params_GetForwardVector);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetForwardVector, &params_GetForwardVector);
 
 	return params_GetForwardVector.return_value;
 }
 SDK::FVector SDK::UKismetMathLibrary::GetRightVector(const FRotator& InRot) {
-	if (SDK::IsValidPointer(this) == false) return FVector{};
-
 	struct {
 		FRotator InRot;
 
@@ -480,13 +470,11 @@ SDK::FVector SDK::UKismetMathLibrary::GetRightVector(const FRotator& InRot) {
 
 	params_GetRightVector.InRot = InRot;
 
-	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetRightVector, &params_GetRightVector);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::GetRightVector, &params_GetRightVector);
 
 	return params_GetRightVector.return_value;
 }
 SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, struct FVector Target) {
-	if (SDK::IsValidPointer(this) == false) return FRotator{};
-
 	struct {
 		FVector Start;
 		FVector Target;
@@ -497,13 +485,11 @@ SDK::FRotator SDK::UKismetMathLibrary::FindLookAtRotation(struct FVector Start, 
 	params_FindLookAtRotation.Start = Start;
 	params_FindLookAtRotation.Target = Target;
 
-	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation, &params_FindLookAtRotation);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation, &params_FindLookAtRotation);
 
 	return params_FindLookAtRotation.return_value;
 }
 int32 SDK::UKismetMathLibrary::FMod(float Dividend, float Divisor, float* Remainder) {
-	if (SDK::IsValidPointer(this) == false) return 0;
-
 	struct {
 		float Dividend;
 		float Divisor;
@@ -515,20 +501,20 @@ int32 SDK::UKismetMathLibrary::FMod(float Dividend, float Divisor, float* Remain
 	params_FMod.Divisor = Divisor;
 	params_FMod.Remainder = *Remainder;
 
-	this->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FMod, &params_FMod);
+	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMathLibrary::FMod, &params_FMod);
 
 	*Remainder = params_FMod.Remainder;
 
 	return params_FMod.return_value;
 
 }
-SDK::UKismetMathLibrary* SDK::UKismetMathLibrary::StaticClass() {
+SDK::UClass* SDK::UKismetMathLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
 
 	if (!Clss)
 		Clss = UObject::FindClassFast(std::string(skCrypt("KismetMathLibrary")));
 
-	return reinterpret_cast<UKismetMathLibrary*>(Clss);
+	return Clss;
 }
 
 SDK::UFont* SDK::Roboto::StaticFont() {

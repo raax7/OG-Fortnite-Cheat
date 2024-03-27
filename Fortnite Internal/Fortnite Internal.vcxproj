@@ -217,6 +217,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game\Actors\Loops\FortAthenaVehicle.cpp" />
+    <ClCompile Include="Game\Features\Exploits\Player.cpp" />
     <ClCompile Include="Hooks\Callbacks\CalculateShot.cpp" />
     <ClCompile Include="Drawing\Drawing.cpp" />
     <ClCompile Include="External-Libs\ImGui\imgui.cpp">
@@ -270,7 +272,7 @@
     <ClCompile Include="Game\Features\FortPawnHelper\FortPawnHelper.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Game\Actors\Actors.cpp" />
-    <ClCompile Include="Game\Actors\Loops\FortPawn.cpp" />
+    <ClCompile Include="Game\Actors\Loops\FortPickup.cpp" />
     <ClCompile Include="Game\Actors\Loops\FortWeapon.cpp" />
     <ClCompile Include="Game\SDK\Classes\Basic.cpp" />
     <ClCompile Include="Game\SDK\Classes\Engine_Functions.cpp" />
@@ -418,6 +420,7 @@
     <ClInclude Include="Drawing\RaaxGUI\RaaxGUIInput.h" />
     <ClInclude Include="Game\Actors\ActorCache.h" />
     <ClInclude Include="Game\Features\Aimbot\Aimbot.h" />
+    <ClInclude Include="Game\Features\Exploits\Player.h" />
     <ClInclude Include="Game\Features\Features.h" />
     <ClInclude Include="Game\Features\FortPawnHelper\Bone.h" />
     <ClInclude Include="Game\SDK\Classes\FortniteGame_Structs.h" />

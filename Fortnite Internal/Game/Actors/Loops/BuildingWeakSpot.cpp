@@ -10,21 +10,18 @@ void Actors::BuildingWeakSpot::Tick() {
 
 	for (int i = 0; i < CachedBuildingWeakSpot.Num(); i++) {
 		if (Config::Aimbot::Weakspot::Enabled == false) break;
-		if (reinterpret_cast<SDK::AFortPawn*>(SDK::GetLocalPawn())->CurrentWeapon()->IsPickaxe() == false) break;
+		if (SDK::Cast<SDK::AFortPawn>(SDK::GetLocalPawn())->CurrentWeapon()->IsPickaxe() == false) break;
 
-		// ADD CHECK FOR IF CURRENT WEAPON IS A GUN OR A PICKAXE
-		//if (reinterpret_cast<SDK::AFortPawn*>(SDK::GetLocalController()->AcknowledgedPawn())->CurrentWeapon()) break;
-		if (CachedBuildingWeakSpot.IsValidIndex(i) == false) continue;
+		SDK::AActor* Actor = CachedBuildingWeakSpot[i];									if (SDK::IsValidPointer(Actor) == false) continue;
+		SDK::ABuildingWeakSpot* WeakSpot = SDK::Cast<SDK::ABuildingWeakSpot>(Actor);	if (SDK::IsValidPointer(WeakSpot) == false) continue;
 
-		SDK::AActor* Actor = CachedBuildingWeakSpot[i];									if (!Actor) continue;
-		SDK::ABuildingWeakSpot* WeakSpot = static_cast<SDK::ABuildingWeakSpot*>(Actor);	if (!WeakSpot) continue;
-
-		SDK::FVector RootPosition = Actor->GetRootComponent()->GetPosition();
+		SDK::FVector RootPosition = Actor->RootComponent()->RelativeLocation();
 		float DistanceFromLocal = LocalPawnCache.Position.Distance(RootPosition) / 100.f;
 
+		// Max distance from local player
 		if (DistanceFromLocal > 5.f) continue;
 
-		if (WeakSpot->GetWeakSpotInfo() & 0x4 && !(WeakSpot->GetWeakSpotInfo() & 0x2) && !(WeakSpot->GetWeakSpotInfo() & 0x1)) {
+		if (WeakSpot->bActive() && WeakSpot->bFadeOut() == false && WeakSpot->bHit() == false) {
 			// Aimbot
 			if (Config::Aimbot::Enabled && SDK::GetLocalController()->AcknowledgedPawn()) {
 				if (((MainTarget.LocalInfo.IsTargeting == false || Config::Aimbot::StickyAim == false) || MainTarget.GlobalInfo.TargetActor == nullptr)) {

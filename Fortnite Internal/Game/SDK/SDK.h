@@ -38,6 +38,7 @@ namespace SDK {
 
 			namespace FortPlayerPawn {
 				inline uintptr_t VehicleStateLocal = -0x1;
+				inline uintptr_t ZiplineState = -0x1;
 			}
 
 			namespace FortPlayerPawnAthena {
@@ -104,6 +105,13 @@ namespace SDK {
 
 			namespace Actor {
 				inline uintptr_t RootComponent = -0x1;
+				inline uintptr_t Role = -0x1;
+				inline uintptr_t InstanceComponents = -0x1;
+				inline uintptr_t BlueprintCreatedComponents = -0x1;
+			}
+
+			namespace ActorComponent {
+				inline uintptr_t ComponentTags = -0x1;
 			}
 
 			namespace SceneComponent {
@@ -115,7 +123,9 @@ namespace SDK {
 			}
 
 			namespace BuildingWeakSpot {
-				inline uintptr_t WeakSpotInfoBitField = -0x1;
+				inline uintptr_t bHit = -0x1;
+				inline uintptr_t bFadeOut = -0x1;
+				inline uintptr_t bActive = -0x1;
 			}
 
 			namespace MinimalViewInfo {
@@ -183,6 +193,14 @@ namespace SDK {
 
 			namespace FortGameStateAthena {
 				inline uintptr_t DefaultGliderRedeployCanRedeploy = -0x1;
+			}
+
+			namespace ZiplinePawnState {
+				inline uintptr_t bIsZiplining = -0x1;
+			}
+
+			namespace FortPlayerStateZone {
+				inline uintptr_t SpectatingTarget = -0x1;
 			}
 		}
 
@@ -294,6 +312,12 @@ namespace SDK {
 			namespace FortPlayerController {
 				inline uintptr_t bBuildFree = -0x1;
 				inline uintptr_t bInfiniteAmmo = -0x1;
+			}
+
+			namespace BuildingWeakSpot {
+				inline uintptr_t bHit = -0x1;
+				inline uintptr_t bFadeOut = -0x1;
+				inline uintptr_t bActive = -0x1;
 			}
 		}
 	}

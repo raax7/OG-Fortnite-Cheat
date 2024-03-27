@@ -1,5 +1,14 @@
 #include "FortniteGame_Classes.h"
 
+SDK::UClass* SDK::AFortAthenaVehicle::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortAthenaVehicle")));
+
+	return Clss;
+}
+
 SDK::UClass* SDK::AFortAthenaAntelopeVehicle::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -168,6 +177,24 @@ SDK::UClass* SDK::AFortWeaponRanged::StaticClass() {
 	return Clss;
 }
 
+SDK::UClass* SDK::AFortPlayerState::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortPlayerState")));
+
+	return Clss;
+}
+
+SDK::UClass* SDK::AFortPlayerStateZone::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = SDK::UObject::FindClass(std::string(skCrypt("Class FortniteGame.FortPlayerStateZone")));
+
+	return Clss;
+}
+
 SDK::UClass* SDK::AFortPawn::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -179,7 +206,16 @@ SDK::UClass* SDK::AFortPawn::StaticClass() {
 
 SDK::AFortAthenaVehicle* SDK::AFortPlayerPawn::GetVehicle() {
 	if (SDK::IsValidPointer(this) == false) return nullptr;
-	return VehicleStateLocal()->GetVehicle();
+	return VehicleStateLocal()->Vehicle();
+}
+
+SDK::UClass* SDK::AFortPlayerPawnAthena::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("FortPlayerPawnAthena")));
+
+	return Clss;
 }
 
 SDK::UClass* SDK::AFortPlayerController::StaticClass() {

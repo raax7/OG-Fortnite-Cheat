@@ -18,7 +18,7 @@ namespace SDK {
 	public:
 		// VALUES
 
-		class AFortAthenaVehicle* GetVehicle() {
+		class AFortAthenaVehicle* Vehicle() {
 			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::VehiclePawnState::Vehicle == -0x1) return nullptr;
 			return (AFortAthenaVehicle*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::VehiclePawnState::Vehicle));
 		}
@@ -199,7 +199,7 @@ namespace SDK {
 	public:
 		// VALUES
 
-		float GetSwingPlaySpeed() {
+		float SwingPlaySpeed() {
 			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed == -0x1) return 0;
 			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed);
 		}
@@ -212,6 +212,16 @@ namespace SDK {
 			}
 
 			*(float*)((uintptr_t)this + SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed) = NewSwingPlaySpeed;
+		}
+	};
+
+	struct FZiplinePawnState {
+	public:
+		// VALUES
+
+		void SetbIsZiplining(bool bNewIsZiplining) {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::ZiplinePawnState::bIsZiplining == -0x1) return;
+			*(bool*)((uintptr_t)this + SDK::Cached::Offsets::ZiplinePawnState::bIsZiplining) = bNewIsZiplining;
 		}
 	};
 

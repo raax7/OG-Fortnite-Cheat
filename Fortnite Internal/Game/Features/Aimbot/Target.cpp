@@ -190,7 +190,7 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 	Target.GlobalInfo.TargetBonePosition = TargetCache.BonePositions3D[Target.GlobalInfo.TargetBoneId];
 	Target.GlobalInfo.TargetBonePosition2D = TargetCache.BonePositions2D[Target.GlobalInfo.TargetBoneId];
 
-	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetBonePosition);
+	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetBonePosition);
 
 	// Update local information
 	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);
@@ -233,7 +233,7 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 	Target.GlobalInfo.Type = Target::TargetType::Weakspot;
 
 	// Update positions
-	SDK::FVector RootComponentPosition = WeakSpot->GetRootComponent()->GetPosition();
+	SDK::FVector RootComponentPosition = WeakSpot->RootComponent()->RelativeLocation();
 	SDK::FVector2D RootComponentPosition2D = SDK::Project(RootComponentPosition);
 
 	Target.GlobalInfo.TargetActorPosition = RootComponentPosition;
@@ -241,7 +241,7 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 	Target.GlobalInfo.TargetBonePosition = RootComponentPosition;
 	Target.GlobalInfo.TargetBonePosition2D = RootComponentPosition2D;
 
-	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::StaticClass()->FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetActorPosition);
+	SDK::FRotator TargetCameraRotation = SDK::UKismetMathLibrary::FindLookAtRotation(AimbotCamera.Position, Target.GlobalInfo.TargetActorPosition);
 
 	// Update local information
 	Target.LocalInfo.DistanceFromCrosshairDegrees = Math::GetDegreeDistance(MainCamera.Rotation, TargetCameraRotation);

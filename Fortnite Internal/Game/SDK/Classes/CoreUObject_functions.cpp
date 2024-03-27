@@ -136,6 +136,8 @@ namespace SDK {
 					if (Children->HasTypeFlag(SDK::EClassCastFlags::Function) && Children->Name.ToString() == Function.FunctionName) {
 						*Function.Function = Children;
 
+						DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found function: ")) + Function.ClassName + "::" + Function.FunctionName + " at " + std::to_string((uintptr_t)*Function.Function));
+
 						FunctionsNotFound.erase(std::remove(FunctionsNotFound.begin(), FunctionsNotFound.end(), Function), FunctionsNotFound.end());
 					}
 
@@ -153,10 +155,14 @@ namespace SDK {
 						if (ChildProperty->Name.ToString() == Offset.PropertyName) {
 							if (Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0) && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::Property)) {
 								*Offset.Offset = ((SDK::FProperty*)ChildProperty)->Offset;
+
+								DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found offset: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Offset));
 							}
 
 							if (Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0) && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
 								*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
+
+								DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found mask: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Mask));
 							}
 
 							OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());
@@ -172,10 +178,14 @@ namespace SDK {
 							if (Child->Name.ToString() == Offset.PropertyName) {
 								if (Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0) && Child->HasTypeFlag(SDK::EClassCastFlags::Property)) {
 									*Offset.Offset = GetPropertyOffset((SDK::UProperty*)Child);
+
+									DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found offset: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Offset));
 								}
 
 								if (Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0) && Child->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
 									*Offset.Mask = ((SDK::UBoolProperty*)Child)->ByteMask();
+
+									DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found mask: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Mask));
 								}
 
 								OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());

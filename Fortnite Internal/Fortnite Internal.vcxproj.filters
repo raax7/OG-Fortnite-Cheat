@@ -26,7 +26,7 @@
     <ClCompile Include="Game\Actors\Loops\FortWeapon.cpp">
       <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Actors\Loops\FortPawn.cpp">
+    <ClCompile Include="Game\Actors\Loops\FortPickup.cpp">
       <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
     <ClCompile Include="Game\Actors\Loops\BuildingWeakSpot.cpp">
@@ -133,6 +133,12 @@
     </ClCompile>
     <ClCompile Include="Hooks\Callbacks\RaycastMulti.cpp">
       <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Exploits\Player.cpp">
+      <Filter>Game\Features\Exploits</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Actors\Loops\FortAthenaVehicle.cpp">
+      <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -356,6 +362,9 @@
       <Filter>External-Libs</Filter>
     </ClInclude>
     <ClInclude Include="Game\Features\Exploits\Weapon.h">
+      <Filter>Game\Features\Exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\Exploits\Player.h">
       <Filter>Game\Features\Exploits</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,25 +13,25 @@
 
 #include <algorithm>
 
-void Actors::FortWeapon::Tick() {
+void Actors::FortPickup::Tick() {
 	for (int i = 0; i < CachedWeapons.Num(); i++) {
 		if (Config::Visuals::Weapons::Enabled) {
 			if (!CachedWeapons.IsValidIndex(i)) continue;
 
-			SDK::AActor* Actor = CachedWeapons[i];												if (!Actor) continue;
+			SDK::AActor* Actor = CachedWeapons[i];												if (SDK::IsValidPointer(Actor) == false) continue;
 
-			SDK::FVector RootPosition = Actor->GetRootComponent()->GetPosition();
-			if (RootPosition.Distance(Actors::LocalPawnCache.Position) / 100 >= Config::Visuals::Weapons::WeaponMaxDistance) {
+			SDK::FVector RootPosition = Actor->RootComponent()->RelativeLocation();
+			if (RootPosition.Distance(Actors::LocalPawnCache.Position) / 100 > Config::Visuals::Weapons::MaxDistance) {
 				continue;
 			}
 
 			SDK::FVector2D Project = SDK::Project(RootPosition);
 			if (Math::IsOnScreen(Project) == false) continue;
 
-			SDK::AFortPickup* FortPickup = reinterpret_cast<SDK::AFortPickup*>(Actor);			if (!FortPickup) continue;
+			SDK::AFortPickup* FortPickup = SDK::Cast<SDK::AFortPickup>(Actor);					if (SDK::IsValidPointer(FortPickup) == false) continue;
 
-			SDK::FFortItemEntry* FortItemEntry = FortPickup->PrimaryPickupItemEntry();			if (!FortItemEntry) continue;
-			SDK::UFortItemDefinition* FortItemDefinition = FortItemEntry->ItemDefinition();		if (!FortItemDefinition) continue;
+			SDK::FFortItemEntry* FortItemEntry = FortPickup->PrimaryPickupItemEntry();			if (SDK::IsValidPointer(FortItemEntry) == false) continue;
+			SDK::UFortItemDefinition* FortItemDefinition = FortItemEntry->ItemDefinition();		if (SDK::IsValidPointer(FortItemDefinition) == false) continue;
 
 			SDK::FText WeaponName = FortItemDefinition->DisplayName();
 
@@ -66,9 +66,9 @@ void Actors::FortWeapon::Tick() {
 		for (int i = 0; i < CachedWeapons.Num(); i++) {
 			if (!CachedWeapons.IsValidIndex(i)) continue;
 
-			SDK::AActor* Actor = CachedWeapons[i];										if (!Actor) continue;
+			SDK::AActor* Actor = CachedWeapons[i];										if (SDK::IsValidPointer(Actor) == false) continue;
 
-			SDK::FVector RootPosition = Actor->GetRootComponent()->GetPosition();
+			SDK::FVector RootPosition = Actor->RootComponent()->RelativeLocation();
 			float DistanceFromLocal = RootPosition.Distance(Actors::LocalPawnCache.Position);
 			if (DistanceFromLocal / 100 >= Config::Exploits::Pickup::MaxDistance) {
 				continue;
@@ -99,10 +99,10 @@ void Actors::FortWeapon::Tick() {
 		int ItemsPickedUp = 0;
 
 		for (auto OrderedWeapon : OrderedWeapons) {
-			SDK::AActor* Actor = OrderedWeapon.Actor;									if (!Actor) continue;
-			SDK::AFortPickup* FortPickup = reinterpret_cast<SDK::AFortPickup*>(Actor);	if (!FortPickup) continue;
+			SDK::AActor* Actor = OrderedWeapon.Actor;									if (SDK::IsValidPointer(Actor) == false) continue;
+			SDK::AFortPickup* FortPickup = reinterpret_cast<SDK::AFortPickup*>(Actor);	if (SDK::IsValidPointer(FortPickup) == false) continue;
 
-			reinterpret_cast<SDK::AFortPawn*>(SDK::GetLocalPawn())->ServerHandlePickup(FortPickup, 0.1f, SDK::FVector(), false);
+			SDK::Cast<SDK::AFortPawn>(SDK::GetLocalPawn())->ServerHandlePickup(FortPickup, 0.1f, SDK::FVector(), false);
 
 			ItemsPickedUp++;
 

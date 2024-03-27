@@ -14,6 +14,25 @@
 </p>
 
 
+<!-- ABOUT somethingidk-FN -->
+## DEVELOPERS READ ME FIRST!
+I know the code base for this project is very big, so I've tried to document eveything well in the files,
+however it still won't be perfect so here are 2 things you NEED to know before you start developing with this source.
+
+### Namespaces
+There are 3 main namespaces, SDK (you can guess what that is), Actors, Game and Features. Here is the purpose of each:
+- SDK: The SDK
+- Actors: Cached info's on various actors, as well as the loops for them (AFortPawn, AFortPickup etc)
+- Game: Simple functions for drawing menu and ESP, current game frame, screen dimensions etc
+- Features: Now I know alot of people clown for using this the nesting can become annoying, but I think it's important for clarity. If you go to Game/Features you will see it simply contains all things like AFortPawn bone IDs, targetting system, exploits (vehicles, pickups etc etc)
+
+### Wrappers
+I take advantage of wrappers and abstraction alot here, so most of the time like with K2_Project for example, you will not need to get the canvas and call it, there is a wrapper simply called Project in the SDK namespace. I advise you to go to Game/SDK/SDK/Engine_classes.h and look at all the wrappers at the bottom to avoid redundunt code
+
+##
+Overall, just explore the project. There is already tons of code using everything how I intended so you can simply follow that style
+##
+
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents

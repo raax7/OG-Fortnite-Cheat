@@ -100,7 +100,13 @@ namespace Config {
 		namespace Weapons {
 			inline bool Enabled = false;
 
-			inline int WeaponMaxDistance = 300;
+			inline int MaxDistance = 300;
+		}
+
+		namespace Vehicles {
+			inline bool Enabled = false;
+
+			inline int MaxDistance = 300;
 		}
 	}
 
@@ -111,15 +117,12 @@ namespace Config {
 		}
 
 		namespace Player {
+			inline bool ZiplineFly = false;
+
 			inline bool EditEnemyBuilds = false;
 
 			inline bool ADSWhileNotOnGround = false;
 			inline bool DoublePump = false;
-
-			inline bool AllowRedeploy = false;
-
-			inline bool InfiniteBuilds = false;
-			inline bool InfiniteAmmo = false;
 		}
 
 		namespace Weapon {

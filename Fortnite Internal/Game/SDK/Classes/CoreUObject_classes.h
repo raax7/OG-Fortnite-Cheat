@@ -154,6 +154,14 @@ namespace SDK {
 		bool IsA(class UClass* Clss) const;
 	};
 
+	template <typename T, bool ForceCast = false>
+	static inline T* Cast(UObject* Object) {
+		if (ForceCast || (IsValidPointer(Object) && Object->IsA(T::StaticClass()))) {
+			return (T*)Object;
+		}
+
+		return nullptr;
+	}
 
 
 #ifdef _MSC_VER

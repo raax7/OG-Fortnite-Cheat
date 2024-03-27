@@ -31,11 +31,15 @@ namespace SDK {
 	public:
 
 	};
-	class USceneComponent : public UObject {
+	class UActorComponent : public UObject {
+	public:
+
+	};
+	class USceneComponent : public UActorComponent {
 	public:
 		// VALUES
 
-		FVector GetPosition() {
+		FVector RelativeLocation() {
 			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::SceneComponent::RelativeLocation == -0x1) return FVector{};
 			return *(FVector*)((uintptr_t)this + SDK::Cached::Offsets::SceneComponent::RelativeLocation);
 		}
@@ -66,9 +70,24 @@ namespace SDK {
 	public:
 		// VALUES
 
-		USceneComponent* GetRootComponent() {
+		USceneComponent* RootComponent() {
 			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Actor::RootComponent == -0x1) return nullptr;
 			return (USceneComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::Actor::RootComponent));
+		}
+
+		void SetNetRole(ENetRole NewRole) {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Actor::Role == -0x1) return;
+			*(ENetRole*)((uintptr_t)this + SDK::Cached::Offsets::Actor::Role) = NewRole;
+		}
+
+		TArray<UActorComponent*>* InstanceComponents() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Actor::InstanceComponents == -0x1) return nullptr;
+			return (TArray<UActorComponent*>*)((uintptr_t)this + SDK::Cached::Offsets::Actor::InstanceComponents);
+		}
+
+		TArray<UActorComponent*>* BlueprintCreatedComponents() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Actor::BlueprintCreatedComponents == -0x1) return nullptr;
+			return (TArray<UActorComponent*>*)((uintptr_t)this + SDK::Cached::Offsets::Actor::BlueprintCreatedComponents);
 		}
 
 
@@ -254,20 +273,20 @@ namespace SDK {
 	public:
 		// FUNCTIONS
 
-		TArray<AActor*> GetAllActorsOfClass(UObject* WorldContextObject, UObject* ActorClass);
+		static TArray<AActor*> GetAllActorsOfClass(UObject* WorldContextObject, UObject* ActorClass);
 
 
 
 		// STATIC FUNCTIONS
 
-		static UGameplayStatics* StaticClass();
+		static UClass* StaticClass();
 	};
 	class UKismetSystemLibrary : public UObject
 	{
 	public:
 		// FUNCTIONS
 
-		FString GetEngineVersion();
+		static FString GetEngineVersion();
 
 		static bool LineTraceSingle(
 			class UObject* WorldContextObject,
@@ -293,31 +312,31 @@ namespace SDK {
 	public:
 		// FUNCTIONS
 
-		UMaterialInstanceDynamic* CreateDynamicMaterialInstance(class UObject* WorldContextObject, class UMaterialInterface* Parent, class FName OptionalName);
+		static UMaterialInstanceDynamic* CreateDynamicMaterialInstance(class UObject* WorldContextObject, class UMaterialInterface* Parent, class FName OptionalName);
 
 
 
 		// STATIC FUNCTIONS
 
-		static UKismetMaterialLibrary* StaticClass();
+		static UClass* StaticClass();
 	};
 	class UKismetMathLibrary : public UObject {
 	public:
 		// FUNCTIONS
 
-		FVector GetForwardVector(const FRotator& InRot);
+		static FVector GetForwardVector(const FRotator& InRot);
 
-		SDK::FVector GetRightVector(const FRotator& InRot);
+		static SDK::FVector GetRightVector(const FRotator& InRot);
 
-		FRotator FindLookAtRotation(struct FVector Start, struct FVector Target);
+		static FRotator FindLookAtRotation(struct FVector Start, struct FVector Target);
 
-		int32 FMod(float Dividend, float Divisor, float* Remainder);
+		static int32 FMod(float Dividend, float Divisor, float* Remainder);
 	
 
 
 		// STATIC FUNCTIONS
 
-		static UKismetMathLibrary* StaticClass();
+		static UClass* StaticClass();
 	};
 	class UFont : public UObject {
 	public:

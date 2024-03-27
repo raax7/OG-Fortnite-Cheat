@@ -42,7 +42,7 @@ void Features::Aimbot::RaycastMultiCallback(SDK::UWorld* World, SDK::TArray<SDK:
 			// Prepare data for our own line trace
 			SDK::TArray<SDK::AActor*> ActorsToIgnore;
 			SDK::FVector Position = Actors::MainTarget.GlobalInfo.TargetBonePosition;
-			Position.Z += 50.f;
+			Position.Z += 100.f;
 
 			// Save the original start position of the RaycastMulti
 			SDK::FVector OriginalStart = OutHits[i].TraceStart();

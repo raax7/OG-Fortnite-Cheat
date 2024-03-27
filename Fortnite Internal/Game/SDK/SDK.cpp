@@ -25,6 +25,7 @@ void SDK::Init() {
 		SDKInitializer::InitAppendString();
 		SDKInitializer::InitFNameConstructor();
 		SDKInitializer::InitLineTraceSingle();
+		SDKInitializer::InitRaycastMulti();
 
 		// Init Class Offsets
 		SDK::UProperty::OffsetOffset		= 0x44; // Doesn't change (as far as I know)
@@ -67,7 +68,6 @@ void SDK::Init() {
 
 		// Init CalculateShot function offset (requires game version)
 		SDKInitializer::InitCalculateShot();
-		SDKInitializer::InitRaycastMulti();
 
 		// Continue initiating VFT Indexes
 		SDKInitializer::InitDTIndex();
@@ -125,12 +125,13 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("Player")),					std::string(skCrypt("PlayerController")),			&SDK::Cached::Offsets::Player::PlayerController,				nullptr },
 			OffsetSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("AcknowledgedPawn")),			&SDK::Cached::Offsets::PlayerController::AcknowledgedPawn,		nullptr },
 			OffsetSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("PlayerCameraManager")),		&SDK::Cached::Offsets::PlayerController::PlayerCameraManager,	nullptr },
+			OffsetSearch { std::string(skCrypt("FortPlayerStateZone")),		std::string(skCrypt("SpectatingTarget")),			&SDK::Cached::Offsets::FortPlayerStateZone::SpectatingTarget,	nullptr },
 			OffsetSearch { std::string(skCrypt("HUD")),						std::string(skCrypt("DebugCanvas")),				&SDK::Cached::Offsets::HUD::Canvas,								nullptr },
 			OffsetSearch { std::string(skCrypt("Pawn")),					std::string(skCrypt("PlayerState")),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
 			OffsetSearch { std::string(skCrypt("Character")),				std::string(skCrypt("Mesh")),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
 			OffsetSearch { std::string(skCrypt("Font")),					std::string(skCrypt("LegacyFontSize")),				&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
 			
-			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("TraceStart")),					&SDK::Cached::Offsets::HitResult::TraceStart,						nullptr },
+			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("TraceStart")),					&SDK::Cached::Offsets::HitResult::TraceStart,					nullptr },
 			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("Distance")),					&SDK::Cached::Offsets::HitResult::Distance,						nullptr },
 			
 			OffsetSearch { std::string(skCrypt("World")),					std::string(skCrypt("GameState")),					&SDK::Cached::Offsets::World::GameState,						nullptr },
@@ -139,14 +140,17 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortItemDefinition")),		std::string(skCrypt("DisplayName")),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			nullptr },
 			OffsetSearch { std::string(skCrypt("FortItemDefinition")),		std::string(skCrypt("Tier")),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				nullptr },
 			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("RootComponent")),				&SDK::Cached::Offsets::Actor::RootComponent,					nullptr },
+			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("Role")),						&SDK::Cached::Offsets::Actor::Role,								nullptr },
+			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("InstanceComponents")),			&SDK::Cached::Offsets::Actor::InstanceComponents,				nullptr },
+			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("BlueprintCreatedComponents")),	&SDK::Cached::Offsets::Actor::BlueprintCreatedComponents,		nullptr },
 			OffsetSearch { std::string(skCrypt("SceneComponent")),			std::string(skCrypt("RelativeLocation")),			&SDK::Cached::Offsets::SceneComponent::RelativeLocation,		nullptr },
+			OffsetSearch { std::string(skCrypt("ActorComponent")),			std::string(skCrypt("ComponentTags")),				&SDK::Cached::Offsets::ActorComponent::ComponentTags,			nullptr },
 			OffsetSearch { std::string(skCrypt("Canvas")),					std::string(skCrypt("SizeX")),						&SDK::Cached::Offsets::Canvas::SizeX,							nullptr },
 			OffsetSearch { std::string(skCrypt("Canvas")),					std::string(skCrypt("SizeY")),						&SDK::Cached::Offsets::Canvas::SizeY,							nullptr },
 			OffsetSearch { std::string(skCrypt("FortPawn")),				std::string(skCrypt("CurrentWeapon")),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
 			OffsetSearch { std::string(skCrypt("FortPawn")),				std::string(skCrypt("bIsDying")),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
 			OffsetSearch { std::string(skCrypt("FortPlayerPawn")),			std::string(skCrypt("VehicleStateLocal")),			&SDK::Cached::Offsets::FortPlayerPawn::VehicleStateLocal,		nullptr },
 			OffsetSearch { std::string(skCrypt("FortPlayerPawnAthena")),	std::string(skCrypt("bADSWhileNotOnGround")),		&SDK::Cached::Offsets::FortPlayerPawnAthena::bADSWhileNotOnGround,nullptr },
-			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bHit")),						&SDK::Cached::Offsets::BuildingWeakSpot::WeakSpotInfoBitField,	nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("WeaponData")),					&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("LastFireTime")),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("bIgnoreTryToFireSlotCooldownRestriction")), &SDK::Cached::Offsets::FortWeapon::bIgnoreTryToFireSlotCooldownRestriction, nullptr },
@@ -178,6 +182,10 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortBaseWeaponStats")),		std::string(skCrypt("ReloadTime")),					&SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime,		nullptr },
 
 			OffsetSearch { std::string(skCrypt("VehiclePawnState")),		std::string(skCrypt("Vehicle")),					&SDK::Cached::Offsets::VehiclePawnState::Vehicle,				nullptr },
+			
+			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bHit")),						&SDK::Cached::Offsets::BuildingWeakSpot::bHit,					&SDK::Cached::Masks::BuildingWeakSpot::bHit },
+			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bFadeOut")),					&SDK::Cached::Offsets::BuildingWeakSpot::bFadeOut,				&SDK::Cached::Masks::BuildingWeakSpot::bFadeOut },
+			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bActive")),					&SDK::Cached::Offsets::BuildingWeakSpot::bActive,				&SDK::Cached::Masks::BuildingWeakSpot::bActive },
 		};
 
 		if (SDK::GetGameVersion() >= 6.00) {
@@ -198,16 +206,19 @@ void SDK::Init() {
 
 		if (SDK::GetGameVersion() >= 7.00) {
 			// Bit of a hacky way to do it since its not 100% accurate if its using the enum for teams or the direct value, but they both have the same type so it doesn't matter
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("TeamIndex")),			&SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
+			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("TeamIndex")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
 
 			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAthenaDoghouseVehicle")), std::string(skCrypt("BoostAction")), &SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction, nullptr });
+			
+			Offsets.push_back(OffsetSearch{ std::string(skCrypt("ZiplinePawnState")), std::string(skCrypt("bIsZiplining")), &SDK::Cached::Offsets::ZiplinePawnState::bIsZiplining, nullptr });
+			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortPlayerPawn")), std::string(skCrypt("ZiplineState")), &SDK::Cached::Offsets::FortPlayerPawn::ZiplineState, nullptr });
 		}
 		else {
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("Team")),				&SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
+			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("Team")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
 		}
 
 		if (SDK::GetGameVersion() >= 10.00) {
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortWeapon")), std::string(skCrypt("LastFireTimeVerified")),	&SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified, nullptr });
+			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortWeapon")), std::string(skCrypt("LastFireTimeVerified")), &SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified, nullptr });
 		}
 
 		SDK::UObject::SetupObjects(Functions, Offsets);

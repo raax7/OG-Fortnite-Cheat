@@ -16,7 +16,7 @@ namespace Actors {
 		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
-	namespace FortWeapon {
+	namespace FortPickup {
 		void Tick();
 
 		inline SDK::TArray<SDK::AActor*> CachedWeapons;
@@ -25,6 +25,15 @@ namespace Actors {
 		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 
 		inline std::chrono::steady_clock::time_point LastAutoPickupTime = std::chrono::steady_clock::now();
+	}
+
+	namespace FortAthenaVehicle {
+		void Tick();
+
+		inline SDK::TArray<SDK::AActor*> CachedVehicles;
+
+		inline const float IntervalSeconds = 0.25f;
+		inline std::chrono::steady_clock::time_point LastCacheTime = std::chrono::steady_clock::now();
 	}
 
 	namespace BuildingWeakSpot {

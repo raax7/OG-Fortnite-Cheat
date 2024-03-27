@@ -203,13 +203,6 @@ void Game::MenuCallback() {
 					WaitingForKeyInput = true;
 				}
 
-				if (SDK::Cached::Functions::CalculateShot) {
-					ImGui::Checkbox(skCrypt("Bullet TP V1 (CalculateShot)"), &Config::Aimbot::BulletTP);
-				}
-				if (SDK::Cached::Functions::RaycastMulti) {
-					ImGui::Checkbox(skCrypt("Bullet TP V2 (RaycastMulti)"), &Config::Aimbot::BulletTPV2);
-				}
-
 				ImGui::Checkbox(skCrypt("Silent Aim"), &Config::Aimbot::SilentAim);
 				if (Config::Aimbot::SilentAim) {
 					ImGui::Checkbox(skCrypt("Use Aim-Key For Silent"), &Config::Aimbot::UseAimKeyForSilent);
@@ -243,6 +236,12 @@ void Game::MenuCallback() {
 		case 1:
 		{
 			ImGui::Checkbox(skCrypt("Weapon ESP"), &Config::Visuals::Weapons::Enabled);
+			ImGui::SliderInt(skCrypt("Weapon ESP Max Distance"), &Config::Visuals::Weapons::MaxDistance, 1, 500);
+
+			ImGui::Separator();
+
+			ImGui::Checkbox(skCrypt("Vehicle ESP"), &Config::Visuals::Vehicles::Enabled);
+			ImGui::SliderInt(skCrypt("Vehicle ESP Max Distance"), &Config::Visuals::Vehicles::MaxDistance, 1, 500);
 
 			ImGui::Separator();
 
@@ -303,19 +302,23 @@ void Game::MenuCallback() {
 			switch (SubTab) {
 			case 0:
 			{
+				ImGui::Checkbox(skCrypt("Player Fly (Zipline)"), &Config::Exploits::Player::ZiplineFly);
+
 				ImGui::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
 
 				ImGui::Checkbox(skCrypt("ADS While Not On Ground"), &Config::Exploits::Player::ADSWhileNotOnGround);
 				ImGui::Checkbox(skCrypt("Double Pump"), &Config::Exploits::Player::DoublePump);
-
-				ImGui::Checkbox(skCrypt("Allow Redeploy (client sided 99% of the time)"), &Config::Exploits::Player::AllowRedeploy);
-
-				ImGui::Checkbox(skCrypt("Infinite Builds (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteBuilds);
-				ImGui::Checkbox(skCrypt("Infinite Ammo (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteAmmo);
 			}
 			break;
 			case 1:
 			{
+				if (SDK::Cached::Functions::CalculateShot) {
+					ImGui::Checkbox(skCrypt("Bullet TP V1 (CalculateShot)"), &Config::Aimbot::BulletTP);
+				}
+				if (SDK::Cached::Functions::RaycastMulti) {
+					ImGui::Checkbox(skCrypt("Bullet TP V2 (RaycastMulti)"), &Config::Aimbot::BulletTPV2);
+				}
+
 				ImGui::Checkbox(skCrypt("No Spread"), &Config::Exploits::Weapon::NoSpread);
 				ImGui::Checkbox(skCrypt("No Recoil"), &Config::Exploits::Weapon::NoRecoil);
 				ImGui::Checkbox(skCrypt("No Reload"), &Config::Exploits::Weapon::NoReload);
@@ -408,7 +411,8 @@ void Game::DrawCallback() {
 	if (!SDK::GetLocalController()) return;
 	if (!SDK::GetEngine()) return;
 
-	Actors::FortWeapon::Tick();
+	Actors::FortPickup::Tick();
+	Actors::FortAthenaVehicle::Tick();
 	Actors::BuildingWeakSpot::Tick();
 	Actors::FortPawn::Tick();
 

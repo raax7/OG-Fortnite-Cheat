@@ -88,8 +88,8 @@ float Math::RadiansToDegrees(float radians) {
 }
 
 float Math::GetDegreeDistance(SDK::FRotator Rotator1, SDK::FRotator Rotator2) {
-	SDK::FVector ForwardVector1 = SDK::UKismetMathLibrary::StaticClass()->GetForwardVector(Rotator1);
-	SDK::FVector ForwardVector2 = SDK::UKismetMathLibrary::StaticClass()->GetForwardVector(Rotator2);
+	SDK::FVector ForwardVector1 = SDK::UKismetMathLibrary::GetForwardVector(Rotator1);
+	SDK::FVector ForwardVector2 = SDK::UKismetMathLibrary::GetForwardVector(Rotator2);
 
 	ForwardVector1.Normalize();
 	ForwardVector2.Normalize();

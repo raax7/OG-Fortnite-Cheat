@@ -81,6 +81,16 @@ namespace SDK {
 
 		// CUSTOM FUNCTIONS
 
+		inline T GetByIndex(int32 Index)
+		{
+			if (IsValidIndex(Index))
+			{
+				return Data[Index];
+			}
+
+			return T();
+		}
+
 		inline void Add(const T& Element)
 		{
 			if (NumElements < MaxElements)
@@ -94,6 +104,14 @@ namespace SDK {
 			if (NumElements < MaxElements)
 			{
 				Data[NumElements++] = std::move(Element);
+			}
+		}
+
+		inline void Add(T* Element)
+		{
+			if (NumElements < MaxElements)
+			{
+				Data[NumElements++] = *Element;
 			}
 		}
 	};

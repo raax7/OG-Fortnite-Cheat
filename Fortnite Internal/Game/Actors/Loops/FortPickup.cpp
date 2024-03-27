@@ -12,12 +12,13 @@
 #include "../../Features/Aimbot/Aimbot.h"
 #include "../../Features/Exploits/Vehicle.h"
 #include "../../Features/Exploits/Weapon.h"
+#include "../../Features/Exploits/Player.h"
 
 #include "../../../Utilities/Math.h"
 #include "../../../Utilities/Logger.h"
 #include "../../Input/Input.h"
 
-int num = 0;
+//int num = 0;
 
 void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
@@ -30,16 +31,15 @@ void Actors::FortPawn::Tick() {
 	for (auto it = CachedPlayersLocal.begin(); it != CachedPlayersLocal.end(); ++it) {
 		Actors::Caches::FortPawnCache& CurrentPlayer = *it;
 
-		SDK::AActor* Actor = CurrentPlayer.FortPawn;								if (SDK::IsValidPointer(Actor) == false) continue;
-		SDK::AFortPawn* FortPawn = reinterpret_cast<SDK::AFortPawn*>(Actor);				if (SDK::IsValidPointer(FortPawn) == false) continue;
-		SDK::AFortPlayerState* FortPlayerState = reinterpret_cast<SDK::AFortPlayerState*>(FortPawn->PlayerState()); //if (SDK::IsValidPointer(FortPlayerState) == false) continue;
-		SDK::ACharacter* Character = reinterpret_cast<SDK::ACharacter*>(FortPawn);			if (SDK::IsValidPointer(Character) == false) continue;
-		CurrentPlayer.Mesh = Character->Mesh();									if (SDK::IsValidPointer(CurrentPlayer.Mesh) == false) continue;
+		SDK::AFortPawn* FortPawn					= CurrentPlayer.FortPawn;										if (SDK::IsValidPointer(FortPawn) == false) continue;
+		SDK::AFortPlayerState* FortPlayerState		= SDK::Cast<SDK::AFortPlayerState>(FortPawn->PlayerState());	//if (SDK::IsValidPointer(FortPlayerState) == false) continue;
+		CurrentPlayer.Mesh							= FortPawn->Mesh();												if (SDK::IsValidPointer(CurrentPlayer.Mesh) == false) continue;
 
+#if 0
 		int loop = 0;
 		bool found = false;
 
-#if 0
+
 		for (int i = 0; i < SDK::UObject::ObjectArray.Num(); i++) {
 			SDK::UObject* Object = SDK::UObject::ObjectArray.GetByIndex(i);
 			if (Object == nullptr) continue;
@@ -76,51 +76,43 @@ void Actors::FortPawn::Tick() {
 				}
 			}
 		}
-#endif
+
 
 		if (found == false) {
 			num = 0;
 		}
+#endif
 
 		// LocalPawn caching and exploit ticks
 		if (FortPawn == SDK::GetLocalPawn()) {
 			LocalPawnCache.Position = CurrentPlayer.Mesh->GetBonePosition(Features::FortPawnHelper::Bone::Head);
 			LocalPawnCache.TeamIndex = CurrentPlayer.TeamIndex;
 
-			Features::Exploits::Vehicle::Tick();
+			Features::Exploits::Vehicle::Tick(SDK::Cast<SDK::AFortPlayerPawnAthena>(FortPawn));
 			Features::Exploits::Weapon::Tick(FortPawn->CurrentWeapon());
+			Features::Exploits::Player::Tick(SDK::Cast<SDK::AFortPlayerPawnAthena>(FortPawn), SDK::Cast<SDK::AFortPlayerController>(SDK::GetLocalController()));
 
 			{
-				if (SDK::GetLocalController()) {
-					if (Config::Exploits::Player::InfiniteBuilds) {
-						reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbBuildFree(true, &Config::Exploits::Player::InfiniteBuilds);
-					}
+				//DEBUG_LOG(LOG_INFO, std::string(skCrypt("----------------------------------------------")));
 
-					if (Config::Exploits::Player::InfiniteAmmo) {
-						reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->SetbInfiniteAmmo(true, &Config::Exploits::Player::InfiniteAmmo);
-					}
-				}
+				//SDK::TArray<SDK::UActorComponent*>* InstanceComponents = FortPlayerState->InstanceComponents();
+				//SDK::TArray<SDK::UActorComponent*>* BlueprintCreatedComponents = FortPlayerState->BlueprintCreatedComponents();
 
-				if (Config::Exploits::Player::ADSWhileNotOnGround) {
-					reinterpret_cast<SDK::AFortPlayerPawnAthena*>(FortPawn)->SetbADSWhileNotOnGround(true, &Config::Exploits::Player::ADSWhileNotOnGround);
-				}
+				//for (int i = 0; i < InstanceComponents->Num(); i++) {
+				//	SDK::UActorComponent* Component = InstanceComponents->GetByIndex(i);
+				//	if (Component == nullptr) continue;
 
-				if (Config::Exploits::Player::DoublePump) {
-					FortPawn->CurrentWeapon()->SetbIgnoreTryToFireSlotCooldownRestriction(true, &Config::Exploits::Player::DoublePump);
-				}
+				//	DEBUG_LOG(LOG_INFO, std::string(skCrypt("InstanceComponent: ")) + Component->GetFullName());
+				//}
 
-				if (Config::Exploits::Player::AllowRedeploy) {
-					if (SDK::GetWorld()->GameState()->IsA(SDK::AFortGameStateAthena::StaticClass())) {
-						reinterpret_cast<SDK::AFortGameStateAthena*>(SDK::GetWorld()->GameState())->SetDefaultGliderRedeployCanRedeploy(true, &Config::Exploits::Player::AllowRedeploy);
-					}
-				}
+				//for (int i = 0; i < BlueprintCreatedComponents->Num(); i++) {
+				//	SDK::UActorComponent* Component = BlueprintCreatedComponents->GetByIndex(i);
+				//	if (Component == nullptr) continue;
 
-				if (Config::Exploits::Player::EditEnemyBuilds) {
-					SDK::ABuildingActor* TargetedBuilding = reinterpret_cast<SDK::AFortPlayerController*>(SDK::GetLocalController())->TargetedBuilding();
-					if (TargetedBuilding) {
-						TargetedBuilding->SetTeamIndex(LocalPawnCache.TeamIndex, &Config::Exploits::Player::EditEnemyBuilds);
-					}
-				}
+				//	DEBUG_LOG(LOG_INFO, std::string(skCrypt("BlueprintCreatedComponent: ")) + Component->GetFullName());
+				//}
+
+				//DEBUG_LOG(LOG_INFO, std::string(skCrypt("----------------------------------------------")));
 			}
 
 			continue;
@@ -129,6 +121,7 @@ void Actors::FortPawn::Tick() {
 		// Player state validation
 		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
 		if (CurrentPlayer.FortPawn->IsDying()) continue;
+		if (SDK::Cast<SDK::AFortPlayerStateZone>(SDK::GetLocalPawn()->PlayerState())->SpectatingTarget() == SDK::Cast<SDK::AFortPlayerStateZone>(FortPlayerState)) continue;
 
 		// Bone positions and visibility caching
 		// If this returns false, the player isn't on the screen and only 5 of the bones were WorldToScreened
