@@ -25,6 +25,8 @@ namespace Features {
             inline SDK::FName DissolvePatternEmissiveBrightness;
             inline SDK::FName GradientPassEmissiveA;
             inline SDK::FName GradientPassEmissiveB;
+            inline SDK::FName SOpacity;
+            inline SDK::FName Opacity;
 
             /* Array of ChammedPawns used for auto reverting materials */
             inline std::vector<std::unique_ptr<ChammedPawn>> ChammedPawns;

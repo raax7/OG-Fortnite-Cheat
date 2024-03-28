@@ -266,6 +266,10 @@ void Game::MenuCallback() {
 
 				ImGui::Checkbox(skCrypt("Chams"), &Config::Visuals::Players::Chams);
 				if (Config::Visuals::Players::Chams) {
+					if (ImGui::ColorEdit3(skCrypt("Chams Color"), Config::Visuals::Players::ChamsColor)) {
+						Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings();
+					}
+
 					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::SelfChams);
 					ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::Wireframe);
 					if (ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::GlowAmount, 0.f, 100.f)) {

@@ -77,7 +77,7 @@ namespace Config {
 				//inline bool ShowDistance = true;
 				//inline bool ShowName = true;
 
-				inline bool CopyAimbotFOV = true;
+				inline bool CopyAimbotFOV = false;
 
 				inline float Height = 10.f;
 				inline float Width = 10.f;
@@ -97,13 +97,13 @@ namespace Config {
 			inline bool CurrentWeapon = true;
 
 			// Chams
-			inline bool Chams = false;
+			inline bool Chams = true;
 
-			inline bool SelfChams = false;
-
+			inline bool SelfChams = true;
 			inline bool Wireframe = true;
 
 			inline float GlowAmount = 1.f;
+			inline float ChamsColor[3] = { 1.f, 0.f, 0.75f };
 		}
 
 		namespace Weapons {

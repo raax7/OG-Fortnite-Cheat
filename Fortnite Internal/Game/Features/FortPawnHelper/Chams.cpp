@@ -65,7 +65,7 @@ void Features::FortPawnHelper::Chams::Tick(SDK::AFortPawn* FortPawn) {
 
 	bool PawnInList = it != ChammedPawns.end();
 
-	if (SDK::IsValidPointer(FortPawn)) {
+	if (SDK::IsValidPointer(FortPawn) && ShouldApplyChams(FortPawn)) {
 		if (PawnInList == false) {
 			// Apply the chams
 			if (ApplyChams(FortPawn, SDK::GetChamsMaterialDynamic())) {
@@ -91,13 +91,17 @@ void Features::FortPawnHelper::Chams::Tick(SDK::AFortPawn* FortPawn) {
 
 void Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings() {
 	// Set the colors
-	SDK::GetChamsMaterialDynamic()->SetVectorParameterValue(SColor1, SDK::FLinearColor(1.f, 0.f, 0.75f, 1.f));
-	SDK::GetChamsMaterialDynamic()->SetVectorParameterValue(SColor2, SDK::FLinearColor(1.f, 0.f, 0.75f, 1.f));
+	SDK::GetChamsMaterialDynamic()->SetVectorParameterValue(SColor1, SDK::FLinearColor(Config::Visuals::Players::ChamsColor[0], Config::Visuals::Players::ChamsColor[1], Config::Visuals::Players::ChamsColor[2], 1.f));
+	SDK::GetChamsMaterialDynamic()->SetVectorParameterValue(SColor2, SDK::FLinearColor(Config::Visuals::Players::ChamsColor[0], Config::Visuals::Players::ChamsColor[1], Config::Visuals::Players::ChamsColor[2], 1.f));
 
 	// Set the emissive brightness
 	SDK::GetChamsMaterialDynamic()->SetScalarParameterValue(DissolvePatternEmissiveBrightness, Config::Visuals::Players::GlowAmount);
 	SDK::GetChamsMaterialDynamic()->SetScalarParameterValue(GradientPassEmissiveA, Config::Visuals::Players::GlowAmount);
 	SDK::GetChamsMaterialDynamic()->SetScalarParameterValue(GradientPassEmissiveB, Config::Visuals::Players::GlowAmount);
+
+	// Set the opacities
+	SDK::GetChamsMaterialDynamic()->SetScalarParameterValue(SOpacity, 1.f);
+	SDK::GetChamsMaterialDynamic()->SetScalarParameterValue(Opacity, 1.f);
 }
 
 void Features::FortPawnHelper::Chams::UpdateMaterialSettings() {
@@ -112,5 +116,6 @@ void Features::FortPawnHelper::Chams::Init() {
 	SColor2 = SDK::FName(skCrypt(L"S Color2"));
 	DissolvePatternEmissiveBrightness = SDK::FName(skCrypt(L"Dissolve Pattern Emissive Brightness"));
 	GradientPassEmissiveA = SDK::FName(skCrypt(L"Gradient Pass Emissive A"));
-	GradientPassEmissiveB = SDK::FName(skCrypt(L"Gradient Pass Emissive B"));
+	SOpacity = SDK::FName(skCrypt(L"S Opacity"));
+	Opacity = SDK::FName(skCrypt(L"Opacity"));
 }
