@@ -247,6 +247,16 @@ void Game::MenuCallback() {
 
 			ImGui::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
 			if (Config::Visuals::Players::Enabled) {
+				ImGui::Checkbox(skCrypt("Chams"), &Config::Visuals::Players::Chams);
+				if (Config::Visuals::Players::Chams) {
+					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::SelfChams);
+					ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::Wireframe);
+					ImGui::Checkbox(skCrypt("Glow"), &Config::Visuals::Players::Glow);
+					if (Config::Visuals::Players::Glow) {
+						ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::GlowAmount, 0.f, 10000.f);
+					}
+				}
+
 				ImGui::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
 
 				if (Config::Visuals::Players::Box) {

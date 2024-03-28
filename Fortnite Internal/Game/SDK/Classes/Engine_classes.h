@@ -4,6 +4,8 @@
 
 #include "CoreUObject_Classes.h"
 
+#include "../../Features/Features.h"
+
 typedef __int8 int8;
 typedef __int16 int16;
 typedef __int32 int32;
@@ -17,19 +19,73 @@ typedef unsigned __int64 uint64;
 namespace SDK {
 	// Classes
 
-	class UMaterial : public UObject {
-	public:
-
-	};
 	class UMaterialInterface : public UObject {
 	public:
 		// STATIC FUNCTIONS
 
 		static UClass* StaticClass();
 	};
+	class UMaterial : public UMaterialInterface {
+	public:
+		// VALUES
+
+		void SetbDisableDepthTest(bool NewValue, bool* AutoRevertFeature = nullptr) {
+			if (SDK::IsValidPointer(this) == false || (SDK::Cached::Offsets::Material::bDisableDepthTest == -0x1 && SDK::Cached::Masks::Material::bDisableDepthTest == -0x1)) return;
+
+			if (SDK::Cached::Masks::Material::bDisableDepthTest != -0x1) {
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertBitFeature(((uint8_t*)(uintptr_t)this + SDK::Cached::Offsets::Material::bDisableDepthTest), SDK::Cached::Masks::Material::bDisableDepthTest, AutoRevertFeature);
+				}
+
+				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::Material::bDisableDepthTest);
+				*BitField = NewValue ? *BitField | SDK::Cached::Masks::Material::bDisableDepthTest : *BitField & ~SDK::Cached::Masks::Material::bDisableDepthTest;
+			}
+			else {
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertFeature<bool>((bool*)((uintptr_t)this + SDK::Cached::Offsets::Material::bDisableDepthTest), AutoRevertFeature);
+				}
+
+				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::Material::bDisableDepthTest) = NewValue;
+			}
+		}
+
+		void SetBlendMode(EBlendMode NewValue, bool* AutoRevertFeature = nullptr) {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::Material::BlendMode == -0x1) return;
+
+			if (AutoRevertFeature) {
+				Features::CreateAutoRevertFeature<bool>((bool*)((uintptr_t)this + SDK::Cached::Offsets::Material::BlendMode), AutoRevertFeature);
+			}
+
+			*(EBlendMode*)((uintptr_t)this + SDK::Cached::Offsets::Material::BlendMode) = NewValue;
+		}
+
+		void SetWireFrame(bool NewValue, bool* AutoRevertFeature = nullptr) {
+			if (SDK::IsValidPointer(this) == false || (SDK::Cached::Offsets::Material::Wireframe == -0x1 && SDK::Cached::Masks::Material::Wireframe == -0x1)) return;
+
+			if (SDK::Cached::Masks::Material::Wireframe != -0x1) {
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertBitFeature(((uint8_t*)(uintptr_t)this + SDK::Cached::Offsets::Material::Wireframe), SDK::Cached::Masks::Material::Wireframe, AutoRevertFeature);
+				}
+
+				uint8* BitField = (uint8*)((uintptr_t)this + SDK::Cached::Offsets::Material::Wireframe);
+				*BitField = NewValue ? *BitField | SDK::Cached::Masks::Material::Wireframe : *BitField & ~SDK::Cached::Masks::Material::Wireframe;
+			}
+			else {
+				if (AutoRevertFeature) {
+					Features::CreateAutoRevertFeature<bool>((bool*)((uintptr_t)this + SDK::Cached::Offsets::Material::Wireframe), AutoRevertFeature);
+				}
+
+				*(bool*)((uintptr_t)this + SDK::Cached::Offsets::Material::Wireframe) = NewValue;
+			}
+		}
+	};
 	class UMaterialInstanceDynamic : public UMaterialInterface {
 	public:
+		// FUNCTIONS
 
+		void SetVectorParameterValue(FName ParameterName, FLinearColor Value);
+
+		void SetScalarParameterValue(FName ParameterName, float Value);
 	};
 	class UActorComponent : public UObject {
 	public:
@@ -120,6 +176,13 @@ namespace SDK {
 		// WRAPPER FUNCTIONS
 
 		FVector GetBonePosition(uint8_t BoneID);
+	};
+	class USkeletalMeshComponentBudgeted : public USkeletalMeshComponent
+	{
+	public:
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
 	};
 	class APlayerState : public AActor {
 	public:
@@ -391,6 +454,18 @@ namespace SDK {
 
 	// Wrapper Functions
 
+	/*
+	* @brief Gets the UMaterial used for chams
+	*
+	* @return The UMaterial used for chams
+	*/
+	UMaterial* GetChamsMaterial();
+	/*
+	* @brief Gets the UMaterialInstanceDynamic used for chams
+	* 
+	* @return The UMaterialInstanceDynamic used for chams
+	*/
+	UMaterialInstanceDynamic* GetChamsMaterialDynamic();
 	/*
 	* @brief Wrapper for K2_Project
 	*

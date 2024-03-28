@@ -184,6 +184,15 @@ SDK::UPawnMovementComponent* SDK::APawn::GetMovementComponent() {
 	return params_GetMovementComponent.return_value;
 }
 
+SDK::UClass* SDK::USkeletalMeshComponentBudgeted::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("SkeletalMeshComponentBudgeted")));
+
+	return Clss;
+}
+
 SDK::FString SDK::APlayerState::GetPlayerName() {
 	if (SDK::IsValidPointer(this) == false) return FString{};
 
@@ -423,21 +432,43 @@ SDK::UClass* SDK::UKismetSystemLibrary::StaticClass() {
 }
 
 SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMaterialInstance(class UObject* WorldContextObject, class UMaterialInterface* Parent, class FName OptionalName) {
-	struct {
-		class UObject* WorldContextObject;
-		class UMaterialInterface* Parent;
-		class FName OptionalName;
-		
-		class UMaterialInstanceDynamic* return_value;
-	} params_CreateDynamicMaterialInstance{};
+	if (SDK::GetGameVersion() >= 12.00) {
+		struct {
+			class UObject* WorldContextObject;
+			class UMaterialInterface* Parent;
+			/*enum class EMIDCreationFlags*/ uint8 CreationFlags;
+			uint8 Pad_186A[0x7];
+			class FName OptionalName;
 
-	params_CreateDynamicMaterialInstance.WorldContextObject = WorldContextObject;
-	params_CreateDynamicMaterialInstance.Parent = Parent;
-	params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
+			class UMaterialInstanceDynamic* return_value;
+		} params_CreateDynamicMaterialInstance{};
 
-	StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
+		params_CreateDynamicMaterialInstance.WorldContextObject = WorldContextObject;
+		params_CreateDynamicMaterialInstance.Parent = Parent;
+		params_CreateDynamicMaterialInstance.CreationFlags = /*EMIDCreationFlags::None*/ 0;
+		params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
 
-	return params_CreateDynamicMaterialInstance.return_value;
+		StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
+
+		return params_CreateDynamicMaterialInstance.return_value;
+	}
+	else {
+		struct {
+			class UObject* WorldContextObject;
+			class UMaterialInterface* Parent;
+			class FName OptionalName;
+
+			class UMaterialInstanceDynamic* return_value;
+		} params_CreateDynamicMaterialInstance{};
+
+		params_CreateDynamicMaterialInstance.WorldContextObject = WorldContextObject;
+		params_CreateDynamicMaterialInstance.Parent = Parent;
+		params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
+
+		StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
+
+		return params_CreateDynamicMaterialInstance.return_value;
+	}
 }
 SDK::UClass* SDK::UKismetMaterialLibrary::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -681,12 +712,58 @@ SDK::UClass* SDK::UMaterialInterface::StaticClass() {
 	return Clss;
 }
 
+void SDK::UMaterialInstanceDynamic::SetVectorParameterValue(FName ParameterName, FLinearColor Value) {
+	if (SDK::IsValidPointer(this) == false) return;
+
+	struct {
+		FName ParameterName;
+		FLinearColor Value;
+	} params_SetVectorParameterValue{};
+
+	params_SetVectorParameterValue.ParameterName = ParameterName;
+	params_SetVectorParameterValue.Value = Value;
+
+	this->ProcessEvent(SDK::Cached::Functions::MaterialInstanceDynamic::SetVectorParameterValue, &params_SetVectorParameterValue);
+}
+
+void SDK::UMaterialInstanceDynamic::SetScalarParameterValue(FName ParameterName, float Value) {
+	if (SDK::IsValidPointer(this) == false) return;
+
+	struct {
+		FName ParameterName;
+		float Value;
+	} params_SetScalarParameterValue{};
+
+	params_SetScalarParameterValue.ParameterName = ParameterName;
+	params_SetScalarParameterValue.Value = Value;
+
+	this->ProcessEvent(SDK::Cached::Functions::MaterialInstanceDynamic::SetScalarParameterValue, &params_SetScalarParameterValue);
+}
+
 
 
 // Wrapper Functions
 
 SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 	return GetSocketLocation(Features::FortPawnHelper::Bone::GetBoneName(BoneID));
+}
+
+SDK::UMaterial* SDK::GetChamsMaterial() {
+	static UMaterial* ChamsMaterial = nullptr;
+
+	if (!ChamsMaterial)
+		ChamsMaterial = UObject::FindObject<UMaterial>(std::string(skCrypt("Material CharacterShield_DimMak.CharacterShield_DimMak")));
+
+	return ChamsMaterial;
+}
+
+SDK::UMaterialInstanceDynamic* SDK::GetChamsMaterialDynamic() {
+	static UMaterialInstanceDynamic* ChamsMaterialInstance = nullptr;
+
+	if (!ChamsMaterialInstance)
+		ChamsMaterialInstance = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetLocalCanvas(), GetChamsMaterial(), FName());
+
+	return ChamsMaterialInstance;
 }
 
 SDK::FVector2D SDK::Project(FVector WorldLocation) {

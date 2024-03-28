@@ -256,7 +256,7 @@ namespace SDK {
 		bool IsDying() {
 			if (SDK::IsValidPointer(this) == false || (SDK::Cached::Offsets::FortPawn::bIsDying == -0x1 && SDK::Cached::Masks::FortPawn::bIsDying == -0x1)) return false;
 
-			if (SDK::Cached::Masks::FortPawn::bIsDying) {
+			if (SDK::Cached::Masks::FortPawn::bIsDying != -0x1) {
 				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::FortPawn::bIsDying);
 				return BitField & SDK::Cached::Masks::FortPawn::bIsDying;
 			}
@@ -296,6 +296,8 @@ namespace SDK {
 		// CUSTOM FUNCTIONS
 
 		AFortAthenaVehicle* GetVehicle();
+
+		std::vector<USkeletalMeshComponentBudgeted*> GetCharacterPartSkeletalMeshComponents();
 	};
 	class AFortPlayerPawnAthena : public AFortPlayerPawn {
 	public:
@@ -370,7 +372,7 @@ namespace SDK {
 		bool bHit() {
 			if (SDK::IsValidPointer(this) == false || (SDK::Cached::Offsets::BuildingWeakSpot::bHit == -0x1 && SDK::Cached::Masks::BuildingWeakSpot::bHit == -0x1)) return false;
 
-			if (SDK::Cached::Masks::BuildingWeakSpot::bHit) {
+			if (SDK::Cached::Masks::BuildingWeakSpot::bHit != -0x1) {
 				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingWeakSpot::bHit);
 				return BitField & SDK::Cached::Masks::BuildingWeakSpot::bHit;
 			}
@@ -382,7 +384,7 @@ namespace SDK {
 		bool bFadeOut() {
 			if (SDK::IsValidPointer(this) == false || (SDK::Cached::Offsets::BuildingWeakSpot::bFadeOut == -0x1 && SDK::Cached::Masks::BuildingWeakSpot::bFadeOut == -0x1)) return false;
 
-			if (SDK::Cached::Masks::BuildingWeakSpot::bFadeOut) {
+			if (SDK::Cached::Masks::BuildingWeakSpot::bFadeOut != -0x1) {
 				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingWeakSpot::bFadeOut);
 				return BitField & SDK::Cached::Masks::BuildingWeakSpot::bFadeOut;
 			}
@@ -394,7 +396,7 @@ namespace SDK {
 		bool bActive() {
 			if (SDK::IsValidPointer(this) == false || (SDK::Cached::Offsets::BuildingWeakSpot::bActive == -0x1 && SDK::Cached::Masks::BuildingWeakSpot::bActive == -0x1)) return false;
 
-			if (SDK::Cached::Masks::BuildingWeakSpot::bActive) {
+			if (SDK::Cached::Masks::BuildingWeakSpot::bActive != -0x1) {
 				uint8 BitField = *(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingWeakSpot::bActive);
 				return BitField & SDK::Cached::Masks::BuildingWeakSpot::bActive;
 			}

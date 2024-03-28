@@ -95,6 +95,16 @@ namespace Config {
 			inline bool Name = true;
 			inline bool Distance = true;
 			inline bool CurrentWeapon = true;
+
+			// Chams
+			inline bool Chams = false;
+
+			inline bool SelfChams = false;
+
+			inline bool Wireframe = true;
+			inline bool Glow = true;
+
+			inline float GlowAmount = 1.f;
 		}
 
 		namespace Weapons {

@@ -114,6 +114,8 @@ void SDK::Init() {
 			FunctionSearch { std::string(skCrypt("FortPlayerPawn")),		std::string(skCrypt("ServerHandlePickup")),			&SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup				},
 			FunctionSearch { std::string(skCrypt("MeshComponent")),			std::string(skCrypt("GetMaterials")),				&SDK::Cached::Functions::MeshComponent::GetMaterials					},
 			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("SetMaterial")),				&SDK::Cached::Functions::PrimitiveComponent::SetMaterial				},
+			FunctionSearch { std::string(skCrypt("MaterialInstanceDynamic")),std::string(skCrypt("SetVectorParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetVectorParameterValue},
+			FunctionSearch { std::string(skCrypt("MaterialInstanceDynamic")),std::string(skCrypt("SetScalarParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetScalarParameterValue},
 		};
 
 		std::vector<OffsetSearch> Offsets{
@@ -130,6 +132,10 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("Pawn")),					std::string(skCrypt("PlayerState")),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
 			OffsetSearch { std::string(skCrypt("Character")),				std::string(skCrypt("Mesh")),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
 			OffsetSearch { std::string(skCrypt("Font")),					std::string(skCrypt("LegacyFontSize")),				&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
+			
+			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("bDisableDepthTest")),			&SDK::Cached::Offsets::Material::bDisableDepthTest,				&SDK::Cached::Masks::Material::bDisableDepthTest },
+			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("BlendMode")),					&SDK::Cached::Offsets::Material::BlendMode,						nullptr },
+			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("Wireframe")),					&SDK::Cached::Offsets::Material::Wireframe,						&SDK::Cached::Masks::Material::Wireframe },
 			
 			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("TraceStart")),					&SDK::Cached::Offsets::HitResult::TraceStart,					nullptr },
 			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("Distance")),					&SDK::Cached::Offsets::HitResult::Distance,						nullptr },
@@ -150,6 +156,7 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortPawn")),				std::string(skCrypt("CurrentWeapon")),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
 			OffsetSearch { std::string(skCrypt("FortPawn")),				std::string(skCrypt("bIsDying")),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
 			OffsetSearch { std::string(skCrypt("FortPlayerPawn")),			std::string(skCrypt("VehicleStateLocal")),			&SDK::Cached::Offsets::FortPlayerPawn::VehicleStateLocal,		nullptr },
+			OffsetSearch { std::string(skCrypt("FortPlayerPawn")),			std::string(skCrypt("CharacterPartSkeletalMeshComponents")),&SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents,nullptr },
 			OffsetSearch { std::string(skCrypt("FortPlayerPawnAthena")),	std::string(skCrypt("bADSWhileNotOnGround")),		&SDK::Cached::Offsets::FortPlayerPawnAthena::bADSWhileNotOnGround,nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("WeaponData")),					&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("LastFireTime")),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },

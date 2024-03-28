@@ -31,6 +31,12 @@ namespace SDK {
 				inline uintptr_t PlayerState = -0x1;
 			}
 
+			namespace Material{
+				inline uintptr_t bDisableDepthTest = -0x1;
+				inline uintptr_t BlendMode = -0x1;
+				inline uintptr_t Wireframe = -0x1;
+			}
+
 			namespace FortPawn {
 				inline uintptr_t bIsDying = -0x1;
 				inline uintptr_t CurrentWeapon = -0x1;
@@ -39,6 +45,7 @@ namespace SDK {
 			namespace FortPlayerPawn {
 				inline uintptr_t VehicleStateLocal = -0x1;
 				inline uintptr_t ZiplineState = -0x1;
+				inline uintptr_t CharacterPartSkeletalMeshComponents = -0x1;
 			}
 
 			namespace FortPlayerPawnAthena {
@@ -249,6 +256,11 @@ namespace SDK {
 				inline void* CreateDynamicMaterialInstance = nullptr;
 			}
 
+			namespace MaterialInstanceDynamic {
+				inline void* SetVectorParameterValue = nullptr;
+				inline void* SetScalarParameterValue = nullptr;
+			}
+
 			namespace KismetMathLibrary {
 				inline void* FindLookAtRotation = nullptr;
 				inline void* GetForwardVector = nullptr;
@@ -318,6 +330,11 @@ namespace SDK {
 				inline uintptr_t bHit = -0x1;
 				inline uintptr_t bFadeOut = -0x1;
 				inline uintptr_t bActive = -0x1;
+			}
+
+			namespace Material {
+				inline uintptr_t bDisableDepthTest = -0x1;
+				inline uintptr_t Wireframe = -0x1;
 			}
 		}
 	}

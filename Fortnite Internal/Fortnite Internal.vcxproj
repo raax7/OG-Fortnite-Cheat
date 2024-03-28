@@ -272,8 +272,8 @@
     <ClCompile Include="Game\Features\FortPawnHelper\FortPawnHelper.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Game\Actors\Actors.cpp" />
+    <ClCompile Include="Game\Actors\Loops\FortPawn.cpp" />
     <ClCompile Include="Game\Actors\Loops\FortPickup.cpp" />
-    <ClCompile Include="Game\Actors\Loops\FortWeapon.cpp" />
     <ClCompile Include="Game\SDK\Classes\Basic.cpp" />
     <ClCompile Include="Game\SDK\Classes\Engine_Functions.cpp" />
     <ClCompile Include="Game\SDK\Classes\FortniteGame_Functions.cpp" />

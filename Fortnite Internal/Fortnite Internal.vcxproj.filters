@@ -23,10 +23,10 @@
     <ClCompile Include="Drawing\RaaxGUI\RaaxGUIInput.cpp">
       <Filter>Drawing\RaaxGUI</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Actors\Loops\FortWeapon.cpp">
+    <ClCompile Include="Game\Actors\Loops\FortPickup.cpp">
       <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Actors\Loops\FortPickup.cpp">
+    <ClCompile Include="Game\Actors\Loops\FortPawn.cpp">
       <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
     <ClCompile Include="Game\Actors\Loops\BuildingWeakSpot.cpp">

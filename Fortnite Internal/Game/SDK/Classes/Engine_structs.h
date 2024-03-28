@@ -158,6 +158,24 @@ namespace SDK {
 		eSSP_RIGHT_EYE_SIDE,
 	};
 
+	enum class EBlendMode : uint8
+	{
+		BLEND_Opaque = 0,
+		BLEND_Masked = 1,
+		BLEND_Translucent = 2,
+		BLEND_Additive = 3,
+		BLEND_Modulate = 4,
+		BLEND_AlphaComposite = 5,
+		BLEND_MAX = 6,
+	};
+
+	//enum class EMIDCreationFlags : uint8
+	//{
+	//	None = 0,
+	//	Transient = 1,
+	//	EMIDCreationFlags_MAX = 2,
+	//};
+
 	struct FKey
 	{
 	public:

@@ -1,4 +1,5 @@
 #include "FortniteGame_Classes.h"
+#include "../../../Utilities/Logger.h"
 
 SDK::UClass* SDK::AFortAthenaVehicle::StaticClass() {
 	static class UClass* Clss = nullptr;
@@ -207,6 +208,22 @@ SDK::UClass* SDK::AFortPawn::StaticClass() {
 SDK::AFortAthenaVehicle* SDK::AFortPlayerPawn::GetVehicle() {
 	if (SDK::IsValidPointer(this) == false) return nullptr;
 	return VehicleStateLocal()->Vehicle();
+}
+
+std::vector<SDK::USkeletalMeshComponentBudgeted*> SDK::AFortPlayerPawn::GetCharacterPartSkeletalMeshComponents() {
+	std::vector<USkeletalMeshComponentBudgeted*> Components;
+
+	if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents == -0x1) return Components;
+
+	// There should never be more than 8 character parts
+	for (int i = 0; i < 8; i++) {
+		USkeletalMeshComponentBudgeted* Mesh = *(USkeletalMeshComponentBudgeted**)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents + (i * 8));
+		if (SDK::IsValidPointer(Mesh) == false || Mesh->IsA(USkeletalMeshComponentBudgeted::StaticClass()) == false) continue;
+
+		Components.push_back(Mesh);
+	}
+
+	return Components;
 }
 
 SDK::UClass* SDK::AFortPlayerPawnAthena::StaticClass() {
