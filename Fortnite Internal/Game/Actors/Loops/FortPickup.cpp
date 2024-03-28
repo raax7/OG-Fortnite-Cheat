@@ -11,6 +11,8 @@
 
 #include "../../../Utilities/Math.h"
 
+#include "../../Game.h"
+
 #include <algorithm>
 
 void Actors::FortPickup::Tick() {
@@ -46,16 +48,15 @@ void Actors::FortPickup::Tick() {
 	}
 
 	if (Config::Exploits::Pickup::AutoPickup || Input::WasKeyJustPressed((Input::KeyName)Config::Exploits::Pickup::PickupAllKey)) {
-		std::chrono::steady_clock::time_point CurrentTime = std::chrono::steady_clock::now();
 		if (Config::Exploits::Pickup::AutoPickup) {
-			double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - LastAutoPickupTime).count();
+			double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(Game::CurrentTime - LastAutoPickupTime).count();
 
 			if (ElapsedTime < (Config::Exploits::Pickup::AutoPickupDelaySecs)) {
 				return;
 			}
 		}
 
-		LastAutoPickupTime = CurrentTime;
+		LastAutoPickupTime = Game::CurrentTime;
 
 		struct OrderedWeaponsType {
 			SDK::AActor* Actor;

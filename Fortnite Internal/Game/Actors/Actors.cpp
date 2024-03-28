@@ -121,14 +121,12 @@ void Actors::Draw() {
 	}
 }
 void Actors::UpdateCaches() {
-	auto CurrentTime = std::chrono::steady_clock::now();
-
 	// Player Cache
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortPawn::LastCacheTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(Game::CurrentTime - FortPawn::LastCacheTime).count();
 
 		if (ElapsedTime >= FortPawn::IntervalSeconds) {
-			FortPawn::LastCacheTime = CurrentTime;
+			FortPawn::LastCacheTime = Game::CurrentTime;
 
 			SDK::TArray<SDK::AActor*> ReturnArray = SDK::UGameplayStatics::GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPawn::StaticClass());
 
@@ -137,11 +135,11 @@ void Actors::UpdateCaches() {
 			for (int i = 0; i < ReturnArray.Num(); i++) {
 				Actors::Caches::FortPawnCache FortPawnCache{};
 
-				FortPawnCache.FortPawn = static_cast<SDK::AFortPawn*>(ReturnArray[i]);
+				FortPawnCache.FortPawn = SDK::Cast<SDK::AFortPawn, true>(ReturnArray[i]);
 				SDK::APlayerState* PlayerState = FortPawnCache.FortPawn->PlayerState();
-				if (PlayerState) {
+				if (SDK::IsValidPointer(PlayerState)) {
 					FortPawnCache.PlayerName = PlayerState->GetPlayerName();
-					FortPawnCache.TeamIndex = static_cast<SDK::AFortPlayerState*>(PlayerState)->TeamIndex();
+					FortPawnCache.TeamIndex = SDK::Cast<SDK::AFortPlayerState>(PlayerState)->TeamIndex();
 				}
 
 				FortPawnCache.BonePositions3D.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
@@ -157,10 +155,10 @@ void Actors::UpdateCaches() {
 
 	// Weapon Cache
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortPickup::LastCacheTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(Game::CurrentTime - FortPickup::LastCacheTime).count();
 
 		if (ElapsedTime >= FortPickup::IntervalSeconds) {
-			FortPickup::LastCacheTime = CurrentTime;
+			FortPickup::LastCacheTime = Game::CurrentTime;
 
 			FortPickup::CachedWeapons = SDK::UGameplayStatics::GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortPickup::StaticClass());
 		}
@@ -168,10 +166,10 @@ void Actors::UpdateCaches() {
 
 	// Weakspot Cache
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - BuildingWeakSpot::LastCacheTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(Game::CurrentTime - BuildingWeakSpot::LastCacheTime).count();
 
 		if (ElapsedTime >= BuildingWeakSpot::IntervalSeconds) {
-			BuildingWeakSpot::LastCacheTime = CurrentTime;
+			BuildingWeakSpot::LastCacheTime = Game::CurrentTime;
 
 			BuildingWeakSpot::CachedBuildingWeakSpot = SDK::UGameplayStatics::GetAllActorsOfClass(SDK::GetWorld(), SDK::ABuildingWeakSpot::StaticClass());
 		}
@@ -179,10 +177,10 @@ void Actors::UpdateCaches() {
 
 	// FortAthenaVehicle Cache
 	{
-		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(CurrentTime - FortAthenaVehicle::LastCacheTime).count();
+		double ElapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(Game::CurrentTime - FortAthenaVehicle::LastCacheTime).count();
 
 		if (ElapsedTime >= FortAthenaVehicle::IntervalSeconds) {
-			FortAthenaVehicle::LastCacheTime = CurrentTime;
+			FortAthenaVehicle::LastCacheTime = Game::CurrentTime;
 
 			FortAthenaVehicle::CachedVehicles = SDK::UGameplayStatics::GetAllActorsOfClass(SDK::GetWorld(), SDK::AFortAthenaVehicle::StaticClass());
 		}

@@ -1,5 +1,6 @@
 #pragma once
 #include <vadefs.h>
+#include <chrono>
 
 namespace Game {
 	inline float GameVersion		= 0.f;
@@ -10,6 +11,7 @@ namespace Game {
 	inline float PixelsPerDegree	= 0.f;
 
 	inline unsigned __int64 CurrentFrame = 0;
+	inline std::chrono::time_point<std::chrono::steady_clock> CurrentTime;
 
 	inline uintptr_t CurrentCanvas	= 0x0;
 

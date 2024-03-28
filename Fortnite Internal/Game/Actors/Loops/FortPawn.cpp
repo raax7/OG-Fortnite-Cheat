@@ -8,6 +8,7 @@
 #include "../../../Configs/Config.h"
 
 #include "../../Features/FortPawnHelper/Bone.h"
+#include "../../Features/FortPawnHelper/Chams.h"
 #include "../../Features/FortPawnHelper/FortPawnHelper.h"
 #include "../../Features/Aimbot/Aimbot.h"
 #include "../../Features/Exploits/Vehicle.h"
@@ -15,8 +16,6 @@
 #include "../../Features/Exploits/Player.h"
 
 #include "../../../Utilities/Math.h"
-#include "../../../Utilities/Logger.h"
-#include "../../Input/Input.h"
 
 void Actors::FortPawn::Tick() {
 	bool SeenTarget = false;
@@ -33,35 +32,8 @@ void Actors::FortPawn::Tick() {
 		SDK::AFortPlayerState* FortPlayerState		= SDK::Cast<SDK::AFortPlayerState>(FortPawn->PlayerState());	//if (SDK::IsValidPointer(FortPlayerState) == false) continue;
 		CurrentPlayer.Mesh							= FortPawn->Mesh();												if (SDK::IsValidPointer(CurrentPlayer.Mesh) == false) continue;
 
-		// IMPROVE LATER
-		if (Config::Visuals::Players::Chams) {
-			SDK::GetChamsMaterial()->SetbDisableDepthTest(true, &Config::Visuals::Players::Chams);
-			SDK::GetChamsMaterial()->SetBlendMode(SDK::EBlendMode::BLEND_AlphaComposite, &Config::Visuals::Players::Chams);
-			SDK::GetChamsMaterial()->SetWireFrame(Config::Visuals::Players::Wireframe, &Config::Visuals::Players::Chams);
-
-			SDK::FLinearColor ChamsColor = SDK::FLinearColor(1.f, 0.f, 0.75f, 1.f);
-			SDK::GetChamsMaterialDynamic()->SetVectorParameterValue(SDK::FName(L"S Color1"), ChamsColor);
-			SDK::GetChamsMaterialDynamic()->SetVectorParameterValue(SDK::FName(L"S Color2"), ChamsColor);
-
-			// i dont think this is working for some reason
-			SDK::GetChamsMaterialDynamic()->SetScalarParameterValue(SDK::FName(L"Dissolve Pattern Emissive Brightness"), Config::Visuals::Players::Glow ? Config::Visuals::Players::GlowAmount : 0.f);
-
-			if ((FortPawn == SDK::GetLocalPawn() && Config::Visuals::Players::SelfChams) || (FortPawn != SDK::GetLocalPawn())) {
-				std::vector<SDK::USkeletalMeshComponentBudgeted*> CharacterParts = SDK::Cast<SDK::AFortPlayerPawn>(FortPawn)->GetCharacterPartSkeletalMeshComponents();
-
-				for (auto Mesh : CharacterParts) {
-					if (SDK::IsValidPointer(Mesh) == false) continue;
-
-					SDK::TArray<SDK::UMaterialInterface*> Materials = Mesh->GetMaterials();
-
-					for (int i = 0; i < Materials.Num(); i++) {
-						if (SDK::IsValidPointer(Materials[i])) {
-							Mesh->SetMaterial(i, SDK::GetChamsMaterialDynamic());
-						}
-					}
-				}
-			}
-		}
+		// Cham check are all managed inside the cham tick, so we don't need to check here
+		Features::FortPawnHelper::Chams::Tick(FortPawn);
 
 		// LocalPawn caching and exploit ticks
 		if (FortPawn == SDK::GetLocalPawn()) {
@@ -78,7 +50,8 @@ void Actors::FortPawn::Tick() {
 		// Player state validation
 		if (CurrentPlayer.TeamIndex == LocalPawnCache.TeamIndex) continue;
 		if (CurrentPlayer.FortPawn->IsDying()) continue;
-		if (SDK::Cast<SDK::AFortPlayerStateZone>(SDK::GetLocalPawn()->PlayerState())->SpectatingTarget() == SDK::Cast<SDK::AFortPlayerStateZone>(FortPlayerState)) continue;
+		SDK::AFortPlayerStateZone* SpectatingTarget = SDK::Cast<SDK::AFortPlayerStateZone>(SDK::GetLocalPawn()->PlayerState())->SpectatingTarget();
+		if (SpectatingTarget == SDK::Cast<SDK::AFortPlayerStateZone>(FortPlayerState) && (SDK::IsValidPointer(SpectatingTarget) && SDK::IsValidPointer(FortPlayerState))) continue;
 
 		// Bone positions and visibility caching
 		// If this returns false, the player isn't on the screen and only 5 of the bones were WorldToScreened

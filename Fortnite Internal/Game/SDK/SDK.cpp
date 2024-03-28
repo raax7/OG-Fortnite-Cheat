@@ -12,9 +12,10 @@
 
 #include "../Input/Input.h"
 #include "../Features/FortPawnHelper/Bone.h"
+#include "../Features/FortPawnHelper/Chams.h"
 
 void SDK::Init() {
-	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Initializing SDK...")));
+	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Initializing SDK... (")) + std::to_string(GetBaseAddress()) + std::string(skCrypt(")")));
 
 	// Init Offsets, Functions, and VFT Indexes
 	{
@@ -132,6 +133,8 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("Pawn")),					std::string(skCrypt("PlayerState")),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
 			OffsetSearch { std::string(skCrypt("Character")),				std::string(skCrypt("Mesh")),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
 			OffsetSearch { std::string(skCrypt("Font")),					std::string(skCrypt("LegacyFontSize")),				&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
+			OffsetSearch { std::string(skCrypt("SkinnedMeshComponent")),	std::string(skCrypt("SkeletalMesh")),				&SDK::Cached::Offsets::SkeletalMeshComponent::SkeletalMesh,		nullptr },
+			OffsetSearch { std::string(skCrypt("SkeletalMesh")),			std::string(skCrypt("Materials")),					&SDK::Cached::Offsets::SkeletalMesh::Materials,					nullptr },
 			
 			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("bDisableDepthTest")),			&SDK::Cached::Offsets::Material::bDisableDepthTest,				&SDK::Cached::Masks::Material::bDisableDepthTest },
 			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("BlendMode")),					&SDK::Cached::Offsets::Material::BlendMode,						nullptr },
@@ -233,6 +236,7 @@ void SDK::Init() {
 
 	Input::Init();
 	Features::FortPawnHelper::Bone::Init();
+	Features::FortPawnHelper::Chams::Init();
 
 	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("SDK Initialized!")));
 

@@ -4,6 +4,8 @@
 
 #include "Engine_Classes.h"
 
+#include <array>
+
 typedef __int8 int8;
 typedef __int16 int16;
 typedef __int32 int32;
@@ -297,7 +299,7 @@ namespace SDK {
 
 		AFortAthenaVehicle* GetVehicle();
 
-		std::vector<USkeletalMeshComponentBudgeted*> GetCharacterPartSkeletalMeshComponents();
+		std::array<SDK::USkeletalMeshComponentBudgeted*, 8> GetCharacterPartSkeletalMeshComponents();
 	};
 	class AFortPlayerPawnAthena : public AFortPlayerPawn {
 	public:

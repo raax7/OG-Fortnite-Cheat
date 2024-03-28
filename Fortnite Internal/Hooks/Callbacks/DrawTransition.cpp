@@ -17,6 +17,7 @@ void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas) {
 	}
 
 	Game::CurrentFrame++;
+	Game::CurrentTime = std::chrono::steady_clock::now();
 
 	Game::CurrentCanvas = Canvas;
 	Game::ScreenWidth = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeX();

@@ -135,9 +135,7 @@ namespace Features {
         }
     }
 
-    inline void RevertAll() {
-		AutoRevertFeatures.clear();
-	}
+    void RevertAll();
 
 
 

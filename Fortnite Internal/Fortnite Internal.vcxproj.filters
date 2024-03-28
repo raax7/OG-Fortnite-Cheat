@@ -140,6 +140,12 @@
     <ClCompile Include="Game\Actors\Loops\FortAthenaVehicle.cpp">
       <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Features\FortPawnHelper\Chams.cpp">
+      <Filter>Game\Features\FortPawnHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Features.cpp">
+      <Filter>Game\Features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -366,6 +372,9 @@
     </ClInclude>
     <ClInclude Include="Game\Features\Exploits\Player.h">
       <Filter>Game\Features\Exploits</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\FortPawnHelper\Chams.h">
+      <Filter>Game\Features\FortPawnHelper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

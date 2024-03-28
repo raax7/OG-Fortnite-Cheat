@@ -163,8 +163,26 @@ namespace SDK {
 
 		TArray<UMaterialInterface*> GetMaterials();
 	};
+	class USkeletalMesh : public UObject {
+	public:
+		// VALUES
+
+		TArray<UMaterialInterface*> Materials() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::SkeletalMesh::Materials == -0x1) return TArray<UMaterialInterface*>{};
+			return *(TArray<UMaterialInterface*>*)((uintptr_t)this + SDK::Cached::Offsets::SkeletalMesh::Materials);
+		}
+	};
 	class USkeletalMeshComponent : public UMeshComponent {
 	public:
+		// VALUES
+
+		USkeletalMesh* SkeletalMesh() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::SkeletalMeshComponent::SkeletalMesh == -0x1) return nullptr;
+			return (USkeletalMesh*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::SkeletalMeshComponent::SkeletalMesh));
+		}
+
+
+
 		// FUNCTIONS
 
 		FName GetBoneName(int32 BoneIndex);

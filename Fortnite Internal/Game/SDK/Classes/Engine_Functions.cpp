@@ -3,7 +3,10 @@
 #include "CoreUObject_classes.h"
 
 #include "../../../Utilities/Error.h"
+
 #include "../../Features/FortPawnHelper/Bone.h"
+#include "../../Features/FortPawnHelper/Chams.h"
+
 #include "../../Game.h"
 
 
@@ -436,7 +439,7 @@ SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMateria
 		struct {
 			class UObject* WorldContextObject;
 			class UMaterialInterface* Parent;
-			/*enum class EMIDCreationFlags*/ uint8 CreationFlags;
+			enum class EMIDCreationFlags CreationFlags;
 			uint8 Pad_186A[0x7];
 			class FName OptionalName;
 
@@ -445,7 +448,7 @@ SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMateria
 
 		params_CreateDynamicMaterialInstance.WorldContextObject = WorldContextObject;
 		params_CreateDynamicMaterialInstance.Parent = Parent;
-		params_CreateDynamicMaterialInstance.CreationFlags = /*EMIDCreationFlags::None*/ 0;
+		params_CreateDynamicMaterialInstance.CreationFlags = EMIDCreationFlags::Transient;
 		params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
 
 		StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
@@ -760,8 +763,10 @@ SDK::UMaterial* SDK::GetChamsMaterial() {
 SDK::UMaterialInstanceDynamic* SDK::GetChamsMaterialDynamic() {
 	static UMaterialInstanceDynamic* ChamsMaterialInstance = nullptr;
 
-	if (!ChamsMaterialInstance)
-		ChamsMaterialInstance = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetLocalCanvas(), GetChamsMaterial(), FName());
+	if (SDK::IsValidPointer(ChamsMaterialInstance) == false || SDK::IsValidPointer(ChamsMaterialInstance->Class) == false || ChamsMaterialInstance->IsA(SDK::UMaterialInstanceDynamic::StaticClass()) == false) {
+		ChamsMaterialInstance = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), GetChamsMaterial(), FName());
+		Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings();
+	}
 
 	return ChamsMaterialInstance;
 }

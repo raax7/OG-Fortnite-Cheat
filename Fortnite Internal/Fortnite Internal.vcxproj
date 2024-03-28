@@ -217,6 +217,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game\Features\Features.cpp" />
+    <ClCompile Include="Game\Features\FortPawnHelper\Chams.cpp" />
     <ClCompile Include="Game\Actors\Loops\FortAthenaVehicle.cpp" />
     <ClCompile Include="Game\Features\Exploits\Player.cpp" />
     <ClCompile Include="Hooks\Callbacks\CalculateShot.cpp" />
@@ -366,6 +368,7 @@
     <ClCompile Include="Utilities\Math.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Features\FortPawnHelper\Chams.h" />
     <ClInclude Include="Configs\Config.h" />
     <ClInclude Include="Configs\ConfigTypes.h" />
     <ClInclude Include="Drawing\Drawing.h" />

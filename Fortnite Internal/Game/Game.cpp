@@ -15,6 +15,7 @@
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
 #endif
 #include "../Utilities/Logger.h"
+#include "Features/FortPawnHelper/Chams.h"
 
 bool MenuOpen = true;
 
@@ -247,16 +248,6 @@ void Game::MenuCallback() {
 
 			ImGui::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
 			if (Config::Visuals::Players::Enabled) {
-				ImGui::Checkbox(skCrypt("Chams"), &Config::Visuals::Players::Chams);
-				if (Config::Visuals::Players::Chams) {
-					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::SelfChams);
-					ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::Wireframe);
-					ImGui::Checkbox(skCrypt("Glow"), &Config::Visuals::Players::Glow);
-					if (Config::Visuals::Players::Glow) {
-						ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::GlowAmount, 0.f, 10000.f);
-					}
-				}
-
 				ImGui::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
 
 				if (Config::Visuals::Players::Box) {
@@ -270,6 +261,17 @@ void Game::MenuCallback() {
 
 				ImGui::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
 				ImGui::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
+
+				ImGui::Separator();
+
+				ImGui::Checkbox(skCrypt("Chams"), &Config::Visuals::Players::Chams);
+				if (Config::Visuals::Players::Chams) {
+					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::SelfChams);
+					ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::Wireframe);
+					if (ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::GlowAmount, 0.f, 100.f)) {
+						Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings();
+					}
+				}
 
 				ImGui::Separator();
 

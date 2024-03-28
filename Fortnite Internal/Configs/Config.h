@@ -102,7 +102,6 @@ namespace Config {
 			inline bool SelfChams = false;
 
 			inline bool Wireframe = true;
-			inline bool Glow = true;
 
 			inline float GlowAmount = 1.f;
 		}

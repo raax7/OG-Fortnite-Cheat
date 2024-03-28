@@ -337,7 +337,7 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 	}
 
 	if (SDK::Cached::VFT::GetWeaponStats == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find GetWeaponStats VFT index! (Using fall back VFT index, may cause crashes)")), false);
+		//THROW_ERROR(std::string(skCrypt("Failed to find GetWeaponStats VFT index! (Using fall back VFT index, may cause crashes)")), false);
 
 		// This is usually the VFT index for GetWeaponStats, but it's not guaranteed
 		// Later, make it follow the jnz to find the sub routine

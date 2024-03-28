@@ -37,6 +37,14 @@ namespace SDK {
 				inline uintptr_t Wireframe = -0x1;
 			}
 
+			namespace SkeletalMeshComponent {
+				inline uintptr_t SkeletalMesh = -0x1;
+			}
+
+			namespace SkeletalMesh {
+				inline uintptr_t Materials = -0x1;
+			}
+
 			namespace FortPawn {
 				inline uintptr_t bIsDying = -0x1;
 				inline uintptr_t CurrentWeapon = -0x1;

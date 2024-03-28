@@ -169,13 +169,6 @@ namespace SDK {
 		BLEND_MAX = 6,
 	};
 
-	//enum class EMIDCreationFlags : uint8
-	//{
-	//	None = 0,
-	//	Transient = 1,
-	//	EMIDCreationFlags_MAX = 2,
-	//};
-
 	struct FKey
 	{
 	public:
