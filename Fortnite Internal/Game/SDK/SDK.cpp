@@ -12,7 +12,9 @@
 
 #include "../Input/Input.h"
 #include "../Features/FortPawnHelper/Bone.h"
-#include "../Features/FortPawnHelper/Chams.h"
+#include "../Features/Visuals/Chams.h"
+
+#include "../../Configs/Config.h"
 
 void SDK::Init() {
 	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Initializing SDK... (")) + std::to_string(GetBaseAddress()) + std::string(skCrypt(")")));
@@ -27,17 +29,18 @@ void SDK::Init() {
 		SDKInitializer::InitFNameConstructor();
 		SDKInitializer::InitLineTraceSingle();
 		SDKInitializer::InitRaycastMulti();
+		SDKInitializer::InitFire();
 
 		// Init Class Offsets
-		SDK::UProperty::OffsetOffset		= 0x44; // Doesn't change (as far as I know)
-		SDK::UBoolProperty::ByteMaskOffset	= 0x72; // Doesn't change (as far as I know)
-		SDK::UClass::DefaultObjectOffset	= SDKInitializer::FindDefaultObjectOffset();
-		SDK::UClass::CastFlagsOffset		= SDKInitializer::FindCastFlagsOffset();
-		SDK::UStruct::SuperOffset			= SDKInitializer::FindSuperOffset();
+		SDK::UProperty::OffsetOffset = 0x44; // Doesn't change (as far as I know)
+		SDK::UBoolProperty::ByteMaskOffset = 0x72; // Doesn't change (as far as I know)
+		SDK::UClass::DefaultObjectOffset = SDKInitializer::FindDefaultObjectOffset();
+		SDK::UClass::CastFlagsOffset = SDKInitializer::FindCastFlagsOffset();
+		SDK::UStruct::SuperOffset = SDKInitializer::FindSuperOffset();
 		SDK::UStruct::ChildPropertiesOffset = SDKInitializer::FindChildPropertiesOffset();
-		SDK::UStruct::ChildrenOffset		= SDKInitializer::FindChildrenOffset();
-		SDK::UField::NextOffset 			= SDKInitializer::FindUFieldNextOffset();
-		SDK::UFunction::FunctionFlagsOffset	= SDKInitializer::FindFunctionFlagsOffset();
+		SDK::UStruct::ChildrenOffset = SDKInitializer::FindChildrenOffset();
+		SDK::UField::NextOffset = SDKInitializer::FindUFieldNextOffset();
+		SDK::UFunction::FunctionFlagsOffset = SDKInitializer::FindFunctionFlagsOffset();
 
 		// Init VFT Indexes
 		SDKInitializer::InitPEIndex();
@@ -53,7 +56,7 @@ void SDK::Init() {
 					std::to_string(GetGameVersion()) +
 					std::string(skCrypt(")\nSeason 20 and onward are the only seasons supported with \"USE_DOUBLES\"!\n\nDisable \"USE_DOUBLES\" in \"Globals.h\" to play on earlier builds")),
 					true);
-		}
+			}
 #else
 			if (GetGameVersion() < 3.00 || GetGameVersion() >= 20.00) {
 				THROW_ERROR(
@@ -65,6 +68,12 @@ void SDK::Init() {
 #endif
 
 			DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Game Version: ")) + std::to_string(GetGameVersion()));
+		}
+
+		// Init functions for EditOnRelease (only for game versions before EditOnRelease)
+		if (SDK::GetGameVersion() < 11.00) {
+			SDKInitializer::InitEditSelectRelease();
+			SDKInitializer::InitCompleteBuildingEditInteraction();
 		}
 
 		// Init CalculateShot function offset (requires game version)
@@ -108,15 +117,18 @@ void SDK::Init() {
 			FunctionSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("K2_SetActorLocation")),		&SDK::Cached::Functions::Actor::K2_SetActorLocation						},
 			FunctionSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("SetActorEnableCollision")),	&SDK::Cached::Functions::Actor::SetActorEnableCollision					},
 			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("SetPhysicsLinearVelocity")),	&SDK::Cached::Functions::SceneComponent::SetPhysicsLinearVelocity		},
+			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("CreateDynamicMaterialInstance")),&SDK::Cached::Functions::SceneComponent::CreateDynamicMaterialInstance},
 			FunctionSearch { std::string(skCrypt("Pawn")),					std::string(skCrypt("GetMovementComponent")),		&SDK::Cached::Functions::Pawn::GetMovementComponent						},
 			FunctionSearch { std::string(skCrypt("MovementComponent")),		std::string(skCrypt("StopMovementImmediately")),	&SDK::Cached::Functions::MovementComponent::StopMovementImmediately		},
 			FunctionSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("IsProjectileWeapon")),			&SDK::Cached::Functions::FortWeapon::IsProjectileWeapon					},
 			FunctionSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("GetProjectileSpeed")),			&SDK::Cached::Functions::FortWeapon::GetProjectileSpeed					},
+			FunctionSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("GetBulletsPerClip")),			&SDK::Cached::Functions::FortWeapon::GetBulletsPerClip					},
 			FunctionSearch { std::string(skCrypt("FortPlayerPawn")),		std::string(skCrypt("ServerHandlePickup")),			&SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup				},
 			FunctionSearch { std::string(skCrypt("MeshComponent")),			std::string(skCrypt("GetMaterials")),				&SDK::Cached::Functions::MeshComponent::GetMaterials					},
 			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("SetMaterial")),				&SDK::Cached::Functions::PrimitiveComponent::SetMaterial				},
 			FunctionSearch { std::string(skCrypt("MaterialInstanceDynamic")),std::string(skCrypt("SetVectorParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetVectorParameterValue},
 			FunctionSearch { std::string(skCrypt("MaterialInstanceDynamic")),std::string(skCrypt("SetScalarParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetScalarParameterValue},
+			FunctionSearch { std::string(skCrypt("MaterialInterface")),		std::string(skCrypt("GetBaseMaterial")),			&SDK::Cached::Functions::MaterialInterface::GetBaseMaterial				},
 		};
 
 		std::vector<OffsetSearch> Offsets{
@@ -135,17 +147,18 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("Font")),					std::string(skCrypt("LegacyFontSize")),				&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
 			OffsetSearch { std::string(skCrypt("SkinnedMeshComponent")),	std::string(skCrypt("SkeletalMesh")),				&SDK::Cached::Offsets::SkeletalMeshComponent::SkeletalMesh,		nullptr },
 			OffsetSearch { std::string(skCrypt("SkeletalMesh")),			std::string(skCrypt("Materials")),					&SDK::Cached::Offsets::SkeletalMesh::Materials,					nullptr },
-			
+
 			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("bDisableDepthTest")),			&SDK::Cached::Offsets::Material::bDisableDepthTest,				&SDK::Cached::Masks::Material::bDisableDepthTest },
 			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("BlendMode")),					&SDK::Cached::Offsets::Material::BlendMode,						nullptr },
 			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("Wireframe")),					&SDK::Cached::Offsets::Material::Wireframe,						&SDK::Cached::Masks::Material::Wireframe },
-			
+
 			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("TraceStart")),					&SDK::Cached::Offsets::HitResult::TraceStart,					nullptr },
 			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("Distance")),					&SDK::Cached::Offsets::HitResult::Distance,						nullptr },
-			
+
 			OffsetSearch { std::string(skCrypt("World")),					std::string(skCrypt("GameState")),					&SDK::Cached::Offsets::World::GameState,						nullptr },
 
 			OffsetSearch { std::string(skCrypt("FortPickup")),				std::string(skCrypt("PrimaryPickupItemEntry")),		&SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry,		nullptr },
+			OffsetSearch { std::string(skCrypt("FortPickup")),				std::string(skCrypt("PickupEffectBlueprint")),		&SDK::Cached::Offsets::FortPickup::PickupEffectBlueprint,		nullptr },
 			OffsetSearch { std::string(skCrypt("FortItemDefinition")),		std::string(skCrypt("DisplayName")),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			nullptr },
 			OffsetSearch { std::string(skCrypt("FortItemDefinition")),		std::string(skCrypt("Tier")),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				nullptr },
 			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("RootComponent")),				&SDK::Cached::Offsets::Actor::RootComponent,					nullptr },
@@ -164,6 +177,8 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("WeaponData")),					&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("LastFireTime")),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("bIgnoreTryToFireSlotCooldownRestriction")), &SDK::Cached::Offsets::FortWeapon::bIgnoreTryToFireSlotCooldownRestriction, nullptr },
+			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("AmmoCount")),					&SDK::Cached::Offsets::FortWeapon::AmmoCount,					nullptr },
+			//OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("AllWeaponMeshes")),			&SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes,				nullptr },
 
 			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("bBuildFree")),					&SDK::Cached::Offsets::FortPlayerController::bBuildFree,		&SDK::Cached::Masks::FortPlayerController::bBuildFree },
 			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("bInfiniteAmmo")),				&SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo,		&SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo },
@@ -174,6 +189,10 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortItemEntry")),			std::string(skCrypt("ItemDefinition")),				&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
 			OffsetSearch { std::string(skCrypt("MinimalViewInfo")),			std::string(skCrypt("Location")),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
 			OffsetSearch { std::string(skCrypt("MinimalViewInfo")),			std::string(skCrypt("Rotation")),					&SDK::Cached::Offsets::MinimalViewInfo::Rotation,				nullptr },
+
+			OffsetSearch { std::string(skCrypt("B_Pickups_Parent_C")),		std::string(skCrypt("Static_Mesh_Pickup")),			&SDK::Cached::Offsets::AB_Pickups_Parent_C::Static_Mesh_Pickup,	nullptr },
+			OffsetSearch { std::string(skCrypt("B_Pickups_Parent_C")),		std::string(skCrypt("Skeletal_Mesh_Pickup")),		&SDK::Cached::Offsets::AB_Pickups_Parent_C::Skeletal_Mesh_Pickup,nullptr },
+			OffsetSearch { std::string(skCrypt("FortPickupEffect")),		std::string(skCrypt("ItemDefinition")),				&SDK::Cached::Offsets::FortPickupEffect::ItemDefinition,		nullptr },
 
 			OffsetSearch { std::string(skCrypt("FortMeleeWeaponStats")),	std::string(skCrypt("SwingPlaySpeed")),				&SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed,	nullptr },
 
@@ -192,7 +211,7 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortBaseWeaponStats")),		std::string(skCrypt("ReloadTime")),					&SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime,		nullptr },
 
 			OffsetSearch { std::string(skCrypt("VehiclePawnState")),		std::string(skCrypt("Vehicle")),					&SDK::Cached::Offsets::VehiclePawnState::Vehicle,				nullptr },
-			
+
 			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bHit")),						&SDK::Cached::Offsets::BuildingWeakSpot::bHit,					&SDK::Cached::Masks::BuildingWeakSpot::bHit },
 			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bFadeOut")),					&SDK::Cached::Offsets::BuildingWeakSpot::bFadeOut,				&SDK::Cached::Masks::BuildingWeakSpot::bFadeOut },
 			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bActive")),					&SDK::Cached::Offsets::BuildingWeakSpot::bActive,				&SDK::Cached::Masks::BuildingWeakSpot::bActive },
@@ -219,7 +238,7 @@ void SDK::Init() {
 			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("TeamIndex")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
 
 			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAthenaDoghouseVehicle")), std::string(skCrypt("BoostAction")), &SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction, nullptr });
-			
+
 			Offsets.push_back(OffsetSearch{ std::string(skCrypt("ZiplinePawnState")), std::string(skCrypt("bIsZiplining")), &SDK::Cached::Offsets::ZiplinePawnState::bIsZiplining, nullptr });
 			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortPlayerPawn")), std::string(skCrypt("ZiplineState")), &SDK::Cached::Offsets::FortPlayerPawn::ZiplineState, nullptr });
 		}
@@ -236,7 +255,12 @@ void SDK::Init() {
 
 	Input::Init();
 	Features::FortPawnHelper::Bone::Init();
-	Features::FortPawnHelper::Chams::Init();
+
+	Features::Visuals::ChamManagerFortPawn::Manager = new Features::Visuals::ChamManagerFortPawn(Config::Visuals::Players::PawnChamSettings);
+	Features::Visuals::ChamManagerFortPickup::Manager = new Features::Visuals::ChamManagerFortPickup(Config::Visuals::Weapons::PickupChamSettings);
+
+	Features::Visuals::ChamManagerFortPawn::Manager->Init({ SDK::FName(skCrypt(L"WireFrameParameterHighlight")), SDK::FName(skCrypt(L"WireFrameFadeOffColor")) }, { SDK::FName(skCrypt(L"Emissive Modulation")) }, std::string(skCrypt("Material RezIn_Master.RezIn_Master")));
+	Features::Visuals::ChamManagerFortPickup::Manager->Init({ SDK::FName(skCrypt(L"S Color1")), SDK::FName(skCrypt(L"S Color2")) }, { SDK::FName(skCrypt(L"Dissolve Pattern Emissive Brightness")), SDK::FName(skCrypt(L"Gradient Pass Emissive A")) }, std::string(skCrypt("Material CharacterShield_DimMak.CharacterShield_DimMak")));
 
 	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("SDK Initialized!")));
 

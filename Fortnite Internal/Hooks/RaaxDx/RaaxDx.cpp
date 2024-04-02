@@ -7,7 +7,7 @@
 
 #include "../Hooks.h"
 
-#include "minhook/include/MinHook.h"
+#include "../../External-Libs/minhook/include/MinHook.h"
 
 // DX11
 #include <dxgi.h>
@@ -16,8 +16,8 @@
 #include "../../Globals.h"
 
 // DX12
-//# include <dxgi.h>
-//# include <d3d12.h>
+//#include <dxgi.h>
+//#include <d3d12.h>
 
 RaaxDx::Status RaaxDx::Init() {
 	if (Initalized) {

@@ -7,11 +7,13 @@
 #endif // _ENGINE
 
 #include "Game/Features/Features.h"
+#include "Game/Features/Visuals/Chams.h"
 #include "Game/Input/Input.h"
 #include "Game/SDK/SDK.h"
 #include "Hooks/Hooks.h"
 
 #include "External-Libs/LazyImporter.h"
+#include "External-Libs/minhook/include/MinHook.h"
 #if LOG_LEVEL > LOG_NONE
 #include "Utilities/Logger.h"
 #endif // LOG_LEVEL > LOG_NONE
@@ -41,6 +43,7 @@
 // - Add batch-line support for ImGui and Engine line drawing (Drawing::BeginBatch, Drawing::EndBatch)
 // - Add RaycastMulti offset finding for UE5
 // - Add build through walls using RaycastMulti hook
+// - Add spectate player with ClientSetViewTarget
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
@@ -51,20 +54,30 @@ VOID UnloadThread() {
             // Beep to notify that the cheat has been unloaded
             LI_FN(Beep).safe()(500, 250);
 
-            // Unhook all hooks
-            if (Hooks::DrawTransition::Hook)        delete Hooks::DrawTransition::Hook;
-            if (Hooks::GetPlayerViewpoint::Hook)    delete Hooks::GetPlayerViewpoint::Hook;
-            if (Hooks::GetViewpoint::Hook)          delete Hooks::GetViewpoint::Hook;
-
+            // Unhook WndProc
 #ifdef _IMGUI
             LI_FN(SetWindowLongPtrA).safe()(RaaxDx::Window, GWLP_WNDPROC, (LONG_PTR)Hooks::WndProc::WndProcOriginal);
             RaaxDx::Unhook();
 #endif // _IMGUI
 
+            // Unhook all hooks
+            if (Hooks::DrawTransition::Hook)                        delete Hooks::DrawTransition::Hook;
+            if (Hooks::GetPlayerViewpoint::Hook)                    delete Hooks::GetPlayerViewpoint::Hook;
+            if (Hooks::GetViewpoint::Hook)                          delete Hooks::GetViewpoint::Hook;
+
+            MH_DisableHook(MH_ALL_HOOKS);
+            MH_RemoveHook(MH_ALL_HOOKS);
+            MH_Uninitialize();
+
+            // Revert all features (chams, etc)
             Features::RevertAll();
 
+            // Delete all feature managers
+            if (Features::Visuals::ChamManagerFortPawn::Manager)     delete Features::Visuals::ChamManagerFortPawn::Manager;
+            if (Features::Visuals::ChamManagerFortPickup::Manager)   delete Features::Visuals::ChamManagerFortPickup::Manager;
+
             // Free library
-            LI_FN(FreeLibraryAndExitThread).safe()(ThisModule, 0);
+            LI_FN(FreeLibraryAndExitThread).safe()(CurrentModule, 0);
         }
 
         LI_FN(Sleep).safe()(50);
@@ -102,7 +115,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
-    ThisModule = hModule;
+    CurrentModule = hModule;
     
     switch (ul_reason_for_call)
     {

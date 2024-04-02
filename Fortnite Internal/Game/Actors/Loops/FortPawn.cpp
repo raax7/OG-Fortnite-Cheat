@@ -8,7 +8,7 @@
 #include "../../../Configs/Config.h"
 
 #include "../../Features/FortPawnHelper/Bone.h"
-#include "../../Features/FortPawnHelper/Chams.h"
+#include "../../Features/Visuals/Chams.h"
 #include "../../Features/FortPawnHelper/FortPawnHelper.h"
 #include "../../Features/Aimbot/Aimbot.h"
 #include "../../Features/Exploits/Vehicle.h"
@@ -32,9 +32,6 @@ void Actors::FortPawn::Tick() {
 		SDK::AFortPlayerState* FortPlayerState		= SDK::Cast<SDK::AFortPlayerState>(FortPawn->PlayerState());	//if (SDK::IsValidPointer(FortPlayerState) == false) continue;
 		CurrentPlayer.Mesh							= FortPawn->Mesh();												if (SDK::IsValidPointer(CurrentPlayer.Mesh) == false) continue;
 
-		// Cham check are all managed inside the cham tick, so we don't need to check here
-		Features::FortPawnHelper::Chams::Tick(FortPawn);
-
 		// LocalPawn caching and exploit ticks
 		if (FortPawn == SDK::GetLocalPawn()) {
 			LocalPawnCache.Position = CurrentPlayer.Mesh->GetBonePosition(Features::FortPawnHelper::Bone::Head);
@@ -44,6 +41,9 @@ void Actors::FortPawn::Tick() {
 			Features::Exploits::Weapon::Tick(FortPawn->CurrentWeapon());
 			Features::Exploits::Player::Tick(SDK::Cast<SDK::AFortPlayerPawnAthena>(FortPawn), SDK::Cast<SDK::AFortPlayerController>(SDK::GetLocalController()));
 
+			// Apply chams (if enabled and ShowLocal is enabled)
+			Features::Visuals::ChamManagerFortPawn::Manager->Tick(FortPawn);
+
 			continue;
 		}
 
@@ -52,6 +52,16 @@ void Actors::FortPawn::Tick() {
 		if (CurrentPlayer.FortPawn->IsDying()) continue;
 		SDK::AFortPlayerStateZone* SpectatingTarget = SDK::Cast<SDK::AFortPlayerStateZone>(SDK::GetLocalPawn()->PlayerState())->SpectatingTarget();
 		if (SpectatingTarget == SDK::Cast<SDK::AFortPlayerStateZone>(FortPlayerState) && (SDK::IsValidPointer(SpectatingTarget) && SDK::IsValidPointer(FortPlayerState))) continue;
+
+		// Apply chams (if enabled)
+		Features::Visuals::ChamManagerFortPawn::Manager->Tick(FortPawn);
+
+		// Kill all players by teleporting them
+		if (Config::Exploits::Player::KillAll) {
+			SDK::FVector ForwardVector = SDK::UKismetMathLibrary::GetForwardVector(SDK::FRotator(0.f, Actors::MainCamera.Rotation.Yaw, Actors::MainCamera.Rotation.Roll));
+
+			FortPawn->K2_SetActorLocation(Actors::MainCamera.Position + (ForwardVector * 350.f), false, nullptr, true);
+		}
 
 		// Bone positions and visibility caching
 		// If this returns false, the player isn't on the screen and only 5 of the bones were WorldToScreened
@@ -80,6 +90,13 @@ void Actors::FortPawn::Tick() {
 				CurrentPlayer.IsAnyBoneVisible = true;
 				break;
 			}
+		}
+
+		// Update the current weapon and magazine ammo count
+		SDK::AFortWeapon* CurrentWeapon = FortPawn->CurrentWeapon();
+		if (CurrentWeapon != CurrentPlayer.Weapon) {
+			CurrentPlayer.Weapon = CurrentWeapon;
+			CurrentPlayer.BulletsPerClip = CurrentWeapon->GetBulletsPerClip();
 		}
 
 		// Visuals
@@ -175,15 +192,20 @@ void Actors::FortPawn::Tick() {
 					}
 					
 					if (Config::Visuals::Players::CurrentWeapon) {
-						//SDK::AFortWeapon* CurrentWeapon = FortPawn->CurrentWeapon();
-						//if (CurrentWeapon) {
-						//	std::string WeaponName = CurrentWeapon->WeaponData()->DisplayName().ToString();
+						if (CurrentWeapon) {
+							std::string WeaponDisplayName = CurrentWeapon->WeaponData()->DisplayName().ToString();
+							int CurrentAmmoCount = CurrentWeapon->AmmoCount();
 
-						//	SDK::FVector2D WeaponTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2, BottomRight.Y);
-						//	WeaponTextPos.Y += Config::Visuals::Players::Distance ? FontSize + 1 : 0;
+							// Add the ammo count to the weapon display name (only if the clip isn't infinite)
+							if (CurrentPlayer.BulletsPerClip != 0) {
+								WeaponDisplayName += std::string(skCrypt(" [ ")) + std::to_string(CurrentAmmoCount) + std::string(skCrypt(" / ")) + std::to_string(CurrentPlayer.BulletsPerClip) + std::string(skCrypt(" ]"));
+							}
 
-						//	Drawing::Text(WeaponName.c_str(), WeaponTextPos, FontSize, CurrentWeapon->WeaponData()->GetRarityColor(), true, false, true);
-						//}
+							SDK::FVector2D WeaponTextPos = SDK::FVector2D(TopLeft.X + (BottomRight.X - TopLeft.X) / 2, BottomRight.Y);
+							WeaponTextPos.Y += Config::Visuals::Players::Distance ? FontSize + 1 : 0;
+
+							Drawing::Text(WeaponDisplayName.c_str(), WeaponTextPos, FontSize, CurrentWeapon->WeaponData()->GetRarityColor(), true, false, true);
+						}
 					}
 				}
 			}
@@ -224,7 +246,7 @@ void Actors::FortPawn::Tick() {
 
 		// Aimbot
 		if (Config::Aimbot::Enabled && SDK::GetLocalPawn()) {
-			if ((CurrentPlayer.IsAnyBoneVisible || Config::Aimbot::VisibleCheck == false) && ((MainTarget.LocalInfo.IsTargeting == false || Config::Aimbot::StickyAim == false) || MainTarget.GlobalInfo.TargetActor == nullptr)) {
+			if ((CurrentPlayer.IsAnyBoneVisible || Config::Aimbot::VisibleCheck == false || Config::Aimbot::BulletTP == true || Config::Aimbot::BulletTPV2 == true) && ((MainTarget.LocalInfo.IsTargeting == false || Config::Aimbot::StickyAim == false) || MainTarget.GlobalInfo.TargetActor == nullptr)) {
 				Features::Aimbot::Target PotentialNewTarget{};
 
 				Features::Aimbot::PlayerTarget::UpdateTargetInfo(PotentialNewTarget, CurrentPlayer, MainCamera, AimbotCamera);
@@ -232,7 +254,7 @@ void Actors::FortPawn::Tick() {
 			}
 
 			if (MainTarget.GlobalInfo.TargetActor == FortPawn) {
-				if (CurrentPlayer.IsAnyBoneVisible == false && Config::Aimbot::VisibleCheck == true) {
+				if (CurrentPlayer.IsAnyBoneVisible == false && (Config::Aimbot::VisibleCheck == true && Config::Aimbot::BulletTP == false && Config::Aimbot::BulletTPV2 == false)) {
 					MainTarget.ResetTarget();
 				}
 				else {

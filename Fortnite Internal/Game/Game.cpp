@@ -15,7 +15,7 @@
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
 #endif
 #include "../Utilities/Logger.h"
-#include "Features/FortPawnHelper/Chams.h"
+#include "Features/Visuals/Chams.h"
 
 bool MenuOpen = true;
 
@@ -90,8 +90,6 @@ void Game::MenuCallback() {
 		switch (SubTab) {
 		case 0:
 		{
-			RaaxGUI::Checkbox(skCrypt("Infinite Builds (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteBuilds);
-			RaaxGUI::Checkbox(skCrypt("Infinite Ammo (client sided 99% of the time)"), &Config::Exploits::Player::InfiniteAmmo);
 			RaaxGUI::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
 		}
 		break;
@@ -261,20 +259,46 @@ void Game::MenuCallback() {
 
 				ImGui::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
 				ImGui::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
+				ImGui::Checkbox(skCrypt("Current Weapon"), &Config::Visuals::Players::CurrentWeapon);
 
 				ImGui::Separator();
 
-				ImGui::Checkbox(skCrypt("Chams"), &Config::Visuals::Players::Chams);
-				if (Config::Visuals::Players::Chams) {
-					if (ImGui::ColorEdit3(skCrypt("Chams Color"), Config::Visuals::Players::ChamsColor)) {
-						Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings();
+				// GLOBAL CHAM SETTINGS (since they share the same material)
+				ImGui::Text(skCrypt("Global Chams Settings"));
+				ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::PawnChamSettings.Wireframe);
+				ImGui::Checkbox(skCrypt("Chams Through Walls"), &Config::Visuals::Players::PawnChamSettings.ThroughWalls);
+
+				ImGui::Checkbox(skCrypt("#Wireframe"), &Config::Visuals::Weapons::PickupChamSettings.Wireframe);
+				ImGui::Checkbox(skCrypt("#Chams Through Walls"), &Config::Visuals::Weapons::PickupChamSettings.ThroughWalls);
+
+				ImGui::Separator();
+
+				ImGui::Checkbox(skCrypt("Pawn Chams"), &Config::Visuals::Players::PawnChamSettings.Enabled);
+				if (Config::Visuals::Players::PawnChamSettings.Enabled) {
+					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::PawnChamSettings.ShowLocal);
+
+					if (ImGui::ColorEdit3(skCrypt("Chams Color"), Config::Visuals::Players::PawnChamSettings.Color)) {
+						Features::Visuals::ChamManagerFortPawn::Manager->UpdateDynamicMaterialSettings();
 					}
 
-					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::SelfChams);
-					ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::Wireframe);
-					if (ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::GlowAmount, 0.f, 100.f)) {
-						Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings();
+					if (ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::PawnChamSettings.EmissiveIntensity, 0.f, 100.f)) {
+						Features::Visuals::ChamManagerFortPawn::Manager->UpdateDynamicMaterialSettings();
 					}
+				}
+
+				ImGui::Separator();
+
+				ImGui::Checkbox(skCrypt("#Pickup Chams"), &Config::Visuals::Weapons::PickupChamSettings.Enabled);
+				if (Config::Visuals::Weapons::PickupChamSettings.Enabled) {
+					if (ImGui::ColorEdit3(skCrypt("#Chams Color"), Config::Visuals::Weapons::PickupChamSettings.Color)) {
+						Features::Visuals::ChamManagerFortPickup::Manager->UpdateDynamicMaterialSettings();
+					}
+
+					if (ImGui::SliderFloat(skCrypt("#Glow Amount"), &Config::Visuals::Weapons::PickupChamSettings.EmissiveIntensity, 0.f, 100.f)) {
+						Features::Visuals::ChamManagerFortPickup::Manager->UpdateDynamicMaterialSettings();
+					}
+
+					ImGui::SliderInt(skCrypt("#Minimum Rarity"), (int*)&Config::Visuals::Weapons::PickupChamSettings.MinimumTier, (uint8)SDK::EFortItemTier::I, (uint8)SDK::EFortItemTier::X);
 				}
 
 				ImGui::Separator();
@@ -318,7 +342,11 @@ void Game::MenuCallback() {
 			switch (SubTab) {
 			case 0:
 			{
+				ImGui::Checkbox(skCrypt("Edit On Release"), &Config::Exploits::Player::EditOnRelease);
+
 				ImGui::Checkbox(skCrypt("Player Fly (Zipline)"), &Config::Exploits::Player::ZiplineFly);
+
+				ImGui::Checkbox(skCrypt("Kill All (TP everyone to you)"), &Config::Exploits::Player::KillAll);
 
 				ImGui::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
 

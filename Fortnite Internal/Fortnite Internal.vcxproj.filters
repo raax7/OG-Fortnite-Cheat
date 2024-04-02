@@ -104,20 +104,20 @@
     <ClCompile Include="Hooks\RaaxDx\RaaxDx.cpp">
       <Filter>Hooks\RaaxDx</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\RaaxDx\minhook\src\buffer.c">
-      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    <ClCompile Include="External-Libs\minhook\src\buffer.c">
+      <Filter>External-Libs\minhook\src</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\RaaxDx\minhook\src\hook.c">
-      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    <ClCompile Include="External-Libs\minhook\src\hook.c">
+      <Filter>External-Libs\minhook\src</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\RaaxDx\minhook\src\trampoline.c">
-      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    <ClCompile Include="External-Libs\minhook\src\trampoline.c">
+      <Filter>External-Libs\minhook\src</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\RaaxDx\minhook\src\hde\hde32.c">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClCompile Include="External-Libs\minhook\src\hde\hde32.c">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\RaaxDx\minhook\src\hde\hde64.c">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClCompile Include="External-Libs\minhook\src\hde\hde64.c">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClCompile>
     <ClCompile Include="Game\Features\Exploits\Vehicle.cpp">
       <Filter>Game\Features\Exploits</Filter>
@@ -140,11 +140,23 @@
     <ClCompile Include="Game\Actors\Loops\FortAthenaVehicle.cpp">
       <Filter>Game\Actors\Loops</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Features\FortPawnHelper\Chams.cpp">
-      <Filter>Game\Features\FortPawnHelper</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Features\Features.cpp">
       <Filter>Game\Features</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Visuals\Chams.cpp">
+      <Filter>Game\Features\Visuals</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Visuals\FortPawnChams.cpp">
+      <Filter>Game\Features\Visuals</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Aimbot\TriggerBot.cpp">
+      <Filter>Game\Features\Aimbot</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Features\Visuals\FortPickupChams.cpp">
+      <Filter>Game\Features\Visuals</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\EditSelectRelease.cpp">
+      <Filter>Hooks\Callbacks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -199,23 +211,26 @@
     <Filter Include="Hooks\RaaxDx">
       <UniqueIdentifier>{6eb80892-c8c9-4766-b6eb-29b7bebcc1a3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Hooks\RaaxDx\minhook">
-      <UniqueIdentifier>{09ad028c-a7f2-4f76-a3ed-2f8226e8a0a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hooks\RaaxDx\minhook\include">
-      <UniqueIdentifier>{535cac5b-302a-4164-ace4-44a93100c15c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hooks\RaaxDx\minhook\src">
-      <UniqueIdentifier>{3a1c28d2-3bf7-4202-a4c1-0d5704f3d59d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hooks\RaaxDx\minhook\src\hde">
-      <UniqueIdentifier>{d6d213c1-5045-4e09-b7d3-a08635004238}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External-Libs">
       <UniqueIdentifier>{9b9c5c0f-f5a5-484a-a42b-ea5406917e59}</UniqueIdentifier>
     </Filter>
     <Filter Include="External-Libs\ImGui">
       <UniqueIdentifier>{8a875f6b-aabd-4aed-bbd2-0832f581750b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Features\Visuals">
+      <UniqueIdentifier>{4d06d9ad-12ef-48fa-a108-b4e33b2ff0f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External-Libs\minhook">
+      <UniqueIdentifier>{09ad028c-a7f2-4f76-a3ed-2f8226e8a0a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External-Libs\minhook\include">
+      <UniqueIdentifier>{535cac5b-302a-4164-ace4-44a93100c15c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External-Libs\minhook\src">
+      <UniqueIdentifier>{3a1c28d2-3bf7-4202-a4c1-0d5704f3d59d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External-Libs\minhook\src\hde">
+      <UniqueIdentifier>{d6d213c1-5045-4e09-b7d3-a08635004238}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -334,29 +349,29 @@
     <ClInclude Include="Hooks\RaaxDx\RaaxDx.h">
       <Filter>Hooks\RaaxDx</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\buffer.h">
-      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    <ClInclude Include="External-Libs\minhook\src\buffer.h">
+      <Filter>External-Libs\minhook\src</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\trampoline.h">
-      <Filter>Hooks\RaaxDx\minhook\src</Filter>
+    <ClInclude Include="External-Libs\minhook\src\trampoline.h">
+      <Filter>External-Libs\minhook\src</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\include\MinHook.h">
-      <Filter>Hooks\RaaxDx\minhook\include</Filter>
+    <ClInclude Include="External-Libs\minhook\include\MinHook.h">
+      <Filter>External-Libs\minhook\include</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\hde32.h">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClInclude Include="External-Libs\minhook\src\hde\hde32.h">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\hde64.h">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClInclude Include="External-Libs\minhook\src\hde\hde64.h">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\pstdint.h">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClInclude Include="External-Libs\minhook\src\hde\pstdint.h">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\table32.h">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClInclude Include="External-Libs\minhook\src\hde\table32.h">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\RaaxDx\minhook\src\hde\table64.h">
-      <Filter>Hooks\RaaxDx\minhook\src\hde</Filter>
+    <ClInclude Include="External-Libs\minhook\src\hde\table64.h">
+      <Filter>External-Libs\minhook\src\hde</Filter>
     </ClInclude>
     <ClInclude Include="Game\Features\Exploits\Vehicle.h">
       <Filter>Game\Features\Exploits</Filter>
@@ -373,8 +388,11 @@
     <ClInclude Include="Game\Features\Exploits\Player.h">
       <Filter>Game\Features\Exploits</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\FortPawnHelper\Chams.h">
-      <Filter>Game\Features\FortPawnHelper</Filter>
+    <ClInclude Include="Game\Features\Visuals\Chams.h">
+      <Filter>Game\Features\Visuals</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Features\Aimbot\TriggerBot.h">
+      <Filter>Game\Features\Aimbot</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

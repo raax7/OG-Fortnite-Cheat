@@ -114,7 +114,7 @@ namespace SDK {
 			if (IsChunked && ChunkedObjects) {
 				return ChunkedObjects->Num();
 			}
-			else if (!IsChunked && FixedObjects) {
+			else if (IsChunked == false && FixedObjects) {
 				return FixedObjects->Num();
 			}
 
@@ -125,7 +125,7 @@ namespace SDK {
 			if (IsChunked && ChunkedObjects) {
 				return ChunkedObjects->GetByIndex(Index);
 			}
-			else if (!IsChunked && FixedObjects) {
+			else if (IsChunked == false && FixedObjects) {
 				return FixedObjects->GetByIndex(Index);
 			}
 

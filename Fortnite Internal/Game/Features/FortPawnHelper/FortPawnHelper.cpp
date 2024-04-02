@@ -5,8 +5,6 @@
 #include "../../../Utilities/Math.h"
 
 bool Features::FortPawnHelper::PopulateBones(Actors::Caches::FortPawnCache& FortPawnCache) {
-	SDK::FVector2D Temp_W2S;
-
 	// Resize the bone register to avoid out of range errors
 	FortPawnCache.BonePositions3D.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
 	FortPawnCache.BonePositions2D.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
@@ -16,6 +14,12 @@ bool Features::FortPawnHelper::PopulateBones(Actors::Caches::FortPawnCache& Fort
 
 	for (int i = Bone::Head; i < Bone::BONEID_MAX; i++) {
 		FortPawnCache.BonePositions3D[i] = FortPawnCache.Mesh->GetBonePosition(i);
+
+		if (i == Bone::Head) {
+			if (FortPawnCache.BonePositions3D[Bone::Head] == SDK::FVector(0, 0, 0)) {
+				return false;
+			}
+		}
 
 		if (i == Bone::Chest) {
 			FortPawnCache.BonePositions3D[Bone::Chest] = (FortPawnCache.BonePositions3D[Bone::ChestLeft] + FortPawnCache.BonePositions3D[Bone::ChestRight]) / 2;
@@ -67,13 +71,13 @@ void Features::FortPawnHelper::PopulateBoundCorners(Actors::Caches::FortPawnCach
 	}
 
 	// Adjust the bounding box to make it more visually appealing
-	float BoxSizeMultiplier = Math::CalculateInterpolatedValue(FortPawnCache.DistanceFromLocalPawn, 100.f, 1.f, 6.0f);
+	float BoxSizeMultiplier = Math::CalculateInterpolatedValue(FortPawnCache.DistanceFromLocalPawn, 100.f, 1.0f, 4.0f);
 
 	float LeftRightOffset = (BottomRight.X - TopLeft.X) * (0.36f * BoxSizeMultiplier);
-	float TopBottomOffset = (BottomRight.Y - TopLeft.Y) * (0.22f * BoxSizeMultiplier);
+	float TopBottomOffset = (BottomRight.Y - TopLeft.Y) * (0.18f * BoxSizeMultiplier);
 
 	TopLeft.X -= LeftRightOffset;
-	TopLeft.Y -= TopBottomOffset * 0.75f;
+	TopLeft.Y -= TopBottomOffset;
 
 	BottomRight.X += LeftRightOffset;
 	BottomRight.Y += TopBottomOffset;

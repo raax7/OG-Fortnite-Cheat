@@ -4,13 +4,6 @@
 extern enum class KeyName;
 
 namespace Config {
-	inline bool rapidfiresex = false;
-
-	inline float test = 0;
-	inline int test2 = 5;
-	inline float testfloat = 1.f;
-	inline float testfloat2 = 0;
-
 	namespace Aimbot {
 		inline bool Enabled = true;
 
@@ -29,9 +22,6 @@ namespace Config {
 		inline bool ShowFOV = true;
 
 		inline ConfigTypes::AimbotType TargettingType = ConfigTypes::AimbotType::Smart;
-		// 0: smart
-		// 1: crosshair distance
-		// 2: player distance
 
 		namespace TriggerBot {
 			inline bool Enabled = true;
@@ -96,20 +86,15 @@ namespace Config {
 			inline bool Distance = true;
 			inline bool CurrentWeapon = true;
 
-			// Chams
-			inline bool Chams = true;
-
-			inline bool SelfChams = true;
-			inline bool Wireframe = true;
-
-			inline float GlowAmount = 1.f;
-			inline float ChamsColor[3] = { 1.f, 0.f, 0.75f };
+			inline ConfigTypes::BaseChamsSettings PawnChamSettings;
 		}
 
 		namespace Weapons {
 			inline bool Enabled = false;
 
 			inline int MaxDistance = 300;
+
+			inline ConfigTypes::PickupChamsSettings PickupChamSettings;
 		}
 
 		namespace Vehicles {
@@ -126,7 +111,11 @@ namespace Config {
 		}
 
 		namespace Player {
+			inline bool EditOnRelease = false;
+
 			inline bool ZiplineFly = false;
+
+			inline bool KillAll = false;
 
 			inline bool EditEnemyBuilds = false;
 
@@ -150,6 +139,7 @@ namespace Config {
 
 		namespace Vehicle {
 			inline bool InfiniteBoost = false;
+
 			inline bool Fly = false;
 			inline bool FlyThroughWalls = false;
 			inline bool FreezeInAir = false;

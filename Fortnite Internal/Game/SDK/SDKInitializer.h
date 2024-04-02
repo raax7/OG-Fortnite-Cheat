@@ -11,6 +11,10 @@
 /* This class is used to initialize the SDK by updating the offsets and VFT indicies */
 class SDKInitializer {
 private:
+	/* Cached address for "EditModeInputComponent0" string (to avoid searching multiple times) */
+	static uintptr_t EditModeInputComponent0;
+
+private:
 	/*
 	 * @brief Finds the first wildcard (question mark) in a given pattern.
 	 *
@@ -81,6 +85,7 @@ private:
 	* @param SearchRange - The range of bytes to search for the pattern
 	*/
 	static void WalkVFT(const char* TargetFunctionName, void** VFT, void* TargetFunction, uintptr_t& VFTIndex, int SearchRange);
+
 public:
 	/* Update the GObject offset (for finding UObjects) */
 	static void InitGObjects();
@@ -99,6 +104,16 @@ public:
 
 	/* Update the RaycastMulti functino offset (for bullet tp v2) */
 	static void InitRaycastMulti();
+
+	/* Update the Fire function offset (for trigger bot) */
+	static void InitFire();
+
+	/* Update the EditSelectRelease function offset (for edit on release) */
+	static void InitEditSelectRelease();
+
+	/* Update the CompleteBuildingEditInteraction function offset (for edit on release) */
+	static void InitCompleteBuildingEditInteraction();
+
 
 
 	/* Update the DrawTransition VFT index (for engine rendering, and on ImGui builds for caching draw data) */

@@ -3,6 +3,8 @@
 #include "../../SDK/Classes/Engine_classes.h"
 #include "../../SDK/Classes/FortniteGame_classes.h"
 
+#include "../../Features/Visuals/Chams.h"
+
 #include "../../../Drawing/Drawing.h"
 
 #include "../../../Configs/Config.h"
@@ -17,6 +19,8 @@
 
 void Actors::FortPickup::Tick() {
 	for (int i = 0; i < CachedWeapons.Num(); i++) {
+		Features::Visuals::ChamManagerFortPickup::Manager->Tick(CachedWeapons[i]);
+
 		if (Config::Visuals::Weapons::Enabled) {
 			if (!CachedWeapons.IsValidIndex(i)) continue;
 

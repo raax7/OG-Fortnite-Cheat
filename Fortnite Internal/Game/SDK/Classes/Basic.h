@@ -280,7 +280,7 @@ namespace SDK {
 
 		std::string ToString()
 		{
-			if (Data)
+			if (Data && Data->Name)
 			{
 				std::wstring Temp(Data->Name);
 				return std::string(Temp.begin(), Temp.end());
@@ -701,6 +701,41 @@ namespace SDK {
 		inline FLinearColor(float InR, float InG, float InB, float InA)
 			: R(InR), G(InG), B(InB), A(InA)
 		{
+		}
+	};
+
+
+
+	class FWeakObjectPtr
+	{
+	protected:
+		int32		ObjectIndex;
+		int32		ObjectSerialNumber;
+
+	public:
+		class UObject* Get() const;
+
+		class UObject* operator->() const;
+
+		bool operator==(const FWeakObjectPtr& Other) const;
+		bool operator!=(const FWeakObjectPtr& Other) const;
+
+		bool operator==(const class UObject* Other) const;
+		bool operator!=(const class UObject* Other) const;
+	};
+
+	template<typename UEType>
+	class TWeakObjectPtr : FWeakObjectPtr
+	{
+	public:
+		UEType* Get() const
+		{
+			return static_cast<UEType*>(FWeakObjectPtr::Get());
+		}
+
+		UEType* operator->() const
+		{
+			return static_cast<UEType*>(FWeakObjectPtr::Get());
 		}
 	};
 }

@@ -5,7 +5,7 @@
 #include "../../../Utilities/Error.h"
 
 #include "../../Features/FortPawnHelper/Bone.h"
-#include "../../Features/FortPawnHelper/Chams.h"
+#include "../../Features/Visuals/Chams.h"
 
 #include "../../Game.h"
 
@@ -29,6 +29,27 @@ void SDK::USceneComponent::SetPhysicsLinearVelocity(FVector NewVel, bool bAddToC
 	this->ProcessEvent(SDK::Cached::Functions::SceneComponent::SetPhysicsLinearVelocity, &params_SetPhysicsLinearVelocity);
 
 	return;
+}
+
+SDK::UMaterialInstanceDynamic* SDK::UPrimitiveComponent::CreateDynamicMaterialInstance(int32 ElementIndex, class UMaterialInterface* SourceMaterial, class FName OptionalName) {
+	if (SDK::IsValidPointer(this) == false) return nullptr;
+
+	struct {
+		int32 ElementIndex;
+		uint8 Pad_277[0x4];
+		UMaterialInterface* SourceMaterial;
+		FName OptionalName;
+
+		UMaterialInstanceDynamic* return_value;
+	} params_CreateDynamicMaterialInstance{};
+
+	params_CreateDynamicMaterialInstance.ElementIndex = ElementIndex;
+	params_CreateDynamicMaterialInstance.SourceMaterial = SourceMaterial;
+	params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
+
+	this->ProcessEvent(SDK::Cached::Functions::SceneComponent::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
+
+	return params_CreateDynamicMaterialInstance.return_value;
 }
 
 void SDK::UPrimitiveComponent::SetMaterial(int32 ElementIndex, UMaterialInterface* Material) {
@@ -142,6 +163,15 @@ SDK::TArray<SDK::UMaterialInterface*> SDK::UMeshComponent::GetMaterials() {
 	this->ProcessEvent(SDK::Cached::Functions::MeshComponent::GetMaterials, &params_GetMaterials);
 
 	return params_GetMaterials.return_value;
+}
+
+SDK::UClass* SDK::UMeshComponent::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("MeshComponent")));
+
+	return Clss;
 }
 
 SDK::FName SDK::USkeletalMeshComponent::GetBoneName(int32 BoneIndex) {
@@ -706,6 +736,18 @@ void SDK::UCanvas::K2_DrawBox(FVector2D ScreenPosition, FVector2D ScreenSize, fl
 	this->ProcessEvent(SDK::Cached::Functions::Canvas::K2_DrawBox, &params_K2_DrawBox);
 }
 
+SDK::UMaterial* SDK::UMaterialInterface::GetBaseMaterial() {
+	if (SDK::IsValidPointer(this) == false) return nullptr;
+
+	struct {
+		UMaterial* return_value;
+	} params_GetBaseMaterial{};
+
+	this->ProcessEvent(SDK::Cached::Functions::MaterialInterface::GetBaseMaterial, &params_GetBaseMaterial);
+
+	return params_GetBaseMaterial.return_value;
+}
+
 SDK::UClass* SDK::UMaterialInterface::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -749,26 +791,6 @@ void SDK::UMaterialInstanceDynamic::SetScalarParameterValue(FName ParameterName,
 
 SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 	return GetSocketLocation(Features::FortPawnHelper::Bone::GetBoneName(BoneID));
-}
-
-SDK::UMaterial* SDK::GetChamsMaterial() {
-	static UMaterial* ChamsMaterial = nullptr;
-
-	if (!ChamsMaterial)
-		ChamsMaterial = UObject::FindObject<UMaterial>(std::string(skCrypt("Material CharacterShield_DimMak.CharacterShield_DimMak")));
-
-	return ChamsMaterial;
-}
-
-SDK::UMaterialInstanceDynamic* SDK::GetChamsMaterialDynamic() {
-	static UMaterialInstanceDynamic* ChamsMaterialInstance = nullptr;
-
-	if (SDK::IsValidPointer(ChamsMaterialInstance) == false || SDK::IsValidPointer(ChamsMaterialInstance->Class) == false || ChamsMaterialInstance->IsA(SDK::UMaterialInstanceDynamic::StaticClass()) == false) {
-		ChamsMaterialInstance = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), GetChamsMaterial(), FName());
-		Features::FortPawnHelper::Chams::UpdateDynamicMaterialSettings();
-	}
-
-	return ChamsMaterialInstance;
 }
 
 SDK::FVector2D SDK::Project(FVector WorldLocation) {

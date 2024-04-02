@@ -89,7 +89,7 @@ public:
 
 inline std::ofstream Logger::File;
 
-#define DEBUG_LOG(LogLevel, Message) Logger::Log(LogLevel, Message, __FILE__, __LINE__)
+#define DEBUG_LOG(LogLevel, Message) Logger::Log(LogLevel, Message, skCrypt(__FILE__), __LINE__)
 #else
     #define DEBUG_LOG(LogLevel, Message)
 #endif

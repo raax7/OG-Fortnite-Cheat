@@ -4,8 +4,6 @@
 
 #include "Engine_Classes.h"
 
-#include <array>
-
 typedef __int8 int8;
 typedef __int16 int16;
 typedef __int32 int32;
@@ -123,6 +121,10 @@ namespace SDK {
 	public:
 
 	};
+	class UFortWorldItemDefinition : public UFortItemDefinition {
+	public:
+
+	};
 	class UFortWeaponMeleeItemDefinition : public UFortWeaponItemDefinition {
 	public:
 		// STATIC FUNCTIONS
@@ -138,6 +140,36 @@ namespace SDK {
 			return (UFortItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortItemEntry::ItemDefinition));
 		}
 	};
+	class AFortPickupEffect : public AActor {
+	public:
+		// VALUES
+
+		UFortWorldItemDefinition* ItemDefinition() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortPickupEffect::ItemDefinition == -0x1) return nullptr;
+			return (UFortWorldItemDefinition*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::FortPickupEffect::ItemDefinition));
+		}
+	};
+	class AB_Pickups_Parent_C : public AFortPickupEffect
+	{
+	public:
+		// VALUES
+
+		UStaticMeshComponent* Static_Mesh_Pickup() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::AB_Pickups_Parent_C::Static_Mesh_Pickup == -0x1) return nullptr;
+			return (UStaticMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::AB_Pickups_Parent_C::Static_Mesh_Pickup));
+		}
+
+		USkeletalMeshComponent* Skeletal_Mesh_Pickup() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::AB_Pickups_Parent_C::Skeletal_Mesh_Pickup == -0x1) return nullptr;
+			return (USkeletalMeshComponent*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::AB_Pickups_Parent_C::Skeletal_Mesh_Pickup));
+		}
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
 	class AFortPickup : public AActor {
 	public:
 		// VALUES
@@ -147,7 +179,10 @@ namespace SDK {
 			return (FFortItemEntry*)((uintptr_t)this + SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry);
 		}
 
-
+		TWeakObjectPtr<AFortPickupEffect> PickupEffectBlueprint() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortPickup::PickupEffectBlueprint == -0x1) return TWeakObjectPtr<AFortPickupEffect>();
+			return *(TWeakObjectPtr<AFortPickupEffect>*)((uintptr_t)this + SDK::Cached::Offsets::FortPickup::PickupEffectBlueprint);
+		}
 
 		// STATIC FUNCTIONS
 
@@ -187,6 +222,16 @@ namespace SDK {
 			*(bool*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::bIgnoreTryToFireSlotCooldownRestriction) = NewValue;
 		}
 
+		int32 AmmoCount() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortWeapon::AmmoCount == -0x1) return 0;
+			return *(int32*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::AmmoCount);
+		}
+
+		TArray<USkeletalMeshComponentBudgeted*> AllWeaponMeshes() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes == -0x1) return TArray<USkeletalMeshComponentBudgeted*>{};
+			return *(TArray<USkeletalMeshComponentBudgeted*>*)((uintptr_t)this + SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes);
+		}
+
 
 
 		// FUNCTIONS
@@ -196,6 +241,8 @@ namespace SDK {
 		bool IsProjectileWeapon();
 
 		float GetProjectileSpeed(float ChargePercent);
+
+		int32 GetBulletsPerClip();
 
 
 
@@ -299,7 +346,7 @@ namespace SDK {
 
 		AFortAthenaVehicle* GetVehicle();
 
-		std::array<SDK::USkeletalMeshComponentBudgeted*, 8> GetCharacterPartSkeletalMeshComponents();
+		std::vector<SDK::USkeletalMeshComponentBudgeted*> GetCharacterPartSkeletalMeshComponents();
 	};
 	class AFortPlayerPawnAthena : public AFortPlayerPawn {
 	public:
@@ -354,6 +401,14 @@ namespace SDK {
 		// STATIC FUNCTIONS
 
 		static UClass* StaticClass();
+
+
+
+		// INPUT FUNCTIONS
+
+		void Fire();
+
+		void CompleteBuildingEditInteraction();
 	};
 	class UFortLocalPlayer : public ULocalPlayer {
 	public:

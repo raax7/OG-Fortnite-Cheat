@@ -130,6 +130,15 @@ namespace Hooks {
 		inline Hooks::VFTHook* Hook = nullptr;
 	}
 
+	namespace EditSelectRelease {
+		using EditSelectReleaseParams = void(*)(void* this_);
+		inline EditSelectReleaseParams EditSelectReleaseOriginal = nullptr;
+
+		void EditSelectRelease(void* this_);
+
+		inline bool Hooked = false;
+	}
+
 
 
 	// Functions

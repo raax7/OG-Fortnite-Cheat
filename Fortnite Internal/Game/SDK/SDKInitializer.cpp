@@ -4,6 +4,8 @@
 
 #include "../../Utilities/Logger.h"
 
+uintptr_t SDKInitializer::EditModeInputComponent0 = 0x0;
+
 void SDKInitializer::WalkVFT(const char* TargetFunctionName, void** VFT, void* TargetFunction, uintptr_t& VFTIndex, int SearchRange) {
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Walking VFT searching for ")) + std::string(TargetFunctionName) + std::string(skCrypt(" VFT index")));
 
@@ -510,6 +512,90 @@ void SDKInitializer::InitRaycastMulti() {
 	else {
 		THROW_ERROR(std::string(skCrypt("Failed to find RaycastMulti!")), false);
 	}
+}
+void SDKInitializer::InitFire() {
+	uintptr_t FireAddress = 0x0;
+
+	if (EditModeInputComponent0 == 0x0) {
+		EditModeInputComponent0 = (uintptr_t)Memory::FindByStringInAllSections(skCrypt(L"EditModeInputComponent0"));
+	}
+
+	if (EditModeInputComponent0) {
+		// The function start shouldnt be more than 0x5000 bytes backwards from the string reference
+		uintptr_t FireString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("Fire"), (uint8_t*)(EditModeInputComponent0 - 0x5000), 0x5000);
+
+		if (FireString) {
+			FireAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(FireString - 0x28), 0x50, true, -1);
+			//sub_1435290
+			if (FireAddress) {
+				SDK::Cached::Functions::Fire = FireAddress - SDK::GetBaseAddress();
+
+				DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Fire offset found: ")) + std::to_string(SDK::Cached::Functions::Fire));
+
+				return;
+			}
+		}
+	}
+
+	THROW_ERROR(std::string(skCrypt("Failed to find EditModeInputComponent0!")), false);
+}
+void SDKInitializer::InitEditSelectRelease() {
+	uintptr_t EditSelectReleaseAddress = 0x0;
+
+	if (EditModeInputComponent0 == 0x0) {
+		EditModeInputComponent0 = (uintptr_t)Memory::FindByStringInAllSections(skCrypt(L"EditModeInputComponent0"));
+	}
+
+	if (EditModeInputComponent0) {
+		// The first function is always the press function and the second is the release
+		// Find the string once for the first function, then find it again for the second one
+		uintptr_t FirstEditSelectString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("EditSelect"), (uint8_t*)(EditModeInputComponent0), 0x200);
+
+		if (FirstEditSelectString) {
+			uintptr_t SecondEditSelectString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("EditSelect"), (uint8_t*)(FirstEditSelectString + 0x8), 0x200);
+
+			if (SecondEditSelectString) {
+				EditSelectReleaseAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(SecondEditSelectString - 0x28), 0x50, true, -1);
+
+				if (EditSelectReleaseAddress) {
+					SDK::Cached::Functions::EditSelectRelease = EditSelectReleaseAddress - SDK::GetBaseAddress();
+
+					DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("EditSelectRelease offset found: ")) + std::to_string(SDK::Cached::Functions::EditSelectRelease));
+
+					return;
+				}
+			}
+		}
+	}
+
+	THROW_ERROR(std::string(skCrypt("Failed to find EditSelectRelease!")), false);
+}
+void SDKInitializer::InitCompleteBuildingEditInteraction() {
+	uintptr_t CompleteBuildingEditInteractionAddress = 0x0;
+
+	if (EditModeInputComponent0 == 0x0) {
+		EditModeInputComponent0 = (uintptr_t)Memory::FindByStringInAllSections(skCrypt(L"EditModeInputComponent0"));
+	}
+
+	if (EditModeInputComponent0) {
+		// The first function is always the press function and the second is the release
+		// Find the string once for the first function, then find it again for the second one
+		uintptr_t CompleteBuildingEditInteractionString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("CompleteBuildingEditInteraction"), (uint8_t*)EditModeInputComponent0, 0x300);
+
+		if (CompleteBuildingEditInteractionString) {
+			CompleteBuildingEditInteractionAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 1D"), (uint8_t*)(CompleteBuildingEditInteractionString - 0x28), 0x50, true, -1);
+
+			if (CompleteBuildingEditInteractionAddress) {
+				SDK::Cached::Functions::CompleteBuildingEditInteraction = CompleteBuildingEditInteractionAddress - SDK::GetBaseAddress();
+
+				DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("CompleteBuildingEditInteraction offset found: ")) + std::to_string(SDK::Cached::Functions::CompleteBuildingEditInteraction));
+
+				return;
+			}
+		}
+	}
+
+	THROW_ERROR(std::string(skCrypt("Failed to find CompleteBuildingEditInteraction!")), false);
 }
 
 void SDKInitializer::InitGObjects() {

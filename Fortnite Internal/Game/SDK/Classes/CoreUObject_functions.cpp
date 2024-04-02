@@ -40,7 +40,7 @@ namespace SDK {
 
 	void UObject::ProcessEvent(void* FN, void* Params)
 	{
-		if (SDK::IsValidPointer(this) == false || SDK::IsValidPointer(FN) == false)
+		if (SDK::IsValidPointer(this) == false || SDK::IsValidPointer(FN) == false || SDK::IsValidPointer(Params) == false)
 			return;
 
 		if (SDK::IsValidPointer(this->Vft) && SDK::IsValidPointer(this->Vft[SDK::Cached::VFT::ProcessEvent]))

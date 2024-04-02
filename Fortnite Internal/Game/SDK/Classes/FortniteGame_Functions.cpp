@@ -106,6 +106,15 @@ void SDK::AFortPawn::ServerHandlePickup(class AFortPickup* Pickup, float InFlyTi
 	this->ProcessEvent(SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup, &params_ServerHandlePickup);
 }
 
+SDK::UClass* SDK::AB_Pickups_Parent_C::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast("B_Pickups_Parent_C");
+
+	return Clss;
+}
+
 SDK::UClass* SDK::AFortPickup::StaticClass() {
 	static class UClass* Clss = nullptr;
 
@@ -148,6 +157,18 @@ float SDK::AFortWeapon::GetProjectileSpeed(float ChargePercent) {
 	this->ProcessEvent(SDK::Cached::Functions::FortWeapon::GetProjectileSpeed, &params_GetProjectileSpeed);
 
 	return params_GetProjectileSpeed.return_value;
+}
+
+int32 SDK::AFortWeapon::GetBulletsPerClip() {
+	if (SDK::IsValidPointer(this) == false) return 0;
+
+	struct {
+		int32 return_value;
+	} params_GetBulletsPerClip{};
+
+	this->ProcessEvent(SDK::Cached::Functions::FortWeapon::GetBulletsPerClip, &params_GetBulletsPerClip);
+
+	return params_GetBulletsPerClip.return_value;
 }
 
 bool SDK::AFortWeapon::IsPickaxe() {
@@ -209,20 +230,17 @@ SDK::AFortAthenaVehicle* SDK::AFortPlayerPawn::GetVehicle() {
 	return VehicleStateLocal()->Vehicle();
 }
 
-std::array<SDK::USkeletalMeshComponentBudgeted*, 8> SDK::AFortPlayerPawn::GetCharacterPartSkeletalMeshComponents() {
-	std::array<SDK::USkeletalMeshComponentBudgeted*, 8> Components{};
-	Components.fill(nullptr); // Initialize all elements to nullptr
+std::vector<SDK::USkeletalMeshComponentBudgeted*> SDK::AFortPlayerPawn::GetCharacterPartSkeletalMeshComponents() {
+	std::vector<SDK::USkeletalMeshComponentBudgeted*> Components{};
 
 	if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents == -0x1) return Components;
-
-	size_t ValidComponentsCount = 0;
 
 	// There should never be more than 8 character parts
 	for (int i = 0; i < 8; i++) {
 		USkeletalMeshComponentBudgeted* Mesh = *(USkeletalMeshComponentBudgeted**)((uintptr_t)this + SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents + (i * 8));
 		if (SDK::IsValidPointer(Mesh) == false || Mesh->IsA(USkeletalMeshComponentBudgeted::StaticClass()) == false) continue;
 
-		Components[ValidComponentsCount++] = Mesh;
+		Components.push_back(Mesh);
 	}
 
 	return Components;
@@ -244,6 +262,32 @@ SDK::UClass* SDK::AFortPlayerController::StaticClass() {
 		Clss = UObject::FindClassFast(std::string(skCrypt("FortPlayerController")));
 
 	return Clss;
+}
+
+void SDK::AFortPlayerController::Fire() {
+	if (SDK::IsValidPointer(this) == false || SDK::Cached::Functions::Fire == 0x0) return;
+
+	using FireParams = void(*)(void*);
+	static auto Fire = reinterpret_cast<FireParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::Fire);
+
+	if (Fire == nullptr) {
+		Fire = reinterpret_cast<FireParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::Fire);
+	}
+
+	Fire(this);
+}
+
+void SDK::AFortPlayerController::CompleteBuildingEditInteraction() {
+	if (SDK::IsValidPointer(this) == false || SDK::Cached::Functions::CompleteBuildingEditInteraction == 0x0) return;
+
+	using CompleteBuildingEditInteractionParams = void(*)(void*);
+	static auto CompleteBuildingEditInteraction = reinterpret_cast<CompleteBuildingEditInteractionParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::CompleteBuildingEditInteraction);
+
+	if (CompleteBuildingEditInteraction == nullptr) {
+		CompleteBuildingEditInteraction = reinterpret_cast<CompleteBuildingEditInteractionParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::CompleteBuildingEditInteraction);
+	}
+
+	CompleteBuildingEditInteraction(this);
 }
 
 SDK::UClass* SDK::UFortLocalPlayer::StaticClass() {

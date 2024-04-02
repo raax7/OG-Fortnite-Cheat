@@ -1,7 +1,5 @@
 #include "Aimbot.h"
 
-#include "../../../Utilities/Math.h"
-
 #include "../../../Configs/Config.h"
 #include "../../Input/Input.h"
 #include "Target.h"
@@ -12,7 +10,8 @@ void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
 	if (Input::IsKeyDown((Input::KeyName)Config::Aimbot::AimKey)) {
 		TargetToAimot.LocalInfo.IsTargeting = true;
 
-		if (Config::Aimbot::SilentAim == false) {
+		// We don't need to aimbot the target if using SilentAim or BulletTP
+		if (Config::Aimbot::SilentAim == false && Config::Aimbot::BulletTP == false && Config::Aimbot::BulletTPV2 == false) {
 			SDK::GetLocalController()->ClientSetRotation(TargetToAimot.LocalInfo.TargetRotationWithSmooth, false);
 		}
 	}
@@ -20,8 +19,6 @@ void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
 		TargetToAimot.LocalInfo.IsTargeting = false;
 	}
 }
-
-// Moved functionality of CalculateShot hook, GetPlayerViewpoint hook and GetViewpoint hook from "Hooks/Callbacks" to here for better organization
 
 void Features::Aimbot::CalculateShotCallback(SDK::FTransform* BulletTransform) {
 	if (Config::Aimbot::BulletTP && Actors::MainTarget.GlobalInfo.TargetActor) {
@@ -34,7 +31,8 @@ void Features::Aimbot::CalculateShotCallback(SDK::FTransform* BulletTransform) {
 
 void Features::Aimbot::RaycastMultiCallback(SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, SDK::ECollisionChannel TraceChannel) {
 	if (Actors::MainTarget.GlobalInfo.TargetActor && Config::Aimbot::BulletTPV2) {
-		if (TraceChannel != SDK::ECollisionChannel::ECC_GameTraceChannel7) return; // Only modify the line trace for the bullet
+		// Only modify the line trace for the bullet
+		if (TraceChannel != SDK::ECollisionChannel::ECC_GameTraceChannel7) return;
 
 		for (int i = 0; i < OutHits.Num(); i++) {
 			SDK::FHitResult OutHit = OutHits[i];
@@ -42,7 +40,7 @@ void Features::Aimbot::RaycastMultiCallback(SDK::UWorld* World, SDK::TArray<SDK:
 			// Prepare data for our own line trace
 			SDK::TArray<SDK::AActor*> ActorsToIgnore;
 			SDK::FVector Position = Actors::MainTarget.GlobalInfo.TargetBonePosition;
-			Position.Z += 100.f;
+			Position.Z += 100.f; // Add 0.1 meters to the Z axis to make sure it always hits the correct bone
 
 			// Save the original start position of the RaycastMulti
 			SDK::FVector OriginalStart = OutHits[i].TraceStart();
@@ -65,6 +63,8 @@ void Features::Aimbot::GetViewpointCallback(SDK::FMinimalViewInfo* OutViewInfo) 
 	if (!Actors::MainTarget.LocalInfo.IsTargeting == false && Config::Aimbot::UseAimKeyForSilent) return;
 
 	if (Actors::MainTarget.GlobalInfo.TargetActor) {
+		// This function is called when gettting the camera viewpoint for rendering
+		// Revert the cameras location and rotation to the original values
 		OutViewInfo->SetRotation(Actors::MainCamera.Rotation);
 		OutViewInfo->SetLocation(Actors::MainCamera.Position);
 	}
@@ -75,6 +75,8 @@ void Features::Aimbot::GetPlayerViewpointCallback(SDK::FVector* Location, SDK::F
 	if (Actors::MainTarget.LocalInfo.IsTargeting == false && Config::Aimbot::UseAimKeyForSilent) return;
 
 	if (Actors::MainTarget.GlobalInfo.TargetActor) {
+		// This function is called when calculating bullet trajectories
+		// Set the rotation to the target aimbot rotation
 		*Rotation = Actors::MainTarget.LocalInfo.TargetRotationWithSmooth;
 	}
 }

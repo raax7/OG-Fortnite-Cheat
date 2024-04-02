@@ -102,6 +102,16 @@ namespace SDK {
 
 			namespace FortPickup {
 				inline uintptr_t PrimaryPickupItemEntry = -0x1;
+				inline uintptr_t PickupEffectBlueprint = -0x1;
+			}
+
+			namespace AB_Pickups_Parent_C {
+				inline uintptr_t Static_Mesh_Pickup = -0x1;
+				inline uintptr_t Skeletal_Mesh_Pickup = -0x1;
+			}
+
+			namespace FortPickupEffect {
+				inline uintptr_t ItemDefinition = -0x1;
 			}
 
 			namespace FortWeapon {
@@ -111,6 +121,10 @@ namespace SDK {
 				inline uintptr_t LastFireTimeVerified = -0x1;
 
 				inline uintptr_t bIgnoreTryToFireSlotCooldownRestriction = -0x1;
+
+				inline uintptr_t AmmoCount = -0x1;
+
+				inline uintptr_t AllWeaponMeshes = -0x1;
 			}
 
 			namespace FortItemDefinition {
@@ -222,6 +236,7 @@ namespace SDK {
 		namespace Functions {
 			namespace SceneComponent {
 				inline void* SetPhysicsLinearVelocity = nullptr;
+				inline void* CreateDynamicMaterialInstance = nullptr;
 			}
 
 			namespace PrimitiveComponent {
@@ -269,6 +284,10 @@ namespace SDK {
 				inline void* SetScalarParameterValue = nullptr;
 			}
 
+			namespace MaterialInterface {
+				inline void* GetBaseMaterial = nullptr;
+			}
+
 			namespace KismetMathLibrary {
 				inline void* FindLookAtRotation = nullptr;
 				inline void* GetForwardVector = nullptr;
@@ -307,6 +326,7 @@ namespace SDK {
 			namespace FortWeapon {
 				inline void* IsProjectileWeapon = nullptr;
 				inline void* GetProjectileSpeed = nullptr;
+				inline void* GetBulletsPerClip = nullptr;
 			}
 
 			namespace FortPlayerPawn {
@@ -322,6 +342,9 @@ namespace SDK {
 			inline uintptr_t LineTraceSingle = 0x0;
 			inline uintptr_t CalculateShot = 0x0;
 			inline uintptr_t RaycastMulti = 0x0;
+			inline uintptr_t Fire = 0x0;
+			inline uintptr_t EditSelectRelease = 0x0;
+			inline uintptr_t CompleteBuildingEditInteraction = 0x0;
 		}
 
 		namespace Masks {

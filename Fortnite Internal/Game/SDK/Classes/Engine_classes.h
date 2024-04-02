@@ -21,6 +21,12 @@ namespace SDK {
 
 	class UMaterialInterface : public UObject {
 	public:
+		// FUNCTIONS
+
+		class UMaterial* GetBaseMaterial();
+
+
+
 		// STATIC FUNCTIONS
 
 		static UClass* StaticClass();
@@ -110,6 +116,8 @@ namespace SDK {
 	public:
 		// FUNCTIONS
 
+		UMaterialInstanceDynamic* CreateDynamicMaterialInstance(int32 ElementIndex, class UMaterialInterface* SourceMaterial, class FName OptionalName);
+
 		void SetMaterial(int32 ElementIndex, UMaterialInterface* Material);
 	};
 	class UMovementComponent : public UObject {
@@ -162,6 +170,12 @@ namespace SDK {
 		// FUNCTIONS
 
 		TArray<UMaterialInterface*> GetMaterials();
+
+
+
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
 	};
 	class USkeletalMesh : public UObject {
 	public:
@@ -194,6 +208,10 @@ namespace SDK {
 		// WRAPPER FUNCTIONS
 
 		FVector GetBonePosition(uint8_t BoneID);
+	};
+	class UStaticMeshComponent : public UMeshComponent {
+	public:
+
 	};
 	class USkeletalMeshComponentBudgeted : public USkeletalMeshComponent
 	{
@@ -472,18 +490,6 @@ namespace SDK {
 
 	// Wrapper Functions
 
-	/*
-	* @brief Gets the UMaterial used for chams
-	*
-	* @return The UMaterial used for chams
-	*/
-	UMaterial* GetChamsMaterial();
-	/*
-	* @brief Gets the UMaterialInstanceDynamic used for chams
-	* 
-	* @return The UMaterialInstanceDynamic used for chams
-	*/
-	UMaterialInstanceDynamic* GetChamsMaterialDynamic();
 	/*
 	* @brief Wrapper for K2_Project
 	*

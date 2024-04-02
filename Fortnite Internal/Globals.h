@@ -39,7 +39,7 @@
 #define UNLOAD_THREAD		TRUE	// Allows the cheat to be unloaded (will only work if DLL is injected as valid module)
 // Both of these settings will require a thread to be created, and will be a major detection vector (most of the time)!
 
-inline HMODULE ThisModule = nullptr;// The current module handle
+inline HMODULE CurrentModule = nullptr;// The current module handle
 
 
 

@@ -18,7 +18,8 @@ namespace Features {
 
 				NONE = 4,
 			};
-		private:
+
+		protected:
 			// Information about the target, not relative to any player
 			struct GlobalTargetInfo {
 				// General information
@@ -56,13 +57,16 @@ namespace Features {
 				int CurrentFOVSizePixels = 0;												// The current FOV size in pixels
 				float CurrentSmoothing = 0;													// The current smoothing
 			};
+
 		public:
 			// Target information
 			GlobalTargetInfo GlobalInfo{};		// Information about the target, not relative to any player
 			LocalTargetInfo LocalInfo{};		// Information about the target, relative to the local player
-		private:
+
+		protected:
 			/* Update the FOV, smoothing and type of the target */
 			static void UpdateLocalInfoAndType(Target& TargetToUpdate);
+
 		public:
 			/* Reset the target data to default values */
 			virtual void ResetTarget();
@@ -88,12 +92,6 @@ namespace Features {
 			* @param ForceSetTarget - Should the target be set regardless
 			*/
 			virtual void SetTarget(Target NewTarget, bool ForceSetTarget = false);
-
-
-
-			// Allow access to private functions like UpdateLocalInfoAndType
-			friend class PlayerTarget;
-			friend class WeakSpotTarget;
 		};
 
 

@@ -6,6 +6,8 @@
 
 #include "../External-Libs/LazyImporter.h"
 
+#include "../Utilities/Logger.h"
+
 // Huge thanks to Dumper-7 for making this possible
 // Without their open source dumper I wouldn't have been able to do this
 // Pretty much all of this is pasted from Dumper-7, so make sure to check out his amazing work
@@ -51,6 +53,26 @@ namespace Memory {
 		PIMAGE_NT_HEADERS NtHeader = reinterpret_cast<PIMAGE_NT_HEADERS>(ImageBase + reinterpret_cast<PIMAGE_DOS_HEADER>(ImageBase)->e_lfanew);
 
 		return Address > ImageBase && Address < (NtHeader->OptionalHeader.SizeOfImage + ImageBase);
+	}
+
+	template<typename StringType>
+	size_t GetStringLen(StringType str) {
+		if constexpr (std::is_same<StringType, const char*>::value) {
+			return std::strlen(str);
+		}
+		else if constexpr (std::is_same<StringType, const wchar_t*>::value) {
+			return std::wcslen(str);
+		}
+	}
+
+	template<typename StringType>
+	int CompareStrings(StringType str1, StringType str2, size_t len) {
+		if constexpr (std::is_same<StringType, const char*>::value) {
+			return std::strncmp(str1, str2, len);
+		}
+		else if constexpr (std::is_same<StringType, const wchar_t*>::value) {
+			return std::wcsncmp(str1, str2, len);
+		}
 	}
 
 	static inline void* FindPatternInRange(std::vector<int>&& Signature, uint8_t* Start, uintptr_t Range, bool bRelative = false, uint32_t Offset = 0, int SkipCount = 0)
@@ -167,6 +189,27 @@ namespace Memory {
 		return nullptr;
 	}
 
+	template<typename Type = const char*>
+	inline uint8_t* find_string_very_gay_fix_later_69(Type RefStr, uint8_t* SearchStart, DWORD SearchRange) {
+		for (int i = 0; i < (int)SearchRange; i++)
+		{
+			if ((SearchStart[i] == uint8_t(0x4C) || SearchStart[i] == uint8_t(0x48)) && SearchStart[i + 1] == uint8_t(0x8D))
+			{
+				const uint8_t* StrPtr = *(int32_t*)(SearchStart + i + 3) + 7 + SearchStart + i;
+
+				if (!IsInProcessRange((uintptr_t)StrPtr))
+					continue;
+
+				if (strcmp((const char*)RefStr, (const char*)StrPtr) == 0)
+				{
+					return { SearchStart + i };
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
 	template<int Alignement = 4, typename T>
 	inline int32_t FindOffset(std::vector<std::pair<void*, T>>& ObjectValuePair, int MinOffset = 0x28, int MaxOffset = 0x1A0)
 	{
@@ -264,5 +307,10 @@ namespace Memory {
 		uintptr_t FuncEnd = (uintptr_t)FindFunctionEnd(Address);
 
 		return FuncEnd % 0x10 != 0 ? FuncEnd + (0x10 - (FuncEnd % 0x10)) : FuncEnd;
+	}
+
+	inline uintptr_t ResolveRelativeAddress(uintptr_t Address, int Offset)
+	{
+		return Address + Offset + 4 + *(int32_t*)(Address + Offset);
 	}
 }

@@ -178,12 +178,11 @@ void Drawing::Rect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, flo
 }
 void Drawing::CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenSize, float Thickness, SDK::FLinearColor RenderColor, bool Outlined) {
 	std::lock_guard<std::mutex> Lock(DrawingMutex);
-	float LineW = ScreenSize.X / 4;
-	float LineH = ScreenSize.Y / 4;
+	float LineW = ScreenSize.X / 4.f;
+	float LineH = ScreenSize.Y / 4.f;
 
-	float Correction = Thickness;
-	Correction -= 2.f;
-	Correction *= -1;
+	float Correction = Thickness / 2.f;
+	Correction *= -1.f;
 
 	auto Cache = std::make_unique<BatchLineCache>();
 

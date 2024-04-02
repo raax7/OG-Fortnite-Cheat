@@ -12,6 +12,9 @@ namespace Actors {
 			SDK::AFortPawn*					FortPawn = nullptr;					// FortPawn
 			SDK::USkeletalMeshComponent*	Mesh = nullptr;						// Player mesh
 
+			SDK::AFortWeapon*				Weapon = nullptr;					// Player weapon
+			int32							BulletsPerClip = 0;					// Weapon tier
+
 			int								TeamIndex = -1;						// Team index
 			SDK::FString					PlayerName = SDK::FString();		// Player name
 

@@ -74,7 +74,7 @@ void Features::Aimbot::Target::ResetTarget() {
 	}
 }
 void Features::Aimbot::Target::TargetTick(bool SeenTargetThisFrame) {
-	// Resets if:
+	// Reset if:
 	// - The target wasn't seen this frame
 	// - The target is outside of the FOV circle in pixels and is on the screen
 	// - The target is outside of the FOV circle in degrees and is NOT on the screen
@@ -134,8 +134,8 @@ bool Features::Aimbot::Target::ShouldSetTarget(Target PotentialTarget) {
 			return false;
 		}
 
-		float CurrentDistance;
-		float PotentialTargetDistance;
+		float CurrentDistance = 0.f;
+		float PotentialTargetDistance = 0.f;
 
 		// Get the distance based off the target distance types
 		switch (Config::Aimbot::TargettingType) {
@@ -179,7 +179,7 @@ void Features::Aimbot::Target::SetTarget(Target NewTarget, bool ForceSetTarget) 
 void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Caches::FortPawnCache& TargetCache, const Actors::Caches::CameraCache& MainCamera, const Actors::Caches::CameraCache& AimbotCamera, const float FPSScale) {
 	// Update global information
 	Target.GlobalInfo.TargetActor = TargetCache.FortPawn;
-	Target.GlobalInfo.TargetBoneId = Features::FortPawnHelper::Bone::FindBestBone(Features::FortPawnHelper::Bone::Head, TargetCache, Config::Aimbot::VisibleCheck);
+	Target.GlobalInfo.TargetBoneId = Features::FortPawnHelper::Bone::FindBestBone(Features::FortPawnHelper::Bone::Head, TargetCache, (Config::Aimbot::VisibleCheck && Config::Aimbot::BulletTP == false && Config::Aimbot::BulletTPV2 == false));
 
 	// Determine target type
 	Target.GlobalInfo.Type = (Target.LocalInfo.DistanceFromPlayer <= Config::Aimbot::CloseAim::Range && Config::Aimbot::CloseAim::Enabled) ? Target::TargetType::ClosePlayer : Target::TargetType::FarPlayer;

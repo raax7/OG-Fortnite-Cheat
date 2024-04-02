@@ -10,19 +10,28 @@
 #include "../Utilities/Error.h"
 
 #include "../Configs/Config.h"
-#include "RaaxDx/minhook/include/MinHook.h"
+#include "../External-Libs/minhook/include/MinHook.h"
 
 template <typename T>
 Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void* Hook) {
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Create VFTHook called")));
 
-	DWORD OldProtection{};
-	LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
+	DWORD OldProtection = 0;
+
+	BOOL ProtectSucceeded = LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
+	if (ProtectSucceeded == FALSE) {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook VFTIndex: ")) + std::to_string(VFTIndex));
+		return;
+	}
 
 	Original = reinterpret_cast<T>(VFT[VFTIndex]);
 	VFT[VFTIndex] = Hook;
 
-	LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
+	ProtectSucceeded = LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
+	if (ProtectSucceeded == FALSE) {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor VFTIndex: ")) + std::to_string(VFTIndex));
+		return;
+	}
 
 	this->VFT = VFT;
 	this->VFTIndex = VFTIndex;
@@ -33,17 +42,26 @@ Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void*
 Hooks::VFTHook::~VFTHook() {
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Destroy VFTHook called")));
 
-	if (!VFT || !Original) {
+	if (VFT == nullptr || Original == nullptr) {
 		DEBUG_LOG(LOG_INFO, std::string(skCrypt("Failed to destroy hook! VFT or Original is nullptr")));
 		return;
 	}
 
-	DWORD OldProtection{};
-	LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
+	DWORD OldProtection = 0;
+
+	BOOL ProtectSucceeded = LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
+	if (ProtectSucceeded == FALSE) {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor VFTIndex: ")) + std::to_string(VFTIndex));
+		return;
+	}
 
 	VFT[VFTIndex] = Original;
 
-	LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
+	ProtectSucceeded = LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
+	if (ProtectSucceeded == FALSE) {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor VFTIndex: ")) + std::to_string(VFTIndex));
+		return;
+	}
 
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked VFTIndex: ")) + std::to_string(VFTIndex));
 }
@@ -70,7 +88,7 @@ void Hooks::Init() {
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Hooks Initialized!")));
 }
 void Hooks::Tick() {
-	if (Config::Aimbot::SilentAim && SDK::Cached::VFT::GetPlayerViewpoint != 0x0 && SDK::Cached::VFT::GetViewpoint != 0x0) {
+	if (Config::Aimbot::SilentAim && SDK::Cached::VFT::GetPlayerViewpoint && SDK::Cached::VFT::GetViewpoint) {
 		SDK::APlayerController* PlayerController = SDK::GetLocalController();
 		if ((Hooks::GetPlayerViewpoint::Hook == nullptr || (Hooks::GetPlayerViewpoint::PlayerControllerHooked != PlayerController && PlayerController))
 			&& PlayerController->IsA(SDK::AFortPlayerController::StaticClass()) && SDK::GetLocalPawn()) {
@@ -179,6 +197,40 @@ void Hooks::Tick() {
 			Hooks::RaycastMulti::RaycastMultiOriginal = nullptr;
 
 			DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked RaycastMulti!")));
+		}
+	}
+	if (SDK::Cached::Functions::EditSelectRelease) {
+		if (Config::Exploits::Player::EditOnRelease && Hooks::EditSelectRelease::Hooked == false) {
+			Hooks::EditSelectRelease::Hooked = true;
+
+			MH_STATUS CreateEditSelectReleaseHook = MH_CreateHook((void*)(SDK::Cached::Functions::EditSelectRelease + SDK::GetBaseAddress()), &Hooks::EditSelectRelease::EditSelectRelease, (void**)&Hooks::EditSelectRelease::EditSelectReleaseOriginal);
+			if (CreateEditSelectReleaseHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook EditSelectRelease! Create Status: ")) + std::to_string(CreateEditSelectReleaseHook));
+			}
+
+			MH_STATUS EnableEditSelectReleaseHook = MH_EnableHook((void*)(SDK::Cached::Functions::EditSelectRelease + SDK::GetBaseAddress()));
+			if (EnableEditSelectReleaseHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook EditSelectRelease! Enable Status: ")) + std::to_string(EnableEditSelectReleaseHook));
+			}
+
+			DEBUG_LOG(LOG_INFO, std::string(skCrypt("Hooked EditSelectRelease!")));
+		}
+		else if (Config::Exploits::Player::EditOnRelease == false && Hooks::EditSelectRelease::Hooked) {
+			Hooks::EditSelectRelease::Hooked = false;
+
+			MH_STATUS DisableEditSelectReleaseHook = MH_DisableHook((void*)(SDK::Cached::Functions::EditSelectRelease + SDK::GetBaseAddress()));
+			if (DisableEditSelectReleaseHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to unhook EditSelectRelease! Disable Status: ")) + std::to_string(DisableEditSelectReleaseHook));
+			}
+
+			MH_STATUS RemoveEditSelectReleaseHook = MH_RemoveHook((void*)(SDK::Cached::Functions::EditSelectRelease + SDK::GetBaseAddress()));
+			if (RemoveEditSelectReleaseHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to unhook EditSelectRelease! Remove Status: ")) + std::to_string(RemoveEditSelectReleaseHook));
+			}
+
+			Hooks::EditSelectRelease::EditSelectReleaseOriginal = nullptr;
+
+			DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked EditSelectRelease!")));
 		}
 	}
 }
