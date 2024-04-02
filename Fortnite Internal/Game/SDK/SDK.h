@@ -345,6 +345,7 @@ namespace SDK {
 			inline uintptr_t Fire = 0x0;
 			inline uintptr_t EditSelectRelease = 0x0;
 			inline uintptr_t CompleteBuildingEditInteraction = 0x0;
+			inline uintptr_t ShouldReplicateFunction = 0x0;
 		}
 
 		namespace Masks {

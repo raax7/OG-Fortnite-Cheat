@@ -598,6 +598,23 @@ void SDKInitializer::InitCompleteBuildingEditInteraction() {
 	THROW_ERROR(std::string(skCrypt("Failed to find CompleteBuildingEditInteraction!")), false);
 }
 
+void SDKInitializer::InitShouldReplicateFunction()
+{
+	uintptr_t ShouldReplicateFunctionAddress = 0x0;
+
+	//Pattern Scan for the Function Directly
+	ShouldReplicateFunctionAddress = Memory::PatternScan(SDK::GetBaseAddress(), skCrypt("48 85 D2 74 28 4C 8B 82")); //7.40 8.51
+	if (ShouldReplicateFunctionAddress) {
+		SDK::Cached::Functions::ShouldReplicateFunction = ShouldReplicateFunctionAddress;
+		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("ShouldReplicateFunction offset found: ")) + std::to_string(uintptr_t(SDK::Cached::Functions::ShouldReplicateFunction - SDK::GetBaseAddress())));
+		return;
+	}
+	//XRefs
+	ShouldReplicateFunctionAddress = Memory::PatternScan(SDK::GetBaseAddress(), skCrypt("E8 ? ? ? ? 84 C0 75 2D 48 85"), 1, true); //7.40
+
+	THROW_ERROR(std::string(skCrypt("Failed to find InitShouldReplicateFunction!")), false);
+}
+
 void SDKInitializer::InitGObjects() {
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Searching for GObjects...")));
 

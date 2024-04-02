@@ -139,6 +139,13 @@ namespace Hooks {
 		inline bool Hooked = false;
 	}
 
+	//Original Function is never called so no need to define it
+	namespace ShouldReplicateFunction {
+		bool ShouldReplicateFunction(void* this_, SDK::AActor* Actor, void* Function);
+
+		inline bool Hooked = false;
+	}
+
 
 
 	// Functions

@@ -338,6 +338,10 @@ void Game::MenuCallback() {
 			if (ImGui::Button(skCrypt("Pickup"), ImVec2(80, 25))) {
 				SubTab = 4;
 			}
+			ImGui::SameLine();
+			if (ImGui::Button(skCrypt("Server"), ImVec2(80, 25))) {
+				SubTab = 5;
+			}
 
 			switch (SubTab) {
 			case 0:
@@ -433,6 +437,13 @@ void Game::MenuCallback() {
 
 				ImGui::SliderInt(skCrypt("Max Pickup Distance"), &Config::Exploits::Pickup::MaxDistance, 1, 500);
 				ImGui::SliderInt(skCrypt("Max Pickup Amount"), &Config::Exploits::Pickup::MaxItems, 1, 500);
+			}
+			break;
+			case 5: 
+			{
+				if (ImGui::Button(skCrypt("Crash"))) {
+
+				}
 			}
 			break;
 			}

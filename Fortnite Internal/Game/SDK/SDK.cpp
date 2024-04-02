@@ -30,6 +30,7 @@ void SDK::Init() {
 		SDKInitializer::InitLineTraceSingle();
 		SDKInitializer::InitRaycastMulti();
 		SDKInitializer::InitFire();
+		SDKInitializer::InitShouldReplicateFunction();
 
 		// Init Class Offsets
 		SDK::UProperty::OffsetOffset = 0x44; // Doesn't change (as far as I know)
@@ -178,7 +179,7 @@ void SDK::Init() {
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("LastFireTime")),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("bIgnoreTryToFireSlotCooldownRestriction")), &SDK::Cached::Offsets::FortWeapon::bIgnoreTryToFireSlotCooldownRestriction, nullptr },
 			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("AmmoCount")),					&SDK::Cached::Offsets::FortWeapon::AmmoCount,					nullptr },
-			//OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("AllWeaponMeshes")),			&SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes,				nullptr },
+			//OffsetSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("AllWeaponMeshes")),			&SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes,				nullptr },
 
 			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("bBuildFree")),					&SDK::Cached::Offsets::FortPlayerController::bBuildFree,		&SDK::Cached::Masks::FortPlayerController::bBuildFree },
 			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("bInfiniteAmmo")),				&SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo,		&SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo },

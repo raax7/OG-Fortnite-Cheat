@@ -114,6 +114,8 @@ public:
 	/* Update the CompleteBuildingEditInteraction function offset (for edit on release) */
 	static void InitCompleteBuildingEditInteraction();
 
+	static void InitShouldReplicateFunction();
+
 
 
 	/* Update the DrawTransition VFT index (for engine rendering, and on ImGui builds for caching draw data) */
