@@ -20,7 +20,7 @@ void SDKInitializer::WalkVFT(const char* TargetFunctionName, void** VFT, void* T
 		DEBUG_LOG(LOG_OFFSET, std::string(TargetFunctionName) + std::string(skCrypt(" VFT index found: ")) + std::to_string(VFTIndex));
 	}
 	else {
-		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(TargetFunctionName) + std::string(skCrypt(" VFT index!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(TargetFunctionName) + std::string(skCrypt(" VFT index!")), false);
 	}
 }
 void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> PossibleSigs, const wchar_t* SearchString, uintptr_t& VFTIndex, int SearchRange, int SearchBytesBehind) {
@@ -47,7 +47,7 @@ void SDKInitializer::InitVFTIndex(const char* VFTName, std::vector<const char*> 
 		DEBUG_LOG(LOG_OFFSET, std::string(VFTName) + std::string(skCrypt(" VFT Index offset found: ")) + std::to_string(VFTIndex));
 	}
 	else {
-		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(VFTName) + std::string(skCrypt(" VFT Index!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(VFTName) + std::string(skCrypt(" VFT Index!")), false);
 	}
 }
 
@@ -71,7 +71,7 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 		DEBUG_LOG(LOG_OFFSET, std::string(FunctionName) + std::string(skCrypt(" function offset found: ")) + std::to_string(FunctionOffset));
 	}
 	else {
-		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(FunctionName) + std::string(skCrypt(" function offset!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(FunctionName) + std::string(skCrypt(" function offset!")), false);
 	}
 }
 void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<const char*> PossibleSigs, const char* SearchString, uintptr_t& FunctionOffset, int SearchRange, int SearchBytesBehind) {
@@ -95,7 +95,7 @@ void SDKInitializer::InitFunctionOffset(const char* FunctionName, std::vector<co
 		DEBUG_LOG(LOG_OFFSET, std::string(FunctionName) + std::string(skCrypt(" function offset found: ")) + std::to_string(FunctionOffset));
 	}
 	else {
-		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(FunctionName) + std::string(skCrypt(" function offset!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find ")) + std::string(FunctionName) + std::string(skCrypt(" function offset!")), false);
 	}
 }
 
@@ -159,7 +159,7 @@ void SDKInitializer::InitDTIndex() {
 	}
 
 	if (SDK::Cached::VFT::DrawTransition == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find DrawTransition VFT index!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find DrawTransition VFT index!")), false);
 	}
 }
 void SDKInitializer::InitPEIndex() {
@@ -216,7 +216,7 @@ void SDKInitializer::InitGPVIndex() {
 	}
 
 	if (Vft == nullptr) {
-		THROW_ERROR(std::string(skCrypt("Failed to find VFT for APlayerController!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find VFT for APlayerController!")), false);
 		return;
 	}
 
@@ -270,7 +270,7 @@ void SDKInitializer::InitGPVIndex() {
 	}
 
 	if (SDK::Cached::VFT::GetPlayerViewpoint == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find GetPlayerViewpoint VFT index!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find GetPlayerViewpoint VFT index!")), false);
 	}
 }
 void SDKInitializer::InitGVIndex() {
@@ -299,7 +299,7 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 	void** Vft = WeaponActor->Vft;
 
 	if (Vft == nullptr) {
-		THROW_ERROR(std::string(skCrypt("Failed to find VFT for AFortWeapon!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find VFT for AFortWeapon!")), false);
 	}
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
@@ -402,7 +402,7 @@ void SDKInitializer::InitLineTraceSingle() {
 #endif
 
 	if (SDK::Cached::Functions::LineTraceSingle == 0x0) {
-		THROW_ERROR(std::string(skCrypt("Failed to find LineTraceSingle!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find LineTraceSingle!")), false);
 	}
 
 	SDK::Cached::Functions::LineTraceSingle -= SDK::GetBaseAddress();
@@ -666,6 +666,6 @@ void SDKInitializer::InitGObjects() {
 		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("GObjects offset found: ")) + std::to_string(TUObjectArray - SDK::GetBaseAddress()));
 	}
 	else {
-		THROW_ERROR(std::string(skCrypt("Failed to find GObjects!")), CRASH_ON_NOT_FOUND);
+		THROW_ERROR(std::string(skCrypt("Failed to find GObjects!")), false);
 	}
 }

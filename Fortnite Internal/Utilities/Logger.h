@@ -24,7 +24,7 @@ private:
     }
 
     static std::string GetFileName(const char* FilePath) {
-        if (!FilePath) {
+        if (FilePath == nullptr) {
             return "";
         }
 

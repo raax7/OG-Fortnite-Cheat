@@ -239,7 +239,7 @@ namespace SDK {
 				Output += MissingFunctions;
 			}
 			
-			THROW_ERROR(std::string(skCrypt("Failed to find all offsets and functions!\n\n")) + Output, CRASH_ON_NOT_FOUND);
+			THROW_ERROR(std::string(skCrypt("Failed to find all offsets and functions!\n\n")) + Output, false);
 		}
 
 		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Setup objects!")));

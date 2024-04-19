@@ -57,9 +57,6 @@
 #define USING_SEH			TRUE	// Enables the use of SEH (Structured Exception Handler) for verifying if a pointer is valid
 #define SEASON_20_PLUS		FALSE	// REQUIRED ON SEASON 20 AND FORWARD! Enables the use of doubles instead of floats on structures like FVector, FRotator etc. Changes a few other structures too
 
-#define SHOW_MESSAGE_BOX	TRUE	// Enables the display of error message boxes using MessageBoxA
-#define CRASH_ON_NOT_FOUND	FALSE	// Crashes the game when an offset/VFT index is not found
-
 #define NAME_DUMP			FALSE	// Dumps all FNames to the log
 #define OBJECT_DUMP			FALSE	// Dumps all UObjects to the log
 
