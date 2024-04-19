@@ -7,7 +7,7 @@ namespace Config {
 	namespace Aimbot {
 		inline bool Enabled = true;
 
-		inline KeyName AimKey = (KeyName)7;
+		inline KeyName AimKey = (KeyName)7; // 7 is RMB
 
 		inline bool BulletTP = false;
 		inline bool BulletTPV2 = false;
@@ -23,6 +23,7 @@ namespace Config {
 
 		inline ConfigTypes::AimbotType TargettingType = ConfigTypes::AimbotType::Smart;
 
+#if 0 // adding this later
 		namespace TriggerBot {
 			inline bool Enabled = true;
 			inline bool DisableVisibleCheck = false;
@@ -34,6 +35,7 @@ namespace Config {
 			// 0: hold
 			// 1: toggle
 		}
+#endif
 
 
 
@@ -63,9 +65,6 @@ namespace Config {
 
 			namespace OffScreenIndicators {
 				inline bool Enabled = true;
-
-				//inline bool ShowDistance = true;
-				//inline bool ShowName = true;
 
 				inline bool CopyAimbotFOV = false;
 
@@ -112,6 +111,7 @@ namespace Config {
 
 		namespace Player {
 			inline bool EditOnRelease = false;
+			inline bool DisablePreEdits = false;
 
 			inline bool ZiplineFly = false;
 

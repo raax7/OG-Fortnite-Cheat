@@ -52,6 +52,7 @@ namespace Features {
 				SDK::FRotator TargetRotation = SDK::FRotator(0, 0, 0);						// The target rotation to aimbot the target
 				SDK::FRotator TargetRotationWithSmooth = SDK::FRotator(0, 0, 0);			// The target rotation to aimbot the target with smoothing applied
 				SDK::FRotator TargetRotationChange = SDK::FRotator(0, 0, 0);				// The current rotation change required to achieve the target rotation
+				SDK::FRotator TargetRotationChangeWithSmooth = SDK::FRotator(0, 0, 0);		// The current rotation change required to achieve the target rotation with smoothing applied
 
 				int CurrentFOVSizeDegrees = 0;												// The current FOV size in degrees
 				int CurrentFOVSizePixels = 0;												// The current FOV size in pixels

@@ -274,6 +274,16 @@ namespace SDK {
 			return (APlayerCameraManager*)(*(uintptr_t*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::PlayerCameraManager));
 		}
 
+		float InputYawScale() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::PlayerController::InputYawScale == -0x1) return 0.f;
+			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::InputYawScale);
+		}
+
+		float InputPitchScale() {
+			if (SDK::IsValidPointer(this) == false || SDK::Cached::Offsets::PlayerController::InputPitchScale == -0x1) return 0.f;
+			return *(float*)((uintptr_t)this + SDK::Cached::Offsets::PlayerController::InputPitchScale);
+		}
+
 
 
 		// FUNCTIONS
@@ -281,6 +291,10 @@ namespace SDK {
 		void ClientSetRotation(FRotator& NewRotation, bool bResetCamera);
 
 		void SetControlRotation(FRotator NewRotation);
+
+		void AddYawInput(float Val);
+
+		void AddPitchInput(float Val);
 
 		bool WasInputKeyJustReleased(FKey& Key);
 
@@ -510,14 +524,13 @@ namespace SDK {
 	* @brief Wrapper for LineTraceSingle
 	*
 	* @param WorldContextObject - The world context object
-	* @param Start - The start of the line trace
-	* @param End - The end of the line trace
+	* @param TargetPosition - The end of the line trace
 	* @param TraceChannel - The trace channel
 	* @param ActorToIgnore - The actor to ignore (optional)
 	*
 	* @return Whether the line trace hit something
 	*/
-	bool IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore = nullptr, SDK::AActor* ActorToIgnore2 = nullptr);
+	bool IsPositionVisible(SDK::UObject* WorldContextObj, FVector TargetPosition, SDK::AActor* ActorToIgnore = nullptr, SDK::AActor* ActorToIgnore2 = nullptr);
 	/*
 	* @brief Get the game version
 	*

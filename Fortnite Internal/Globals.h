@@ -4,6 +4,37 @@
 // ALL POTENTIAL DETECTION VECTORS ARE MARKED WITH A COMMENT!
 // IF YOU WANT TO AVOID DETECTION, YOU SHOULD DISABLE THEM!
 
+////////////////////////////////////////////////////////////////
+// Settings for different types of injection methods
+// 
+// Windows Injection (i.e. LoadLibrary, CreateRemoteThread, etc)
+/*
+* Enable USING_SEH (recommended)
+* Disable LOAD_D3DCOMPILER_47 (recommended)
+* 
+* Properties -> C/C++ -> Code Generation -> Enable C++ Exceptions -> Yes (/EHsc)				(recommended)
+* Properties -> C/C++ -> Code Generation -> Security Check -> Enable Security Check (/GS)		(recommended)
+* Properties -> C/C++ -> Code Generation -> Runtime Library -> Multi-threaded (/MT)				(recommended)
+*/
+// 
+// 
+// 
+// Manual Mapping (i.e. VirtualAllocEx, WriteProcessMemory, ZwAllocateVirtualMemory, MmCopyVirtualMemory, etc)
+/*
+* Disable USING_SEH (REQUIRED)
+* Disable INIT_THREAD (recommended)
+* Disable UNLOAD_THREAD (REQUIRED)
+* Enable LOAD_D3DCOMPILER_47 (REQUIRED)
+* 
+* Properties -> C/C++ -> Code Generation -> Enable C++ Exceptions -> No						(REQUIRED)
+* Properties -> C/C++ -> Code Generation -> Security Check -> Disable Security Check (/GS-)	(REQUIRED)
+* Properties -> C/C++ -> Code Generation -> Runtime Library -> Multi-threaded (/MT)			(REQUIRED unless your injector handles and maps ApiSet dependencies)
+* Properties -> C/C++ -> Command Line -> Additional Options -> /Zc:threadSafeInit- 			(REQUIRED)
+*/
+////////////////////////////////////////////////////////////////
+
+
+
 
 
 #define LOG_NONE 0					// No logs
@@ -17,26 +48,26 @@
 
 // Level of DEBUG_LOG to display
 #ifdef _DEBUG
-	#define LOG_LEVEL		LOG_INFO
+	#define LOG_LEVEL		LOG_ALL
+#else
+	#define LOG_LEVEL		LOG_ALL// No logs in release mode by default
 #endif // _DEBUG
-#ifdef NODEBUG
-	#define LOG_LEVEL		LOG_NONE// No logs in release mode by default
-#endif // NODEBUG
 
 // Only enable this if you are sure your injector supports SEH
-#define USING_SEH			TRUE	// Enables the use oh SEH (Structured Exception Handler) for verifying if a pointer is valid
+#define USING_SEH			TRUE	// Enables the use of SEH (Structured Exception Handler) for verifying if a pointer is valid
 #define SEASON_20_PLUS		FALSE	// REQUIRED ON SEASON 20 AND FORWARD! Enables the use of doubles instead of floats on structures like FVector, FRotator etc. Changes a few other structures too
 
-#define SHOW_MESSAGE_BOX	TRUE	// Enables the display of error message boxes
+#define SHOW_MESSAGE_BOX	TRUE	// Enables the display of error message boxes using MessageBoxA
 #define CRASH_ON_NOT_FOUND	FALSE	// Crashes the game when an offset/VFT index is not found
 
-#define NAME_DUMP			FALSE	// Dumps all FNames to a log
-#define OBJECT_DUMP			FALSE	// Dumps all UObjects to a log
+#define NAME_DUMP			FALSE	// Dumps all FNames to the log
+#define OBJECT_DUMP			FALSE	// Dumps all UObjects to the log
 
 // RISKY SETTINGS! ADVISED TO KEEP THEM DISABLED!
 // Creating a thread can add another major detection vector depending on how you inject, and how the Anti-Cheat scans for suspicous threads
 #define INIT_THREAD			TRUE	// Starts the cheat intialization in a new thread
 #define UNLOAD_THREAD		TRUE	// Allows the cheat to be unloaded (will only work if DLL is injected as valid module)
+#define LOAD_D3DCOMPILER_47 FALSE	// Loads D3DCompiler_47.dll with LoadLibraryA (required for manual mapping, since most mappers don't map dependencies)
 // Both of these settings will require a thread to be created, and will be a major detection vector (most of the time)!
 
 inline HMODULE CurrentModule = nullptr;// The current module handle
@@ -45,3 +76,5 @@ inline HMODULE CurrentModule = nullptr;// The current module handle
 
 // Compile-Time Asserts
 static_assert(LOG_LEVEL < LOG_LEVEL_MAX && LOG_LEVEL >= LOG_NONE, "Invalid log level");
+
+//static_assert(false, "Please read Globals.h and set the right configuration for you. If you are manual mapping, there are REQUIRED settings. DOUBLE CLICK ME AND REMOVE ME!");

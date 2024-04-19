@@ -14,6 +14,9 @@ namespace RaaxDx {
 		BadParams = -6,
 		UnknownError = -7,
 		WindowError = -8,
+		InitMH = -8,
+		MemoryError = -9,
+		DxNotSupported = -10,
 
 		Success = 0,
 	};

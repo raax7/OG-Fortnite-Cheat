@@ -12,7 +12,8 @@ void Features::Aimbot::AimbotTarget(Target& TargetToAimot) {
 
 		// We don't need to aimbot the target if using SilentAim or BulletTP
 		if (Config::Aimbot::SilentAim == false && Config::Aimbot::BulletTP == false && Config::Aimbot::BulletTPV2 == false) {
-			SDK::GetLocalController()->ClientSetRotation(TargetToAimot.LocalInfo.TargetRotationWithSmooth, false);
+			SDK::GetLocalController()->AddPitchInput(TargetToAimot.LocalInfo.TargetRotationChangeWithSmooth.Pitch / SDK::GetLocalController()->InputPitchScale());
+			SDK::GetLocalController()->AddYawInput(TargetToAimot.LocalInfo.TargetRotationChangeWithSmooth.Yaw / SDK::GetLocalController()->InputYawScale());
 		}
 	}
 	else {

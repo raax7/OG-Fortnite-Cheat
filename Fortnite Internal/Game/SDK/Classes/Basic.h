@@ -179,15 +179,12 @@ namespace SDK {
 		{
 			if (this == nullptr || SDK::Cached::Functions::FNameConstructor == 0x0) return;
 
-			using FNameConstructorParams = void(*)(FName*, const wchar_t*, bool);
-			static auto OriginalFNameConstructor = reinterpret_cast<FNameConstructorParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::FNameConstructor);
-			
-			if (!OriginalFNameConstructor) OriginalFNameConstructor = reinterpret_cast<FNameConstructorParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::FNameConstructor);
-			
-			OriginalFNameConstructor(this, Name, true);
-			//spoof_call<void>(OriginalFNameConstructor, this, Name, true);
+			static void(*FNameConstructor)(FName*, const wchar_t*, bool) = nullptr;
 
-			return;
+			if (!FNameConstructor)
+				FNameConstructor = reinterpret_cast<void(*)(FName*, const wchar_t*, bool)>(SDK::GetBaseAddress() + SDK::Cached::Functions::FNameConstructor);
+
+			FNameConstructor(this, Name, true);
 		}
 	public:
 		// Members of FName - depending on configuration [WITH_CASE_PRESERVING_NAME | FNAME_OUTLINE_NUMBER]
@@ -206,22 +203,17 @@ namespace SDK {
 		// GetRawString - returns an unedited string as the engine uses it
 		inline std::string GetRawString() const
 		{
-			if (this == nullptr || SDK::Cached::Functions::AppendString == 0x0) return "";
+			if (this == nullptr || SDK::Cached::Functions::AppendString == 0x0) return skCrypt("Failed!").decrypt();
 
-			thread_local FString TempString(1024);
+			static void(*AppendString)(const FName*, FString*) = nullptr;
 
-			using AppendStringParams = void(*)(FName*, FString*);
-			static auto OriginalAppendString = reinterpret_cast<AppendStringParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::AppendString);
+			if (!AppendString)
+				AppendString = reinterpret_cast<void(*)(const FName*, FString*)>(SDK::GetBaseAddress() + SDK::Cached::Functions::AppendString);
 
-			if (!OriginalAppendString) OriginalAppendString = reinterpret_cast<AppendStringParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::AppendString);
+			FString TempString;
+			AppendString(const_cast<SDK::FName*>(this), &TempString);
 
-			OriginalAppendString(const_cast<SDK::FName*>(this), &TempString);
-			//spoof_call<void>(OriginalAppendString, const_cast<SDK::FName*>(this), &TempString);
-
-			std::string OutputString = TempString.ToString();
-			TempString.ResetNum();
-
-			return OutputString;
+			return TempString.ToString();
 		}
 
 		// ToString - returns an edited string as it's used by most SDKs ["/Script/CoreUObject" -> "CoreUObject"]

@@ -10,141 +10,30 @@
 
 #ifdef _IMGUI
 #include "../External-Libs/ImGui/imgui.h"
-#endif
-#ifdef _ENGINE
+#else
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
 #endif
 #include "../Utilities/Logger.h"
 #include "Features/Visuals/Chams.h"
-
-bool MenuOpen = true;
 
 void Game::MenuCallback() {
 	if (!SDK::GetLocalPlayer()) return;
 	if (!SDK::GetLocalController()) return;
 	if (!SDK::GetEngine()) return;
 
-	if (Input::WasKeyJustReleased(Input::KeyName::Insert)) {
-		MenuOpen = !MenuOpen;
-	}
-
 	static int Tab = 0;
 	static int SubTab = 0;
 
 	static bool WaitingForKeyInput = false;
 
-#ifdef _ENGINE
-	RaaxGUI::NewFrame();
-
-	if (RaaxGUI::BeginWindow(skCrypt("Aimbot Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(300, 500))) {
-		if (RaaxGUI::Checkbox(skCrypt("Aimbot"), &Config::Aimbot::Enabled)) {
-			if (RaaxGUI::Checkbox(skCrypt("Silent Aim"), &Config::Aimbot::SilentAim)) {
-				RaaxGUI::Checkbox(skCrypt("Use Aimkey For Silent"), &Config::Aimbot::UseAimKeyForSilent);
-			}
-
-			RaaxGUI::Checkbox(skCrypt("Show Aim Line"), &Config::Aimbot::ShowAimLine);
-			RaaxGUI::Checkbox(skCrypt("Show FOV"), &Config::Aimbot::ShowFOV);
-
-			RaaxGUI::Checkbox(skCrypt("Sticky Aim"), &Config::Aimbot::StickyAim);
-			RaaxGUI::Checkbox(skCrypt("Visible Check"), &Config::Aimbot::VisibleCheck);
-
-			RaaxGUI::Checkbox(skCrypt("Standard"), &Config::Aimbot::Standard::Enabled);
-			if (Config::Aimbot::Standard::Enabled) {
-				RaaxGUI::SliderInt(skCrypt("Standard FOV"), &Config::Aimbot::Standard::FOV, 0, 180);
-				RaaxGUI::SliderFloat(skCrypt("Standard Smoothing"), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
-			}
-
-			RaaxGUI::Checkbox(skCrypt("Close Aim"), &Config::Aimbot::CloseAim::Enabled);
-			if (Config::Aimbot::CloseAim::Enabled) {
-				RaaxGUI::SliderInt(skCrypt("Close FOV"), &Config::Aimbot::CloseAim::FOV, 0, 180);
-				RaaxGUI::SliderFloat(skCrypt("Smoothing"), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
-			}
-
-			RaaxGUI::Checkbox(skCrypt("Weakspot"), &Config::Aimbot::Weakspot::Enabled);
-			if (Config::Aimbot::Weakspot::Enabled) {
-				RaaxGUI::SliderInt(skCrypt("Weakspot FOV"), &Config::Aimbot::Weakspot::FOV, 0, 180);
-				RaaxGUI::SliderFloat(skCrypt("Weakspot Smoothing"), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
-			}
-		}
+#ifdef _IMGUI
+	if (ImGui::GetIO().KeysData[ImGuiKey_Insert].DownDuration == 0.0f) {
+		MenuOpen = !MenuOpen;
 	}
-	RaaxGUI::EndWindow();
-
-	if (RaaxGUI::BeginWindow(skCrypt("Visual Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
-		RaaxGUI::Checkbox(skCrypt("Weapon ESP"), &Config::Visuals::Weapons::Enabled);
-
-		RaaxGUI::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
-		if (Config::Visuals::Players::Enabled) {
-			RaaxGUI::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
-			RaaxGUI::Checkbox(skCrypt("Skeleton"), &Config::Visuals::Players::Skeleton);
-			RaaxGUI::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
-			RaaxGUI::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
-		}
-	}
-	RaaxGUI::EndWindow();
-
-	if (RaaxGUI::BeginWindow(skCrypt("Exploit Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
-		// Sub Tabs
-		// the worlds GOOFIEST tab switcher
-		RaaxGUI::SliderInt(skCrypt("Sub Tab"), &SubTab, 0, 4);
-
-		switch (SubTab) {
-		case 0:
-		{
-			RaaxGUI::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
-		}
-		break;
-		case 1:
-		{
-			RaaxGUI::Checkbox(skCrypt("No Spread"), &Config::Exploits::Weapon::NoSpread);
-			RaaxGUI::Checkbox(skCrypt("No Recoil"), &Config::Exploits::Weapon::NoRecoil);
-			RaaxGUI::Checkbox(skCrypt("No Reload"), &Config::Exploits::Weapon::NoReload);
-			RaaxGUI::Checkbox(skCrypt("Rapid Fire"), &Config::Exploits::Weapon::RapidFire);
-			RaaxGUI::Checkbox(skCrypt("Damage Multiplier"), &Config::Exploits::Weapon::UseDamageMultiplier);
-			//ImGui::SliderFloat(skCrypt("Rapid Fire Amount"), &Config::Exploits::Weapon::RapidFireAmount, 1.f, 100.f);
-			if (Config::Exploits::Weapon::UseDamageMultiplier) {
-				RaaxGUI::SliderInt(skCrypt("Amount"), &Config::Exploits::Weapon::DamageMultiplier, 1, 100);
-			}
-		}
-		break;
-		case 2:
-		{
-			RaaxGUI::Checkbox(skCrypt("Fast Pickaxe"), &Config::Exploits::Pickaxe::FastPickaxe);
-			if (Config::Exploits::Pickaxe::FastPickaxe) {
-				//RaaxGUI::SameLine();
-				RaaxGUI::SliderFloat(skCrypt("Speed"), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
-			}
-		}
-		break;
-		case 3:
-		{
-			RaaxGUI::Checkbox(skCrypt("Infinite Boost"), &Config::Exploits::Vehicle::InfiniteBoost);
-			RaaxGUI::Checkbox(skCrypt("Fly"), &Config::Exploits::Vehicle::Fly);
-			if (Config::Exploits::Vehicle::Fly) {
-				RaaxGUI::Checkbox(skCrypt("Fly Through Walls (also makes flying better)"), &Config::Exploits::Vehicle::FlyThroughWalls);
-				RaaxGUI::Checkbox(skCrypt("Freeze In Air"), &Config::Exploits::Vehicle::FreezeInAir);
-				RaaxGUI::Checkbox(skCrypt("No Tilting"), &Config::Exploits::Vehicle::NoTilting);
-				RaaxGUI::SliderFloat(skCrypt("Fly Speed"), &Config::Exploits::Vehicle::FlySpeed, 35.f, 1000.f);
-			}
-		}
-		break;
-		case 4:
-		{
-			RaaxGUI::Checkbox(skCrypt("Prioritize Farthest Weapons"), &Config::Exploits::Pickup::PrioritizeFarthestWeapons);
-
-			RaaxGUI::Checkbox(skCrypt("Auto Pickup"), &Config::Exploits::Pickup::AutoPickup);
-			if (Config::Exploits::Pickup::AutoPickup) {
-				RaaxGUI::SliderFloat(skCrypt("Auto Pickup Delay (MS)"), &Config::Exploits::Pickup::AutoPickupDelaySecs, 0.f, 10.f);
-			}
-
-			RaaxGUI::SliderInt(skCrypt("Max Pickup Distance"), &Config::Exploits::Pickup::MaxDistance, 1, 500);
-			RaaxGUI::SliderInt(skCrypt("Max Pickup Amount"), &Config::Exploits::Pickup::MaxItems, 1, 500);
-		}
-		break;
-		}
-	}
-	RaaxGUI::EndWindow();
-
-	RaaxGUI::EndFrame();
+#else
+	if (Input::WasKeyJustReleased(Input::KeyName::Insert)) {
+		MenuOpen = !MenuOpen;
+}
 #endif
 
 #ifdef _IMGUI
@@ -263,42 +152,38 @@ void Game::MenuCallback() {
 
 				ImGui::Separator();
 
-				// GLOBAL CHAM SETTINGS (since they share the same material)
-				ImGui::Text(skCrypt("Global Chams Settings"));
-				ImGui::Checkbox(skCrypt("Wireframe"), &Config::Visuals::Players::PawnChamSettings.Wireframe);
-				ImGui::Checkbox(skCrypt("Chams Through Walls"), &Config::Visuals::Players::PawnChamSettings.ThroughWalls);
-
-				ImGui::Checkbox(skCrypt("#Wireframe"), &Config::Visuals::Weapons::PickupChamSettings.Wireframe);
-				ImGui::Checkbox(skCrypt("#Chams Through Walls"), &Config::Visuals::Weapons::PickupChamSettings.ThroughWalls);
-
-				ImGui::Separator();
-
 				ImGui::Checkbox(skCrypt("Pawn Chams"), &Config::Visuals::Players::PawnChamSettings.Enabled);
 				if (Config::Visuals::Players::PawnChamSettings.Enabled) {
-					ImGui::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::PawnChamSettings.ShowLocal);
+					ImGui::Checkbox(skCrypt("Pawn Self Chams"), &Config::Visuals::Players::PawnChamSettings.ShowLocal);
 
-					if (ImGui::ColorEdit3(skCrypt("Chams Color"), Config::Visuals::Players::PawnChamSettings.Color)) {
+					if (ImGui::ColorEdit3(skCrypt("Pawn Chams Color"), Config::Visuals::Players::PawnChamSettings.Color)) {
 						Features::Visuals::ChamManagerFortPawn::Manager->UpdateDynamicMaterialSettings();
 					}
 
-					if (ImGui::SliderFloat(skCrypt("Glow Amount"), &Config::Visuals::Players::PawnChamSettings.EmissiveIntensity, 0.f, 100.f)) {
+					if (ImGui::SliderFloat(skCrypt("Pawn Glow Amount"), &Config::Visuals::Players::PawnChamSettings.EmissiveIntensity, 0.f, 100.f)) {
 						Features::Visuals::ChamManagerFortPawn::Manager->UpdateDynamicMaterialSettings();
 					}
+
+					ImGui::Checkbox(skCrypt("Pawn Wireframe"), &Config::Visuals::Players::PawnChamSettings.Wireframe);
+					ImGui::Checkbox(skCrypt("Pawn Chams Through Walls"), &Config::Visuals::Players::PawnChamSettings.ThroughWalls);
 				}
 
 				ImGui::Separator();
 
-				ImGui::Checkbox(skCrypt("#Pickup Chams"), &Config::Visuals::Weapons::PickupChamSettings.Enabled);
+				ImGui::Checkbox(skCrypt("Pickup Chams"), &Config::Visuals::Weapons::PickupChamSettings.Enabled);
 				if (Config::Visuals::Weapons::PickupChamSettings.Enabled) {
-					if (ImGui::ColorEdit3(skCrypt("#Chams Color"), Config::Visuals::Weapons::PickupChamSettings.Color)) {
+					if (ImGui::ColorEdit3(skCrypt("Pickup Chams Color"), Config::Visuals::Weapons::PickupChamSettings.Color)) {
 						Features::Visuals::ChamManagerFortPickup::Manager->UpdateDynamicMaterialSettings();
 					}
 
-					if (ImGui::SliderFloat(skCrypt("#Glow Amount"), &Config::Visuals::Weapons::PickupChamSettings.EmissiveIntensity, 0.f, 100.f)) {
+					if (ImGui::SliderFloat(skCrypt("Pickup Glow Amount"), &Config::Visuals::Weapons::PickupChamSettings.EmissiveIntensity, 0.f, 100.f)) {
 						Features::Visuals::ChamManagerFortPickup::Manager->UpdateDynamicMaterialSettings();
 					}
 
-					ImGui::SliderInt(skCrypt("#Minimum Rarity"), (int*)&Config::Visuals::Weapons::PickupChamSettings.MinimumTier, (uint8)SDK::EFortItemTier::I, (uint8)SDK::EFortItemTier::X);
+					ImGui::SliderInt(skCrypt("Pickup Minimum Rarity"), (int*)&Config::Visuals::Weapons::PickupChamSettings.MinimumTier, (uint8)SDK::EFortItemTier::I, (uint8)SDK::EFortItemTier::X);
+
+					ImGui::Checkbox(skCrypt("Pickup Wireframe"), &Config::Visuals::Weapons::PickupChamSettings.Wireframe);
+					ImGui::Checkbox(skCrypt("Pickup Chams Through Walls"), &Config::Visuals::Weapons::PickupChamSettings.ThroughWalls);
 				}
 
 				ImGui::Separator();
@@ -347,6 +232,7 @@ void Game::MenuCallback() {
 			case 0:
 			{
 				ImGui::Checkbox(skCrypt("Edit On Release"), &Config::Exploits::Player::EditOnRelease);
+				ImGui::Checkbox(skCrypt("Disable Pre-Edits"), &Config::Exploits::Player::DisablePreEdits);
 
 				ImGui::Checkbox(skCrypt("Player Fly (Zipline)"), &Config::Exploits::Player::ZiplineFly);
 
@@ -356,7 +242,7 @@ void Game::MenuCallback() {
 
 				ImGui::Checkbox(skCrypt("ADS While Not On Ground"), &Config::Exploits::Player::ADSWhileNotOnGround);
 				ImGui::Checkbox(skCrypt("Double Pump"), &Config::Exploits::Player::DoublePump);
-			}
+}
 			break;
 			case 1:
 			{
@@ -453,12 +339,218 @@ void Game::MenuCallback() {
 
 		ImGui::End();
 	}
-#endif
+#else
+	RaaxGUI::NewFrame();
 
+	if (RaaxGUI::BeginWindow(skCrypt("Aimbot Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(300, 500))) {
+		if (RaaxGUI::Checkbox(skCrypt("Aimbot"), &Config::Aimbot::Enabled)) {
+			if (RaaxGUI::Checkbox(skCrypt("Silent Aim"), &Config::Aimbot::SilentAim)) {
+				RaaxGUI::Checkbox(skCrypt("Use Aimkey For Silent"), &Config::Aimbot::UseAimKeyForSilent);
+			}
+
+			RaaxGUI::Checkbox(skCrypt("Show Aim Line"), &Config::Aimbot::ShowAimLine);
+			RaaxGUI::Checkbox(skCrypt("Show FOV"), &Config::Aimbot::ShowFOV);
+
+			RaaxGUI::Checkbox(skCrypt("Sticky Aim"), &Config::Aimbot::StickyAim);
+			RaaxGUI::Checkbox(skCrypt("Visible Check"), &Config::Aimbot::VisibleCheck);
+
+			RaaxGUI::Checkbox(skCrypt("Standard"), &Config::Aimbot::Standard::Enabled);
+			if (Config::Aimbot::Standard::Enabled) {
+				RaaxGUI::SliderInt(skCrypt("Standard FOV"), &Config::Aimbot::Standard::FOV, 0, 180);
+				RaaxGUI::SliderFloat(skCrypt("Standard Smoothing"), &Config::Aimbot::Standard::Smoothing, 1.f, 20.f);
+			}
+
+			RaaxGUI::Checkbox(skCrypt("Close Aim"), &Config::Aimbot::CloseAim::Enabled);
+			if (Config::Aimbot::CloseAim::Enabled) {
+				RaaxGUI::SliderInt(skCrypt("Close FOV"), &Config::Aimbot::CloseAim::FOV, 0, 180);
+				RaaxGUI::SliderFloat(skCrypt("Smoothing"), &Config::Aimbot::CloseAim::Smoothing, 1.f, 20.f);
+			}
+
+			RaaxGUI::Checkbox(skCrypt("Weakspot"), &Config::Aimbot::Weakspot::Enabled);
+			if (Config::Aimbot::Weakspot::Enabled) {
+				RaaxGUI::SliderInt(skCrypt("Weakspot FOV"), &Config::Aimbot::Weakspot::FOV, 0, 180);
+				RaaxGUI::SliderFloat(skCrypt("Weakspot Smoothing"), &Config::Aimbot::Weakspot::Smoothing, 1.f, 20.f);
+			}
+		}
+	}
+	RaaxGUI::EndWindow();
+
+	if (RaaxGUI::BeginWindow(skCrypt("Visual Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
+		RaaxGUI::Checkbox(skCrypt("Weapon ESP"), &Config::Visuals::Weapons::Enabled);
+		RaaxGUI::SliderInt(skCrypt("Weapon ESP Max Distance"), &Config::Visuals::Weapons::MaxDistance, 1, 500);
+
+		//RaaxGUI::Separator();
+
+		RaaxGUI::Checkbox(skCrypt("Vehicle ESP"), &Config::Visuals::Vehicles::Enabled);
+		RaaxGUI::SliderInt(skCrypt("Vehicle ESP Max Distance"), &Config::Visuals::Vehicles::MaxDistance, 1, 500);
+
+		//RaaxGUI::Separator();
+
+		RaaxGUI::Checkbox(skCrypt("Player ESP"), &Config::Visuals::Players::Enabled);
+		if (Config::Visuals::Players::Enabled) {
+			RaaxGUI::Checkbox(skCrypt("Box"), &Config::Visuals::Players::Box);
+
+			if (Config::Visuals::Players::Box) {
+				// Fix skCrypter messing up the strings here
+				//const char* Items[] = { skCrypt("3D Full").decrypt(), skCrypt("3D Cornered").decrypt(), skCrypt("2D Full").decrypt(), skCrypt("2D Cornered").decrypt() };
+				//RaaxGUI::Combo(skCrypt("Box Type").decrypt(), (int*)&Config::Visuals::Players::BoxType, Items, 4);
+			}
+
+			RaaxGUI::Checkbox(skCrypt("Skeleton"), &Config::Visuals::Players::Skeleton);
+			RaaxGUI::Checkbox(skCrypt("Display Individual Bone Visibilities"), &Config::Visuals::Players::IndividualBoneVisibilities);
+
+			RaaxGUI::Checkbox(skCrypt("Distance"), &Config::Visuals::Players::Distance);
+			RaaxGUI::Checkbox(skCrypt("Name"), &Config::Visuals::Players::Name);
+			RaaxGUI::Checkbox(skCrypt("Current Weapon"), &Config::Visuals::Players::CurrentWeapon);
+
+			//RaaxGUI::Separator();
+
+			// GLOBAL CHAM SETTINGS (since they share the same material)
+			//RaaxGUI::Text(skCrypt("Global Chams Settings"));
+
+			//RaaxGUI::Separator();
+
+			RaaxGUI::Checkbox(skCrypt("Pawn Chams"), &Config::Visuals::Players::PawnChamSettings.Enabled);
+			if (Config::Visuals::Players::PawnChamSettings.Enabled) {
+				RaaxGUI::Checkbox(skCrypt("Pawn Wireframe"), &Config::Visuals::Players::PawnChamSettings.Wireframe);
+				RaaxGUI::Checkbox(skCrypt("Pawn Chams Through Walls"), &Config::Visuals::Players::PawnChamSettings.ThroughWalls);
+
+				RaaxGUI::Checkbox(skCrypt("Self Chams"), &Config::Visuals::Players::PawnChamSettings.ShowLocal);
+
+				//if (RaaxGUI::ColorEdit3(skCrypt("Chams Color"), Config::Visuals::Players::PawnChamSettings.Color)) {
+				//	Features::Visuals::ChamManagerFortPawn::Manager->UpdateDynamicMaterialSettings();
+				//}
+
+				if (RaaxGUI::SliderFloat(skCrypt("Pawn Glow Amount"), &Config::Visuals::Players::PawnChamSettings.EmissiveIntensity, 0.f, 100.f)) {
+					Features::Visuals::ChamManagerFortPawn::Manager->UpdateDynamicMaterialSettings();
+				}
+			}
+
+			//RaaxGUI::Separator();
+
+			RaaxGUI::Checkbox(skCrypt("Pickup Chams"), &Config::Visuals::Weapons::PickupChamSettings.Enabled);
+			if (Config::Visuals::Weapons::PickupChamSettings.Enabled) {
+				RaaxGUI::Checkbox(skCrypt("Pickup Wireframe"), &Config::Visuals::Weapons::PickupChamSettings.Wireframe);
+				RaaxGUI::Checkbox(skCrypt("Pickup Chams Through Walls"), &Config::Visuals::Weapons::PickupChamSettings.ThroughWalls);
+
+				//if (RaaxGUI::ColorEdit3(skCrypt("#Chams Color"), Config::Visuals::Weapons::PickupChamSettings.Color)) {
+				//	Features::Visuals::ChamManagerFortPickup::Manager->UpdateDynamicMaterialSettings();
+				//}
+
+				if (RaaxGUI::SliderFloat(skCrypt("Pickup Glow Amount"), &Config::Visuals::Weapons::PickupChamSettings.EmissiveIntensity, 0.f, 100.f)) {
+					Features::Visuals::ChamManagerFortPickup::Manager->UpdateDynamicMaterialSettings();
+				}
+
+				RaaxGUI::SliderInt(skCrypt("Minimum Rarity"), (int*)&Config::Visuals::Weapons::PickupChamSettings.MinimumTier, (uint8)SDK::EFortItemTier::I, (uint8)SDK::EFortItemTier::X);
+			}
+
+			//RaaxGUI::Separator();
+
+			RaaxGUI::Checkbox(skCrypt("Offscreen Indicators"), &Config::Visuals::Players::OffScreenIndicators::Enabled);
+			if (Config::Visuals::Players::OffScreenIndicators::Enabled) {
+				RaaxGUI::SliderFloat(skCrypt("Offscreen Indicator Width"), &Config::Visuals::Players::OffScreenIndicators::Width, 1.f, 50.f);
+				RaaxGUI::SliderFloat(skCrypt("Offscreen Indicator Height"), &Config::Visuals::Players::OffScreenIndicators::Height, 1.f, 50.f);
+				RaaxGUI::Checkbox(skCrypt("Offscreen Indicator Copy Aimbot FOV"), &Config::Visuals::Players::OffScreenIndicators::CopyAimbotFOV);
+
+				if (Config::Visuals::Players::OffScreenIndicators::CopyAimbotFOV == false) {
+					RaaxGUI::SliderInt(skCrypt("Offscreen Indicator FOV"), &Config::Visuals::Players::OffScreenIndicators::FOV, 1, 180);
+				}
+			}
+		}
+	}
+	RaaxGUI::EndWindow();
+
+	if (RaaxGUI::BeginWindow(skCrypt("Exploit Settings"), &MenuOpen, RaaxGUI::RaaxGUIWindowFlags_None, SDK::FVector2D(rand() % 540, rand() % 540), SDK::FVector2D(250, 350))) {
+		// Sub Tabs
+		// the worlds GOOFIEST tab switcher
+		RaaxGUI::SliderInt(skCrypt("Sub Tab"), &SubTab, 0, 4);
+
+		switch (SubTab) {
+		case 0:
+		{
+			RaaxGUI::Checkbox(skCrypt("Edit On Release"), &Config::Exploits::Player::EditOnRelease);
+			RaaxGUI::Checkbox(skCrypt("Disable Pre-Edits"), &Config::Exploits::Player::DisablePreEdits);
+
+			RaaxGUI::Checkbox(skCrypt("Player Fly (Zipline)"), &Config::Exploits::Player::ZiplineFly);
+
+			RaaxGUI::Checkbox(skCrypt("Kill All (TP everyone to you)"), &Config::Exploits::Player::KillAll);
+
+			RaaxGUI::Checkbox(skCrypt("Edit Enemy Builds"), &Config::Exploits::Player::EditEnemyBuilds);
+
+			RaaxGUI::Checkbox(skCrypt("ADS While Not On Ground"), &Config::Exploits::Player::ADSWhileNotOnGround);
+			RaaxGUI::Checkbox(skCrypt("Double Pump"), &Config::Exploits::Player::DoublePump);
+		}
+		break;
+		case 1:
+		{
+			if (SDK::Cached::Functions::CalculateShot) {
+				RaaxGUI::Checkbox(skCrypt("Bullet TP V1 (CalculateShot)"), &Config::Aimbot::BulletTP);
+			}
+			if (SDK::Cached::Functions::RaycastMulti) {
+				RaaxGUI::Checkbox(skCrypt("Bullet TP V2 (RaycastMulti)"), &Config::Aimbot::BulletTPV2);
+			}
+
+			RaaxGUI::Checkbox(skCrypt("No Spread"), &Config::Exploits::Weapon::NoSpread);
+			RaaxGUI::Checkbox(skCrypt("No Recoil"), &Config::Exploits::Weapon::NoRecoil);
+			RaaxGUI::Checkbox(skCrypt("No Reload"), &Config::Exploits::Weapon::NoReload);
+			RaaxGUI::Checkbox(skCrypt("Rapid Fire"), &Config::Exploits::Weapon::RapidFire);
+			RaaxGUI::Checkbox(skCrypt("Damage Multiplier"), &Config::Exploits::Weapon::UseDamageMultiplier);
+			//RaaxGUI::SliderFloat(skCrypt("Rapid Fire Amount"), &Config::Exploits::Weapon::RapidFireAmount, 1.f, 100.f);
+			if (Config::Exploits::Weapon::UseDamageMultiplier) {
+				RaaxGUI::SliderInt(skCrypt("Amount"), &Config::Exploits::Weapon::DamageMultiplier, 1, 100);
+			}
+		}
+		break;
+		case 2:
+		{
+			RaaxGUI::Checkbox(skCrypt("Fast Pickaxe"), &Config::Exploits::Pickaxe::FastPickaxe);
+			if (Config::Exploits::Pickaxe::FastPickaxe) {
+				//RaaxGUI::SameLine();
+				RaaxGUI::SliderFloat(skCrypt("Speed"), &Config::Exploits::Pickaxe::SpeedMultiplier, 0.f, 25.f);
+			}
+		}
+		break;
+		case 3:
+		{
+			RaaxGUI::Checkbox(skCrypt("Infinite Boost"), &Config::Exploits::Vehicle::InfiniteBoost);
+			RaaxGUI::Checkbox(skCrypt("Fly"), &Config::Exploits::Vehicle::Fly);
+			if (Config::Exploits::Vehicle::Fly) {
+				RaaxGUI::Checkbox(skCrypt("Fly Through Walls (also makes flying better)"), &Config::Exploits::Vehicle::FlyThroughWalls);
+				RaaxGUI::Checkbox(skCrypt("Freeze In Air"), &Config::Exploits::Vehicle::FreezeInAir);
+				RaaxGUI::Checkbox(skCrypt("No Tilting"), &Config::Exploits::Vehicle::NoTilting);
+				RaaxGUI::SliderFloat(skCrypt("Fly Speed"), &Config::Exploits::Vehicle::FlySpeed, 35.f, 1000.f);
+			}
+		}
+		break;
+		case 4:
+		{
+			RaaxGUI::Checkbox(skCrypt("Prioritize Farthest Weapons"), &Config::Exploits::Pickup::PrioritizeFarthestWeapons);
+
+			RaaxGUI::Checkbox(skCrypt("Auto Pickup"), &Config::Exploits::Pickup::AutoPickup);
+			if (Config::Exploits::Pickup::AutoPickup) {
+				RaaxGUI::SliderFloat(skCrypt("Auto Pickup Delay (MS)"), &Config::Exploits::Pickup::AutoPickupDelaySecs, 0.f, 10.f);
+			}
+
+			RaaxGUI::SliderInt(skCrypt("Max Pickup Distance"), &Config::Exploits::Pickup::MaxDistance, 1, 500);
+			RaaxGUI::SliderInt(skCrypt("Max Pickup Amount"), &Config::Exploits::Pickup::MaxItems, 1, 500);
+		}
+		break;
+		}
+	}
+	RaaxGUI::EndWindow();
+
+	RaaxGUI::EndFrame();
+#endif // _IMGUI
+
+	// Draw cursor
 	if (MenuOpen) {
-		// Draw cursor
+#ifdef _IMGUI
+		ImVec2 MousePos = ImGui::GetIO().MousePos;
+		ImGui::GetForegroundDrawList()->AddCircleFilled(MousePos, 5.f, IM_COL32(255, 255, 255, 255), 16);
+#else
 		SDK::FVector2D MousePos = Input::GetMousePosition();
 		Drawing::Circle(MousePos, 5.f, 16, SDK::FLinearColor(1.f, 1.f, 1.f, 1.f), true);
+#endif // _IMGUI
 	}
 }
 void Game::DrawCallback() {

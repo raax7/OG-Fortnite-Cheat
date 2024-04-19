@@ -1,48 +1,29 @@
 #include "RaaxGUIInput.h"
 #include "RaaxGUI.h"
-#include "../../Utilities/Logger.h"
 #include "../../Game/Input/Input.h"
 
+void RaaxGUIInput::NotifyDanglingPointer(RaaxGUI::Window* Window) {
+	if (ResizingWindow == Window) ClearResizingWindow(true);
+	if (DraggingWindow == Window) ClearDraggingWindow(true);
+}
+void RaaxGUIInput::NotifyDanglingPointer(RaaxGUI::Element* Element) {
+	if (ClickingElement == Element) ClearClickedElement(true);
+}
+
 void RaaxGUIInput::SetResizingWindow(RaaxGUI::Window* Window) {
+	Window->OnClickBegin(MousePosition);
+
 	RaaxGUIInput::ResizingWindow = Window;
 	RaaxGUIInput::ResizingWindowOffset = RaaxGUIInput::MousePosition - Window->Position;
 	RaaxGUIInput::ResizingWindowOriginal = Window->Position;
 	RaaxGUIInput::ResizingWindowSize = Window->Size;
 }
-void RaaxGUIInput::ClearResizingWindow() {
-	RaaxGUIInput::ResizingWindow = nullptr;
-	RaaxGUIInput::ResizingWindowOffset = SDK::FVector2D();
-	RaaxGUIInput::ResizingWindowOriginal = SDK::FVector2D();
-	RaaxGUIInput::ResizingWindowSize = SDK::FVector2D();
-}
-
-void RaaxGUIInput::SetDraggingWindow(RaaxGUI::Window* Window) {
-	RaaxGUIInput::DraggingWindow = Window;
-	RaaxGUIInput::DraggingWindowOffset = RaaxGUIInput::MousePosition - Window->Position;
-	RaaxGUIInput::DraggingWindowOriginal = Window->Position;
-	RaaxGUIInput::DraggingWindowPosition = Window->Position;
-}
-void RaaxGUIInput::ClearDraggingWindow() {
-	RaaxGUIInput::DraggingWindow = nullptr;
-	RaaxGUIInput::DraggingWindowOffset = SDK::FVector2D();
-	RaaxGUIInput::DraggingWindowOriginal = SDK::FVector2D();
-	RaaxGUIInput::DraggingWindowPosition = SDK::FVector2D();
-}
-
-void RaaxGUIInput::ProcessDraggingWindow() {
-	SDK::FVector2D PotentialNewPosition = MousePosition - DraggingWindowOffset;
-	DraggingWindow->FixWindowPosition(PotentialNewPosition);
-
-	DraggingWindow->Position = PotentialNewPosition;
-	DraggingWindowPosition = PotentialNewPosition;
-}
-
-void RaaxGUIInput::ProcessResizingWindow() {
+void RaaxGUIInput::TickResizingWindow() {
 	SDK::FVector2D PotentialNewPosition = SDK::FVector2D();
 	SDK::FVector2D PotentialNewSize = SDK::FVector2D();
 
 	switch (ResizingWindow->CurrentResizeDirection) {
-// TODO: Fix resizing
+		// TODO: Fix resizing issues when moving the mouuse fast
 #if 0
 	case RaaxGUI::ResizeDirection::TopLeft:
 		PotentialNewPosition = MousePosition - ResizingWindowOffset;
@@ -87,54 +68,148 @@ void RaaxGUIInput::ProcessResizingWindow() {
 		break;
 	}
 }
+void RaaxGUIInput::ClearResizingWindow(bool DanglingPointer) {
+	if (DanglingPointer == false) {
+		ResizingWindow->OnClickEnd();
+	}
 
-void RaaxGUIInput::Tick() {
-	MousePosition = Input::GetMousePosition();
+	RaaxGUIInput::ResizingWindow = nullptr;
+	RaaxGUIInput::ResizingWindowOffset = SDK::FVector2D();
+	RaaxGUIInput::ResizingWindowOriginal = SDK::FVector2D();
+	RaaxGUIInput::ResizingWindowSize = SDK::FVector2D();
+}
 
-	// Handle window order and dragging
-	if (Input::IsKeyDown(Input::KeyName::LeftMouseButton)) {
-		if (Input::WasKeyJustPressed(Input::KeyName::LeftMouseButton)) {
-			std::vector ReverseWindowsTemp = RaaxGUI::GetContext()->RenderQue.Windows;
-			std::reverse(ReverseWindowsTemp.begin(), ReverseWindowsTemp.end());
+void RaaxGUIInput::SetDraggingWindow(RaaxGUI::Window* Window) {
+	Window->OnClickBegin(MousePosition);
 
-			for (auto Window : ReverseWindowsTemp) {
-				if (Window->Open) {
-					if (Window->IsInResizeBounds(MousePosition)) {
-						Window->OnClickBegin(MousePosition);
+	RaaxGUIInput::DraggingWindow = Window;
+	RaaxGUIInput::DraggingWindowOffset = RaaxGUIInput::MousePosition - Window->Position;
+	RaaxGUIInput::DraggingWindowOriginal = Window->Position;
+	RaaxGUIInput::DraggingWindowPosition = Window->Position;
+}
+void RaaxGUIInput::TickDraggingWindow() {
+	SDK::FVector2D PotentialNewPosition = MousePosition - DraggingWindowOffset;
+	DraggingWindow->FixWindowPosition(PotentialNewPosition);
 
-						SetResizingWindow(Window);
+	DraggingWindow->Position = PotentialNewPosition;
+	DraggingWindowPosition = PotentialNewPosition;
+}
+void RaaxGUIInput::ClearDraggingWindow(bool DanglingPointer) {
+	if (DanglingPointer == false) {
+		DraggingWindow->OnClickEnd();
+	}
 
-						ClickedWindow = Window;
+	RaaxGUIInput::DraggingWindow = nullptr;
+	RaaxGUIInput::DraggingWindowOffset = SDK::FVector2D();
+	RaaxGUIInput::DraggingWindowOriginal = SDK::FVector2D();
+	RaaxGUIInput::DraggingWindowPosition = SDK::FVector2D();
+}
 
-						break;
-					}
-					else if (Window->IsInMenuBounds(MousePosition)) {
-						Window->OnClickBegin(MousePosition);
+void RaaxGUIInput::SetClickedElement(RaaxGUI::Element* Element) {
+	Element->OnClickBegin(MousePosition);
 
-						if (Window->ShouldDrag(MousePosition)) {
-							SetDraggingWindow(Window);
-						}
+	ClickingElement = Element;
+}
+void RaaxGUIInput::TickClickingElement() {
+	if (ClickingElement->ParentWindow->Open == false) {
+		ClearClickedElement(false);
+		return;
+	}
 
-						ClickedWindow = Window;
+	ClickingElement->ClickTick(MousePosition);
+}
+void RaaxGUIInput::ClearClickedElement(bool DanglingPointer) {
+	if (DanglingPointer == false) {
+		ClickingElement->OnClickEnd();
+	}
+
+	ClickingElement = nullptr;
+}
+
+bool RaaxGUIInput::CanClickNewWindow() {
+	if (DraggingWindow) return false;
+	if (ResizingWindow) return false;
+	if (ClickingElement) return false;
+
+	return true;
+}
+bool RaaxGUIInput::CanClickNewElement() {
+	if (DraggingWindow) return false;
+	if (ResizingWindow) return false;
+	if (ClickingElement) return false;
+
+	return true;
+}
+
+RaaxGUIInput::CollisionTraceData RaaxGUIInput::MouseCollisionTrace(SDK::FVector2D MousePosition) {
+	CollisionTraceData TraceData{};
+
+	// Reverse the windows so the top most window is checked first
+	std::vector ReverseWindowsTemp = RaaxGUI::GetContext()->RenderQue.Windows;
+	std::reverse(ReverseWindowsTemp.begin(), ReverseWindowsTemp.end());
+
+	for (auto Window : ReverseWindowsTemp) {
+		if (Window->Open) {
+			if (Window->IsInMenuBounds(MousePosition)) {
+				TraceData.CollidedWindow = Window;
+
+				for (auto Element : Window->Elements) {
+					if (Element->IsInElementBounds(MousePosition)) {
+						TraceData.CollidedElement = Element;
 
 						break;
 					}
 				}
+
+				break;
+			}
+		}
+	}
+
+	return TraceData;
+}
+
+void RaaxGUIInput::Tick() {
+	// Check for collisions with the mouse position
+	MousePosition = Input::GetMousePosition();
+	CollisionTraceData TraceData = MouseCollisionTrace(MousePosition);
+
+	// Check for input
+	bool LMBDown = Input::IsKeyDown(Input::KeyName::LeftMouseButton);
+	bool LMBJustPressed = Input::WasKeyJustPressed(Input::KeyName::LeftMouseButton);
+
+	// If the left mouse button is down, handle clicking events. Otherwise, handle releasing events on any clicked objects.
+	if (LMBDown) {
+		// If the left mouse button was just pressed, check for new objects to click.
+		if (LMBJustPressed) {
+			// Elements take priority over windows, so check for elements first.
+			if (TraceData.CollidedElement && CanClickNewElement()) {
+				SetClickedElement(TraceData.CollidedElement);
+			}
+
+			// If no elements were clicked, check for windows.
+			else if (TraceData.CollidedWindow && CanClickNewWindow()) {
+				// Resizing takes priority over dragging, so check for resizing first.
+				if (TraceData.CollidedWindow->IsInResizeBounds(MousePosition)) {
+					SetResizingWindow(TraceData.CollidedWindow);
+				}
+				// If the position is not in the resize bounds, check for dragging.
+				else if (TraceData.CollidedWindow->IsInMenuBounds(MousePosition)) {
+					SetDraggingWindow(TraceData.CollidedWindow);
+				}
 			}
 		}
 		else {
-			if (ClickedWindow) ClickedWindow->OnClickTick(MousePosition);
-			if (DraggingWindow) ProcessDraggingWindow();
-			if (ResizingWindow) ProcessResizingWindow();
+			// If the left mouse button is down, but the left mouse button was not just pressed, process the clicked object.
+			if (ClickingElement) TickClickingElement();
+			if (ResizingWindow) TickResizingWindow();
+			if (DraggingWindow) TickDraggingWindow();
 		}
 	}
 	else {
-		if (DraggingWindow) ClearDraggingWindow();
-		if (ResizingWindow) ClearResizingWindow();
-		if (ClickedWindow) ClickedWindow->OnClickEnd();
-	}
-
-	if (Input::IsKeyDown(Input::KeyName::MouseX) || Input::IsKeyDown(Input::KeyName::MouseY)) {
-
+		// If the left mouse button is not down, clear any clicked objects.
+		if (ClickingElement) ClearClickedElement(false);
+		if (ResizingWindow) ClearResizingWindow(false);
+		if (DraggingWindow) ClearDraggingWindow(false);
 	}
 }

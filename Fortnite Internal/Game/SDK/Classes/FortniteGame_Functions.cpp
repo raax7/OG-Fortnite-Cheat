@@ -267,27 +267,21 @@ SDK::UClass* SDK::AFortPlayerController::StaticClass() {
 void SDK::AFortPlayerController::Fire() {
 	if (SDK::IsValidPointer(this) == false || SDK::Cached::Functions::Fire == 0x0) return;
 
-	using FireParams = void(*)(void*);
-	static auto Fire = reinterpret_cast<FireParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::Fire);
-
-	if (Fire == nullptr) {
-		Fire = reinterpret_cast<FireParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::Fire);
+	if (Fire1 == nullptr) {
+		Fire1 = reinterpret_cast<FireParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::Fire);
 	}
 
-	Fire(this);
+	Fire1(this);
 }
 
 void SDK::AFortPlayerController::CompleteBuildingEditInteraction() {
 	if (SDK::IsValidPointer(this) == false || SDK::Cached::Functions::CompleteBuildingEditInteraction == 0x0) return;
 
-	using CompleteBuildingEditInteractionParams = void(*)(void*);
-	static auto CompleteBuildingEditInteraction = reinterpret_cast<CompleteBuildingEditInteractionParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::CompleteBuildingEditInteraction);
-
-	if (CompleteBuildingEditInteraction == nullptr) {
-		CompleteBuildingEditInteraction = reinterpret_cast<CompleteBuildingEditInteractionParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::CompleteBuildingEditInteraction);
+	if (CompleteBuildingEditInteraction1 == nullptr) {
+		CompleteBuildingEditInteraction1 = reinterpret_cast<CompleteBuildingEditInteractionParams>(SDK::GetBaseAddress() + SDK::Cached::Functions::CompleteBuildingEditInteraction);
 	}
 
-	CompleteBuildingEditInteraction(this);
+	CompleteBuildingEditInteraction1(this);
 }
 
 SDK::UClass* SDK::UFortLocalPlayer::StaticClass() {
@@ -304,6 +298,15 @@ SDK::UClass* SDK::AFortGameStateAthena::StaticClass() {
 
 	if (!Clss)
 		Clss = UObject::FindClassFast(std::string(skCrypt("FortGameStateAthena")));
+
+	return Clss;
+}
+
+SDK::UClass* SDK::ABuildingPlayerPrimitivePreview::StaticClass() {
+	static class UClass* Clss = nullptr;
+
+	if (!Clss)
+		Clss = UObject::FindClassFast(std::string(skCrypt("BuildingPlayerPrimitivePreview")));
 
 	return Clss;
 }

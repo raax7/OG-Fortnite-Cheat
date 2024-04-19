@@ -42,21 +42,21 @@ void Features::FortPawnHelper::PopulateVisibilities(Actors::Caches::FortPawnCach
 	FortPawnCache.BonePositions2D.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
 	FortPawnCache.BoneVisibilityStates.resize(Features::FortPawnHelper::Bone::BONEID_MAX);
 
-	FortPawnCache.BoneVisibilityStates[Bone::Head] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::Head], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::Chest] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::Chest], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::LeftShoulder] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::LeftShoulder], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::RightShoulder] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightShoulder], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::LeftElbow] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::LeftElbow], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::RightElbow] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightElbow], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::LeftHand] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::LeftHand], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::RightHand] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightHand], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::LeftLeg] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::LeftLeg], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::RightLeg] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightLeg], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::LeftKnee] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::LeftKnee], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::RightKnee] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightKnee], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::LeftFoot] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::LeftFoot], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::RightFoot] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::RightFoot], FortPawnCache.FortPawn, SDK::GetLocalPawn());
-	FortPawnCache.BoneVisibilityStates[Bone::Pelvis] = SDK::IsPositionVisible(FortPawnCache.FortPawn, Actors::MainCamera.Position, FortPawnCache.BonePositions3D[Bone::Pelvis], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::Head] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::Head], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::Chest] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::Chest], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::LeftShoulder] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::LeftShoulder], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::RightShoulder] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::RightShoulder], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::LeftElbow] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::LeftElbow], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::RightElbow] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::RightElbow], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::LeftHand] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::LeftHand], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::RightHand] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::RightHand], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::LeftLeg] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::LeftLeg], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::RightLeg] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::RightLeg], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::LeftKnee] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::LeftKnee], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::RightKnee] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::RightKnee], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::LeftFoot] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::LeftFoot], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::RightFoot] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::RightFoot], FortPawnCache.FortPawn, SDK::GetLocalPawn());
+	FortPawnCache.BoneVisibilityStates[Bone::Pelvis] = SDK::IsPositionVisible(FortPawnCache.FortPawn, FortPawnCache.BonePositions3D[Bone::Pelvis], FortPawnCache.FortPawn, SDK::GetLocalPawn());
 }
 void Features::FortPawnHelper::PopulateBoundCorners(Actors::Caches::FortPawnCache& FortPawnCache, SDK::FVector2D& TopLeft, SDK::FVector2D& BottomRight) {
 	TopLeft = SDK::FVector2D(FLT_MAX, FLT_MAX);
@@ -73,8 +73,9 @@ void Features::FortPawnHelper::PopulateBoundCorners(Actors::Caches::FortPawnCach
 	// Adjust the bounding box to make it more visually appealing
 	float BoxSizeMultiplier = Math::CalculateInterpolatedValue(FortPawnCache.DistanceFromLocalPawn, 100.f, 1.0f, 4.0f);
 
+	// Increase the size of the bounding box by a percentage of the original size. This is to make the bounding box more visually appealing.
 	float LeftRightOffset = (BottomRight.X - TopLeft.X) * (0.36f * BoxSizeMultiplier);
-	float TopBottomOffset = (BottomRight.Y - TopLeft.Y) * (0.18f * BoxSizeMultiplier);
+	float TopBottomOffset = (BottomRight.Y - TopLeft.Y) * (0.14f * BoxSizeMultiplier);
 
 	TopLeft.X -= LeftRightOffset;
 	TopLeft.Y -= TopBottomOffset;

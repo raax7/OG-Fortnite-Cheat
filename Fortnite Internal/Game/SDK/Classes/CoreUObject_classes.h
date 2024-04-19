@@ -15,8 +15,8 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 struct FunctionSearch {
-	std::string ClassName;		// The name of the class	
-	std::string FunctionName;	// The name of the function
+	SDK::FName ClassName;		// The name of the class	
+	SDK::FName FunctionName;	// The name of the function
 	void** Function;			// A pointer to save the function address to
 
 	bool operator==(const FunctionSearch& rhs) {
@@ -26,8 +26,8 @@ struct FunctionSearch {
 	}
 };
 struct OffsetSearch {
-	std::string ClassName;		// The name of the class
-	std::string PropertyName;	// The name of the property
+	SDK::FName ClassName;		// The name of the class
+	SDK::FName PropertyName;	// The name of the property
 	uintptr_t* Offset;			// A pointer to save the offset to
 	uintptr_t* Mask;			// A pointer to save the bitfield mask to
 

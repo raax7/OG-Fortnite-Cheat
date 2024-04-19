@@ -4,11 +4,8 @@
 #if LOG_LEVEL > LOG_NONE
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 #include <string>
 #include <sstream>
-
-#include "Error.h"
 #endif
 
 // Only log if the log level is not LOG_NO
@@ -40,8 +37,9 @@ private:
 public:
     static void InitLogger(const std::string& FileNameWithPath) {
         File.open(FileNameWithPath, std::ios::out | std::ios::app);
-        if (!File.is_open()) {
-            // Display error
+        if (File.is_open() == false) {
+            // Failed to open the file, realistically we should show an error message here. But I can't be bothered to move defintions to CPP file so they can cross include.
+            return;
         }
         else {
             File.seekp(0, std::ios::end);
@@ -59,10 +57,9 @@ public:
         }
 
         std::ostringstream LogStream;
-
         std::string FileName = GetFileName(FilePath);
 
-        if (!FileName.empty()) {
+        if (FileName.empty() == false) {
             LogStream << skCrypt("[")<< GetTimestamp() << skCrypt("] ")
                 << skCrypt("[") << FileName << skCrypt(":") << Line << skCrypt("] ")
                 << Message;

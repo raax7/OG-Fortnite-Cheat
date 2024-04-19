@@ -29,7 +29,6 @@
 
 // TO-DO:
 // - Fix unloading crashing on ImGui on some versions of Fortnite
-// - Improve input class even more (less reliance on tick based UE functions and force input events for WndProc input)
 // - Improve GetPlayerViewpoint and GetViewpoint VFT index getting
 // - Add WndProc hook for Engine
 // - Add a season based feature system (allow/forbid features only on specific seasons)
@@ -38,12 +37,9 @@
 // - Add a proper config system
 // - Add a PCH
 // - Make everything in Memory.h my own code (no pasting)
-// - Add WndProc as an option for Engine rendering
-// - Add proper outline for ImGui drawing
-// - Add batch-line support for ImGui and Engine line drawing (Drawing::BeginBatch, Drawing::EndBatch)
 // - Add RaycastMulti offset finding for UE5
-// - Add build through walls using RaycastMulti hook
-// - Add spectate player with ClientSetViewTarget
+// - UNCOMMENT STATIC ASSERT IN Globals.h
+// - Use PropertyFlags instead of EClassCastFlags for HasTypeFlag
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
@@ -73,8 +69,8 @@ VOID UnloadThread() {
             Features::RevertAll();
 
             // Delete all feature managers
-            if (Features::Visuals::ChamManagerFortPawn::Manager)     delete Features::Visuals::ChamManagerFortPawn::Manager;
-            if (Features::Visuals::ChamManagerFortPickup::Manager)   delete Features::Visuals::ChamManagerFortPickup::Manager;
+            if (Features::Visuals::ChamManagerFortPawn::Manager)    delete Features::Visuals::ChamManagerFortPawn::Manager;
+            if (Features::Visuals::ChamManagerFortPickup::Manager)  delete Features::Visuals::ChamManagerFortPickup::Manager;
 
             // Free library
             LI_FN(FreeLibraryAndExitThread).safe()(CurrentModule, 0);
@@ -86,23 +82,36 @@ VOID UnloadThread() {
 #endif // UNLOAD_THREAD
 
 VOID Main() {
+#ifdef _IMGUI
+#if LOAD_D3DCOMPILER_47
+    // Load D3DCompiler_47.dll for ImGui
+    LI_FN(LoadLibraryA).safe()(skCrypt("D3DCOMPILER_47.dll"));
+#endif // LOAD_D3DCOMPILER_47
+#endif // _IMGUI
+
     // Beep to notify that the cheat has been injected
     LI_FN(Beep).safe()(500, 500);
 
     // Set random seed
-    LI_FN(srand).safe()(time(NULL));
+    LI_FN(srand).safe()(time(0));
 
 #if LOG_LEVEL > LOG_NONE
-    // Init logger (REPLACE WITH YOUR OWN PATH)
+    //static_assert(false, "Please set a custom path for your logger! i.e. \"C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log\". DOUBLE CLICK ME AND REMOVE ME!");
+
+    // Init logger
     Logger::InitLogger(std::string(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log")));
 #endif // LOG_LEVEL > LOG_NONE
 
-    SDK::Init();    // Init base address, GObjects, function addresses, offsets etc
-    Hooks::Init();  // Init hooks
+    // Init base address, GObjects, function addresses, offsets etc
+    SDK::Init();
 
 #ifdef _ENGINE
-    RaaxGUI::InitContext(); // Init menu
+    // Init menu
+    RaaxGUI::InitContext();
 #endif // _ENGINE
+
+    // Init hooks
+    Hooks::Init();
 
 #if UNLOAD_THREAD
     // Create a thread to handle unloading

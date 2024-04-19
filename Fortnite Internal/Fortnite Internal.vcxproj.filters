@@ -149,13 +149,13 @@
     <ClCompile Include="Game\Features\Visuals\FortPawnChams.cpp">
       <Filter>Game\Features\Visuals</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Features\Aimbot\TriggerBot.cpp">
-      <Filter>Game\Features\Aimbot</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Features\Visuals\FortPickupChams.cpp">
       <Filter>Game\Features\Visuals</Filter>
     </ClCompile>
     <ClCompile Include="Hooks\Callbacks\EditSelectRelease.cpp">
+      <Filter>Hooks\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks\Callbacks\PerformBuildingEditInteraction.cpp">
       <Filter>Hooks\Callbacks</Filter>
     </ClCompile>
   </ItemGroup>
@@ -391,8 +391,11 @@
     <ClInclude Include="Game\Features\Visuals\Chams.h">
       <Filter>Game\Features\Visuals</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Features\Aimbot\TriggerBot.h">
-      <Filter>Game\Features\Aimbot</Filter>
+    <ClInclude Include="Utilities\ReturnMutex.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\RaaxAssert.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

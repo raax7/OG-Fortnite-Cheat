@@ -10,6 +10,8 @@ namespace Game {
 	inline float ScreenCenterY		= 0.f;
 	inline float PixelsPerDegree	= 0.f;
 
+	inline bool MenuOpen			= true;
+
 	inline unsigned __int64 CurrentFrame = 0;
 	inline std::chrono::time_point<std::chrono::steady_clock> CurrentTime;
 

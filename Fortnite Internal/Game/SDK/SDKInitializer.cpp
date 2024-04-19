@@ -124,13 +124,11 @@ void SDKInitializer::InitDTIndex() {
 	uintptr_t GameInstance = -0x1;
 
 	std::vector<FunctionSearch> Functions = {};
-	std::vector<OffsetSearch> Offsets = { OffsetSearch{ std::string(skCrypt("GameViewportClient")), std::string(skCrypt("GameInstance")), &GameInstance, nullptr }};
+	std::vector<OffsetSearch> Offsets = { OffsetSearch{ SDK::FName(skCrypt(L"GameViewportClient")), SDK::FName(skCrypt(L"GameInstance")), &GameInstance, nullptr }};
 
 	SDK::UObject::SetupObjects(Functions, Offsets);
 
 	int bSuppressTransitionMessage = (int)GameInstance + sizeof(void*);
-
-	//DEBUG_LOG(LOG_INFO, std::string(skCrypt("INT: ")) + std::to_string(bSuppressTransitionMessage));
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
 	{
@@ -148,12 +146,8 @@ void SDKInitializer::InitDTIndex() {
 
 	for (int i = 0; i < 0x150; i++)
 	{
-		//DEBUG_LOG(LOG_INFO, std::string(skCrypt("Searching for ProcessEvent VFT index: ")) + std::to_string(i) + " -- " + std::to_string((uintptr_t)Vft[i] - SDK::GetBaseAddress()));
-
 		if (!Vft[i] || !Memory::IsInProcessRange(reinterpret_cast<uintptr_t>(Vft[i])))
 			continue;
-
-		//DEBUG_LOG(LOG_INFO, std::string(skCrypt("CHECKING !!!! Searching for ProcessEvent VFT index: ")) + std::to_string(i) + " -- " + std::to_string((uintptr_t)Vft[i] - SDK::GetBaseAddress()));
 
 		if (Memory::FindPatternInRange({ 0x80, 0xB9, bSuppressTransitionMessage, 0x00, 0x00, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x35))
 		{
@@ -522,7 +516,7 @@ void SDKInitializer::InitFire() {
 
 	if (EditModeInputComponent0) {
 		// The function start shouldnt be more than 0x5000 bytes backwards from the string reference
-		uintptr_t FireString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("Fire"), (uint8_t*)(EditModeInputComponent0 - 0x5000), 0x5000);
+		uintptr_t FireString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("Fire"), (uint8_t*)(EditModeInputComponent0 - 0x4500), 0x4500);
 
 		if (FireString) {
 			FireAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(FireString - 0x28), 0x50, true, -1);
@@ -578,8 +572,6 @@ void SDKInitializer::InitCompleteBuildingEditInteraction() {
 	}
 
 	if (EditModeInputComponent0) {
-		// The first function is always the press function and the second is the release
-		// Find the string once for the first function, then find it again for the second one
 		uintptr_t CompleteBuildingEditInteractionString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("CompleteBuildingEditInteraction"), (uint8_t*)EditModeInputComponent0, 0x300);
 
 		if (CompleteBuildingEditInteractionString) {
@@ -596,6 +588,31 @@ void SDKInitializer::InitCompleteBuildingEditInteraction() {
 	}
 
 	THROW_ERROR(std::string(skCrypt("Failed to find CompleteBuildingEditInteraction!")), false);
+}
+void SDKInitializer::InitPerformBuildingEditInteraction() {
+	uintptr_t PerformBuildingEditInteractionAddress = 0x0;
+
+	if (EditModeInputComponent0 == 0x0) {
+		EditModeInputComponent0 = (uintptr_t)Memory::FindByStringInAllSections(skCrypt(L"EditModeInputComponent0"));
+	}
+
+	if (EditModeInputComponent0) {
+		uintptr_t PerformBuildingEditInteractionString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("PerformBuildingEditInteraction"), (uint8_t*)(EditModeInputComponent0 - 0x4500), 0x4500);
+
+		if (PerformBuildingEditInteractionString) {
+			PerformBuildingEditInteractionAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(PerformBuildingEditInteractionString - 0x28), 0x50, true, -1);
+
+			if (PerformBuildingEditInteractionAddress) {
+				SDK::Cached::Functions::PerformBuildingEditInteraction = PerformBuildingEditInteractionAddress - SDK::GetBaseAddress();
+
+				DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("PerformBuildingEditInteraction offset found: ")) + std::to_string(SDK::Cached::Functions::PerformBuildingEditInteraction));
+
+				return;
+			}
+		}
+	}
+
+	THROW_ERROR(std::string(skCrypt("Failed to find PerformBuildingEditInteraction!")), false);
 }
 
 void SDKInitializer::InitShouldReplicateFunction()

@@ -7,13 +7,22 @@
 
 #include "../../Utilities/Logger.h"
 #include "../../Utilities/Math.h"
+#include "../../Utilities/Error.h"
+#include "../../Utilities/RaaxAssert.h"
 
 #include <algorithm>
 
 void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas) {
+#ifdef _IMGUI
+	if (Hooks::Present::Mutex.ShouldReturn()) {
+		return DrawTransitionOriginal(this_, Canvas);
+	}
+
+	ReturnLock Lock(&Hooks::Present::Mutex);
+#endif
+
 	if (Canvas == 0x0) {
 		return DrawTransitionOriginal(this_, Canvas);
-		//return spoof_call<void>(PostRenderOriginal, this_, Canvas);
 	}
 
 	Game::CurrentFrame++;
@@ -46,9 +55,11 @@ void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas) {
 
 		RaaxDx::Status InitStatus = RaaxDx::Init();
 		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Init Status: ")) + std::to_string((int)InitStatus));
+		RaaxAssert(InitStatus == RaaxDx::Status::Success, skCrypt("Failed to initiate DirectX hooks! ").decrypt() + std::to_string((int)InitStatus));
 
 		RaaxDx::Status HookStatus = RaaxDx::Hook();
 		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Hook Status: ")) + std::to_string((int)HookStatus));
+		RaaxAssert(HookStatus == RaaxDx::Status::Success, skCrypt("Failed to create DirectX hooks! ").decrypt() + std::to_string((int)HookStatus));
 	}
 #else
 	Game::MenuCallback();

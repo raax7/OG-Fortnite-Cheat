@@ -8,6 +8,7 @@
 #include "../../Features/Visuals/Chams.h"
 
 #include "../../Game.h"
+#include "../../../Configs/Config.h"
 
 
 
@@ -300,6 +301,28 @@ void SDK::APlayerController::SetControlRotation(FRotator NewRotation) {
 
 	return;
 }
+void SDK::APlayerController::AddYawInput(float Val) {
+	if (SDK::IsValidPointer(this) == false) return;
+
+	struct {
+		float Val;
+	} params_AddYawInput{};
+
+	params_AddYawInput.Val = Val;
+
+	this->ProcessEvent(SDK::Cached::Functions::PlayerController::AddYawInput, &params_AddYawInput);
+}
+void SDK::APlayerController::AddPitchInput(float Val) {
+	if (SDK::IsValidPointer(this) == false) return;
+
+	struct {
+		float Val;
+	} params_AddPitchInput{};
+
+	params_AddPitchInput.Val = Val;
+
+	this->ProcessEvent(SDK::Cached::Functions::PlayerController::AddPitchInput, &params_AddPitchInput);
+}
 bool SDK::APlayerController::WasInputKeyJustReleased(FKey& Key) {
 	if (SDK::IsValidPointer(this) == false) return false;
 
@@ -478,7 +501,7 @@ SDK::UMaterialInstanceDynamic* SDK::UKismetMaterialLibrary::CreateDynamicMateria
 
 		params_CreateDynamicMaterialInstance.WorldContextObject = WorldContextObject;
 		params_CreateDynamicMaterialInstance.Parent = Parent;
-		params_CreateDynamicMaterialInstance.CreationFlags = EMIDCreationFlags::Transient;
+		params_CreateDynamicMaterialInstance.CreationFlags = EMIDCreationFlags::None;
 		params_CreateDynamicMaterialInstance.OptionalName = OptionalName;
 
 		StaticClass()->ProcessEvent(SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance, &params_CreateDynamicMaterialInstance);
@@ -816,7 +839,7 @@ SDK::FVector SDK::Project3D(FVector WorldLocation) {
 
 	return ReturnValue;
 }
-bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPosition, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
+bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};
 	TArray<AActor*> IgnoredActors;
 
@@ -827,7 +850,7 @@ bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPositio
 
 	bool bHitSomething = SDK::UKismetSystemLibrary::LineTraceSingle(
 		WorldContextObj,
-		CameraPosition,
+		Actors::MainCamera.Position,
 		TargetPosition,
 		ETraceTypeQuery::TraceTypeQuery6,
 		true,
@@ -840,7 +863,7 @@ bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector CameraPositio
 		0.f
 	);
 
-	return !(bHitSomething);
+	return !bHitSomething;
 }
 float SDK::GetGameVersion() {
 	if (!Game::GameVersion) {

@@ -56,7 +56,7 @@ void Actors::FortPawn::Tick() {
 		// Apply chams (if enabled)
 		Features::Visuals::ChamManagerFortPawn::Manager->Tick(FortPawn);
 
-		// Kill all players by teleporting them
+		// Kill all players by teleporting them infront of the local pawn allowing free shots
 		if (Config::Exploits::Player::KillAll) {
 			SDK::FVector ForwardVector = SDK::UKismetMathLibrary::GetForwardVector(SDK::FRotator(0.f, Actors::MainCamera.Rotation.Yaw, Actors::MainCamera.Rotation.Roll));
 
@@ -261,7 +261,6 @@ void Actors::FortPawn::Tick() {
 					SeenTarget = true;
 
 					Features::Aimbot::PlayerTarget::UpdateTargetInfo(MainTarget, CurrentPlayer, MainCamera, AimbotCamera, FPSScale);
-
 					Features::Aimbot::AimbotTarget(MainTarget);
 				}
 			}

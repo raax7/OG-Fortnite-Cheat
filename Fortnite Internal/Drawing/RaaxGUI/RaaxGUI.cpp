@@ -6,11 +6,11 @@
 // If you are using this library on another project, replace this with your own drawing wrappers (or recreate the ones here)
 #include "../Drawing.h"
 
-#include <algorithm>
 #include <iomanip>
 #include <sstream>
 
-/* CONTEXT FUNCTIONS */
+// INTERNAL API
+
 void RaaxGUI::InitContext() {
 	if (GContext) {
 		THROW_ERROR(std::string(skCrypt("Context already initialized!")), false);
@@ -25,6 +25,76 @@ void RaaxGUI::InitContext() {
 	// Initialize style
 	GContext->Style.InitDarkStyle();
 }
+RaaxGUI::RaaxGUIContext* RaaxGUI::GetContext() {
+	if (GContext == nullptr) {
+		THROW_ERROR(std::string(skCrypt("Context not initialized!")), false);
+	}
+
+	return GContext;
+}
+RaaxGUI::Window* RaaxGUI::FindWindowById(int ID) {
+	for (int i = 0; i < GetContext()->RenderQue.Windows.size(); i++) {
+		if (GetContext()->RenderQue.Windows[i]->ID == ID) {
+			return GetContext()->RenderQue.Windows[i];
+		}
+	}
+
+	return nullptr;
+}
+RaaxGUI::Window* RaaxGUI::RegisterNewWindow(int ID) {
+	// Check if window already exists
+	for (int i = 0; i < GetContext()->RenderQue.Windows.size(); i++) {
+		if (GetContext()->RenderQue.Windows[i]->ID == ID) {
+			// If the window ID matches, return the window
+			return GetContext()->RenderQue.Windows[i];
+		}
+	}
+
+	// If the window doesn't exist, we can safely create a new one
+	Window* NewWindow = new Window();
+	NewWindow->ID = ID;
+
+	// Register the window with the context
+	GetContext()->RegisterWindow(NewWindow);
+
+	return NewWindow;
+}
+template<typename ElementClass> ElementClass* RaaxGUI::FindElementByIdAndWindow(int ID, ElementType Type, Window* ElementWindow) {
+	for (auto& Window : GetContext()->RenderQue.Windows) {
+		if (Window == ElementWindow) {
+			for (auto& Element : Window->ElementsLastFrame) {
+				if (Element->ID == ID && Element->Type == Type) {
+					// If the element ID and type matches, return the element
+					return reinterpret_cast<ElementClass*>(Element);
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}
+template<typename ElementClass> ElementClass* RaaxGUI::RegisterNewElement(int ID, ElementType Type, Window* ElementWindow) {
+	// Check if element already exists
+	for (auto& Element : ElementWindow->ElementsLastFrame) {
+		if (Element->ID == ID && Element->Type == Type) {
+			// If the element ID and type matches, return the element
+			return reinterpret_cast<ElementClass*>(Element);
+		}
+	}
+
+	// If the element doesn't exist, we can safely create a new one
+	ElementClass* NewElement = new ElementClass();
+	NewElement->ID = ID;
+	NewElement->ParentWindow = ElementWindow;
+
+	// Register the element with the window
+	ElementWindow->Elements.push_back(NewElement);
+
+	return NewElement;
+}
+
+
+// PUBLIC API
 
 void RaaxGUI::NewFrame() {
 	RaaxGUIInput::Tick();
@@ -32,12 +102,11 @@ void RaaxGUI::NewFrame() {
 	// Clear all window seen flags
 	for (auto Window : GetContext()->RenderQue.Windows) {
 		if (Window) {
-			Window->Seen = false;
+			Window->NewFrame();
+
 			for (auto Element : Window->Elements) {
-				Element->Seen = false;
+				Element->NewFrame();
 			}
-			Window->ElementsLastFrame = Window->Elements;
-			Window->Elements.clear();
 		}
 	}
 }
@@ -47,47 +116,53 @@ void RaaxGUI::EndFrame() {
 		CurrentWindow->Draw();
 	}
 
+	// Loop thru all elements and clear elements that were not seen
+	for (auto WindowIt = GetContext()->RenderQue.Windows.begin(); WindowIt != GetContext()->RenderQue.Windows.end();) {
+		Window* CurrentWindow = *WindowIt;
+
+		for (auto ElementIt = CurrentWindow->ElementsLastFrame.begin(); ElementIt != CurrentWindow->ElementsLastFrame.end();) {
+			Element* CurrentElement = *ElementIt;
+
+			if (CurrentElement->SeenThisFrame == false) {
+				ElementIt = CurrentWindow->ElementsLastFrame.erase(ElementIt);
+				delete CurrentElement;
+
+				// Tell the input system to null the pointer (if it's being used)
+				RaaxGUIInput::NotifyDanglingPointer(CurrentElement);
+			}
+			else {
+				++ElementIt;
+			}
+		}
+
+		++WindowIt;
+	}
+
 	// Clear all windows that were not seen
-	for (auto it = GetContext()->RenderQue.Windows.begin(); it != GetContext()->RenderQue.Windows.end();) {
-		Window* CurrentWindow = *it;
+	for (auto WindowIt = GetContext()->RenderQue.Windows.begin(); WindowIt != GetContext()->RenderQue.Windows.end();) {
+		Window* CurrentWindow = *WindowIt;
 
 		if (CurrentWindow == nullptr) {
-			it = GetContext()->RenderQue.Windows.erase(it);
+			WindowIt = GetContext()->RenderQue.Windows.erase(WindowIt);
 			continue;
 		}
 
-		if (CurrentWindow->Seen == false) {
-			it = GetContext()->RenderQue.Windows.erase(it);
+		if (CurrentWindow->SeenThisFrame == false) {
+			WindowIt = GetContext()->RenderQue.Windows.erase(WindowIt);
 			delete CurrentWindow;
+
+			// Tell the input system to null the pointer (if it's being used)
+			RaaxGUIInput::NotifyDanglingPointer(CurrentWindow);
 		}
 		else {
-			++it;
-		}
-
-		// Loop thru all elements and clear elements that were not seen
-		for (auto it2 = CurrentWindow->ElementsLastFrame.begin(); it2 != CurrentWindow->ElementsLastFrame.end();) {
-			Element* CurrentElement = *it2;
-
-			if (CurrentElement->Seen == false) {
-				it2 = CurrentWindow->ElementsLastFrame.erase(it2);
-				delete CurrentElement;
-			}
-			else {
-				++it2;
-			}
+			++WindowIt;
 		}
 	}
 }
-
-void RaaxGUI::RaaxGUIContext::MakeWindowTopMost(Window* Window) {
-	for (int i = 0; i < RenderQue.Windows.size(); i++) {
-		if (RenderQue.Windows[i] == Window) {
-			RenderQue.Windows.erase(RenderQue.Windows.begin() + i);
-			RenderQue.Windows.push_back(Window);
-			break;
-		}
-	}
+RaaxGUI::RaaxGUIStyle* RaaxGUI::GetStyle() {
+	return &GetContext()->Style;
 }
+
 void RaaxGUI::SetNextWindowSize(SDK::FVector2D Size) {
 	GetContext()->UseNextWindowSize = true;
 	GetContext()->NextWindowSize = Size;
@@ -97,23 +172,29 @@ void RaaxGUI::SetNextWindowPos(SDK::FVector2D Pos) {
 	GetContext()->NextWindowPos = Pos;
 }
 
+
+// RAAXGUICONTEXT
+
+void RaaxGUI::RaaxGUIContext::RegisterWindow(Window* Window) {
+	RenderQue.Windows.push_back(Window);
+}
+void RaaxGUI::RaaxGUIContext::MakeWindowTopMost(Window* Window) {
+	for (int i = 0; i < RenderQue.Windows.size(); i++) {
+		if (RenderQue.Windows[i] == Window) {
+			RenderQue.Windows.erase(RenderQue.Windows.begin() + i);
+			RenderQue.Windows.push_back(Window);
+
+			return;
+		}
+	}
+}
 RaaxGUI::Window* RaaxGUI::RaaxGUIContext::GetCurrentWindow() {
 	return CurrentWindow;
 }
-RaaxGUI::RaaxGUIContext* RaaxGUI::GetContext() {
-	if (GContext == nullptr) {
-		THROW_ERROR(std::string(skCrypt("Context not initialized!")), false);
-	}
-
-	return GContext;
-}
-RaaxGUI::RaaxGUIStyle* RaaxGUI::GetStyle() {
-	return &GetContext()->Style;
-}
 
 
+// WINDOW
 
-/* WINDOW FUNCTIONS */
 bool RaaxGUI::BeginWindow(const char* Name, bool* Open, RaaxGUIWindowFlags Flags, SDK::FVector2D InitPosition, SDK::FVector2D InitSize) {
 	int Id = HashString(Name);
 
@@ -128,7 +209,7 @@ bool RaaxGUI::BeginWindow(const char* Name, bool* Open, RaaxGUIWindowFlags Flags
 		ThisWindow->Name = Name;
 	}
 
-	ThisWindow->Seen = true;
+	ThisWindow->SeenThisFrame = true;
 
 	GetContext()->CurrentWindow = ThisWindow;
 
@@ -150,25 +231,6 @@ bool RaaxGUI::BeginWindow(const char* Name, bool* Open, RaaxGUIWindowFlags Flags
 void RaaxGUI::EndWindow() {
 	GetContext()->CurrentWindow = nullptr;
 }
-
-RaaxGUI::Window* RaaxGUI::RegisterNewWindow(int ID) {
-	Window* NewWindow = new Window();
-	NewWindow->ID = ID;
-
-	GetContext()->RenderQue.Windows.push_back(NewWindow);
-
-	return NewWindow;
-}
-RaaxGUI::Window* RaaxGUI::FindWindowById(int ID) {
-	for (int i = 0; i < GetContext()->RenderQue.Windows.size(); i++) {
-		if (GetContext()->RenderQue.Windows[i]->ID == ID) {
-			return GetContext()->RenderQue.Windows[i];
-		}
-	}
-
-	return nullptr;
-}
-
 void RaaxGUI::Window::Draw() {
 	if (Open) {
 		// Draw window
@@ -202,44 +264,9 @@ void RaaxGUI::Window::Draw() {
 		}
 	}
 }
-
-void RaaxGUI::Window::OnClickTick(const SDK::FVector2D ClickPosition) {
-	SDK::FVector2D RelativePosition = ClickPosition - Position;
-
-	for (int i = 0; i < Elements.size(); i++) {
-		Elements[i]->ClickTick(RelativePosition);
-	}
+RaaxGUI::ResizeDirection RaaxGUI::Window::GetResizeDirection(SDK::FVector2D MousePosition) {
+	return CurrentResizeDirection;
 }
-void RaaxGUI::Window::OnClickBegin(const SDK::FVector2D ClickPosition) {
-	SDK::FVector2D RelativePosition = ClickPosition - Position;
-
-	GetContext()->MakeWindowTopMost(this);
-
-	for (int i = 0; i < Elements.size(); i++) {
-		Elements[i]->OnClickBegin(RelativePosition);
-	}
-}
-void RaaxGUI::Window::OnClickEnd() {
-	for (int i = 0; i < Elements.size(); i++) {
-		Elements[i]->OnClickEnd();
-	}
-}
-bool RaaxGUI::Window::ShouldDrag(SDK::FVector2D Position) {
-	SDK::FVector2D RelativePosition = Position - this->Position;
-
-	if (IsInDragBounds(Position)) {
-		for (int i = 0; i < Elements.size(); i++) {
-			if (Elements[i]->IsInElementBounds(RelativePosition)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
 void RaaxGUI::Window::FixWindowPosition(SDK::FVector2D& Position) {
 	// Clamp to screen
 	// Require atleast 10 pixels of the windows drag space to be visible
@@ -253,19 +280,6 @@ void RaaxGUI::Window::FixWindowSize(SDK::FVector2D& Size) {
 	if (Size.Y < MinimumSize.Y) {
 		Size.Y = MinimumSize.Y;
 	}
-}
-
-bool RaaxGUI::Window::IsInMenuBounds(SDK::FVector2D Position) {
-	if (Position.X > this->Position.X && Position.X < this->Position.X + this->Size.X) {
-		if (Position.Y > this->Position.Y && Position.Y < this->Position.Y + this->Size.Y) {
-			return true;
-		}
-	}
-
-	return false;
-}
-bool RaaxGUI::Window::IsInDragBounds(SDK::FVector2D Position) {
-	return IsInMenuBounds(Position);
 }
 bool RaaxGUI::Window::IsInResizeBounds(SDK::FVector2D Position) {
 	// Check if mouse is within 2 pixels of any corner
@@ -293,36 +307,41 @@ bool RaaxGUI::Window::IsInResizeBounds(SDK::FVector2D Position) {
 
 	return false;
 }
-
-RaaxGUI::ResizeDirection RaaxGUI::Window::GetResizeDirection(SDK::FVector2D Position) {
-	return CurrentResizeDirection;
+bool RaaxGUI::Window::IsInDragBounds(SDK::FVector2D Position) {
+	return IsInMenuBounds(Position);
 }
-
-
-
-/* ELEMENT FUNCTIONS */
-template<typename ElementType> ElementType* RaaxGUI::RegisterNewElement(int ID, Window* ElementWindow) {
-	ElementType* NewElement = new ElementType();
-	NewElement->ID = ID;
-	NewElement->ParentWindow = ElementWindow;
-
-	ElementWindow->Elements.push_back(NewElement);
-
-	return NewElement;
-}
-template<typename ElementType> ElementType* RaaxGUI::FindElementByIdAndWindow(int ID, Window* ElementWindow) {
-	for (auto& Window : GetContext()->RenderQue.Windows) {
-		if (Window == ElementWindow) {
-			for (auto& Element : Window->ElementsLastFrame) {
-				if (Element->ID == ID) {
-					return reinterpret_cast<ElementType*>(Element);
-				}
-			}
+bool RaaxGUI::Window::IsInMenuBounds(SDK::FVector2D Position) {
+	if (Position.X > this->Position.X && Position.X < this->Position.X + this->Size.X) {
+		if (Position.Y > this->Position.Y && Position.Y < this->Position.Y + this->Size.Y) {
+			return true;
 		}
 	}
 
-	return nullptr;
+	return false;
 }
+void RaaxGUI::Window::OnClickBegin(const SDK::FVector2D ClickPosition) {
+	ClickedThisFrame = true;
+
+	GetContext()->MakeWindowTopMost(this);
+}
+void RaaxGUI::Window::OnClickEnd() {
+
+}
+void RaaxGUI::Window::NewFrame() {
+	// Push the current frame flags to the last frame flags
+	ClickedLastFrame = ClickedThisFrame;
+	ClickedThisFrame = false;
+
+	// Reset any flags that don't need to be carried over
+	SeenThisFrame = false;
+
+	// Push the current elements to the last frames elements
+	ElementsLastFrame = Elements;
+	Elements.clear();
+}
+
+
+// ELEMENT
 
 bool RaaxGUI::Element::IsBeingClicked() {
 	if (ParentWindow == nullptr) {
@@ -331,14 +350,6 @@ bool RaaxGUI::Element::IsBeingClicked() {
 
 	return BeingClicked;
 }
-bool RaaxGUI::Element::IsBeingHovered() {
-	if (ParentWindow == nullptr) {
-		return false;
-	}
-
-	return BeingHovered;
-}
-
 bool RaaxGUI::Element::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
 	if (ParentWindow == nullptr) {
 		return false;
@@ -397,9 +408,13 @@ bool RaaxGUI::Element::FilledRect(SDK::FVector2D ScreenPosition, SDK::FVector2D 
 
 	return false;
 }
+void RaaxGUI::Element::NewFrame() {
+	SeenThisFrame = false;
+}
 
 
-/* CHECKBOX */
+// CHECKBOX
+
 bool RaaxGUI::Checkbox(const char* Name, bool* Value) {
 	Window* CurrentWindow = GetContext()->GetCurrentWindow();
 
@@ -410,9 +425,9 @@ bool RaaxGUI::Checkbox(const char* Name, bool* Value) {
 
 	int Id = HashString(Name);
 
-	CheckboxElement* ThisElement = FindElementByIdAndWindow<CheckboxElement>(Id, CurrentWindow);
+	CheckboxElement* ThisElement = FindElementByIdAndWindow<CheckboxElement>(Id, ElementType::Checkbox, CurrentWindow);
 	if (ThisElement == nullptr) {
-		ThisElement = RegisterNewElement<CheckboxElement>(Id, CurrentWindow);
+		ThisElement = RegisterNewElement<CheckboxElement>(Id, ElementType::Checkbox, CurrentWindow);
 		ThisElement->ID = Id;
 
 		ThisElement->Name = Name;
@@ -425,7 +440,7 @@ bool RaaxGUI::Checkbox(const char* Name, bool* Value) {
 		CurrentWindow->Elements.push_back(ThisElement);
 	}
 
-	ThisElement->Seen = true;
+	ThisElement->SeenThisFrame = true;
 
 	if (ThisElement->Type != ElementType::Checkbox) {
 		THROW_ERROR(std::string(skCrypt("Found another element in the window with the same name! Please keep element and window names unique.")), false);
@@ -433,30 +448,6 @@ bool RaaxGUI::Checkbox(const char* Name, bool* Value) {
 	}
 
 	return *Value;
-}
-bool RaaxGUI::CheckboxElement::IsInElementBounds(const SDK::FVector2D Position) {
-	if (Position.X > CheckboxRelativePosition.X && Position.X < CheckboxRelativePosition.X + Style.CheckboxButtonSize.X) {
-		if (Position.Y > CheckboxRelativePosition.Y && Position.Y < CheckboxRelativePosition.Y + Style.CheckboxButtonSize.Y) {
-			return true;
-		}
-	}
-
-	return false;
-}
-void RaaxGUI::CheckboxElement::ClickTick(SDK::FVector2D Position) {
-	return;
-}
-void RaaxGUI::CheckboxElement::OnClickBegin(const SDK::FVector2D ClickPosition) {
-	if (IsInElementBounds(ClickPosition)) {
-		BeingClicked = true;
-	}
-}
-void RaaxGUI::CheckboxElement::OnClickEnd() {
-	if (BeingClicked) {
-		*Value = !*Value;
-	}
-
-	BeingClicked = false;
 }
 void RaaxGUI::CheckboxElement::Draw() {
 	WindowStyle& CurrentWindowStyle = ParentWindow->Style;
@@ -473,9 +464,6 @@ void RaaxGUI::CheckboxElement::Draw() {
 	if (IsBeingClicked()) {
 		CurrentCheckboxColor = Style.CheckboxButtonClickHeldColor;
 	}
-	else if (IsBeingHovered()) {
-		CurrentCheckboxColor = Style.CheckboxButtonHoverColor;
-	}
 
 	bool DrewCheckbox = FilledRect(CheckboxPosition, CheckboxSize, CurrentCheckboxColor, true);
 
@@ -488,30 +476,52 @@ void RaaxGUI::CheckboxElement::Draw() {
 	TextPosition.X += CheckboxSize.X + Style.CheckboxTextOffset;
 
 	if (DrewCheckbox) Text(Name.c_str(), TextPosition, Style.CheckboxTextSize, Style.CheckboxTextColor, false, false, true);
-	
+
 	// CheckboxPadding * 2 because of the padding above and below the checkbox
 	ParentWindow->CurrentElementPosition.Y += Style.CheckboxButtonSize.Y + (Style.CheckboxPadding.Y * 2);
 
 	BoundsPosition = CheckboxPosition;
 	BoundsSize = CheckboxSize;
 }
+void RaaxGUI::CheckboxElement::OnClickBegin(const SDK::FVector2D ClickPosition) {
+	GetContext()->MakeWindowTopMost(ParentWindow);
+
+	BeingClicked = true;
+}
+void RaaxGUI::CheckboxElement::ClickTick(SDK::FVector2D Position) {
+
+}
+void RaaxGUI::CheckboxElement::OnClickEnd() {
+	*Value = !*Value;
+
+	BeingClicked = false;
+}
+bool RaaxGUI::CheckboxElement::IsInElementBounds(const SDK::FVector2D Position) {
+	if (Position.X > BoundsPosition.X && Position.X < BoundsPosition.X + BoundsSize.X) {
+		if (Position.Y > BoundsPosition.Y && Position.Y < BoundsPosition.Y + BoundsSize.Y) {
+			return true;
+		}
+	}
+
+	return false;
+}
 
 
+// SLIDER
 
-/* SLIDER */
-template<typename SliderValueType> void CreateSliderInternal(const char* Name, SliderValueType* Value, SliderValueType MinValue, SliderValueType MaxValue) {
+template<typename SliderValueType> bool CreateSliderInternal(const char* Name, SliderValueType* Value, SliderValueType MinValue, SliderValueType MaxValue) {
 	RaaxGUI::Window* CurrentWindow = RaaxGUI::GetContext()->GetCurrentWindow();
 
 	if (CurrentWindow == nullptr) {
 		THROW_ERROR(std::string(skCrypt("Attempted to create a GUI element with no current window!")), false);
-		return;
+		return false;
 	}
 
 	int Id = HashString(Name);
 
-	RaaxGUI::SliderElement<SliderValueType>* ThisElement = RaaxGUI::FindElementByIdAndWindow<RaaxGUI::SliderElement<SliderValueType>>(Id, CurrentWindow);
+	RaaxGUI::SliderElement<SliderValueType>* ThisElement = RaaxGUI::FindElementByIdAndWindow<RaaxGUI::SliderElement<SliderValueType>>(Id, RaaxGUI::ElementType::Slider, CurrentWindow);
 	if (ThisElement == nullptr) {
-		ThisElement = RaaxGUI::RegisterNewElement<RaaxGUI::SliderElement<SliderValueType>>(Id, CurrentWindow);
+		ThisElement = RaaxGUI::RegisterNewElement<RaaxGUI::SliderElement<SliderValueType>>(Id, RaaxGUI::ElementType::Slider, CurrentWindow);
 		ThisElement->ID = Id;
 
 		ThisElement->Name = Name;
@@ -526,50 +536,21 @@ template<typename SliderValueType> void CreateSliderInternal(const char* Name, S
 		CurrentWindow->Elements.push_back(ThisElement);
 	}
 
-	ThisElement->Seen = true;
+	ThisElement->SeenThisFrame = true;
 
 	if (ThisElement->Type != RaaxGUI::ElementType::Slider) {
 		THROW_ERROR(std::string(skCrypt("Found another element in the window with the same name! Please keep element and window names unique.")), false);
-		return;
-	}
-}
-
-void RaaxGUI::SliderFloat(const char* Name, float* Value, float MinValue, float MaxValue) {
-	CreateSliderInternal<float>(Name, Value, MinValue, MaxValue);
-}
-void RaaxGUI::SliderInt(const char* Name, int* Value, int MinValue, int MaxValue) {
-	CreateSliderInternal<int>(Name, Value, MinValue, MaxValue);
-}
-
-template<typename SliderValueType> bool RaaxGUI::SliderElement<SliderValueType>::IsInElementBounds(const SDK::FVector2D Position) {
-	if (Position.X > BoundsPosition.X && Position.X < BoundsPosition.X + BoundsSize.X) {
-		if (Position.Y > BoundsPosition.Y && Position.Y < BoundsPosition.Y + BoundsSize.Y) {
-			return true;
-		}
+		return false;
 	}
 
-	return false;
+	return ThisElement->BeingClicked;
 }
-template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::ClickTick(const SDK::FVector2D ClickPosition) {
-	if (BeingClicked) {
-		float CalculatedValue = (ClickPosition.X - BoundsPosition.X) / BoundsSize.X;
-		CalculatedValue = std::clamp(CalculatedValue, 0.f, 1.f);
 
-		*Value = (SliderValueType)((MaxValue - MinValue) * CalculatedValue + MinValue);
-	}
+bool RaaxGUI::SliderFloat(const char* Name, float* Value, float MinValue, float MaxValue) {
+	return CreateSliderInternal<float>(Name, Value, MinValue, MaxValue);
 }
-template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::OnClickBegin(const SDK::FVector2D ClickPosition) {
-	if (IsInElementBounds(ClickPosition)) {
-		float CalculatedValue = (ClickPosition.X - BoundsPosition.X) / BoundsSize.X;
-		CalculatedValue = std::clamp(CalculatedValue, 0.f, 1.f);
-
-		*Value = (SliderValueType)((MaxValue - MinValue) * CalculatedValue + MinValue);
-
-		BeingClicked = true;
-	}
-}
-template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::OnClickEnd() {
-	BeingClicked = false;
+bool RaaxGUI::SliderInt(const char* Name, int* Value, int MinValue, int MaxValue) {
+	return CreateSliderInternal<int>(Name, Value, MinValue, MaxValue);
 }
 template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::Draw() {
 	WindowStyle& CurrentWindowStyle = ParentWindow->Style;
@@ -587,7 +568,7 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 
 	// Calculate the how far along the slider the value is
 	float PercentComplete = ((float)*Value - (float)MinValue) / ((float)MaxValue - (float)MinValue);
-	PercentComplete = std::clamp(PercentComplete, 0.f, 1.f);
+	PercentComplete = Clamp<float>(PercentComplete, 0.f, 1.f);
 
 	// Determine the size of the slider based on the current value
 	SDK::FVector2D SliderValueSize = SDK::FVector2D(SliderSize.X * PercentComplete, SliderSize.Y);
@@ -597,7 +578,7 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 	SDK::FVector2D GrabberSize = SDK::FVector2D(Style.SliderGrabberWidth, SliderSize.Y);
 
 	// Ensure grabber remains within the slider bounds
-	GrabberPosition.X = std::clamp(GrabberPosition.X, SliderPosition.X, SliderPosition.X + SliderSize.X - GrabberSize.X);
+	GrabberPosition.X = Clamp<float>(GrabberPosition.X, SliderPosition.X, SliderPosition.X + SliderSize.X - GrabberSize.X);
 
 	// Formatting the value string with precision
 	std::stringstream ValueStream;
@@ -622,6 +603,33 @@ template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>:
 	ParentWindow->CurrentElementPosition.Y += SliderSize.Y + Style.SliderPadding.Y + ValueTextSize.Y;
 
 	// Set bounds for interaction detection
-	BoundsPosition = SliderPosition - ParentWindow->Position;
+	BoundsPosition = SliderPosition;
 	BoundsSize = SliderSize;
+}
+template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::OnClickBegin(const SDK::FVector2D ClickPosition) {
+	GetContext()->MakeWindowTopMost(ParentWindow);
+	HandleSliderBarClick(ClickPosition);
+
+	BeingClicked = true;
+}
+template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::ClickTick(const SDK::FVector2D ClickPosition) {
+	HandleSliderBarClick(ClickPosition);
+}
+template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::OnClickEnd() {
+	BeingClicked = false;
+}
+template<typename SliderValueType> bool RaaxGUI::SliderElement<SliderValueType>::IsInElementBounds(const SDK::FVector2D Position) {
+	if (Position.X > BoundsPosition.X && Position.X < BoundsPosition.X + BoundsSize.X) {
+		if (Position.Y > BoundsPosition.Y && Position.Y < BoundsPosition.Y + BoundsSize.Y) {
+			return true;
+		}
+	}
+
+	return false;
+}
+template<typename SliderValueType> void RaaxGUI::SliderElement<SliderValueType>::HandleSliderBarClick(const SDK::FVector2D ClickPosition) {
+	float CalculatedValue = (ClickPosition.X - BoundsPosition.X) / BoundsSize.X;
+	CalculatedValue = Clamp<float>(CalculatedValue, 0.f, 1.f);
+
+	*Value = (SliderValueType)((MaxValue - MinValue) * CalculatedValue + MinValue);
 }

@@ -8,8 +8,13 @@
 #include "../../Utilities/Logger.h"
 
 HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
-	std::lock_guard<std::mutex> lock(PresentMutex);
-	std::unique_lock<std::recursive_timed_mutex> lock2(Hooks::WndProc::WndProcMutex, std::chrono::milliseconds(1000));
+	if (Mutex.ShouldReturn() || Hooks::WndProc::Mutex.ShouldReturn()) {
+		return PresentOriginal(pSwapChain, SyncInterval, Flags);
+	}
+
+	// Lock mutex (will unlock when function returns)
+	ReturnLock Lock(&Mutex);
+	ReturnLock Lock2(&Hooks::WndProc::Mutex);
 
 	if (ImGuiBeenSetup == false) {
 		RaaxDx::InitImGui(pSwapChain);
@@ -28,7 +33,9 @@ HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncI
 	Game::MenuCallback();
 
 	ImGui::EndFrame();
+
 	ImGui::Render();
+
 	RaaxDx::DeviceContext->OMSetRenderTargets(1, &RaaxDx::RenderTargetView, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

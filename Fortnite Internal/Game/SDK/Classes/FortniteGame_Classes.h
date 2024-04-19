@@ -387,6 +387,13 @@ namespace SDK {
 			*(uint8*)((uintptr_t)this + SDK::Cached::Offsets::BuildingActor::TeamIndex) = NewTeamIndex;
 		}
 	};
+
+	using CompleteBuildingEditInteractionParams = void(*)(void*);
+	inline CompleteBuildingEditInteractionParams CompleteBuildingEditInteraction1;
+
+	using FireParams = void(*)(void*);
+	inline FireParams Fire1;
+
 	class AFortPlayerController : public APlayerController {
 	public:
 		// VALUES
@@ -464,6 +471,17 @@ namespace SDK {
 
 
 
+		// STATIC FUNCTIONS
+
+		static UClass* StaticClass();
+	};
+	class ABuildingSMActor : public ABuildingActor
+	{
+	public:
+
+	};
+	class ABuildingPlayerPrimitivePreview : public ABuildingSMActor {
+	public:
 		// STATIC FUNCTIONS
 
 		static UClass* StaticClass();

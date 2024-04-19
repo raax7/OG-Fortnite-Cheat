@@ -111,89 +111,105 @@ namespace SDK {
 		std::vector<FunctionSearch> FunctionsNotFound = Functions;
 		std::vector<OffsetSearch> OffsetsNotFound = Offsets;
 
-
-
 		for (int i = 0; i < ObjectArray.Num() && (Functions.empty() == false || Offsets.empty() == false); i++) {
 			UObject* Object = ObjectArray.GetByIndex(i);
 
-			if (!Object)
+			if (Object == nullptr)
 				continue;
 
-			// In later UE4 versions, they changed how they managed properties
-			// so we need to add these addional checks to make sure we only get the default object or ScriptStruct
-			if (Game::GameVersion >= 12.00 && Object->IsDefaultObject() == false && Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct) == false)
+			// Skip default objects and non ScriptStructs
+			bool IsScriptStruct = Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct);
+			if (Object->IsDefaultObject() == false && IsScriptStruct == false)
 				continue;
 			
-			SDK::UStruct* ObjectStruct = Object->HasTypeFlag(SDK::EClassCastFlags::ScriptStruct) ? ((SDK::UStruct*)Object) : Object->Class;
-			std::string ObjectName = ObjectStruct->Name.ToString();
+			// Get the object's name and ScriptStruct
+			SDK::UStruct* ObjectStruct = IsScriptStruct ? (SDK::UStruct*)Object : Object->Class;
+			SDK::FName ObjectName = ObjectStruct->Name;
 
-			for (FunctionSearch& Function : Functions) {
-				if (*Function.Function || ObjectName.ends_with(Function.ClassName) == false)
-					continue;
+			// Search for functions and offsets in versions below 12.00
+			SDK::UField* Children = ObjectStruct->Children();
+			while (Children) {
+				// Search for functions
+				if (Children->HasTypeFlag(SDK::EClassCastFlags::Function)) {
+					for (FunctionSearch& Function : Functions) {
+						if (*Function.Function || ObjectName != Function.ClassName)
+							continue;
 
-				SDK::UField* Children = ObjectStruct->Children();
-				while (Children) {
-					if (Children->HasTypeFlag(SDK::EClassCastFlags::Function) && Children->Name.ToString() == Function.FunctionName) {
-						*Function.Function = Children;
+						if (Children->Name == Function.FunctionName) {
+							*Function.Function = Children;
 
-						DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found function: ")) + Function.ClassName + "::" + Function.FunctionName + " at " + std::to_string((uintptr_t)*Function.Function));
+							DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found function: ")) + Function.ClassName.ToString() + "::" + Function.FunctionName.ToString() + " at " + std::to_string((uintptr_t)*Function.Function));
 
-						FunctionsNotFound.erase(std::remove(FunctionsNotFound.begin(), FunctionsNotFound.end(), Function), FunctionsNotFound.end());
+							FunctionsNotFound.erase(std::remove(FunctionsNotFound.begin(), FunctionsNotFound.end(), Function), FunctionsNotFound.end());
+						}
 					}
-
-					Children = Children->Next();
 				}
-			}
 
-			for (OffsetSearch& Offset : Offsets) {
-				if ((Offset.Offset == nullptr && Offset.Mask == nullptr) || ObjectName.ends_with(Offset.ClassName) == false)
-					continue;
+				bool IsProperty = Children->HasTypeFlag(SDK::EClassCastFlags::Property);
+				bool IsBoolProperty = Children->HasTypeFlag(SDK::EClassCastFlags::BoolProperty);
+				if (IsProperty || IsBoolProperty) {
+					for (OffsetSearch& Offset : Offsets) {
+						bool HasOffset = Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0);
+						bool HasMask = Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0);
 
-				if (Game::GameVersion >= 12.00) {
-					SDK::FField* ChildProperty = ObjectStruct->ChildProperties();
-					while (ChildProperty) {
-						if (ChildProperty->Name.ToString() == Offset.PropertyName) {
-							if (Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0) && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::Property)) {
-								*Offset.Offset = ((SDK::FProperty*)ChildProperty)->Offset;
+						if ((HasOffset == false && HasMask == false) || ObjectName != Offset.ClassName)
+							continue;
 
-								DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found offset: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Offset));
+						if (Children->Name == Offset.PropertyName) {
+							if (HasOffset && IsProperty) {
+								*Offset.Offset = GetPropertyOffset((SDK::UProperty*)Children);
+
+								DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found offset: ")) + Offset.ClassName.ToString() + "::" + Offset.PropertyName.ToString() + " at " + std::to_string(*Offset.Offset));
 							}
 
-							if (Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0) && ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
-								*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
+							if (HasMask && IsBoolProperty) {
+								*Offset.Mask = ((SDK::UBoolProperty*)Children)->ByteMask();
 
-								DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found mask: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Mask));
+								DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found mask: ")) + Offset.ClassName.ToString() + "::" + Offset.PropertyName.ToString() + " at " + std::to_string(*Offset.Mask));
 							}
 
 							OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());
 						}
-
-						ChildProperty = ChildProperty->Next;
 					}
 				}
-				else {
-					if (ObjectName.ends_with(Offset.ClassName)) {
-						SDK::UField* Child = ObjectStruct->Children();
-						while (Child) {
-							if (Child->Name.ToString() == Offset.PropertyName) {
-								if (Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0) && Child->HasTypeFlag(SDK::EClassCastFlags::Property)) {
-									*Offset.Offset = GetPropertyOffset((SDK::UProperty*)Child);
 
-									DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found offset: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Offset));
+				Children = Children->Next();
+			}
+
+			// Search for offsets in versions above 12.00
+			if (Game::GameVersion >= 12.00) {
+				SDK::FField* ChildProperty = ObjectStruct->ChildProperties();
+				while (ChildProperty) {
+					bool IsProperty = ChildProperty->HasTypeFlag(SDK::EClassCastFlags::Property);
+					bool IsBoolProperty = ChildProperty->HasTypeFlag(SDK::EClassCastFlags::BoolProperty);
+
+					if (IsProperty || IsBoolProperty) {
+						for (OffsetSearch& Offset : Offsets) {
+							bool HasOffset = Offset.Offset != nullptr && (*Offset.Offset == -0x1 || *Offset.Offset == 0x0);
+							bool HasMask = Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0);
+
+							if ((HasOffset == false && HasMask == false) || ObjectName != Offset.ClassName)
+								continue;
+
+							if (ChildProperty->Name == Offset.PropertyName) {
+								if (HasOffset && IsProperty) {
+									*Offset.Offset = ((SDK::FProperty*)ChildProperty)->Offset;
+
+									DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found offset: ")) + Offset.ClassName.ToString() + "::" + Offset.PropertyName.ToString() + " at " + std::to_string(*Offset.Offset));
 								}
 
-								if (Offset.Mask != nullptr && (*Offset.Mask == -0x1 || *Offset.Mask == 0x0) && Child->HasTypeFlag(SDK::EClassCastFlags::BoolProperty)) {
-									*Offset.Mask = ((SDK::UBoolProperty*)Child)->ByteMask();
+								if (HasMask && IsBoolProperty) {
+									*Offset.Mask = ((SDK::FBoolProperty*)ChildProperty)->FieldMask;
 
-									DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found mask: ")) + Offset.ClassName + "::" + Offset.PropertyName + " at " + std::to_string(*Offset.Mask));
+									DEBUG_LOG(LOG_INFO, std::string(skCrypt("Found mask: ")) + Offset.ClassName.ToString() + "::" + Offset.PropertyName.ToString() + " at " + std::to_string(*Offset.Mask));
 								}
 
 								OffsetsNotFound.erase(std::remove(OffsetsNotFound.begin(), OffsetsNotFound.end(), Offset), OffsetsNotFound.end());
 							}
-
-							Child = Child->Next();
 						}
 					}
+
+					ChildProperty = ChildProperty->Next;
 				}
 			}
 		}
@@ -203,12 +219,12 @@ namespace SDK {
 		if (OffsetsNotFound.empty() == false || FunctionsNotFound.empty() == false) {
 			std::string MissingOffsets;
 			for (OffsetSearch& Offset : OffsetsNotFound) {
-				MissingOffsets += Offset.ClassName + " " + Offset.PropertyName + "\n";
+				MissingOffsets += Offset.ClassName.ToString() + " " + Offset.PropertyName.ToString() + "\n";
 			}
 
 			std::string MissingFunctions;
 			for (FunctionSearch& Function : FunctionsNotFound) {
-				MissingFunctions += Function.ClassName + " " + Function.FunctionName + "\n";
+				MissingFunctions += Function.ClassName.ToString() + " " + Function.FunctionName.ToString() + "\n";
 			}
 
 			std::string Output = "";

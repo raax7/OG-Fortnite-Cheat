@@ -216,10 +216,10 @@ void Features::Aimbot::PlayerTarget::UpdateTargetInfo(Target& Target, Actors::Ca
 		Target.LocalInfo.TargetRotationChange = SDK::FRotator(Target.LocalInfo.TargetRotation.Pitch - AimbotCamera.Rotation.Pitch, Target.LocalInfo.TargetRotation.Yaw - AimbotCamera.Rotation.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationChange = Math::NormalizeAxis(Target.LocalInfo.TargetRotationChange);
 
-		SDK::FRotator RotationAfterSmooth = Target.LocalInfo.TargetRotationChange / AimbotSpeed;
-		RotationAfterSmooth = Math::NormalizeAxis(RotationAfterSmooth);
+		Target.LocalInfo.TargetRotationChangeWithSmooth = Target.LocalInfo.TargetRotationChange / AimbotSpeed;
+		Target.LocalInfo.TargetRotationChangeWithSmooth = Math::NormalizeAxis(Target.LocalInfo.TargetRotationChangeWithSmooth);
 
-		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(AimbotCamera.Rotation.Pitch + RotationAfterSmooth.Pitch, AimbotCamera.Rotation.Yaw + RotationAfterSmooth.Yaw, 0.f);
+		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(AimbotCamera.Rotation.Pitch + Target.LocalInfo.TargetRotationChangeWithSmooth.Pitch, AimbotCamera.Rotation.Yaw + Target.LocalInfo.TargetRotationChangeWithSmooth.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationWithSmooth = Math::NormalizeAxis(Target.LocalInfo.TargetRotationWithSmooth);
 		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(Target.LocalInfo.TargetRotationWithSmooth.Pitch, Target.LocalInfo.TargetRotationWithSmooth.Yaw, 0.f); // 0 on the roll so the camera doesn't get stuck tilted
 	}
@@ -267,10 +267,10 @@ void Features::Aimbot::WeakSpotTarget::UpdateTargetInfo(Target& Target, SDK::ABu
 		Target.LocalInfo.TargetRotationChange = SDK::FRotator(Target.LocalInfo.TargetRotation.Pitch - AimbotCamera.Rotation.Pitch, Target.LocalInfo.TargetRotation.Yaw - AimbotCamera.Rotation.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationChange = Math::NormalizeAxis(Target.LocalInfo.TargetRotationChange);
 
-		SDK::FRotator RotationAfterSmooth = Target.LocalInfo.TargetRotationChange / AimbotSpeed;
-		RotationAfterSmooth = Math::NormalizeAxis(RotationAfterSmooth);
+		Target.LocalInfo.TargetRotationChangeWithSmooth = Target.LocalInfo.TargetRotationChange / AimbotSpeed;
+		Target.LocalInfo.TargetRotationChangeWithSmooth = Math::NormalizeAxis(Target.LocalInfo.TargetRotationChangeWithSmooth);
 
-		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(AimbotCamera.Rotation.Pitch + RotationAfterSmooth.Pitch, AimbotCamera.Rotation.Yaw + RotationAfterSmooth.Yaw, 0.f);
+		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(AimbotCamera.Rotation.Pitch + Target.LocalInfo.TargetRotationChangeWithSmooth.Pitch, AimbotCamera.Rotation.Yaw + Target.LocalInfo.TargetRotationChangeWithSmooth.Yaw, 0.f);
 		Target.LocalInfo.TargetRotationWithSmooth = Math::NormalizeAxis(Target.LocalInfo.TargetRotationWithSmooth);
 		Target.LocalInfo.TargetRotationWithSmooth = SDK::FRotator(Target.LocalInfo.TargetRotationWithSmooth.Pitch, Target.LocalInfo.TargetRotationWithSmooth.Yaw, 0.f); // 0 on the roll so the camera doesn't get stuck tilted
 	}

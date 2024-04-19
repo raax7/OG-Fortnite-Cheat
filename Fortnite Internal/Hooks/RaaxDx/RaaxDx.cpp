@@ -41,21 +41,21 @@ RaaxDx::Status RaaxDx::Init() {
 
 	if (DXVersion == 11) {
 		void* D3D11CreateDeviceAndSwapChain = LI_FN(GetProcAddress).safe()(DXModule, skCrypt("D3D11CreateDeviceAndSwapChain"));
-		if (D3D11CreateDeviceAndSwapChain == NULL) {
+		if (SDK::IsValidPointer(D3D11CreateDeviceAndSwapChain) == false) {
 			return Status::DxFunctionNotFound;
 		}
 
 		// Create D3D11 Device and SwapChain
-
-		// Create D3D11 Device and SwapChain
-		D3D_FEATURE_LEVEL FeatureLevel;
-		const D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_11_0 };
+		D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_11_0;
+		const D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_11_1 };
 
 		DXGI_RATIONAL RefreshRate;
+		ZeroMemory(&RefreshRate, sizeof(DXGI_RATIONAL));
 		RefreshRate.Numerator = 60;
 		RefreshRate.Denominator = 1;
 
 		DXGI_MODE_DESC BufferDesc;
+		ZeroMemory(&BufferDesc, sizeof(DXGI_MODE_DESC));
 		BufferDesc.Width = 100;
 		BufferDesc.Height = 100;
 		BufferDesc.RefreshRate = RefreshRate;
@@ -64,10 +64,12 @@ RaaxDx::Status RaaxDx::Init() {
 		BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
 		DXGI_SAMPLE_DESC SampleDesc;
+		ZeroMemory(&SampleDesc, sizeof(DXGI_SAMPLE_DESC));
 		SampleDesc.Count = 1;
 		SampleDesc.Quality = 0;
 
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc;
+		ZeroMemory(&SwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 		SwapChainDesc.BufferDesc = BufferDesc;
 		SwapChainDesc.SampleDesc = SampleDesc;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -77,9 +79,9 @@ RaaxDx::Status RaaxDx::Init() {
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		ID3D11Device* Device;
-		ID3D11DeviceContext* DeviceContext;
-		IDXGISwapChain* SwapChain;
+		ID3D11Device* Device = nullptr;
+		ID3D11DeviceContext* DeviceContext = nullptr;
+		IDXGISwapChain* SwapChain = nullptr;
 
 		HRESULT Result = ((HRESULT(*)(IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL*, UINT, UINT, const DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**, ID3D11Device**, D3D_FEATURE_LEVEL*, ID3D11DeviceContext**))D3D11CreateDeviceAndSwapChain)(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, FeatureLevels, 1, D3D11_SDK_VERSION, &SwapChainDesc, &SwapChain, &Device, &FeatureLevel, &DeviceContext);
 		if (FAILED(Result)) {
@@ -87,10 +89,14 @@ RaaxDx::Status RaaxDx::Init() {
 		}
 
 		// Create Method Table (blindly pasted from kiero hook tbh. no clue what all these magic numbers are supposed to be)
-		VFT = (uint64_t*)::calloc(205, sizeof(uint64_t));
-		::memcpy(VFT, *(uint64_t**)SwapChain, 18 * sizeof(uint64_t));
-		::memcpy(VFT + 18, *(uint64_t**)Device, 43 * sizeof(uint64_t));
-		::memcpy(VFT + 18 + 43, *(uint64_t**)DeviceContext, 144 * sizeof(uint64_t));
+		VFT = (uint64_t*)calloc(205, sizeof(uint64_t));
+		if (VFT == NULL) {
+			return Status::MemoryError;
+		}
+
+		memcpy(VFT, *(uint64_t**)SwapChain, 18 * sizeof(uint64_t));
+		memcpy(VFT + 18, *(uint64_t**)Device, 43 * sizeof(uint64_t));
+		memcpy(VFT + 18 + 43, *(uint64_t**)DeviceContext, 144 * sizeof(uint64_t));
 
 		MH_Initialize();
 
@@ -102,6 +108,7 @@ RaaxDx::Status RaaxDx::Init() {
 	}
 	else if (DXVersion == 12) {
 		// TO-DO: Add DX12 Support
+		return Status::DxNotSupported;
 	}
 
 	return Status::Success;
@@ -110,7 +117,7 @@ RaaxDx::Status RaaxDx::Hook() {
 	// Init MinHook
 	MH_STATUS InitStats = MH_Initialize();
 	if (InitStats != MH_OK && InitStats != MH_ERROR_ALREADY_INITIALIZED) {
-		return Status::UnknownError;
+		return Status::InitMH;
 	}
 
 	if (SDK::IsValidPointer(VFT) == false) {

@@ -1,8 +1,6 @@
 #include "Drawing.h"
 #include <string>
 
-#include "../External-Libs/LazyImporter.h"
-
 #ifdef _IMGUI
 #include "../External-Libs/ImGui/imgui.h"
 #include "../Hooks/Hooks.h"
@@ -116,33 +114,33 @@ void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPosition
 	auto Cache = std::make_unique<LineCache>(ScreenPositionA, ScreenPositionB, Thickness, RenderColor, Outlined);
 	DrawingQueue.push_back(std::move(Cache));
 }
-void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
+void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
 	std::lock_guard<std::mutex> Lock(DrawingMutex);
 	if (Hooks::Present::LargeFont == nullptr) {
 		return;
 	}
 	
-	auto Cache = std::make_unique<TextCache>(RenderText, ScreenPosition, FontSize, RenderColor, CentredX, CentredY, Outlined);
+	auto Cache = std::make_unique<TextCache>(RenderText, ScreenPosition, FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 	
 	// Handle centred text here so it doesn't go crazy
-	if (CentredX || CentredY) {
+	if (CenteredX || CenteredY) {
 		ImVec2 TextSize = Hooks::Present::LargeFont->CalcTextSizeA(FontSize, FLT_MAX, FLT_MAX, RenderText);
 		ImVec2 CentredPos = ImVec2(ScreenPosition.X - TextSize.x / 2.f, ScreenPosition.Y - TextSize.y / 2.f);
 
-		if (CentredX) {
+		if (CenteredX) {
 			Cache->ScreenPosition.X = CentredPos.x;
 		}
 
-		if (CentredY) {
+		if (CenteredY) {
 			Cache->ScreenPosition.Y = CentredPos.y;
 		}
 	}
 	
 	DrawingQueue.push_back(std::move(Cache));
 }
-void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
+void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) {
 	std::string String = std::string(RenderText, RenderText + wcslen(RenderText));
-	Text(String.c_str(), ScreenPosition, FontSize, RenderColor, CentredX, CentredY, Outlined);
+	Text(String.c_str(), ScreenPosition, FontSize, RenderColor, CenteredX, CenteredY, Outlined);
 }
 SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
 	if (Hooks::Present::LargeFont == nullptr) {
@@ -223,32 +221,24 @@ void Drawing::Line(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPosition
 	SDK::GetLocalCanvas()->K2_DrawLine(ScreenPositionA, ScreenPositionB, Thickness, RenderColor);
 }
 void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
-	int WideStrLength = LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, nullptr, 0);
-	std::wstring WideString(WideStrLength, L'\0');
-	LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
-
-	// Fix text size being inaccurate on engine rendering. (Maybe UFont::ScalingFactor?)
+	std::string String(RenderText);
+	std::wstring WideString = std::wstring(String.begin(), String.end());
 
 	Text(WideString.c_str(), ScreenPosition, FontSize, RenderColor, CentredX, CentredY, Outlined);
 }
 void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
 	SDK::FString FString(RenderText);
 
-	// Fix text size being inaccurate on engine rendering. (Maybe UFont::ScalingFactor?)
-
 	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, Outlined ? (int32)FontSize - 2 : (int32)FontSize, RenderColor, CentredX, CentredY, Outlined);
 }
 SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
-	int WideStrLength = LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, nullptr, 0);
-	std::wstring WideString(WideStrLength, L'\0');
-	LI_FN(MultiByteToWideChar).safe_cached()(CP_UTF8, 0, RenderText, -1, &WideString[0], WideStrLength);
+	std::string String(RenderText);
+	std::wstring WideString = std::wstring(String.begin(), String.end());
 
 	return TextSize(WideString.c_str(), FontSize);
 }
 SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	SDK::FString FString(RenderText);
-
-	// Only use 3/4ths of the font size to make the size accurate. Unreal Engine is weird
 
 	return SDK::GetLocalCanvas()->K2_TextSize(FString, (int32)FontSize);
 }
@@ -306,7 +296,7 @@ void Drawing::CorneredRect(SDK::FVector2D ScreenPosition, SDK::FVector2D ScreenS
 	Line(SDK::FVector2D(ScreenPosition.X + ScreenSize.X - lineW, ScreenPosition.Y + ScreenSize.Y), SDK::FVector2D(ScreenPosition.X + ScreenSize.X, ScreenPosition.Y + ScreenSize.Y), Thickness, RenderColor, Outlined);
 }
 void Drawing::Triangle(SDK::FVector2D ScreenPositionA, SDK::FVector2D ScreenPositionB, SDK::FVector2D ScreenPositionC, float Thickness, SDK::FLinearColor RenderColor, bool Filled, bool Outlined) {
-
+	// ADD LATER
 }
 
 #endif // _ENGINE

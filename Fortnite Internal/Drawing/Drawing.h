@@ -43,7 +43,7 @@ namespace Drawing {
 	/* Cache texts for ImGui processing */
 	class TextCache : public IDrawingCache {
 	public:
-		TextCache(std::string RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) : RenderText(RenderText), ScreenPosition(ScreenPosition), FontSize(FontSize), RenderColor(RenderColor), CentredX(CentredX), CentredY(CentredY), Outlined(Outlined) { }
+		TextCache(std::string RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CenteredX, bool CenteredY, bool Outlined) : RenderText(RenderText), ScreenPosition(ScreenPosition), FontSize(FontSize), RenderColor(RenderColor), CenteredX(CenteredX), CenteredY(CenteredY), Outlined(Outlined) { }
 
 		void Draw() override;
 	public:
@@ -51,8 +51,8 @@ namespace Drawing {
 		SDK::FVector2D ScreenPosition;
 		float FontSize;
 		SDK::FLinearColor RenderColor;
-		bool CentredX;
-		bool CentredY;
+		bool CenteredX;
+		bool CenteredY;
 		bool Outlined;
 	};
 
