@@ -13,6 +13,13 @@
     <img alt="Stars" src="https://img.shields.io/github/stars/raax7/OG-Fortnite-Cheat?color=blue&style=for-the-badge">
 </p>
 
+
+<!-- VIDEO CLIP -->
+## Video Clip
+
+<iframe src="https://streamable.com/e/75g4ic" width="100%" height="100%" frameborder="0" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"></iframe>
+
+
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
@@ -23,7 +30,6 @@
     <li><a href="#license">License</a></li>
 </ol>
 
-<video width="630" height="300" src="https://cdn.discordapp.com/attachments/1201823062266220605/1231376657483567114/clip.mp4"></video>
 
 <!-- ABOUT Raax-OG-FN -->
 ## About Raax-OG-FN
