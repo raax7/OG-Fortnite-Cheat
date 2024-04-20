@@ -23,7 +23,7 @@
     <li><a href="#license">License</a></li>
 </ol>
 
-<video width="630" height="300" src="https://cdn.discordapp.com/attachments/1201823062266220605/1231376657483567114/clip.mp4?ex=6636bbe1&is=662446e1&hm=a0299ccc9d1704c5139054b0abfbb7364c920012f7025daec5e0640239c35d27&"></video>
+<video width="630" height="300" src="https://cdn.discordapp.com/attachments/1201823062266220605/1231376657483567114/clip.mp4"></video>
 
 <!-- ABOUT Raax-OG-FN -->
 ## About Raax-OG-FN
