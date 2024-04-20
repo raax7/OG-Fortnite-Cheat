@@ -18,7 +18,7 @@
 ## Table of Contents
 
 <ol>
-    <li><a href="#about-somethingidk-fn">About Raax-OG-FN</a></li>
+    <li><a href="#about-raax-og-fn">About Raax-OG-FN</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#developers-read-me">Developers Read Me!</a></li>
     <li><a href="#license">License</a></li>
