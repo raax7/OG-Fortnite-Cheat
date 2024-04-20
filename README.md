@@ -4,6 +4,7 @@
 </p>
 <p align="center">Raax-OG-FN, a universal, internal Fortnite cheat.</p>
 <p align="center">If you found this useful, join the Discord and star the project!</p>
+<p align="center">THIS IS STILL UNDER DEVELOPMENT, LOTS OF THE CODE IS STILL SCUFFED AND WILL BE CHANGED LATER!</p>
 <p align="center">
 	<a href="https://discord.gg/Hg5dTFP7jy">Discord Server</a> |
 	<a href="https://github.com/raax7/OG-Fortnite-Cheat/issues">Report an Issue</a>
@@ -71,4 +72,4 @@ Overall, just explore the project. There is already tons of code using everythin
 <!-- LICENSE -->
 ## License
 
-Do literally whatever you want. (aside from reuploading the source and claiming it as your own)
+We use the MIT license. For more information, please read the LICENSE file.
