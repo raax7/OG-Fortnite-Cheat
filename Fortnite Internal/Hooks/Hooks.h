@@ -15,6 +15,8 @@
 #include "../Game/SDK/Classes/Engine_Structs.h"
 #include "../Game/SDK/Classes/Engine_Classes.h"
 
+#include "../Utilities/ReturnMutex.h"
+
 namespace Hooks {
 	// Virtual Function Table Hook
 
@@ -54,7 +56,7 @@ namespace Hooks {
 
 		inline bool ImGuiBeenSetup = false;
 
-		inline std::mutex PresentMutex;
+		inline ReturnMutex Mutex;
 
 		inline ImFont* Font;
 		inline ImFont* LargeFont;
@@ -73,7 +75,7 @@ namespace Hooks {
 		using WndProcParams = LRESULT(*)(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		inline WndProcParams WndProcOriginal = nullptr;
 
-		inline std::recursive_timed_mutex WndProcMutex;
+		inline ReturnMutex Mutex;
 
 		inline HWND Window;
 
@@ -91,20 +93,20 @@ namespace Hooks {
 	}
 
 	namespace CalculateShot {
-		using CalcShotParams = SDK::FTransform*(*)(void**, uintptr_t, uintptr_t);
+		using CalcShotParams = SDK::FTransform* (*)(void**, uintptr_t, uintptr_t);
 		inline CalcShotParams CalculateShotOriginal = nullptr;
 
 		SDK::FTransform* CalculateShot(void** arg0, uintptr_t arg1, uintptr_t arg2);
 
 		inline bool Hooked = false;
 	}
-	
+
 	namespace RaycastMulti {
 		using RaycastMultiParams = bool(*)(const SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, const SDK::FVector Start, const SDK::FVector End, SDK::ECollisionChannel TraceChannel, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParams, const struct FCollisionObjectQueryParams& ObjectParams);
 		inline RaycastMultiParams RaycastMultiOriginal = nullptr;
 
 		bool RaycastMulti(SDK::UWorld* World, SDK::TArray<SDK::FHitResult>& OutHits, const SDK::FVector Start, const SDK::FVector End, SDK::ECollisionChannel TraceChannel, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParams, const struct FCollisionObjectQueryParams& ObjectParams);
-	
+
 		inline bool Hooked = false;
 	}
 
@@ -139,9 +141,11 @@ namespace Hooks {
 		inline bool Hooked = false;
 	}
 
-	//Original Function is never called so no need to define it
-	namespace ShouldReplicateFunction {
-		bool ShouldReplicateFunction(void* this_, SDK::AActor* Actor, void* Function);
+	namespace PerformBuildingEditInteraction {
+		using PerformBuildingEditInteractionParams = void(*)(void* this_);
+		inline PerformBuildingEditInteractionParams PerformBuildingEditInteractionOriginal = nullptr;
+
+		void PerformBuildingEditInteraction(void* this_);
 
 		inline bool Hooked = false;
 	}

@@ -17,36 +17,55 @@
 
 namespace Memory {
 	// The worlds gayest pattern scanner. Improve later
-	inline uintptr_t PatternScan(uintptr_t pModuleBaseAddress, const char* sSignature, int pIndex = 0, bool sRelativeAdr = false) {
+	/*
+	* @brief Scans for a pattern in a module
+	* 
+	* @param ModuleBaseAddress - The base address of the module to scan
+	* @param Signature - The pattern to scan for (example: "48 8B 05 ? ? ? ? 48 8B 0C C8")
+	* @param PointerIndex - The index in the signature to return
+	* @param RelativeAddress - If the address should be relative
+	* 
+	* @return The address of the pattern
+	*/
+	inline uintptr_t PatternScan(uintptr_t ModuleBaseAddress, const char* Signature, int PointerIndex = 0, bool RelativeAddress = false) {
 		static auto patternToByte = [](const char* pattern) { auto bytes = std::vector<int>{}; const auto start = const_cast<char*>(pattern); const auto end = const_cast<char*>(pattern) + strlen(pattern); for (auto current = start; current < end; ++current) { if (*current == '?') { ++current; if (*current == '?') ++current; bytes.push_back(-1); } else bytes.push_back(strtoul((const char*)current, &current, 16)); } return bytes; };
 
-		const auto dosHeader = (PIMAGE_DOS_HEADER)pModuleBaseAddress;
-		const auto ntHeaders = (PIMAGE_NT_HEADERS)((std::uint8_t*)pModuleBaseAddress + dosHeader->e_lfanew);
+		const auto DOSHeader = (PIMAGE_DOS_HEADER)ModuleBaseAddress;
+		const auto NtHeaders = (PIMAGE_NT_HEADERS)((std::uint8_t*)ModuleBaseAddress + DOSHeader->e_lfanew);
 
-		const auto sizeOfImage = ntHeaders->OptionalHeader.SizeOfImage;
-		auto patternBytes = patternToByte(sSignature);
-		const auto scanBytes = reinterpret_cast<std::uint8_t*>(pModuleBaseAddress);
+		const auto SizeOfImage = NtHeaders->OptionalHeader.SizeOfImage;
+		auto PatternBytes = patternToByte(Signature);
+		const auto ScanBytes = reinterpret_cast<std::uint8_t*>(ModuleBaseAddress);
 
-		const auto s = patternBytes.size();
-		const auto d = patternBytes.data();
+		const auto Size = PatternBytes.size();
+		const auto Data = PatternBytes.data();
 
-		for (auto i = 0ul; i < sizeOfImage - s; ++i) {
-			bool found = true; for (auto j = 0ul; j < s; ++j) { if (scanBytes[i + j] != d[j] && d[j] != -1) { found = false; break; } }
-			if (found)
+		for (auto i = 0ul; i < SizeOfImage - Size; ++i) {
+			bool Found = true; for (auto j = 0ul; j < Size; ++j) { if (ScanBytes[i + j] != Data[j] && Data[j] != -1) { Found = false; break; } }
+
+			if (Found)
 			{
-				if (sRelativeAdr)
+				if (RelativeAddress)
 				{
-					return ((uintptr_t)((UINT_PTR)(reinterpret_cast<uintptr_t>(&scanBytes[i])) + *(PINT)((UINT_PTR)(reinterpret_cast<uintptr_t>(&scanBytes[i])) + ((pIndex)-sizeof(INT))) + (pIndex)));
+					return ((uintptr_t)((UINT_PTR)(reinterpret_cast<uintptr_t>(&ScanBytes[i])) + *(PINT)((UINT_PTR)(reinterpret_cast<uintptr_t>(&ScanBytes[i])) + ((PointerIndex)-sizeof(INT))) + (PointerIndex)));
 				}
 				else
 				{
-					return reinterpret_cast<uintptr_t>(&scanBytes[i]);
+					return reinterpret_cast<uintptr_t>(&ScanBytes[i]);
 				}
 			}
 		}
 
 		return NULL;
 	}
+
+
+
+	// thanks dumper-7.
+	// 
+	// ive been doing this project for like 4 months now and i just want
+	// to get it done. so yes, this is all pasted from dumper-7 for now.
+	// i will recode this all as my own later on.
 
 	inline bool IsInProcessRange(uintptr_t Address) {
 		uintptr_t ImageBase = SDK::GetBaseAddress();
@@ -189,8 +208,7 @@ namespace Memory {
 		return nullptr;
 	}
 
-	template<typename Type = const char*>
-	inline uint8_t* find_string_very_gay_fix_later_69(Type RefStr, uint8_t* SearchStart, DWORD SearchRange) {
+	inline uint8_t* FindByStringInAllSections_constchar(const char* RefStr, uint8_t* SearchStart, DWORD SearchRange) {
 		for (int i = 0; i < (int)SearchRange; i++)
 		{
 			if ((SearchStart[i] == uint8_t(0x4C) || SearchStart[i] == uint8_t(0x48)) && SearchStart[i + 1] == uint8_t(0x8D))
@@ -200,7 +218,7 @@ namespace Memory {
 				if (!IsInProcessRange((uintptr_t)StrPtr))
 					continue;
 
-				if (strcmp((const char*)RefStr, (const char*)StrPtr) == 0)
+				if (strcmp(RefStr, (const char*)StrPtr) == 0)
 				{
 					return { SearchStart + i };
 				}

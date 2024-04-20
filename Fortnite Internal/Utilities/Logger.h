@@ -8,7 +8,7 @@
 #include <sstream>
 #endif
 
-// Only log if the log level is not LOG_NO
+// Only log if the log level is above LOG_NONE
 #if LOG_LEVEL > LOG_NONE
 class Logger {
 private:

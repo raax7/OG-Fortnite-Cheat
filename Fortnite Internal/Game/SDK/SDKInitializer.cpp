@@ -124,25 +124,25 @@ void SDKInitializer::InitDTIndex() {
 	uintptr_t GameInstance = -0x1;
 
 	std::vector<FunctionSearch> Functions = {};
-	std::vector<OffsetSearch> Offsets = { OffsetSearch{ SDK::FName(skCrypt(L"GameViewportClient")), SDK::FName(skCrypt(L"GameInstance")), &GameInstance, nullptr }};
+	std::vector<OffsetSearch> Offsets = { OffsetSearch{ SDK::FName(skCrypt(L"GameViewportClient")), SDK::FName(skCrypt(L"GameInstance")), &GameInstance, nullptr } };
 
 	SDK::UObject::SetupObjects(Functions, Offsets);
 
 	int bSuppressTransitionMessage = (int)GameInstance + sizeof(void*);
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
-	{
-		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
-		if (*Address == 0xE9)
 		{
-			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
+			uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+			if (*Address == 0xE9)
+			{
+				uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
 
-			if (Memory::IsInProcessRange(uintptr_t(Ret)))
-				return Ret;
-		}
+				if (Memory::IsInProcessRange(uintptr_t(Ret)))
+					return Ret;
+			}
 
-		return reinterpret_cast<uint8_t*>(FunctionPtr);
-	};
+			return reinterpret_cast<uint8_t*>(FunctionPtr);
+		};
 
 	for (int i = 0; i < 0x150; i++)
 	{
@@ -166,18 +166,18 @@ void SDKInitializer::InitPEIndex() {
 	void** Vft = SDK::UObject::ObjectArray.GetByIndex(0)->Vft;
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
-	{
-		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
-		if (*Address == 0xE9)
 		{
-			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
+			uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+			if (*Address == 0xE9)
+			{
+				uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
 
-			if (Memory::IsInProcessRange(uintptr_t(Ret)))
-				return Ret;
-		}
+				if (Memory::IsInProcessRange(uintptr_t(Ret)))
+					return Ret;
+			}
 
-		return reinterpret_cast<uint8_t*>(FunctionPtr);
-	};
+			return reinterpret_cast<uint8_t*>(FunctionPtr);
+		};
 
 	for (int i = 0; i < 0x150; i++)
 	{
@@ -221,18 +221,18 @@ void SDKInitializer::InitGPVIndex() {
 	}
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
-	{
-		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
-		if (*Address == 0xE9)
 		{
-			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
+			uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+			if (*Address == 0xE9)
+			{
+				uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
 
-			if (Memory::IsInProcessRange(uintptr_t(Ret)))
-				return Ret;
-		}
+				if (Memory::IsInProcessRange(uintptr_t(Ret)))
+					return Ret;
+			}
 
-		return reinterpret_cast<uint8_t*>(FunctionPtr);
-	};
+			return reinterpret_cast<uint8_t*>(FunctionPtr);
+		};
 
 	for (int i = 0; i < 0x150; i++)
 	{
@@ -241,8 +241,8 @@ void SDKInitializer::InitGPVIndex() {
 
 		if (// Signature for most builds
 			(Memory::FindPatternInRange({ 0x80, 0xBB, -0x01, -0x01, 0x00, 0x00, 0x03 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
-			&& Memory::FindPatternInRange({ 0x84, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
-			&& Memory::FindPatternInRange({ 0x48, 0x8B, 0xCB }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+				&& Memory::FindPatternInRange({ 0x84, 0xC0 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+				&& Memory::FindPatternInRange({ 0x48, 0x8B, 0xCB }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 				)
 
 			// Signature for builds where Fortnite added their own wrapper for it
@@ -251,9 +251,9 @@ void SDKInitializer::InitGPVIndex() {
 
 			// Another general signature
 			|| (Memory::FindPatternInRange({ 0x0F, 0x10, 0x89, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
-			&& Memory::FindPatternInRange({ 0x0F, 0xC6, -0x01, -0x01, 0x0F, 0xC6, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
+				&& Memory::FindPatternInRange({ 0x0F, 0xC6, -0x01, -0x01, 0x0F, 0xC6, -0x01, -0x01 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 				)
-			
+
 			// Signature for UE5 builds (19.00+)
 			|| (SDK::GetGameVersion() >= 19.00 && Memory::FindPatternInRange({ 0x48, 0x81, 0xEC, -0x01, -0x01, 0x00, 0x00 }, Resolve32BitRelativeJump(Vft[i]), 0x70)
 				&& Memory::FindPatternInRange({ 0x48, 0x8B, -0x01, -0x01, 0x48, 0x8B }, Resolve32BitRelativeJump(Vft[i]), 0x70)
@@ -303,18 +303,18 @@ void SDKInitializer::InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor) {
 	}
 
 	auto Resolve32BitRelativeJump = [](void* FunctionPtr) -> uint8_t*
-	{
-		uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
-		if (*Address == 0xE9)
 		{
-			uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
+			uint8_t* Address = reinterpret_cast<uint8_t*>(FunctionPtr);
+			if (*Address == 0xE9)
+			{
+				uint8_t* Ret = ((Address + 5) + *reinterpret_cast<int32_t*>(Address + 1));
 
-			if (Memory::IsInProcessRange(uintptr_t(Ret)))
-				return Ret;
-		}
+				if (Memory::IsInProcessRange(uintptr_t(Ret)))
+					return Ret;
+			}
 
-		return reinterpret_cast<uint8_t*>(FunctionPtr);
-	};
+			return reinterpret_cast<uint8_t*>(FunctionPtr);
+		};
 
 	for (int i = 0; i < 0x100; i++)
 	{
@@ -355,9 +355,9 @@ void SDKInitializer::InitAppendString() {
 		std::vector<const char*>
 	{
 		skCrypt("48 8D ? ? 48 8D ? ? E8"),
-		skCrypt("48 8D ? ? ? 48 8D ? ? E8"),
-		skCrypt("48 8D ? ? 49 8B ? E8"),
-		skCrypt("48 8D ? ? ? 49 8B ? E8")
+			skCrypt("48 8D ? ? ? 48 8D ? ? E8"),
+			skCrypt("48 8D ? ? 49 8B ? E8"),
+			skCrypt("48 8D ? ? ? 49 8B ? E8")
 	},
 		skCrypt("ForwardShadingQuality_"),
 		SDK::Cached::Functions::AppendString,
@@ -516,7 +516,7 @@ void SDKInitializer::InitFire() {
 
 	if (EditModeInputComponent0) {
 		// The function start shouldnt be more than 0x5000 bytes backwards from the string reference
-		uintptr_t FireString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("Fire"), (uint8_t*)(EditModeInputComponent0 - 0x4500), 0x4500);
+		uintptr_t FireString = (uintptr_t)Memory::FindByStringInAllSections_constchar(skCrypt("Fire"), (uint8_t*)(EditModeInputComponent0 - 0x4500), 0x4500);
 
 		if (FireString) {
 			FireAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(FireString - 0x28), 0x50, true, -1);
@@ -543,10 +543,10 @@ void SDKInitializer::InitEditSelectRelease() {
 	if (EditModeInputComponent0) {
 		// The first function is always the press function and the second is the release
 		// Find the string once for the first function, then find it again for the second one
-		uintptr_t FirstEditSelectString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("EditSelect"), (uint8_t*)(EditModeInputComponent0), 0x200);
+		uintptr_t FirstEditSelectString = (uintptr_t)Memory::FindByStringInAllSections_constchar(skCrypt("EditSelect"), (uint8_t*)(EditModeInputComponent0), 0x200);
 
 		if (FirstEditSelectString) {
-			uintptr_t SecondEditSelectString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("EditSelect"), (uint8_t*)(FirstEditSelectString + 0x8), 0x200);
+			uintptr_t SecondEditSelectString = (uintptr_t)Memory::FindByStringInAllSections_constchar(skCrypt("EditSelect"), (uint8_t*)(FirstEditSelectString + 0x8), 0x200);
 
 			if (SecondEditSelectString) {
 				EditSelectReleaseAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(SecondEditSelectString - 0x28), 0x50, true, -1);
@@ -572,7 +572,7 @@ void SDKInitializer::InitCompleteBuildingEditInteraction() {
 	}
 
 	if (EditModeInputComponent0) {
-		uintptr_t CompleteBuildingEditInteractionString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("CompleteBuildingEditInteraction"), (uint8_t*)EditModeInputComponent0, 0x300);
+		uintptr_t CompleteBuildingEditInteractionString = (uintptr_t)Memory::FindByStringInAllSections_constchar(skCrypt("CompleteBuildingEditInteraction"), (uint8_t*)EditModeInputComponent0, 0x300);
 
 		if (CompleteBuildingEditInteractionString) {
 			CompleteBuildingEditInteractionAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 1D"), (uint8_t*)(CompleteBuildingEditInteractionString - 0x28), 0x50, true, -1);
@@ -597,7 +597,7 @@ void SDKInitializer::InitPerformBuildingEditInteraction() {
 	}
 
 	if (EditModeInputComponent0) {
-		uintptr_t PerformBuildingEditInteractionString = (uintptr_t)Memory::find_string_very_gay_fix_later_69(skCrypt("PerformBuildingEditInteraction"), (uint8_t*)(EditModeInputComponent0 - 0x4500), 0x4500);
+		uintptr_t PerformBuildingEditInteractionString = (uintptr_t)Memory::FindByStringInAllSections_constchar(skCrypt("PerformBuildingEditInteraction"), (uint8_t*)(EditModeInputComponent0 - 0x4500), 0x4500);
 
 		if (PerformBuildingEditInteractionString) {
 			PerformBuildingEditInteractionAddress = (uintptr_t)Memory::FindPatternInRange(skCrypt("48 8D 05"), (uint8_t*)(PerformBuildingEditInteractionString - 0x28), 0x50, true, -1);
@@ -613,23 +613,6 @@ void SDKInitializer::InitPerformBuildingEditInteraction() {
 	}
 
 	THROW_ERROR(std::string(skCrypt("Failed to find PerformBuildingEditInteraction!")), false);
-}
-
-void SDKInitializer::InitShouldReplicateFunction()
-{
-	uintptr_t ShouldReplicateFunctionAddress = 0x0;
-
-	//Pattern Scan for the Function Directly
-	ShouldReplicateFunctionAddress = Memory::PatternScan(SDK::GetBaseAddress(), skCrypt("48 85 D2 74 28 4C 8B 82")); //7.40 8.51
-	if (ShouldReplicateFunctionAddress) {
-		SDK::Cached::Functions::ShouldReplicateFunction = ShouldReplicateFunctionAddress;
-		DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("ShouldReplicateFunction offset found: ")) + std::to_string(uintptr_t(SDK::Cached::Functions::ShouldReplicateFunction - SDK::GetBaseAddress())));
-		return;
-	}
-	//XRefs
-	ShouldReplicateFunctionAddress = Memory::PatternScan(SDK::GetBaseAddress(), skCrypt("E8 ? ? ? ? 84 C0 75 2D 48 85"), 1, true); //7.40
-
-	THROW_ERROR(std::string(skCrypt("Failed to find InitShouldReplicateFunction!")), false);
 }
 
 void SDKInitializer::InitGObjects() {

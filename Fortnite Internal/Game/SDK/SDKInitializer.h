@@ -114,7 +114,8 @@ public:
 	/* Update the CompleteBuildingEditInteraction function offset (for edit on release) */
 	static void InitCompleteBuildingEditInteraction();
 
-	static void InitShouldReplicateFunction();
+	/* Update the PerformBuildingEditInteraction function offset (for disable pre-edits) */
+	static void InitPerformBuildingEditInteraction();
 
 
 
@@ -130,9 +131,9 @@ public:
 	/* Update the GetViewpoint VFT index (for SilentAim) */
 	static void InitGVIndex();
 
-	/* 
+	/*
 	* @brief Update the GetWeaponStats VFT index (for some weapon exploits)
-	* 
+	*
 	* @param WeaponObject - The weapon actor to get the VFT index from
 	*/
 	static void InitGetWeaponStatsIndex(const SDK::UObject* WeaponActor);
@@ -198,7 +199,7 @@ public:
 	static uint32 FindChildrenOffset() {
 		std::vector<std::pair<void*, void*>> Infos;
 
-		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("PlayerController"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("WasInputKeyJustReleased")), std::string(skCrypt("PlayerController")))});
+		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("PlayerController"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("WasInputKeyJustReleased")), std::string(skCrypt("PlayerController"))) });
 		Infos.push_back({ SDK::UObject::FindObjectFast(std::string(skCrypt("Controller"))), SDK::UObject::FindObjectFastInOuter(std::string(skCrypt("UnPossess")), std::string(skCrypt("Controller"))) });
 
 		uint32 Ret = Memory::FindOffset(Infos);

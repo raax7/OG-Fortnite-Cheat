@@ -31,7 +31,7 @@ namespace SDK {
 				inline uintptr_t PlayerState = -0x1;
 			}
 
-			namespace Material{
+			namespace Material {
 				inline uintptr_t bDisableDepthTest = -0x1;
 				inline uintptr_t BlendMode = -0x1;
 				inline uintptr_t Wireframe = -0x1;
@@ -85,6 +85,8 @@ namespace SDK {
 			namespace PlayerController {
 				inline uintptr_t AcknowledgedPawn = -0x1;
 				inline uintptr_t PlayerCameraManager = -0x1;
+				inline uintptr_t InputYawScale = -0x1;
+				inline uintptr_t InputPitchScale = -0x1;
 			}
 
 			namespace HUD {
@@ -312,6 +314,8 @@ namespace SDK {
 				inline void* ClientSetRotation = nullptr;
 				inline void* SetControlRotation = nullptr;
 				inline void* GetMousePosition = nullptr;
+				inline void* AddYawInput = nullptr;
+				inline void* AddPitchInput = nullptr;
 			}
 
 			namespace PlayerState {
@@ -345,11 +349,11 @@ namespace SDK {
 			inline uintptr_t Fire = 0x0;
 			inline uintptr_t EditSelectRelease = 0x0;
 			inline uintptr_t CompleteBuildingEditInteraction = 0x0;
-			inline uintptr_t ShouldReplicateFunction = 0x0;
+			inline uintptr_t PerformBuildingEditInteraction = 0x0;
 		}
 
 		namespace Masks {
-			namespace FortPawn{
+			namespace FortPawn {
 				inline uintptr_t bIsDying = -0x1;
 			}
 

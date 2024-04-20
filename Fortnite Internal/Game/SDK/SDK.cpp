@@ -17,7 +17,7 @@
 #include "../../Configs/Config.h"
 
 void SDK::Init() {
-	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Initializing SDK... (")) + std::to_string(GetBaseAddress()) + std::string(skCrypt(")")));
+	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("Initializing SDK... (")) + std::to_string(GetBaseAddress()) + std::string(skCrypt(" - ")) + std::to_string((uint64_t)CurrentModule) + std::string(skCrypt(")")));
 
 	// Init Offsets, Functions, and VFT Indexes
 	{
@@ -30,7 +30,6 @@ void SDK::Init() {
 		SDKInitializer::InitLineTraceSingle();
 		SDKInitializer::InitRaycastMulti();
 		SDKInitializer::InitFire();
-		SDKInitializer::InitShouldReplicateFunction();
 
 		// Init Class Offsets
 		SDK::UProperty::OffsetOffset = 0x44; // Doesn't change (as far as I know)
@@ -77,6 +76,11 @@ void SDK::Init() {
 			SDKInitializer::InitCompleteBuildingEditInteraction();
 		}
 
+		// Init functions for DisablePreEdits (only for game versions before DisablePreEdits)
+		if (SDK::GetGameVersion() < 15.20) {
+			SDKInitializer::InitPerformBuildingEditInteraction();
+		}
+
 		// Init CalculateShot function offset (requires game version)
 		SDKInitializer::InitCalculateShot();
 
@@ -89,179 +93,183 @@ void SDK::Init() {
 	// Init Cached Objects
 	{
 		std::vector<FunctionSearch> Functions{
-			FunctionSearch { std::string(skCrypt("Canvas")),				std::string(skCrypt("K2_DrawLine")),				&SDK::Cached::Functions::Canvas::K2_DrawLine							},
-			FunctionSearch { std::string(skCrypt("Canvas")),				std::string(skCrypt("K2_DrawText")),				&SDK::Cached::Functions::Canvas::K2_DrawText							},
-			FunctionSearch { std::string(skCrypt("Canvas")),				std::string(skCrypt("K2_TextSize")),				&SDK::Cached::Functions::Canvas::K2_TextSize							},
-			FunctionSearch { std::string(skCrypt("Canvas")),				std::string(skCrypt("K2_Project")),					&SDK::Cached::Functions::Canvas::K2_Project								},
-			FunctionSearch { std::string(skCrypt("Canvas")),				std::string(skCrypt("K2_DrawBox")),					&SDK::Cached::Functions::Canvas::K2_DrawBox								},
-			FunctionSearch { std::string(skCrypt("GameplayStatics")),		std::string(skCrypt("GetAllActorsOfClass")),		&SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass			},
-			FunctionSearch { std::string(skCrypt("PlayerCameraManager")),	std::string(skCrypt("GetCameraLocation")),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraLocation			},
-			FunctionSearch { std::string(skCrypt("PlayerCameraManager")),	std::string(skCrypt("GetCameraRotation")),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraRotation			},
-			FunctionSearch { std::string(skCrypt("PlayerCameraManager")),	std::string(skCrypt("GetFOVAngle")),				&SDK::Cached::Functions::PlayerCameraManager::GetFOVAngle				},
-			FunctionSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("IsInputKeyDown")),				&SDK::Cached::Functions::PlayerController::IsInputKeyDown				},
-			FunctionSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("WasInputKeyJustReleased")),	&SDK::Cached::Functions::PlayerController::WasInputKeyJustReleased		},
-			FunctionSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("WasInputKeyJustPressed")),		&SDK::Cached::Functions::PlayerController::WasInputKeyJustPressed		},
-			FunctionSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("GetMousePosition")),			&SDK::Cached::Functions::PlayerController::GetMousePosition				},
-			FunctionSearch { std::string(skCrypt("Controller")),			std::string(skCrypt("ClientSetRotation")),			&SDK::Cached::Functions::PlayerController::ClientSetRotation			},
-			FunctionSearch { std::string(skCrypt("Controller")),			std::string(skCrypt("SetControlRotation")),			&SDK::Cached::Functions::PlayerController::SetControlRotation			},
-			FunctionSearch { std::string(skCrypt("KismetSystemLibrary")),	std::string(skCrypt("LineTraceSingle")),			&SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle			},
-			FunctionSearch { std::string(skCrypt("KismetMaterialLibrary")),	std::string(skCrypt("CreateDynamicMaterialInstance")),&SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance},
-			FunctionSearch { std::string(skCrypt("KismetMathLibrary")),		std::string(skCrypt("FindLookAtRotation")),			&SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation			},
-			FunctionSearch { std::string(skCrypt("KismetMathLibrary")),		std::string(skCrypt("GetForwardVector")),			&SDK::Cached::Functions::KismetMathLibrary::GetForwardVector			},
-			FunctionSearch { std::string(skCrypt("KismetMathLibrary")),		std::string(skCrypt("GetRightVector")),				&SDK::Cached::Functions::KismetMathLibrary::GetRightVector				},
-			FunctionSearch { std::string(skCrypt("KismetMathLibrary")),		std::string(skCrypt("FMod")),						&SDK::Cached::Functions::KismetMathLibrary::FMod						},
-			FunctionSearch { std::string(skCrypt("PlayerState")),			std::string(skCrypt("GetPlayerName")),				&SDK::Cached::Functions::PlayerState::GetPlayerName						},
-			FunctionSearch { std::string(skCrypt("SkinnedMeshComponent")),	std::string(skCrypt("GetBoneName")),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName				},
-			FunctionSearch { std::string(skCrypt("SceneComponent")),		std::string(skCrypt("GetSocketLocation")),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation		},
-			FunctionSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("K2_TeleportTo")),				&SDK::Cached::Functions::Actor::K2_TeleportTo							},
-			FunctionSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("K2_SetActorRotation")),		&SDK::Cached::Functions::Actor::K2_SetActorRotation						},
-			FunctionSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("K2_SetActorLocation")),		&SDK::Cached::Functions::Actor::K2_SetActorLocation						},
-			FunctionSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("SetActorEnableCollision")),	&SDK::Cached::Functions::Actor::SetActorEnableCollision					},
-			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("SetPhysicsLinearVelocity")),	&SDK::Cached::Functions::SceneComponent::SetPhysicsLinearVelocity		},
-			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("CreateDynamicMaterialInstance")),&SDK::Cached::Functions::SceneComponent::CreateDynamicMaterialInstance},
-			FunctionSearch { std::string(skCrypt("Pawn")),					std::string(skCrypt("GetMovementComponent")),		&SDK::Cached::Functions::Pawn::GetMovementComponent						},
-			FunctionSearch { std::string(skCrypt("MovementComponent")),		std::string(skCrypt("StopMovementImmediately")),	&SDK::Cached::Functions::MovementComponent::StopMovementImmediately		},
-			FunctionSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("IsProjectileWeapon")),			&SDK::Cached::Functions::FortWeapon::IsProjectileWeapon					},
-			FunctionSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("GetProjectileSpeed")),			&SDK::Cached::Functions::FortWeapon::GetProjectileSpeed					},
-			FunctionSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("GetBulletsPerClip")),			&SDK::Cached::Functions::FortWeapon::GetBulletsPerClip					},
-			FunctionSearch { std::string(skCrypt("FortPlayerPawn")),		std::string(skCrypt("ServerHandlePickup")),			&SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup				},
-			FunctionSearch { std::string(skCrypt("MeshComponent")),			std::string(skCrypt("GetMaterials")),				&SDK::Cached::Functions::MeshComponent::GetMaterials					},
-			FunctionSearch { std::string(skCrypt("PrimitiveComponent")),	std::string(skCrypt("SetMaterial")),				&SDK::Cached::Functions::PrimitiveComponent::SetMaterial				},
-			FunctionSearch { std::string(skCrypt("MaterialInstanceDynamic")),std::string(skCrypt("SetVectorParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetVectorParameterValue},
-			FunctionSearch { std::string(skCrypt("MaterialInstanceDynamic")),std::string(skCrypt("SetScalarParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetScalarParameterValue},
-			FunctionSearch { std::string(skCrypt("MaterialInterface")),		std::string(skCrypt("GetBaseMaterial")),			&SDK::Cached::Functions::MaterialInterface::GetBaseMaterial				},
+			FunctionSearch { SDK::FName(skCrypt(L"Canvas")),				SDK::FName(skCrypt(L"K2_DrawLine")),				&SDK::Cached::Functions::Canvas::K2_DrawLine							},
+			FunctionSearch { SDK::FName(skCrypt(L"Canvas")),				SDK::FName(skCrypt(L"K2_DrawText")),				&SDK::Cached::Functions::Canvas::K2_DrawText							},
+			FunctionSearch { SDK::FName(skCrypt(L"Canvas")),				SDK::FName(skCrypt(L"K2_TextSize")),				&SDK::Cached::Functions::Canvas::K2_TextSize							},
+			FunctionSearch { SDK::FName(skCrypt(L"Canvas")),				SDK::FName(skCrypt(L"K2_Project")),					&SDK::Cached::Functions::Canvas::K2_Project								},
+			FunctionSearch { SDK::FName(skCrypt(L"Canvas")),				SDK::FName(skCrypt(L"K2_DrawBox")),					&SDK::Cached::Functions::Canvas::K2_DrawBox								},
+			FunctionSearch { SDK::FName(skCrypt(L"GameplayStatics")),		SDK::FName(skCrypt(L"GetAllActorsOfClass")),		&SDK::Cached::Functions::GameplayStatics::GetAllActorsOfClass			},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerCameraManager")),	SDK::FName(skCrypt(L"GetCameraLocation")),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraLocation			},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerCameraManager")),	SDK::FName(skCrypt(L"GetCameraRotation")),			&SDK::Cached::Functions::PlayerCameraManager::GetCameraRotation			},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerCameraManager")),	SDK::FName(skCrypt(L"GetFOVAngle")),				&SDK::Cached::Functions::PlayerCameraManager::GetFOVAngle				},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"IsInputKeyDown")),				&SDK::Cached::Functions::PlayerController::IsInputKeyDown				},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"WasInputKeyJustReleased")),	&SDK::Cached::Functions::PlayerController::WasInputKeyJustReleased		},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"WasInputKeyJustPressed")),		&SDK::Cached::Functions::PlayerController::WasInputKeyJustPressed		},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"GetMousePosition")),			&SDK::Cached::Functions::PlayerController::GetMousePosition				},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"AddYawInput")),				&SDK::Cached::Functions::PlayerController::AddYawInput					},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"AddPitchInput")),				&SDK::Cached::Functions::PlayerController::AddPitchInput				},
+			FunctionSearch { SDK::FName(skCrypt(L"Controller")),			SDK::FName(skCrypt(L"ClientSetRotation")),			&SDK::Cached::Functions::PlayerController::ClientSetRotation			},
+			FunctionSearch { SDK::FName(skCrypt(L"Controller")),			SDK::FName(skCrypt(L"SetControlRotation")),			&SDK::Cached::Functions::PlayerController::SetControlRotation			},
+			FunctionSearch { SDK::FName(skCrypt(L"KismetSystemLibrary")),	SDK::FName(skCrypt(L"LineTraceSingle")),			&SDK::Cached::Functions::KismetSystemLibrary::LineTraceSingle			},
+			FunctionSearch { SDK::FName(skCrypt(L"KismetMaterialLibrary")),	SDK::FName(skCrypt(L"CreateDynamicMaterialInstance")),&SDK::Cached::Functions::KismetMaterialLibrary::CreateDynamicMaterialInstance},
+			FunctionSearch { SDK::FName(skCrypt(L"KismetMathLibrary")),		SDK::FName(skCrypt(L"FindLookAtRotation")),			&SDK::Cached::Functions::KismetMathLibrary::FindLookAtRotation			},
+			FunctionSearch { SDK::FName(skCrypt(L"KismetMathLibrary")),		SDK::FName(skCrypt(L"GetForwardVector")),			&SDK::Cached::Functions::KismetMathLibrary::GetForwardVector			},
+			FunctionSearch { SDK::FName(skCrypt(L"KismetMathLibrary")),		SDK::FName(skCrypt(L"GetRightVector")),				&SDK::Cached::Functions::KismetMathLibrary::GetRightVector				},
+			FunctionSearch { SDK::FName(skCrypt(L"KismetMathLibrary")),		SDK::FName(skCrypt(L"FMod")),						&SDK::Cached::Functions::KismetMathLibrary::FMod						},
+			FunctionSearch { SDK::FName(skCrypt(L"PlayerState")),			SDK::FName(skCrypt(L"GetPlayerName")),				&SDK::Cached::Functions::PlayerState::GetPlayerName						},
+			FunctionSearch { SDK::FName(skCrypt(L"SkinnedMeshComponent")),	SDK::FName(skCrypt(L"GetBoneName")),				&SDK::Cached::Functions::SkinnedMeshComponent::GetBoneName				},
+			FunctionSearch { SDK::FName(skCrypt(L"SceneComponent")),		SDK::FName(skCrypt(L"GetSocketLocation")),			&SDK::Cached::Functions::SkinnedMeshComponent::GetSocketLocation		},
+			FunctionSearch { SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"K2_TeleportTo")),				&SDK::Cached::Functions::Actor::K2_TeleportTo							},
+			FunctionSearch { SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"K2_SetActorRotation")),		&SDK::Cached::Functions::Actor::K2_SetActorRotation						},
+			FunctionSearch { SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"K2_SetActorLocation")),		&SDK::Cached::Functions::Actor::K2_SetActorLocation						},
+			FunctionSearch { SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"SetActorEnableCollision")),	&SDK::Cached::Functions::Actor::SetActorEnableCollision					},
+			FunctionSearch { SDK::FName(skCrypt(L"PrimitiveComponent")),	SDK::FName(skCrypt(L"SetPhysicsLinearVelocity")),	&SDK::Cached::Functions::SceneComponent::SetPhysicsLinearVelocity		},
+			FunctionSearch { SDK::FName(skCrypt(L"PrimitiveComponent")),	SDK::FName(skCrypt(L"CreateDynamicMaterialInstance")),&SDK::Cached::Functions::SceneComponent::CreateDynamicMaterialInstance},
+			FunctionSearch { SDK::FName(skCrypt(L"Pawn")),					SDK::FName(skCrypt(L"GetMovementComponent")),		&SDK::Cached::Functions::Pawn::GetMovementComponent						},
+			FunctionSearch { SDK::FName(skCrypt(L"MovementComponent")),		SDK::FName(skCrypt(L"StopMovementImmediately")),	&SDK::Cached::Functions::MovementComponent::StopMovementImmediately		},
+			FunctionSearch { SDK::FName(skCrypt(L"FortWeapon")),			SDK::FName(skCrypt(L"IsProjectileWeapon")),			&SDK::Cached::Functions::FortWeapon::IsProjectileWeapon					},
+			FunctionSearch { SDK::FName(skCrypt(L"FortWeapon")),			SDK::FName(skCrypt(L"GetProjectileSpeed")),			&SDK::Cached::Functions::FortWeapon::GetProjectileSpeed					},
+			FunctionSearch { SDK::FName(skCrypt(L"FortWeapon")),			SDK::FName(skCrypt(L"GetBulletsPerClip")),			&SDK::Cached::Functions::FortWeapon::GetBulletsPerClip					},
+			FunctionSearch { SDK::FName(skCrypt(L"FortPlayerPawn")),		SDK::FName(skCrypt(L"ServerHandlePickup")),			&SDK::Cached::Functions::FortPlayerPawn::ServerHandlePickup				},
+			FunctionSearch { SDK::FName(skCrypt(L"MeshComponent")),			SDK::FName(skCrypt(L"GetMaterials")),				&SDK::Cached::Functions::MeshComponent::GetMaterials					},
+			FunctionSearch { SDK::FName(skCrypt(L"PrimitiveComponent")),	SDK::FName(skCrypt(L"SetMaterial")),				&SDK::Cached::Functions::PrimitiveComponent::SetMaterial				},
+			FunctionSearch { SDK::FName(skCrypt(L"MaterialInstanceDynamic")),SDK::FName(skCrypt(L"SetVectorParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetVectorParameterValue},
+			FunctionSearch { SDK::FName(skCrypt(L"MaterialInstanceDynamic")),SDK::FName(skCrypt(L"SetScalarParameterValue")),	&SDK::Cached::Functions::MaterialInstanceDynamic::SetScalarParameterValue},
+			FunctionSearch { SDK::FName(skCrypt(L"MaterialInterface")),		SDK::FName(skCrypt(L"GetBaseMaterial")),			&SDK::Cached::Functions::MaterialInterface::GetBaseMaterial				},
 		};
-
 		std::vector<OffsetSearch> Offsets{
-			OffsetSearch { std::string(skCrypt("GameViewportClient")),		std::string(skCrypt("GameInstance")),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		nullptr },
-			OffsetSearch { std::string(skCrypt("Engine")),					std::string(skCrypt("GameViewport")),				&SDK::Cached::Offsets::Engine::GameViewport,					nullptr },
-			OffsetSearch { std::string(skCrypt("Engine")),					std::string(skCrypt("WireframeMaterial")),			&SDK::Cached::Offsets::Engine::WireframeMaterial,				nullptr },
-			OffsetSearch { std::string(skCrypt("GameViewportClient")),		std::string(skCrypt("World")),						&SDK::Cached::Offsets::GameViewportClient::World,				nullptr },
-			OffsetSearch { std::string(skCrypt("GameInstance")),			std::string(skCrypt("LocalPlayers")),				&SDK::Cached::Offsets::GameInstance::LocalPlayers,				nullptr },
-			OffsetSearch { std::string(skCrypt("Player")),					std::string(skCrypt("PlayerController")),			&SDK::Cached::Offsets::Player::PlayerController,				nullptr },
-			OffsetSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("AcknowledgedPawn")),			&SDK::Cached::Offsets::PlayerController::AcknowledgedPawn,		nullptr },
-			OffsetSearch { std::string(skCrypt("PlayerController")),		std::string(skCrypt("PlayerCameraManager")),		&SDK::Cached::Offsets::PlayerController::PlayerCameraManager,	nullptr },
-			OffsetSearch { std::string(skCrypt("FortPlayerStateZone")),		std::string(skCrypt("SpectatingTarget")),			&SDK::Cached::Offsets::FortPlayerStateZone::SpectatingTarget,	nullptr },
-			OffsetSearch { std::string(skCrypt("HUD")),						std::string(skCrypt("DebugCanvas")),				&SDK::Cached::Offsets::HUD::Canvas,								nullptr },
-			OffsetSearch { std::string(skCrypt("Pawn")),					std::string(skCrypt("PlayerState")),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
-			OffsetSearch { std::string(skCrypt("Character")),				std::string(skCrypt("Mesh")),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
-			OffsetSearch { std::string(skCrypt("Font")),					std::string(skCrypt("LegacyFontSize")),				&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
-			OffsetSearch { std::string(skCrypt("SkinnedMeshComponent")),	std::string(skCrypt("SkeletalMesh")),				&SDK::Cached::Offsets::SkeletalMeshComponent::SkeletalMesh,		nullptr },
-			OffsetSearch { std::string(skCrypt("SkeletalMesh")),			std::string(skCrypt("Materials")),					&SDK::Cached::Offsets::SkeletalMesh::Materials,					nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"GameViewportClient")),		SDK::FName(skCrypt(L"GameInstance")),				&SDK::Cached::Offsets::GameViewportClient::GameInstance,		nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Engine")),					SDK::FName(skCrypt(L"GameViewport")),				&SDK::Cached::Offsets::Engine::GameViewport,					nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Engine")),					SDK::FName(skCrypt(L"WireframeMaterial")),			&SDK::Cached::Offsets::Engine::WireframeMaterial,				nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"GameViewportClient")),		SDK::FName(skCrypt(L"World")),						&SDK::Cached::Offsets::GameViewportClient::World,				nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"GameInstance")),			SDK::FName(skCrypt(L"LocalPlayers")),				&SDK::Cached::Offsets::GameInstance::LocalPlayers,				nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Player")),					SDK::FName(skCrypt(L"PlayerController")),			&SDK::Cached::Offsets::Player::PlayerController,				nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"AcknowledgedPawn")),			&SDK::Cached::Offsets::PlayerController::AcknowledgedPawn,		nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"PlayerCameraManager")),		&SDK::Cached::Offsets::PlayerController::PlayerCameraManager,	nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"InputYawScale")),				&SDK::Cached::Offsets::PlayerController::InputYawScale,			nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"PlayerController")),		SDK::FName(skCrypt(L"InputPitchScale")),			&SDK::Cached::Offsets::PlayerController::InputPitchScale,		nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"FortPlayerStateZone")),		SDK::FName(skCrypt(L"SpectatingTarget")),			&SDK::Cached::Offsets::FortPlayerStateZone::SpectatingTarget,	nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"HUD")),						SDK::FName(skCrypt(L"DebugCanvas")),				&SDK::Cached::Offsets::HUD::Canvas,								nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Pawn")),					SDK::FName(skCrypt(L"PlayerState")),				&SDK::Cached::Offsets::Pawn::PlayerState,						nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Character")),				SDK::FName(skCrypt(L"Mesh")),						&SDK::Cached::Offsets::Character::Mesh,							nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Font")),					SDK::FName(skCrypt(L"LegacyFontSize")),				&SDK::Cached::Offsets::Font::LegacyFontSize,					nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"SkinnedMeshComponent")),	SDK::FName(skCrypt(L"SkeletalMesh")),				&SDK::Cached::Offsets::SkeletalMeshComponent::SkeletalMesh,		nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"SkeletalMesh")),			SDK::FName(skCrypt(L"Materials")),					&SDK::Cached::Offsets::SkeletalMesh::Materials,					nullptr },
 
-			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("bDisableDepthTest")),			&SDK::Cached::Offsets::Material::bDisableDepthTest,				&SDK::Cached::Masks::Material::bDisableDepthTest },
-			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("BlendMode")),					&SDK::Cached::Offsets::Material::BlendMode,						nullptr },
-			OffsetSearch { std::string(skCrypt("Material")),				std::string(skCrypt("Wireframe")),					&SDK::Cached::Offsets::Material::Wireframe,						&SDK::Cached::Masks::Material::Wireframe },
+			OffsetSearch { SDK::FName(skCrypt(L"Material")),				SDK::FName(skCrypt(L"bDisableDepthTest")),			&SDK::Cached::Offsets::Material::bDisableDepthTest,				&SDK::Cached::Masks::Material::bDisableDepthTest },
+			OffsetSearch { SDK::FName(skCrypt(L"Material")),				SDK::FName(skCrypt(L"BlendMode")),					&SDK::Cached::Offsets::Material::BlendMode,						nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"Material")),				SDK::FName(skCrypt(L"Wireframe")),					&SDK::Cached::Offsets::Material::Wireframe,						&SDK::Cached::Masks::Material::Wireframe },
 
-			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("TraceStart")),					&SDK::Cached::Offsets::HitResult::TraceStart,					nullptr },
-			OffsetSearch { std::string(skCrypt("HitResult")),				std::string(skCrypt("Distance")),					&SDK::Cached::Offsets::HitResult::Distance,						nullptr },
+			OffsetSearch { SDK::FName(skCrypt(L"HitResult")),				SDK::FName(skCrypt(L"TraceStart")),					&SDK::Cached::Offsets::HitResult::TraceStart,					nullptr },
+			OffsetSearch{ SDK::FName(skCrypt(L"HitResult")),				SDK::FName(skCrypt(L"Distance")),					&SDK::Cached::Offsets::HitResult::Distance,						nullptr },
 
-			OffsetSearch { std::string(skCrypt("World")),					std::string(skCrypt("GameState")),					&SDK::Cached::Offsets::World::GameState,						nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"World")),					SDK::FName(skCrypt(L"GameState")),					&SDK::Cached::Offsets::World::GameState,						nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortPickup")),				std::string(skCrypt("PrimaryPickupItemEntry")),		&SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry,		nullptr },
-			OffsetSearch { std::string(skCrypt("FortPickup")),				std::string(skCrypt("PickupEffectBlueprint")),		&SDK::Cached::Offsets::FortPickup::PickupEffectBlueprint,		nullptr },
-			OffsetSearch { std::string(skCrypt("FortItemDefinition")),		std::string(skCrypt("DisplayName")),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			nullptr },
-			OffsetSearch { std::string(skCrypt("FortItemDefinition")),		std::string(skCrypt("Tier")),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				nullptr },
-			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("RootComponent")),				&SDK::Cached::Offsets::Actor::RootComponent,					nullptr },
-			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("Role")),						&SDK::Cached::Offsets::Actor::Role,								nullptr },
-			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("InstanceComponents")),			&SDK::Cached::Offsets::Actor::InstanceComponents,				nullptr },
-			OffsetSearch { std::string(skCrypt("Actor")),					std::string(skCrypt("BlueprintCreatedComponents")),	&SDK::Cached::Offsets::Actor::BlueprintCreatedComponents,		nullptr },
-			OffsetSearch { std::string(skCrypt("SceneComponent")),			std::string(skCrypt("RelativeLocation")),			&SDK::Cached::Offsets::SceneComponent::RelativeLocation,		nullptr },
-			OffsetSearch { std::string(skCrypt("ActorComponent")),			std::string(skCrypt("ComponentTags")),				&SDK::Cached::Offsets::ActorComponent::ComponentTags,			nullptr },
-			OffsetSearch { std::string(skCrypt("Canvas")),					std::string(skCrypt("SizeX")),						&SDK::Cached::Offsets::Canvas::SizeX,							nullptr },
-			OffsetSearch { std::string(skCrypt("Canvas")),					std::string(skCrypt("SizeY")),						&SDK::Cached::Offsets::Canvas::SizeY,							nullptr },
-			OffsetSearch { std::string(skCrypt("FortPawn")),				std::string(skCrypt("CurrentWeapon")),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
-			OffsetSearch { std::string(skCrypt("FortPawn")),				std::string(skCrypt("bIsDying")),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
-			OffsetSearch { std::string(skCrypt("FortPlayerPawn")),			std::string(skCrypt("VehicleStateLocal")),			&SDK::Cached::Offsets::FortPlayerPawn::VehicleStateLocal,		nullptr },
-			OffsetSearch { std::string(skCrypt("FortPlayerPawn")),			std::string(skCrypt("CharacterPartSkeletalMeshComponents")),&SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents,nullptr },
-			OffsetSearch { std::string(skCrypt("FortPlayerPawnAthena")),	std::string(skCrypt("bADSWhileNotOnGround")),		&SDK::Cached::Offsets::FortPlayerPawnAthena::bADSWhileNotOnGround,nullptr },
-			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("WeaponData")),					&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
-			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("LastFireTime")),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },
-			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("bIgnoreTryToFireSlotCooldownRestriction")), &SDK::Cached::Offsets::FortWeapon::bIgnoreTryToFireSlotCooldownRestriction, nullptr },
-			OffsetSearch { std::string(skCrypt("FortWeapon")),				std::string(skCrypt("AmmoCount")),					&SDK::Cached::Offsets::FortWeapon::AmmoCount,					nullptr },
-			//OffsetSearch { std::string(skCrypt("FortWeapon")),			std::string(skCrypt("AllWeaponMeshes")),			&SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPickup")),				SDK::FName(skCrypt(L"PrimaryPickupItemEntry")),		&SDK::Cached::Offsets::FortPickup::PrimaryPickupItemEntry,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPickup")),				SDK::FName(skCrypt(L"PickupEffectBlueprint")),		&SDK::Cached::Offsets::FortPickup::PickupEffectBlueprint,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortItemDefinition")),		SDK::FName(skCrypt(L"DisplayName")),				&SDK::Cached::Offsets::FortItemDefinition::DisplayName,			nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortItemDefinition")),		SDK::FName(skCrypt(L"Tier")),						&SDK::Cached::Offsets::FortItemDefinition::Tier,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"RootComponent")),				&SDK::Cached::Offsets::Actor::RootComponent,					nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"Role")),						&SDK::Cached::Offsets::Actor::Role,								nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"InstanceComponents")),			&SDK::Cached::Offsets::Actor::InstanceComponents,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"Actor")),					SDK::FName(skCrypt(L"BlueprintCreatedComponents")),	&SDK::Cached::Offsets::Actor::BlueprintCreatedComponents,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"SceneComponent")),			SDK::FName(skCrypt(L"RelativeLocation")),			&SDK::Cached::Offsets::SceneComponent::RelativeLocation,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"ActorComponent")),			SDK::FName(skCrypt(L"ComponentTags")),				&SDK::Cached::Offsets::ActorComponent::ComponentTags,			nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"Canvas")),					SDK::FName(skCrypt(L"SizeX")),						&SDK::Cached::Offsets::Canvas::SizeX,							nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"Canvas")),					SDK::FName(skCrypt(L"SizeY")),						&SDK::Cached::Offsets::Canvas::SizeY,							nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPawn")),				SDK::FName(skCrypt(L"CurrentWeapon")),				&SDK::Cached::Offsets::FortPawn::CurrentWeapon,					nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPawn")),				SDK::FName(skCrypt(L"bIsDying")),					&SDK::Cached::Offsets::FortPawn::bIsDying,						&SDK::Cached::Masks::FortPawn::bIsDying },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerPawn")),			SDK::FName(skCrypt(L"VehicleStateLocal")),			&SDK::Cached::Offsets::FortPlayerPawn::VehicleStateLocal,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerPawn")),			SDK::FName(skCrypt(L"CharacterPartSkeletalMeshComponents")),&SDK::Cached::Offsets::FortPlayerPawn::CharacterPartSkeletalMeshComponents,nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerPawnAthena")),	SDK::FName(skCrypt(L"bADSWhileNotOnGround")),		&SDK::Cached::Offsets::FortPlayerPawnAthena::bADSWhileNotOnGround,nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortWeapon")),				SDK::FName(skCrypt(L"WeaponData")),					&SDK::Cached::Offsets::FortWeapon::WeaponData,					nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortWeapon")),				SDK::FName(skCrypt(L"LastFireTime")),				&SDK::Cached::Offsets::FortWeapon::LastFireTime,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortWeapon")),				SDK::FName(skCrypt(L"bIgnoreTryToFireSlotCooldownRestriction")), &SDK::Cached::Offsets::FortWeapon::bIgnoreTryToFireSlotCooldownRestriction, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortWeapon")),				SDK::FName(skCrypt(L"AmmoCount")),					&SDK::Cached::Offsets::FortWeapon::AmmoCount,					nullptr },
+				//OffsetSearch { SDK::FName(skCrypt(L"FortWeapon")),				SDK::FName(skCrypt(L"AllWeaponMeshes")),			&SDK::Cached::Offsets::FortWeapon::AllWeaponMeshes,				nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("bBuildFree")),					&SDK::Cached::Offsets::FortPlayerController::bBuildFree,		&SDK::Cached::Masks::FortPlayerController::bBuildFree },
-			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("bInfiniteAmmo")),				&SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo,		&SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo },
-			OffsetSearch { std::string(skCrypt("FortPlayerController")),	std::string(skCrypt("TargetedBuilding")),			&SDK::Cached::Offsets::FortPlayerController::TargetedBuilding,	nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerController")),	SDK::FName(skCrypt(L"bBuildFree")),					&SDK::Cached::Offsets::FortPlayerController::bBuildFree,		&SDK::Cached::Masks::FortPlayerController::bBuildFree },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerController")),	SDK::FName(skCrypt(L"bInfiniteAmmo")),				&SDK::Cached::Offsets::FortPlayerController::bInfiniteAmmo,		&SDK::Cached::Masks::FortPlayerController::bInfiniteAmmo },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerController")),	SDK::FName(skCrypt(L"TargetedBuilding")),			&SDK::Cached::Offsets::FortPlayerController::TargetedBuilding,	nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortPlayerStateAthena")),	std::string(skCrypt("TeamIndex")),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerStateAthena")),	SDK::FName(skCrypt(L"TeamIndex")),					&SDK::Cached::Offsets::FortPlayerStateAthena::TeamIndex,		nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortItemEntry")),			std::string(skCrypt("ItemDefinition")),				&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
-			OffsetSearch { std::string(skCrypt("MinimalViewInfo")),			std::string(skCrypt("Location")),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
-			OffsetSearch { std::string(skCrypt("MinimalViewInfo")),			std::string(skCrypt("Rotation")),					&SDK::Cached::Offsets::MinimalViewInfo::Rotation,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortItemEntry")),			SDK::FName(skCrypt(L"ItemDefinition")),				&SDK::Cached::Offsets::FortItemEntry::ItemDefinition,			nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"MinimalViewInfo")),			SDK::FName(skCrypt(L"Location")),					&SDK::Cached::Offsets::MinimalViewInfo::Location,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"MinimalViewInfo")),			SDK::FName(skCrypt(L"Rotation")),					&SDK::Cached::Offsets::MinimalViewInfo::Rotation,				nullptr },
 
-			OffsetSearch { std::string(skCrypt("B_Pickups_Parent_C")),		std::string(skCrypt("Static_Mesh_Pickup")),			&SDK::Cached::Offsets::AB_Pickups_Parent_C::Static_Mesh_Pickup,	nullptr },
-			OffsetSearch { std::string(skCrypt("B_Pickups_Parent_C")),		std::string(skCrypt("Skeletal_Mesh_Pickup")),		&SDK::Cached::Offsets::AB_Pickups_Parent_C::Skeletal_Mesh_Pickup,nullptr },
-			OffsetSearch { std::string(skCrypt("FortPickupEffect")),		std::string(skCrypt("ItemDefinition")),				&SDK::Cached::Offsets::FortPickupEffect::ItemDefinition,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"B_Pickups_Parent_C")),		SDK::FName(skCrypt(L"Static_Mesh_Pickup")),			&SDK::Cached::Offsets::AB_Pickups_Parent_C::Static_Mesh_Pickup,	nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"B_Pickups_Parent_C")),		SDK::FName(skCrypt(L"Skeletal_Mesh_Pickup")),		&SDK::Cached::Offsets::AB_Pickups_Parent_C::Skeletal_Mesh_Pickup,nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortPickupEffect")),		SDK::FName(skCrypt(L"ItemDefinition")),				&SDK::Cached::Offsets::FortPickupEffect::ItemDefinition,		nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortMeleeWeaponStats")),	std::string(skCrypt("SwingPlaySpeed")),				&SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed,	nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortMeleeWeaponStats")),	SDK::FName(skCrypt(L"SwingPlaySpeed")),				&SDK::Cached::Offsets::FortMeleeWeaponStats::SwingPlaySpeed,	nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("Spread")),						&SDK::Cached::Offsets::FortRangedWeaponStats::Spread,			nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("SpreadDownsights")),			&SDK::Cached::Offsets::FortRangedWeaponStats::SpreadDownsights,	nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("StandingStillSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::StandingStillSpreadMultiplier, nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("AthenaCrouchingSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaCrouchingSpreadMultiplier, nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("AthenaJumpingFallingSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaJumpingFallingSpreadMultiplier, nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("AthenaSprintingSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier, nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("MinSpeedForSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier, nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("MaxSpeedForSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier, nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("RecoilVert")),					&SDK::Cached::Offsets::FortRangedWeaponStats::RecoilVert,		nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("RecoilHoriz")),				&SDK::Cached::Offsets::FortRangedWeaponStats::RecoilHoriz,		nullptr },
-			OffsetSearch { std::string(skCrypt("FortRangedWeaponStats")),	std::string(skCrypt("BulletsPerCartridge")),		&SDK::Cached::Offsets::FortRangedWeaponStats::BulletsPerCartridge, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"Spread")),						&SDK::Cached::Offsets::FortRangedWeaponStats::Spread,			nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"SpreadDownsights")),			&SDK::Cached::Offsets::FortRangedWeaponStats::SpreadDownsights,	nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"StandingStillSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::StandingStillSpreadMultiplier, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"AthenaCrouchingSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaCrouchingSpreadMultiplier, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"AthenaJumpingFallingSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaJumpingFallingSpreadMultiplier, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"AthenaSprintingSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::AthenaSprintingSpreadMultiplier, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"MinSpeedForSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::MinSpeedForSpreadMultiplier, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"MaxSpeedForSpreadMultiplier")), &SDK::Cached::Offsets::FortRangedWeaponStats::MaxSpeedForSpreadMultiplier, nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"RecoilVert")),					&SDK::Cached::Offsets::FortRangedWeaponStats::RecoilVert,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"RecoilHoriz")),				&SDK::Cached::Offsets::FortRangedWeaponStats::RecoilHoriz,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortRangedWeaponStats")),	SDK::FName(skCrypt(L"BulletsPerCartridge")),		&SDK::Cached::Offsets::FortRangedWeaponStats::BulletsPerCartridge, nullptr },
 
-			OffsetSearch { std::string(skCrypt("FortBaseWeaponStats")),		std::string(skCrypt("ReloadTime")),					&SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime,		nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"FortBaseWeaponStats")),		SDK::FName(skCrypt(L"ReloadTime")),					&SDK::Cached::Offsets::FortRangedWeaponStats::ReloadTime,		nullptr },
 
-			OffsetSearch { std::string(skCrypt("VehiclePawnState")),		std::string(skCrypt("Vehicle")),					&SDK::Cached::Offsets::VehiclePawnState::Vehicle,				nullptr },
+				OffsetSearch{ SDK::FName(skCrypt(L"VehiclePawnState")),		SDK::FName(skCrypt(L"Vehicle")),					&SDK::Cached::Offsets::VehiclePawnState::Vehicle,				nullptr },
 
-			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bHit")),						&SDK::Cached::Offsets::BuildingWeakSpot::bHit,					&SDK::Cached::Masks::BuildingWeakSpot::bHit },
-			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bFadeOut")),					&SDK::Cached::Offsets::BuildingWeakSpot::bFadeOut,				&SDK::Cached::Masks::BuildingWeakSpot::bFadeOut },
-			OffsetSearch { std::string(skCrypt("BuildingWeakSpot")),		std::string(skCrypt("bActive")),					&SDK::Cached::Offsets::BuildingWeakSpot::bActive,				&SDK::Cached::Masks::BuildingWeakSpot::bActive },
+				OffsetSearch{ SDK::FName(skCrypt(L"BuildingWeakSpot")),		SDK::FName(skCrypt(L"bHit")),						&SDK::Cached::Offsets::BuildingWeakSpot::bHit,					&SDK::Cached::Masks::BuildingWeakSpot::bHit },
+				OffsetSearch{ SDK::FName(skCrypt(L"BuildingWeakSpot")),		SDK::FName(skCrypt(L"bFadeOut")),					&SDK::Cached::Offsets::BuildingWeakSpot::bFadeOut,				&SDK::Cached::Masks::BuildingWeakSpot::bFadeOut },
+				OffsetSearch{ SDK::FName(skCrypt(L"BuildingWeakSpot")),		SDK::FName(skCrypt(L"bActive")),					&SDK::Cached::Offsets::BuildingWeakSpot::bActive,				&SDK::Cached::Masks::BuildingWeakSpot::bActive },
 		};
 
 		if (SDK::GetGameVersion() >= 6.00) {
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortRechargingActionTimer")), std::string(skCrypt("ChargeRate")), &SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate, nullptr });
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortRechargingActionTimer")), std::string(skCrypt("ActiveExpenseRate")), &SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate, nullptr });
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortRechargingActionTimer")), std::string(skCrypt("PassiveExpenseRate")), &SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate, nullptr });
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortRechargingActionTimer")), std::string(skCrypt("Charge")), &SDK::Cached::Offsets::FortRechargingActionTimer::Charge, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortRechargingActionTimer")), SDK::FName(skCrypt(L"ChargeRate")), &SDK::Cached::Offsets::FortRechargingActionTimer::ChargeRate, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortRechargingActionTimer")), SDK::FName(skCrypt(L"ActiveExpenseRate")), &SDK::Cached::Offsets::FortRechargingActionTimer::ActiveExpenseRate, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortRechargingActionTimer")), SDK::FName(skCrypt(L"PassiveExpenseRate")), &SDK::Cached::Offsets::FortRechargingActionTimer::PassiveExpenseRate, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortRechargingActionTimer")), SDK::FName(skCrypt(L"Charge")), &SDK::Cached::Offsets::FortRechargingActionTimer::Charge, nullptr });
 
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAntelopeVehicleConfigs")), std::string(skCrypt("BoostAccumulationRate")), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate, nullptr });
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAntelopeVehicleConfigs")), std::string(skCrypt("BoostExpenseRate")), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortAntelopeVehicleConfigs")), SDK::FName(skCrypt(L"BoostAccumulationRate")), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostAccumulationRate, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortAntelopeVehicleConfigs")), SDK::FName(skCrypt(L"BoostExpenseRate")), &SDK::Cached::Offsets::FortAntelopeVehicleConfigs::BoostExpenseRate, nullptr });
 
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAthenaAntelopeVehicle")), std::string(skCrypt("FortAntelopeVehicleConfigs")), &SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortAthenaAntelopeVehicle")), SDK::FName(skCrypt(L"FortAntelopeVehicleConfigs")), &SDK::Cached::Offsets::FortAthenaAntelopeVehicle::FortAntelopeVehicleConfigs, nullptr });
 
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAthenaJackalVehicle")), std::string(skCrypt("BoostTimers")), &SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortAthenaJackalVehicle")), SDK::FName(skCrypt(L"BoostTimers")), &SDK::Cached::Offsets::FortAthenaJackalVehicle::BoostTimers, nullptr });
 
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortGameStateAthena")), std::string(skCrypt("DefaultGliderRedeployCanRedeploy")), &SDK::Cached::Offsets::FortGameStateAthena::DefaultGliderRedeployCanRedeploy, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortGameStateAthena")), SDK::FName(skCrypt(L"DefaultGliderRedeployCanRedeploy")), &SDK::Cached::Offsets::FortGameStateAthena::DefaultGliderRedeployCanRedeploy, nullptr });
 		}
-
 		if (SDK::GetGameVersion() >= 7.00) {
 			// Bit of a hacky way to do it since its not 100% accurate if its using the enum for teams or the direct value, but they both have the same type so it doesn't matter
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("TeamIndex")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"BuildingActor")), SDK::FName(skCrypt(L"TeamIndex")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
 
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortAthenaDoghouseVehicle")), std::string(skCrypt("BoostAction")), &SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortAthenaDoghouseVehicle")), SDK::FName(skCrypt(L"BoostAction")), &SDK::Cached::Offsets::FortAthenaDoghouseVehicle::BoostAction, nullptr });
 
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("ZiplinePawnState")), std::string(skCrypt("bIsZiplining")), &SDK::Cached::Offsets::ZiplinePawnState::bIsZiplining, nullptr });
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortPlayerPawn")), std::string(skCrypt("ZiplineState")), &SDK::Cached::Offsets::FortPlayerPawn::ZiplineState, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"ZiplinePawnState")), SDK::FName(skCrypt(L"bIsZiplining")), &SDK::Cached::Offsets::ZiplinePawnState::bIsZiplining, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortPlayerPawn")), SDK::FName(skCrypt(L"ZiplineState")), &SDK::Cached::Offsets::FortPlayerPawn::ZiplineState, nullptr });
 		}
 		else {
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("BuildingActor")), std::string(skCrypt("Team")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"BuildingActor")), SDK::FName(skCrypt(L"Team")), &SDK::Cached::Offsets::BuildingActor::TeamIndex, nullptr });
 		}
-
 		if (SDK::GetGameVersion() >= 10.00) {
-			Offsets.push_back(OffsetSearch{ std::string(skCrypt("FortWeapon")), std::string(skCrypt("LastFireTimeVerified")), &SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified, nullptr });
+			Offsets.push_back(OffsetSearch{ SDK::FName(skCrypt(L"FortWeapon")), SDK::FName(skCrypt(L"LastFireTimeVerified")), &SDK::Cached::Offsets::FortWeapon::LastFireTimeVerified, nullptr });
 		}
 
 		SDK::UObject::SetupObjects(Functions, Offsets);
 	}
 
-	Input::Init();
-	Features::FortPawnHelper::Bone::Init();
+	// Init Features
+	{
+		Input::Init();
+		Features::FortPawnHelper::Bone::Init();
 
-	Features::Visuals::ChamManagerFortPawn::Manager = new Features::Visuals::ChamManagerFortPawn(Config::Visuals::Players::PawnChamSettings);
-	Features::Visuals::ChamManagerFortPickup::Manager = new Features::Visuals::ChamManagerFortPickup(Config::Visuals::Weapons::PickupChamSettings);
+		Features::Visuals::ChamManagerFortPawn::Manager = new Features::Visuals::ChamManagerFortPawn(Config::Visuals::Players::PawnChamSettings);
+		Features::Visuals::ChamManagerFortPickup::Manager = new Features::Visuals::ChamManagerFortPickup(Config::Visuals::Weapons::PickupChamSettings);
 
-	Features::Visuals::ChamManagerFortPawn::Manager->Init({ SDK::FName(skCrypt(L"WireFrameParameterHighlight")), SDK::FName(skCrypt(L"WireFrameFadeOffColor")) }, { SDK::FName(skCrypt(L"Emissive Modulation")) }, std::string(skCrypt("Material RezIn_Master.RezIn_Master")));
-	Features::Visuals::ChamManagerFortPickup::Manager->Init({ SDK::FName(skCrypt(L"S Color1")), SDK::FName(skCrypt(L"S Color2")) }, { SDK::FName(skCrypt(L"Dissolve Pattern Emissive Brightness")), SDK::FName(skCrypt(L"Gradient Pass Emissive A")) }, std::string(skCrypt("Material CharacterShield_DimMak.CharacterShield_DimMak")));
+		Features::Visuals::ChamManagerFortPawn::Manager->Init({ SDK::FName(skCrypt(L"WireFrameParameterHighlight")), SDK::FName(skCrypt(L"WireFrameFadeOffColor")), SDK::FName(skCrypt(L"Top Color")), SDK::FName(skCrypt(L"Bottom Color")) }, { SDK::FName(skCrypt(L"Emissive Modulation")) }, std::string(skCrypt("Material RezIn_Master.RezIn_Master")));
+		Features::Visuals::ChamManagerFortPickup::Manager->Init({ SDK::FName(skCrypt(L"S Color1")), SDK::FName(skCrypt(L"S Color2")) }, { SDK::FName(skCrypt(L"Dissolve Pattern Emissive Brightness")), SDK::FName(skCrypt(L"Gradient Pass Emissive A")) }, std::string(skCrypt("Material CharacterShield_DimMak.CharacterShield_DimMak")));
+	}
 
 	DEBUG_LOG(LOG_OFFSET, std::string(skCrypt("SDK Initialized!")));
 
@@ -290,7 +298,7 @@ bool SDK::IsValidPointer(void* Address) {
 		return false;
 	}
 
-#ifdef USING_SEH
+#if USING_SEH
 	__try {
 		volatile auto value = *static_cast<char*>(Address);
 		(void)value;

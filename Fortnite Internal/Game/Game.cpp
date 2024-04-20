@@ -13,19 +13,15 @@
 #else
 #include "../Drawing/RaaxGUI/RaaxGUI.h"
 #endif
-#include "../Utilities/Logger.h"
 #include "Features/Visuals/Chams.h"
 
 void Game::MenuCallback() {
-	if (!SDK::GetLocalPlayer()) return;
-	if (!SDK::GetLocalController()) return;
-	if (!SDK::GetEngine()) return;
-
 	static int Tab = 0;
 	static int SubTab = 0;
 
 	static bool WaitingForKeyInput = false;
 
+	// Menu toggle
 #ifdef _IMGUI
 	if (ImGui::GetIO().KeysData[ImGuiKey_Insert].DownDuration == 0.0f) {
 		MenuOpen = !MenuOpen;
@@ -34,8 +30,9 @@ void Game::MenuCallback() {
 	if (Input::WasKeyJustReleased(Input::KeyName::Insert)) {
 		MenuOpen = !MenuOpen;
 }
-#endif
+#endif // _IMGUI
 
+	// Menu
 #ifdef _IMGUI
 	if (MenuOpen) {
 		ImGui::Begin(skCrypt("Settings"));
@@ -554,9 +551,7 @@ void Game::MenuCallback() {
 	}
 }
 void Game::DrawCallback() {
-	if (!SDK::GetLocalPlayer()) return;
-	if (!SDK::GetLocalController()) return;
-	if (!SDK::GetEngine()) return;
+	if (SDK::IsValidPointer(SDK::GetLocalController()) == false) return;
 
 	Actors::FortPickup::Tick();
 	Actors::FortAthenaVehicle::Tick();

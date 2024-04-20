@@ -23,8 +23,6 @@
 * 
 * All specific offsets, VFT indexes, function addresses, visual explanations etc
 * mentioned in comments are from Fortnite 7.40.
-* 
-* 
 */
 
 // TO-DO:
@@ -36,10 +34,10 @@
 // - Add more features
 // - Add a proper config system
 // - Add a PCH
-// - Make everything in Memory.h my own code (no pasting)
 // - Add RaycastMulti offset finding for UE5
-// - UNCOMMENT STATIC ASSERT IN Globals.h
 // - Use PropertyFlags instead of EClassCastFlags for HasTypeFlag
+// - LOTS of improvements in Memory.h
+// - Move bind setting to a seperate function (instead of the gay way I did it)
 
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;

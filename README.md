@@ -14,10 +14,38 @@
 </p>
 
 
-<!-- ABOUT somethingidk-FN -->
-## DEVELOPERS READ ME FIRST!
-I know the code base for this project is very big, so I've tried to document eveything well in the files,
-however it still won't be perfect so here are 2 things you NEED to know before you start developing with this source.
+<!-- TABLE OF CONTENTS -->
+## Table of Contents
+
+<ol>
+    <li><a href="#about-somethingidk-fn">About Raax-OG-FN</a></li>
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#developers-read-me">Developers Read Me!</a></li>
+    <li><a href="#license">License</a></li>
+</ol>
+
+
+<!-- ABOUT Raax-OG-FN -->
+## About Raax-OG-FN
+
+Out the box, Raax-OG-FN comes with some stand out features that make it the perfect base.
+- Automatic offset and VFT index updating
+- Compile time string encryption ([skCrypter](https://github.com/skadro-official/skCrypter))
+- Windows API function hiding ([LazyImporter](https://github.com/JustasMasiulis/lazy_importer))
+
+
+
+<!-- HOW IT WORKS -->
+## How it works
+
+This is quite a complicated question to answer on this project, as it has grown a lot bigger than I anticipated.
+For now, until I finish writing this readme, you should look at the source on your own. Make sure to take a look at Globals.h and make sure everything matches your specific usage.
+
+
+
+<!-- ABOUT Raax-OG-FN -->
+## Developers Read Me
+I know the code base for this project is quite big for a Fortnite cheat, so I've tried to document eveything well in the files, however it still won't be perfect so here are 2 things you NEED to know before you start developing with this source.
 
 ### Namespaces
 There are 3 main namespaces, SDK (you can guess what that is), Actors, Game and Features. Here is the purpose of each:
@@ -29,53 +57,8 @@ There are 3 main namespaces, SDK (you can guess what that is), Actors, Game and 
 ### Wrappers
 I take advantage of wrappers and abstraction alot here, so most of the time like with K2_Project for example, you will not need to get the canvas and call it, there is a wrapper simply called Project in the SDK namespace. I advise you to go to Game/SDK/SDK/Engine_classes.h and look at all the wrappers at the bottom to avoid redundunt code
 
-##
+### Overall
 Overall, just explore the project. There is already tons of code using everything how I intended so you can simply follow that style
-##
-
-
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
-
-<ol>
-    <li><a href="#about-somethingidk-fn">About Raax-OG-FN</a></li>
-    <li><a href="#how-it-works">How it works</a></li>
-    <li><a href="#instructions">Instructions</a></li>
-    <li><a href="#license">License</a></li>
-</ol>
-
-
-
-<!-- ABOUT somethingidk-FN -->
-## About somethingidk-FN
-
-Out the box, somethingidk-FN comes with some stand out features that make it the perfect base.
-- Automatic Offset and VTable updating
-- Return address spoofing (don't know who made it)
-- Compile time string encryption ([skCrypter](https://github.com/skadro-official/skCrypter))
-- Windows API function hiding ([LazyImporter](https://github.com/JustasMasiulis/lazy_importer))
-
-
-
-<!-- HOW IT WORKS -->
-## How it works
-
-Depending on the build mode different things are enabled and disabled by default. Release is the safest to use with the least potential traces out of the box.
-
-#### At Compilation (release)
-- Release mode is stripped of all debug info
-- A post-build powershell script is run to clear any remaining path strings
-
-#### On Injection
-1. A thread is made using CreateThread (may be a detection vector depending on project), as to not crash by the process being suspended for too long
-2. Beep is called so the user knows the DLL was successfully injected
-3. GObjects is initalized using one of 2 signatures
-4. FName::AppendString...
-
-
-
-<!-- INSTRUCTIONS -->
-## Instructions
 
 
 

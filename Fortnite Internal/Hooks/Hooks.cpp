@@ -20,7 +20,22 @@ Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void*
 
 	BOOL ProtectSucceeded = LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
 	if (ProtectSucceeded == FALSE) {
-		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook VFTIndex: ")) + std::to_string(VFTIndex));
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to set protection (1) on constructor for VFTIndex: ")) + std::to_string(VFTIndex));
+		return;
+	}
+
+	// Query the memory to validate the protection change
+	MEMORY_BASIC_INFORMATION Mbi;
+	ZeroMemory(&Mbi, sizeof(MEMORY_BASIC_INFORMATION));
+	size_t VirtualQuerySize = LI_FN(VirtualQuery).safe()(&VFT[VFTIndex], &Mbi, sizeof(MEMORY_BASIC_INFORMATION));
+	if (VirtualQuerySize == sizeof(MEMORY_BASIC_INFORMATION)) {
+		if ((Mbi.State == MEM_COMMIT && Mbi.Protect & PAGE_EXECUTE_READWRITE) == false) {
+			DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to set protection (2) on constructor for VFTIndex: ")) + std::to_string(VFTIndex));
+			return;
+		}
+	}
+	else {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to query memory on constructor for VFTIndex: ")) + std::to_string(VFTIndex));
 		return;
 	}
 
@@ -29,7 +44,7 @@ Hooks::VFTHook::VFTHook(void** VFT, const uintptr_t VFTIndex, T& Original, void*
 
 	ProtectSucceeded = LI_FN(VirtualProtect).safe()(&VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
 	if (ProtectSucceeded == FALSE) {
-		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor VFTIndex: ")) + std::to_string(VFTIndex));
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to set protection on constructor VFTIndex: ")) + std::to_string(VFTIndex));
 		return;
 	}
 
@@ -47,11 +62,26 @@ Hooks::VFTHook::~VFTHook() {
 		return;
 	}
 
-	DWORD OldProtection = 0;
+	DWORD OldProtection = PAGE_NOACCESS;
 
 	BOOL ProtectSucceeded = LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), PAGE_EXECUTE_READWRITE, &OldProtection);
 	if (ProtectSucceeded == FALSE) {
-		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor VFTIndex: ")) + std::to_string(VFTIndex));
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection (1) on destructor for VFTIndex: ")) + std::to_string(VFTIndex));
+		return;
+	}
+
+	// Query the memory to validate the protection change
+	MEMORY_BASIC_INFORMATION Mbi;
+	ZeroMemory(&Mbi, sizeof(MEMORY_BASIC_INFORMATION));
+	size_t VirtualQuerySize = LI_FN(VirtualQuery).safe()(&VFT[VFTIndex], &Mbi, sizeof(MEMORY_BASIC_INFORMATION));
+	if (VirtualQuerySize == sizeof(MEMORY_BASIC_INFORMATION)) {
+		if ((Mbi.State == MEM_COMMIT && Mbi.Protect & PAGE_EXECUTE_READWRITE) == false) {
+			DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection (2) on destructor for VFTIndex: ")) + std::to_string(VFTIndex));
+			return;
+		}
+	}
+	else {
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to query memory on destructor for VFTIndex: ")) + std::to_string(VFTIndex));
 		return;
 	}
 
@@ -59,7 +89,7 @@ Hooks::VFTHook::~VFTHook() {
 
 	ProtectSucceeded = LI_FN(VirtualProtect).safe()(VFT[VFTIndex], sizeof(void*), OldProtection, &OldProtection);
 	if (ProtectSucceeded == FALSE) {
-		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor VFTIndex: ")) + std::to_string(VFTIndex));
+		DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to revert protection on destructor for VFTIndex: ")) + std::to_string(VFTIndex));
 		return;
 	}
 
@@ -68,7 +98,7 @@ Hooks::VFTHook::~VFTHook() {
 
 void Hooks::Init() {
 	DEBUG_LOG(LOG_INFO, std::string(skCrypt("Initializing Hooks...")));
-	
+
 	MH_STATUS InitStats = MH_Initialize();
 	if (InitStats != MH_OK && InitStats != MH_ERROR_ALREADY_INITIALIZED) {
 		THROW_ERROR(std::string(skCrypt("Failed to init MinHook!")), true);
@@ -231,6 +261,40 @@ void Hooks::Tick() {
 			Hooks::EditSelectRelease::EditSelectReleaseOriginal = nullptr;
 
 			DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked EditSelectRelease!")));
+		}
+	}
+	if (SDK::Cached::Functions::PerformBuildingEditInteraction) {
+		if (Config::Exploits::Player::DisablePreEdits && Hooks::PerformBuildingEditInteraction::Hooked == false) {
+			Hooks::PerformBuildingEditInteraction::Hooked = true;
+
+			MH_STATUS CreatePerformBuildingEditInteractionHook = MH_CreateHook((void*)(SDK::Cached::Functions::PerformBuildingEditInteraction + SDK::GetBaseAddress()), &Hooks::PerformBuildingEditInteraction::PerformBuildingEditInteraction, (void**)&Hooks::PerformBuildingEditInteraction::PerformBuildingEditInteractionOriginal);
+			if (CreatePerformBuildingEditInteractionHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook PerformBuildingEditInteraction! Create Status: ")) + std::to_string(CreatePerformBuildingEditInteractionHook));
+			}
+
+			MH_STATUS EnablePerformBuildingEditInteractionHook = MH_EnableHook((void*)(SDK::Cached::Functions::PerformBuildingEditInteraction + SDK::GetBaseAddress()));
+			if (EnablePerformBuildingEditInteractionHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to hook PerformBuildingEditInteraction! Enable Status: ")) + std::to_string(EnablePerformBuildingEditInteractionHook));
+			}
+
+			DEBUG_LOG(LOG_INFO, std::string(skCrypt("Hooked PerformBuildingEditInteraction!")));
+		}
+		else if (Config::Exploits::Player::DisablePreEdits == false && Hooks::PerformBuildingEditInteraction::Hooked) {
+			Hooks::PerformBuildingEditInteraction::Hooked = false;
+
+			MH_STATUS DisablePerformBuildingEditInteractionHook = MH_DisableHook((void*)(SDK::Cached::Functions::PerformBuildingEditInteraction + SDK::GetBaseAddress()));
+			if (DisablePerformBuildingEditInteractionHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to unhook PerformBuildingEditInteraction! Disable Status: ")) + std::to_string(DisablePerformBuildingEditInteractionHook));
+			}
+
+			MH_STATUS RemovePerformBuildingEditInteractionHook = MH_RemoveHook((void*)(SDK::Cached::Functions::PerformBuildingEditInteraction + SDK::GetBaseAddress()));
+			if (RemovePerformBuildingEditInteractionHook != MH_OK) {
+				DEBUG_LOG(LOG_ERROR, std::string(skCrypt("Failed to unhook PerformBuildingEditInteraction! Remove Status: ")) + std::to_string(RemovePerformBuildingEditInteractionHook));
+			}
+
+			Hooks::PerformBuildingEditInteraction::PerformBuildingEditInteractionOriginal = nullptr;
+
+			DEBUG_LOG(LOG_INFO, std::string(skCrypt("Unhooked PerformBuildingEditInteraction!")));
 		}
 	}
 }
