@@ -12,7 +12,6 @@
 #endif // _IMGUI
 
 SDK::FVector2D Input::GetMousePosition() {
-#if (INPUT_TYPE == ENGINE_INPUT)
 	if (Mouse.FrameUpdated != Game::CurrentFrame) {
 		Mouse.FrameUpdated = Game::CurrentFrame;
 
@@ -23,7 +22,6 @@ SDK::FVector2D Input::GetMousePosition() {
 			Mouse.Position = SDK::FVector2D(LocationX, LocationY);
 		}
 	}
-#endif // (INPUT_TYPE == ENGINE_INPUT)
 
 	return Mouse.Position;
 }
@@ -32,16 +30,12 @@ bool Input::IsKeyDown(KeyName Key) {
 	auto& KeyData = Keys[Key];
 
 	if (KeyData.IsDown.FrameUpdated != Game::CurrentFrame) {
-#if (INPUT_TYPE == ENGINE_INPUT)
 		KeyData.IsDown.FrameUpdated = Game::CurrentFrame;
 
 		SDK::FKey FKey{};
 		FKey.KeyName = KeyData.FName;
 
 		KeyData.IsDown.Value = SDK::GetLocalController()->IsInputKeyDown(FKey);
-#else
-		KeyData.IsDown.Value = false;
-#endif // (INPUT_TYPE == WNDPROC_INPUT)
 	}
 
 	return KeyData.IsDown.Value;
@@ -50,16 +44,12 @@ bool Input::WasKeyJustReleased(KeyName Key) {
 	auto& KeyData = Keys[Key];
 
 	if (KeyData.WasJustReleased.FrameUpdated != Game::CurrentFrame) {
-#if (INPUT_TYPE == ENGINE_INPUT)
 		KeyData.WasJustReleased.FrameUpdated = Game::CurrentFrame;
 
 		SDK::FKey FKey{};
 		FKey.KeyName = KeyData.FName;
 
 		KeyData.WasJustReleased.Value = SDK::GetLocalController()->WasInputKeyJustReleased(FKey);
-#else
-		KeyData.WasJustReleased.Value = false;
-#endif // (INPUT_TYPE == WNDPROC_INPUT)
 	}
 
 	return KeyData.WasJustReleased.Value;
@@ -68,16 +58,12 @@ bool Input::WasKeyJustPressed(KeyName Key) {
 	auto& KeyData = Keys[Key];
 
 	if (KeyData.WasJustPressed.FrameUpdated != Game::CurrentFrame) {
-#if (INPUT_TYPE == ENGINE_INPUT)
 		KeyData.WasJustPressed.FrameUpdated = Game::CurrentFrame;
 
 		SDK::FKey FKey{};
 		FKey.KeyName = KeyData.FName;
 
 		KeyData.WasJustPressed.Value = SDK::GetLocalController()->WasInputKeyJustPressed(FKey);
-#else
-		KeyData.WasJustPressed.Value = false;
-#endif // (INPUT_TYPE == WNDPROC_INPUT)
 	}
 
 	return KeyData.WasJustPressed.Value;

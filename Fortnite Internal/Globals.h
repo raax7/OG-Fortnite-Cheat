@@ -24,7 +24,7 @@
 * Disable USING_SEH (REQUIRED)
 * Disable INIT_THREAD (recommended)
 * Disable UNLOAD_THREAD (REQUIRED)
-* Enable LOAD_D3DCOMPILER_47 (REQUIRED)
+* Enable LOAD_D3DCOMPILER_47 (REQUIRED if you don't map dependencies)
 * 
 * Properties -> C/C++ -> Code Generation -> Enable C++ Exceptions -> No						(REQUIRED)
 * Properties -> C/C++ -> Code Generation -> Security Check -> Disable Security Check (/GS-)	(REQUIRED)
@@ -50,7 +50,7 @@
 #ifdef _DEBUG
 	#define LOG_LEVEL		LOG_ALL
 #else
-	#define LOG_LEVEL		LOG_ALL// No logs in release mode by default
+	#define LOG_LEVEL		LOG_NONE// No logs in release mode by default
 #endif // _DEBUG
 
 // Only enable this if you are sure your injector supports SEH
@@ -74,4 +74,4 @@ inline HMODULE CurrentModule = nullptr;// The current module handle
 // Compile-Time Asserts
 static_assert(LOG_LEVEL < LOG_LEVEL_MAX && LOG_LEVEL >= LOG_NONE, "Invalid log level");
 
-//static_assert(false, "Please read Globals.h and set the right configuration for you. If you are manual mapping, there are REQUIRED settings. DOUBLE CLICK ME AND REMOVE ME!");
+static_assert(false, "Please read Globals.h and set the right configuration for you. If you are manual mapping, there are REQUIRED settings. DOUBLE CLICK ME AND REMOVE ME!");

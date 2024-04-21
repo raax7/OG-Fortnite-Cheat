@@ -90,14 +90,11 @@ VOID Main() {
     // Beep to notify that the cheat has been injected
     LI_FN(Beep).safe()(500, 500);
 
-    // Set random seed
-    LI_FN(srand).safe()(time(0));
-
 #if LOG_LEVEL > LOG_NONE
-    //static_assert(false, "Please set a custom path for your logger! i.e. \"C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log\". DOUBLE CLICK ME AND REMOVE ME!");
+    static_assert(false, "Please set a custom path for your logger! i.e. \"C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log\". DOUBLE CLICK ME AND REMOVE ME!");
 
     // Init logger
-    Logger::InitLogger(std::string(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log")));
+    Logger::InitLogger(std::string(skCrypt("C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log")));
 #endif // LOG_LEVEL > LOG_NONE
 
     // Init base address, GObjects, function addresses, offsets etc

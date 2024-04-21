@@ -229,6 +229,9 @@ void Drawing::Text(const char* RenderText, SDK::FVector2D ScreenPosition, float 
 void Drawing::Text(const wchar_t* RenderText, SDK::FVector2D ScreenPosition, float FontSize, SDK::FLinearColor RenderColor, bool CentredX, bool CentredY, bool Outlined) {
 	SDK::FString FString(RenderText);
 
+	// We need to adjust the font size because the engine's font size is different from ImGui's
+	FontSize -= (FontSize * 0.1f);
+
 	SDK::GetLocalCanvas()->K2_DrawText(FString, ScreenPosition, Outlined ? (int32)FontSize - 2 : (int32)FontSize, RenderColor, CentredX, CentredY, Outlined);
 }
 SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
@@ -239,6 +242,9 @@ SDK::FVector2D Drawing::TextSize(const char* RenderText, float FontSize) {
 }
 SDK::FVector2D Drawing::TextSize(const wchar_t* RenderText, float FontSize) {
 	SDK::FString FString(RenderText);
+
+	// We need to adjust the font size because the engine's font size is different from ImGui's
+	FontSize -= (FontSize * 0.1f);
 
 	return SDK::GetLocalCanvas()->K2_TextSize(FString, (int32)FontSize);
 }
