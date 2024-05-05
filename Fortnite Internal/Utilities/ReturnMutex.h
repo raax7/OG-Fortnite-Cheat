@@ -1,69 +1,55 @@
 #pragma once
 
-class ReturnMutex
-{
+class ReturnMutex {
 public:
-    bool WasLockedOnConstruct = false;
-    bool IsLocked = false;
+	bool WasLockedOnConstruct = false;
+	bool IsLocked = false;
 
 public:
-    ReturnMutex()
-    {
-        if (IsLocked)
-        {
-            WasLockedOnConstruct = true;
-        }
-        else
-        {
-            IsLocked = true;
-            WasLockedOnConstruct = false;
-        };
-    }
+	ReturnMutex() {
+		if (IsLocked) {
+			WasLockedOnConstruct = true;
+		}
+		else {
+			IsLocked = true;
+			WasLockedOnConstruct = false;
+		};
+	}
 
-    ~ReturnMutex()
-    {
-        if (WasLockedOnConstruct == false)
-        {
-            IsLocked = false;
-        }
-    }
+	~ReturnMutex() {
+		if (WasLockedOnConstruct == false) {
+			IsLocked = false;
+		}
+	}
 
-    bool ShouldReturn()
-    {
-        return WasLockedOnConstruct;
-    }
+	bool ShouldReturn() {
+		return WasLockedOnConstruct;
+	}
 
 };
 
-class ReturnLock
-{
+class ReturnLock {
 private:
-    ReturnMutex* Mutex;
+	ReturnMutex* Mutex;
 
 public:
-    ReturnLock(ReturnMutex* Mutex)
-    {
-        this->Mutex = Mutex;
+	ReturnLock(ReturnMutex* Mutex) {
+		this->Mutex = Mutex;
 
-        if (Mutex)
-        {
-            if (Mutex->IsLocked)
-            {
-                this->Mutex = nullptr;
-            }
-            else
-            {
-                Mutex->IsLocked = true;
-            }
-        }
-    }
+		if (Mutex) {
+			if (Mutex->IsLocked) {
+				this->Mutex = nullptr;
+			}
+			else {
+				Mutex->IsLocked = true;
+			}
+		}
+	}
 
-    ~ReturnLock()
-    {
-        if (Mutex)
-        {
-            Mutex->IsLocked = false;
-        }
-    }
+	~ReturnLock() {
+		if (Mutex) {
+			Mutex->IsLocked = false;
+		}
+	}
 
 };

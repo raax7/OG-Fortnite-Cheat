@@ -9,13 +9,10 @@
 
 #include "Logger.h"
 
-class ErrorManager
-{
+class ErrorManager {
 private:
-    static std::string GetFileName(const char* FilePath)
-    {
-        if (FilePath == nullptr)
-        {
+    static std::string GetFileName(const char* FilePath) {
+        if (FilePath == nullptr) {
             return "";
         }
 
@@ -26,11 +23,9 @@ private:
     }
 public:
 #if _DEBUG // If we are in debug mode, we will show the file name and line number
-    static void ThrowError(const std::string& Message, const bool Close, const char* FilePath, const int Line)
-    {
+    static void ThrowError(std::string Message, bool Close, const char* FilePath, int Line) {
 #else
-    static void ThrowError(const std::string & Message, const bool Close)
-    {
+    static void ThrowError(std::string Message, bool Close) {
 #endif // _DEBUG
         std::string ErrorMessageInfo = "";
         std::string ErrorMessage = "";
@@ -38,12 +33,10 @@ public:
 #ifdef _DEBUG // If we are in debug mode, we will show the file name and line number
         std::string FileName = GetFileName(FilePath);
 
-        if (FileName.empty() == false)
-        {
+        if (FileName.empty() == false) {
             ErrorMessageInfo = Close ? std::string(skCrypt("A fatal error has occurred!\n")) : std::string(skCrypt("An error has occurred!\n")) + FileName + std::string(skCrypt(":")) + std::to_string(Line) + std::string(skCrypt("\n\n"));
         }
-        else
-        {
+        else {
             ErrorMessageInfo = Close ? std::string(skCrypt("A fatal error has occurred!\n\n")) : std::string(skCrypt("An error has occurred!\n\n"));
         }
 #else
@@ -58,15 +51,14 @@ public:
         DEBUG_LOG(LOG_ERROR, Message.c_str());
 #endif // LOG_LEVEL > LOG_NONE
 
-        if (Close)
-        {
+        if (Close) {
             exit(0);
         }
     }
 };
 
 #if _DEBUG
-#define THROW_ERROR(message, close) ErrorManager::ThrowError(message, close, __FILE__, __LINE__)
+    #define THROW_ERROR(message, close) ErrorManager::ThrowError(message, close, __FILE__, __LINE__)
 #else
-#define THROW_ERROR(message, close) ErrorManager::ThrowError(message, close)
+    #define THROW_ERROR(message, close) ErrorManager::ThrowError(message, close)
 #endif // _DEBUG

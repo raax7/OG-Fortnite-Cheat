@@ -2,8 +2,7 @@
 
 #include "Visuals/Chams.h"
 
-void Features::RevertAll()
-{
+void Features::RevertAll() {
     AutoRevertFeatures.clear();
 
     // Revert all features

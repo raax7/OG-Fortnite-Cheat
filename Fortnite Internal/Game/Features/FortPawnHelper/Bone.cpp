@@ -1,58 +1,47 @@
 #include "Bone.h"
 
-#include "../../../Utilities/Logger.h"
 #include "../../../Utilities/Math.h"
+#include "../../../Utilities/Logger.h"
 
 #include "../../Game.h"
 
-Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClosestBoneBetweenTwo(const SDK::FVector2D& BonePosition1, const SDK::FVector2D& BonePosition2, const BoneID BoneID1, const BoneID BoneID2)
-{
+Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2) {
     float Bone1Distance = Math::GetDistance2D(BonePosition1.X, BonePosition1.Y, (float)Game::ScreenCenterX, (float)Game::ScreenCenterY);
     float Bone2Distance = Math::GetDistance2D(BonePosition2.X, BonePosition2.Y, (float)Game::ScreenCenterX, (float)Game::ScreenCenterY);
 
     if (Bone1Distance < Bone2Distance) return BoneID1;
     else return BoneID2;
 }
-Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestBone(const BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache, const bool VisibleCheck)
-{
-    if (FortPawnCache.BoneVisibilityStates.size() < BONEID_MAX || FortPawnCache.BonePositions2D.size() < BONEID_MAX)
-    {
+Features::FortPawnHelper::Bone::BoneID Features::FortPawnHelper::Bone::FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache, bool VisibleCheck) {
+    if (FortPawnCache.BoneVisibilityStates.size() < BONEID_MAX || FortPawnCache.BonePositions2D.size() < BONEID_MAX) {
         return None;
     }
 
-    for (auto& BonePair : BoneHierarchyOrder)
-    {
+    for (auto& BonePair : BoneHierarchyOrder) {
         BoneID LeftBone = BonePair.first;
         BoneID RightBone = BonePair.second;
 
-        if (FortPawnCache.BoneVisibilityStates[LeftBone] && FortPawnCache.BoneVisibilityStates[RightBone])
-        {
+        if (FortPawnCache.BoneVisibilityStates[LeftBone] && FortPawnCache.BoneVisibilityStates[RightBone]) {
             return FindClosestBoneBetweenTwo(FortPawnCache.BonePositions2D[LeftBone], FortPawnCache.BonePositions2D[RightBone], LeftBone, RightBone);
         }
 
-        if (FortPawnCache.BoneVisibilityStates[LeftBone])
-        {
+        if (FortPawnCache.BoneVisibilityStates[LeftBone]) {
             return LeftBone;
         }
-        else if (FortPawnCache.BoneVisibilityStates[RightBone])
-        {
+        else if (FortPawnCache.BoneVisibilityStates[RightBone]) {
             return RightBone;
         }
     }
 
-    if (VisibleCheck == false)
-    {
-        return TargetBone;
-    }
-    else
-    {
+    if (VisibleCheck == false) {
+		return TargetBone;
+	}
+    else {
         return None;
     }
 }
-SDK::FName Features::FortPawnHelper::Bone::GetBoneName(const BoneID BoneID)
-{
-    switch (BoneID)
-    {
+SDK::FName Features::FortPawnHelper::Bone::GetBoneName(BoneID BoneID) {
+    switch (BoneID) {
     case Head: return Names.Head;
     case Neck: return Names.Neck;
     case LeftShoulder: return Names.LeftShoulder;
@@ -76,8 +65,7 @@ SDK::FName Features::FortPawnHelper::Bone::GetBoneName(const BoneID BoneID)
 
     return Names.None;
 }
-void Features::FortPawnHelper::Bone::Init()
-{
+void Features::FortPawnHelper::Bone::Init() {
     DEBUG_LOG(LOG_OFFSET, skCrypt("Initializing bone names..."));
 
     // Init Names

@@ -416,8 +416,6 @@ namespace SDK {
 		void Fire();
 
 		void CompleteBuildingEditInteraction();
-
-		void ServerAttemptInteract(class AActor* ReceivingActor, class UPrimitiveComponent* InteractComponent, enum class ETInteractionType InteractType, class UObject* OptionalObjectData);
 	};
 	class UFortLocalPlayer : public ULocalPlayer {
 	public:

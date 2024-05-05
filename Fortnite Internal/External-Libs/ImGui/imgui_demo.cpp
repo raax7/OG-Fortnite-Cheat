@@ -2450,8 +2450,8 @@ static void ShowDemoWindowWidgets()
             static const char* item_names[] = { "Item One", "Item Two", "Item Three", "Item Four", "Item Five" };
             for (int n = 0; n < IM_ARRAYSIZE(item_names); n++)
             {
-                const char* Item = item_names[n];
-                ImGui::Selectable(Item);
+                const char* item = item_names[n];
+                ImGui::Selectable(item);
 
                 if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
                 {
@@ -2459,7 +2459,7 @@ static void ShowDemoWindowWidgets()
                     if (n_next >= 0 && n_next < IM_ARRAYSIZE(item_names))
                     {
                         item_names[n] = item_names[n_next];
-                        item_names[n_next] = Item;
+                        item_names[n_next] = item;
                         ImGui::ResetMouseDragDelta();
                     }
                 }
@@ -2989,8 +2989,8 @@ static void ShowDemoWindowLayout()
         static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
         ImGui::PushItemWidth(80);
         const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD" };
-        static int Item = -1;
-        ImGui::Combo("Combo", &Item, items, IM_ARRAYSIZE(items)); ImGui::SameLine();
+        static int item = -1;
+        ImGui::Combo("Combo", &item, items, IM_ARRAYSIZE(items)); ImGui::SameLine();
         ImGui::SliderFloat("X", &f0, 0.0f, 5.0f); ImGui::SameLine();
         ImGui::SliderFloat("Y", &f1, 0.0f, 5.0f); ImGui::SameLine();
         ImGui::SliderFloat("Z", &f2, 0.0f, 5.0f);
@@ -3258,16 +3258,16 @@ static void ShowDemoWindowLayout()
                 ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + scroll_to_pos_px, i * 0.25f);
             if (child_is_visible) // Avoid calling SetScrollHereY when running with culled items
             {
-                for (int Item = 0; Item < 100; Item++)
+                for (int item = 0; item < 100; item++)
                 {
-                    if (enable_track && Item == track_item)
+                    if (enable_track && item == track_item)
                     {
-                        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Item %d", Item);
+                        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Item %d", item);
                         ImGui::SetScrollHereY(i * 0.25f); // 0.0f:top, 0.5f:center, 1.0f:bottom
                     }
                     else
                     {
-                        ImGui::Text("Item %d", Item);
+                        ImGui::Text("Item %d", item);
                     }
                 }
             }
@@ -3300,18 +3300,18 @@ static void ShowDemoWindowLayout()
                 ImGui::SetScrollFromPosX(ImGui::GetCursorStartPos().x + scroll_to_pos_px, i * 0.25f);
             if (child_is_visible) // Avoid calling SetScrollHereY when running with culled items
             {
-                for (int Item = 0; Item < 100; Item++)
+                for (int item = 0; item < 100; item++)
                 {
-                    if (Item > 0)
+                    if (item > 0)
                         ImGui::SameLine();
-                    if (enable_track && Item == track_item)
+                    if (enable_track && item == track_item)
                     {
-                        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Item %d", Item);
+                        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Item %d", item);
                         ImGui::SetScrollHereX(i * 0.25f); // 0.0f:left, 0.5f:center, 1.0f:right
                     }
                     else
                     {
-                        ImGui::Text("Item %d", Item);
+                        ImGui::Text("Item %d", item);
                     }
                 }
             }
@@ -3839,9 +3839,9 @@ static void ShowDemoWindowPopups()
             ImGui::Text("Hello from Stacked The First\nUsing style.Colors[ImGuiCol_ModalWindowDimBg] behind it.");
 
             // Testing behavior of widgets stacking their own regular popups over the modal.
-            static int Item = 1;
+            static int item = 1;
             static float color[4] = { 0.4f, 0.7f, 0.0f, 0.5f };
-            ImGui::Combo("Combo", &Item, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
+            ImGui::Combo("Combo", &item, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
             ImGui::ColorEdit4("color", color);
 
             if (ImGui::Button("Add another modal.."))
@@ -3903,7 +3903,7 @@ enum MyItemColumnID
 
 struct MyItem
 {
-    int         Id;
+    int         ID;
     const char* Name;
     int         Quantity;
 
@@ -3937,7 +3937,7 @@ struct MyItem
             int delta = 0;
             switch (sort_spec->ColumnUserID)
             {
-            case MyItemColumnID_ID:             delta = (a->Id - b->Id);                break;
+            case MyItemColumnID_ID:             delta = (a->ID - b->ID);                break;
             case MyItemColumnID_Name:           delta = (strcmp(a->Name, b->Name));     break;
             case MyItemColumnID_Quantity:       delta = (a->Quantity - b->Quantity);    break;
             case MyItemColumnID_Description:    delta = (strcmp(a->Name, b->Name));     break;
@@ -3952,7 +3952,7 @@ struct MyItem
         // qsort() is instable so always return a way to differenciate items.
         // Your own compare function may want to avoid fallback on implicit sort specs.
         // e.g. a Name compare if it wasn't already part of the sort specs.
-        return (a->Id - b->Id);
+        return (a->ID - b->ID);
     }
 };
 const ImGuiTableSortSpecs* MyItem::s_current_sort_specs = NULL;
@@ -4139,10 +4139,10 @@ static void ShowDemoWindowTables()
             "Columns API, and provided to facilitate the Columns->Tables API transition.");
         if (ImGui::BeginTable("table3", 3))
         {
-            for (int Item = 0; Item < 14; Item++)
+            for (int item = 0; item < 14; item++)
             {
                 ImGui::TableNextColumn();
-                ImGui::Text("Item %d", Item);
+                ImGui::Text("Item %d", item);
             }
             ImGui::EndTable();
         }
@@ -5526,10 +5526,10 @@ static void ShowDemoWindowTables()
             for (int n = 0; n < items.Size; n++)
             {
                 const int template_n = n % IM_ARRAYSIZE(template_items_names);
-                MyItem& Item = items[n];
-                Item.Id = n;
-                Item.Name = template_items_names[template_n];
-                Item.Quantity = (n * n - n) % 20; // Assign default quantities
+                MyItem& item = items[n];
+                item.ID = n;
+                item.Name = template_items_names[template_n];
+                item.Quantity = (n * n - n) % 20; // Assign default quantities
             }
         }
 
@@ -5576,17 +5576,17 @@ static void ShowDemoWindowTables()
                 for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
                 {
                     // Display a data item
-                    MyItem* Item = &items[row_n];
-                    ImGui::PushID(Item->Id);
+                    MyItem* item = &items[row_n];
+                    ImGui::PushID(item->ID);
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    ImGui::Text("%04d", Item->Id);
+                    ImGui::Text("%04d", item->ID);
                     ImGui::TableNextColumn();
-                    ImGui::TextUnformatted(Item->Name);
+                    ImGui::TextUnformatted(item->Name);
                     ImGui::TableNextColumn();
                     ImGui::SmallButton("None");
                     ImGui::TableNextColumn();
-                    ImGui::Text("%d", Item->Quantity);
+                    ImGui::Text("%d", item->Quantity);
                     ImGui::PopID();
                 }
             ImGui::EndTable();
@@ -5755,10 +5755,10 @@ static void ShowDemoWindowTables()
             for (int n = 0; n < items_count; n++)
             {
                 const int template_n = n % IM_ARRAYSIZE(template_items_names);
-                MyItem& Item = items[n];
-                Item.Id = n;
-                Item.Name = template_items_names[template_n];
-                Item.Quantity = (template_n == 3) ? 10 : (template_n == 4) ? 20 : 0; // Assign default quantities
+                MyItem& item = items[n];
+                item.ID = n;
+                item.Name = template_items_names[template_n];
+                item.Quantity = (template_n == 3) ? 10 : (template_n == 4) ? 20 : 0; // Assign default quantities
             }
         }
 
@@ -5819,18 +5819,18 @@ static void ShowDemoWindowTables()
                 for (int row_n = 0; row_n < items.Size; row_n++)
 #endif
                 {
-                    MyItem* Item = &items[row_n];
+                    MyItem* item = &items[row_n];
                     //if (!filter.PassFilter(item->Name))
                     //    continue;
 
-                    const bool item_is_selected = selection.contains(Item->Id);
-                    ImGui::PushID(Item->Id);
+                    const bool item_is_selected = selection.contains(item->ID);
+                    ImGui::PushID(item->ID);
                     ImGui::TableNextRow(ImGuiTableRowFlags_None, row_min_height);
 
                     // For the demo purpose we can select among different type of items submitted in the first column
                     ImGui::TableSetColumnIndex(0);
                     char label[32];
-                    sprintf(label, "%04d", Item->Id);
+                    sprintf(label, "%04d", item->ID);
                     if (contents_type == CT_Text)
                         ImGui::TextUnformatted(label);
                     else if (contents_type == CT_Button)
@@ -5847,20 +5847,20 @@ static void ShowDemoWindowTables()
                             if (ImGui::GetIO().KeyCtrl)
                             {
                                 if (item_is_selected)
-                                    selection.find_erase_unsorted(Item->Id);
+                                    selection.find_erase_unsorted(item->ID);
                                 else
-                                    selection.push_back(Item->Id);
+                                    selection.push_back(item->ID);
                             }
                             else
                             {
                                 selection.clear();
-                                selection.push_back(Item->Id);
+                                selection.push_back(item->ID);
                             }
                         }
                     }
 
                     if (ImGui::TableSetColumnIndex(1))
-                        ImGui::TextUnformatted(Item->Name);
+                        ImGui::TextUnformatted(item->Name);
 
                     // Here we demonstrate marking our data set as needing to be sorted again if we modified a quantity,
                     // and we are currently sorting on the column showing the Quantity.
@@ -5868,15 +5868,15 @@ static void ShowDemoWindowTables()
                     // You will probably need some extra logic if you want to automatically sort when a specific entry changes.
                     if (ImGui::TableSetColumnIndex(2))
                     {
-                        if (ImGui::SmallButton("Chop")) { Item->Quantity += 1; }
+                        if (ImGui::SmallButton("Chop")) { item->Quantity += 1; }
                         if (sorts_specs_using_quantity && ImGui::IsItemDeactivated()) { items_need_sort = true; }
                         ImGui::SameLine();
-                        if (ImGui::SmallButton("Eat")) { Item->Quantity -= 1; }
+                        if (ImGui::SmallButton("Eat")) { item->Quantity -= 1; }
                         if (sorts_specs_using_quantity && ImGui::IsItemDeactivated()) { items_need_sort = true; }
                     }
 
                     if (ImGui::TableSetColumnIndex(3))
-                        ImGui::Text("%d", Item->Quantity);
+                        ImGui::Text("%d", item->Quantity);
 
                     ImGui::TableSetColumnIndex(4);
                     if (show_wrapped_text)
@@ -7122,20 +7122,20 @@ struct ExampleAppConsole
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
             if (copy_to_clipboard)
                 ImGui::LogToClipboard();
-            for (const char* Item : Items)
+            for (const char* item : Items)
             {
-                if (!Filter.PassFilter(Item))
+                if (!Filter.PassFilter(item))
                     continue;
 
                 // Normally you would store more information in your item than just a string.
                 // (e.g. make Items[] an array of structure, store color/type etc.)
                 ImVec4 color;
                 bool has_color = false;
-                if (strstr(Item, "[error]")) { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
-                else if (strncmp(Item, "# ", 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); has_color = true; }
+                if (strstr(item, "[error]")) { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
+                else if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); has_color = true; }
                 if (has_color)
                     ImGui::PushStyleColor(ImGuiCol_Text, color);
-                ImGui::TextUnformatted(Item);
+                ImGui::TextUnformatted(item);
                 if (has_color)
                     ImGui::PopStyleColor();
             }

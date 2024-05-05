@@ -4,8 +4,6 @@
 
 #ifdef _ENGINE
 #include "Drawing/RaaxGUI/RaaxGUI.h"
-#else
-#include "Drawing/Drawing.h"
 #endif // _ENGINE
 
 #include "Game/Features/Features.h"
@@ -22,7 +20,7 @@
 
 /*
 * NOTES
-*
+* 
 * All specific offsets, VFT indexes, function addresses, visual explanations etc
 * mentioned in comments are from Fortnite 7.40.
 */
@@ -44,12 +42,9 @@
 #if UNLOAD_THREAD
 const Input::KeyName UnloadKey = Input::KeyName::F5;
 
-VOID UnloadThread()
-{
-    while (true)
-    {
-        if (Input::IsKeyDown(UnloadKey))
-        {
+VOID UnloadThread() {
+    while (true) {
+        if (Input::IsKeyDown(UnloadKey)) {
             // Beep to notify that the cheat has been unloaded
             LI_FN(Beep).safe()(500, 250);
 
@@ -84,8 +79,7 @@ VOID UnloadThread()
 }
 #endif // UNLOAD_THREAD
 
-VOID Main()
-{
+VOID Main() {
 #ifdef _IMGUI
 #if LOAD_D3DCOMPILER_47
     // Load D3DCompiler_47.dll for ImGui
@@ -97,10 +91,10 @@ VOID Main()
     LI_FN(Beep).safe()(500, 500);
 
 #if LOG_LEVEL > LOG_NONE
-    //static_assert(false, "Please set a custom path for your logger! i.e. \"C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log\". DOUBLE CLICK ME AND REMOVE ME!");
+    static_assert(false, "Please set a custom path for your logger! i.e. \"C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log\". DOUBLE CLICK ME AND REMOVE ME!");
 
     // Init logger
-    Logger::InitLogger(std::string(skCrypt("C:\\Users\\raax\\Desktop\\cheat.log")));
+    Logger::InitLogger(std::string(skCrypt("C:\\Users\\YOUR_USER\\Desktop\\LOG_NAME.log")));
 #endif // LOG_LEVEL > LOG_NONE
 
     // Init base address, GObjects, function addresses, offsets etc
@@ -120,13 +114,13 @@ VOID Main()
 #endif // UNLOAD_THREAD
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule,
-    DWORD  ul_reason_for_call,
-    LPVOID lpReserved
-)
+BOOL APIENTRY DllMain( HMODULE hModule,
+                       DWORD  ul_reason_for_call,
+                       LPVOID lpReserved
+                     )
 {
     CurrentModule = hModule;
-
+    
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:

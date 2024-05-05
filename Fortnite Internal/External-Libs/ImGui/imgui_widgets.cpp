@@ -495,7 +495,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 
     // Default behavior inherited from item flags
     // Note that _both_ ButtonFlags and ItemFlags are valid sources, so copy one into the item_flags and only check that.
-    ImGuiItemFlags item_flags = (g.LastItemData.Id == id ? g.LastItemData.InFlags : g.CurrentItemFlags);
+    ImGuiItemFlags item_flags = (g.LastItemData.ID == id ? g.LastItemData.InFlags : g.CurrentItemFlags);
     if (flags & ImGuiButtonFlags_AllowOverlap)
         item_flags |= ImGuiItemFlags_AllowOverlap;
     if (flags & ImGuiButtonFlags_Repeat)
@@ -1939,7 +1939,7 @@ bool ImGui::Combo(const char* label, int* current_item, const char* (*getter)(vo
     EndCombo();
 
     if (value_changed)
-        MarkItemEdited(g.LastItemData.Id);
+        MarkItemEdited(g.LastItemData.ID);
 
     return value_changed;
 }
@@ -3487,7 +3487,7 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
         SetNextItemWidth(ImMax(1.0f, CalcItemWidth() - (button_size + style.ItemInnerSpacing.x) * 2));
         if (InputText("", buf, IM_ARRAYSIZE(buf), flags)) // PushId(label) + "" gives us the expected ID from outside point of view
             value_changed = DataTypeApplyFromText(buf, data_type, p_data, format);
-        IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.Id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Inputable);
+        IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Inputable);
 
         // Step buttons
         const ImVec2 backup_frame_padding = style.FramePadding;
@@ -3522,7 +3522,7 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
         EndGroup();
     }
     if (value_changed)
-        MarkItemEdited(g.LastItemData.Id);
+        MarkItemEdited(g.LastItemData.ID);
 
     return value_changed;
 }
@@ -3895,7 +3895,7 @@ void ImGuiInputTextCallbackData::InsertChars(int pos, const char* new_text, cons
         // Contrary to STB_TEXTEDIT_INSERTCHARS() this is working in the UTF8 buffer, hence the mildly similar code (until we remove the U16 buffer altogether!)
         ImGuiContext& g = *Ctx;
         ImGuiInputTextState* edit_state = &g.InputTextState;
-        IM_ASSERT(edit_state->Id != 0 && g.ActiveId == edit_state->Id);
+        IM_ASSERT(edit_state->ID != 0 && g.ActiveId == edit_state->ID);
         IM_ASSERT(Buf == edit_state->TextA.Data);
         int new_buf_size = BufTextLen + ImClamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1;
         edit_state->TextA.reserve(new_buf_size + 1);
@@ -4060,9 +4060,9 @@ void ImGui::InputTextDeactivateHook(ImGuiID id)
 {
     ImGuiContext& g = *GImGui;
     ImGuiInputTextState* state = &g.InputTextState;
-    if (id == 0 || state->Id != id)
+    if (id == 0 || state->ID != id)
         return;
-    g.InputTextDeactivatedState.Id = state->Id;
+    g.InputTextDeactivatedState.ID = state->ID;
     if (state->Flags & ImGuiInputTextFlags_ReadOnly)
     {
         g.InputTextDeactivatedState.TextA.resize(0); // In theory this data won't be used, but clear to be neat.
@@ -4200,7 +4200,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         state->ReloadUserBuf = false;
 
         // Backup state of deactivating item so they'll have a chance to do a write to output buffer on the same frame they report IsItemDeactivatedAfterEdit (#4714)
-        InputTextDeactivateHook(state->Id);
+        InputTextDeactivateHook(state->ID);
 
         // From the moment we focused we are normally ignoring the content of 'buf' (unless we are in read-only mode)
         const int buf_len = (int)strlen(buf);
@@ -4213,13 +4213,13 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 
         // Preserve cursor position and undo/redo stack if we come back to same widget
         // FIXME: Since we reworked this on 2022/06, may want to differentiate recycle_cursor vs recycle_undostate?
-        bool recycle_state = (state->Id == id && !init_changed_specs && !init_reload_from_user_buf);
+        bool recycle_state = (state->ID == id && !init_changed_specs && !init_reload_from_user_buf);
         if (recycle_state && (state->CurLenA != buf_len || (state->TextAIsValid && strncmp(state->TextA.Data, buf, buf_len) != 0)))
             recycle_state = false;
 
         // Start edition
         const char* buf_end = NULL;
-        state->Id = id;
+        state->ID = id;
         state->TextW.resize(buf_size + 1);          // wchar count <= UTF-8 count. we use +1 to make sure that .Data is always pointing to at least an empty string.
         state->TextA.resize(0);
         state->TextAIsValid = false;                // TextA is not valid yet (we will display buf until then)
@@ -4261,7 +4261,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     const bool is_osx = io.ConfigMacOSXBehaviors;
     if (g.ActiveId != id && init_make_active)
     {
-        IM_ASSERT(state && state->Id == id);
+        IM_ASSERT(state && state->ID == id);
         SetActiveID(id, window);
         SetFocusID(id, window);
         FocusWindow(window);
@@ -4756,7 +4756,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     }
 
     // Handle reapplying final data on deactivation (see InputTextDeactivateHook() for details)
-    if (g.InputTextDeactivatedState.Id == id)
+    if (g.InputTextDeactivatedState.ID == id)
     {
         if (g.ActiveId != id && IsItemDeactivatedAfterEdit() && !is_readonly && strcmp(g.InputTextDeactivatedState.TextA.Data, buf) != 0)
         {
@@ -4765,7 +4765,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             value_changed = true;
             //IMGUI_DEBUG_LOG("InputText(): apply Deactivated data for 0x%08X: \"%.*s\".\n", id, apply_new_text_length, apply_new_text);
         }
-        g.InputTextDeactivatedState.Id = 0;
+        g.InputTextDeactivatedState.ID = 0;
     }
 
     // Copy result to user buffer. This can currently only happen when (g.ActiveId == id)
@@ -5024,9 +5024,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         // ...and then we need to undo the group overriding last item data, which gets a bit messy as EndGroup() tries to forward scrollbar being active...
         // FIXME: This quite messy/tricky, should attempt to get rid of the child window.
         EndGroup();
-        if (g.LastItemData.Id == 0)
+        if (g.LastItemData.ID == 0)
         {
-            g.LastItemData.Id = id;
+            g.LastItemData.ID = id;
             g.LastItemData.InFlags = item_data_backup.InFlags;
             g.LastItemData.StatusFlags = item_data_backup.StatusFlags;
         }
@@ -5058,8 +5058,8 @@ void ImGui::DebugNodeInputTextState(ImGuiInputTextState* state)
     ImGuiContext& g = *GImGui;
     ImStb::STB_TexteditState* stb_state = &state->Stb;
     ImStb::StbUndoState* undo_state = &stb_state->undostate;
-    Text("ID: 0x%08X, ActiveID: 0x%08X", state->Id, g.ActiveId);
-    DebugLocateItemOnHover(state->Id);
+    Text("ID: 0x%08X, ActiveID: 0x%08X", state->ID, g.ActiveId);
+    DebugLocateItemOnHover(state->ID);
     Text("CurLenW: %d, CurLenA: %d, Cursor: %d, Selection: %d..%d", state->CurLenW, state->CurLenA, stb_state->cursor, stb_state->select_start, stb_state->select_end);
     Text("has_preferred_x: %d (%.2f)", stb_state->has_preferred_x, stb_state->preferred_x);
     Text("undo_point: %d, redo_point: %d, undo_char_point: %d, redo_char_point: %d", undo_state->undo_point, undo_state->redo_point, undo_state->undo_char_point, undo_state->redo_char_point);
@@ -5379,10 +5379,10 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 
     // When picker is being actively used, use its active id so IsItemActive() will function on ColorEdit4().
     if (picker_active_window && g.ActiveId != 0 && g.ActiveIdWindow == picker_active_window)
-        g.LastItemData.Id = g.ActiveId;
+        g.LastItemData.ID = g.ActiveId;
 
-    if (value_changed && g.LastItemData.Id != 0) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
-        MarkItemEdited(g.LastItemData.Id);
+    if (value_changed && g.LastItemData.ID != 0) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
+        MarkItemEdited(g.LastItemData.ID);
 
     return value_changed;
 }
@@ -5769,8 +5769,8 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 
     if (value_changed && memcmp(backup_initial_col, col, components * sizeof(float)) == 0)
         value_changed = false;
-    if (value_changed && g.LastItemData.Id != 0) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
-        MarkItemEdited(g.LastItemData.Id);
+    if (value_changed && g.LastItemData.ID != 0) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
+        MarkItemEdited(g.LastItemData.ID);
 
     if (set_current_color_edit_id)
         g.ColorEditCurrentID = 0;
@@ -6237,7 +6237,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
         {
             g.NavTreeNodeStack.resize(g.NavTreeNodeStack.Size + 1);
             ImGuiNavTreeNodeData* nav_tree_node_data = &g.NavTreeNodeStack.back();
-            nav_tree_node_data->Id = id;
+            nav_tree_node_data->ID = id;
             nav_tree_node_data->InFlags = g.LastItemData.InFlags;
             nav_tree_node_data->NavRect = g.LastItemData.NavRect;
             window->DC.TreeJumpToParentOnPopMask |= (1 << window->DC.TreeDepth);
@@ -6248,7 +6248,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     {
         if (is_open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
             TreePushOverrideID(id);
-        IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.Id, label, g.LastItemData.StatusFlags | (is_leaf ? 0 : ImGuiItemStatusFlags_Openable) | (is_open ? ImGuiItemStatusFlags_Opened : 0));
+        IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags | (is_leaf ? 0 : ImGuiItemStatusFlags_Openable) | (is_open ? ImGuiItemStatusFlags_Opened : 0));
         return is_open;
     }
 
@@ -6430,7 +6430,7 @@ void ImGui::TreePop()
     if (window->DC.TreeJumpToParentOnPopMask & tree_depth_mask) // Only set during request
     {
         ImGuiNavTreeNodeData* nav_tree_node_data = &g.NavTreeNodeStack.back();
-        IM_ASSERT(nav_tree_node_data->Id == window->IDStack.back());
+        IM_ASSERT(nav_tree_node_data->ID == window->IDStack.back());
         if (g.NavIdIsAlive && g.NavMoveDir == ImGuiDir_Left && g.NavWindow == window && NavMoveRequestButNoResultYet())
             NavMoveRequestResolveWithPastTreeNode(&g.NavMoveResultLocal, nav_tree_node_data);
         g.NavTreeNodeStack.pop_back();
@@ -6992,7 +6992,7 @@ bool ImGui::ListBox(const char* label, int* current_item, const char* (*getter)(
     EndListBox();
 
     if (value_changed)
-        MarkItemEdited(g.LastItemData.Id);
+        MarkItemEdited(g.LastItemData.ID);
 
     return value_changed;
 }
@@ -7731,7 +7731,7 @@ bool ImGui::MenuItemEx(const char* label, const char* icon, const char* shortcut
                 RenderCheckMark(window->DrawList, pos + ImVec2(offsets->OffsetMark + stretch_w + g.FontSize * 0.40f, g.FontSize * 0.134f * 0.5f), GetColorU32(ImGuiCol_Text), g.FontSize * 0.866f);
         }
     }
-    IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.Id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (selected ? ImGuiItemStatusFlags_Checked : 0));
+    IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (selected ? ImGuiItemStatusFlags_Checked : 0));
     if (!enabled)
         EndDisabled();
     PopID();
@@ -7856,7 +7856,7 @@ bool    ImGui::BeginTabBar(const char* str_id, ImGuiTabBarFlags flags)
     ImGuiID id = window->GetID(str_id);
     ImGuiTabBar* tab_bar = g.TabBars.GetOrAddByKey(id);
     ImRect tab_bar_bb = ImRect(window->DC.CursorPos.x, window->DC.CursorPos.y, window->WorkRect.Max.x, window->DC.CursorPos.y + g.FontSize + g.Style.FramePadding.y * 2);
-    tab_bar->Id = id;
+    tab_bar->ID = id;
     tab_bar->SeparatorMinX = tab_bar->BarRect.Min.x - IM_TRUNC(window->WindowPadding.x * 0.5f);
     tab_bar->SeparatorMaxX = tab_bar->BarRect.Max.x + IM_TRUNC(window->WindowPadding.x * 0.5f);
     return BeginTabBarEx(tab_bar, tab_bar_bb, flags | ImGuiTabBarFlags_IsFocused);
@@ -7869,9 +7869,9 @@ bool    ImGui::BeginTabBarEx(ImGuiTabBar* tab_bar, const ImRect& tab_bar_bb, ImG
     if (window->SkipItems)
         return false;
 
-    IM_ASSERT(tab_bar->Id != 0);
+    IM_ASSERT(tab_bar->ID != 0);
     if ((flags & ImGuiTabBarFlags_DockNode) == 0)
-        PushOverrideID(tab_bar->Id);
+        PushOverrideID(tab_bar->ID);
 
     // Add to stack
     g.CurrentTabBarStack.push_back(GetTabBarRefFromTabBar(tab_bar));
@@ -7986,9 +7986,9 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
         if (tab->LastFrameVisible < tab_bar->PrevFrameVisible || tab->WantClose)
         {
             // Remove tab
-            if (tab_bar->VisibleTabId == tab->Id) { tab_bar->VisibleTabId = 0; }
-            if (tab_bar->SelectedTabId == tab->Id) { tab_bar->SelectedTabId = 0; }
-            if (tab_bar->NextSelectedTabId == tab->Id) { tab_bar->NextSelectedTabId = 0; }
+            if (tab_bar->VisibleTabId == tab->ID) { tab_bar->VisibleTabId = 0; }
+            if (tab_bar->SelectedTabId == tab->ID) { tab_bar->SelectedTabId = 0; }
+            if (tab_bar->NextSelectedTabId == tab->ID) { tab_bar->NextSelectedTabId = 0; }
             continue;
         }
         if (tab_dst_n != tab_src_n)
@@ -8044,7 +8044,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
     const bool tab_list_popup_button = (tab_bar->Flags & ImGuiTabBarFlags_TabListPopupButton) != 0;
     if (tab_list_popup_button)
         if (ImGuiTabItem* tab_to_select = TabBarTabListPopupButton(tab_bar)) // NB: Will alter BarRect.Min.x!
-            scroll_to_tab_id = tab_bar->SelectedTabId = tab_to_select->Id;
+            scroll_to_tab_id = tab_bar->SelectedTabId = tab_to_select->ID;
 
     // Leading/Trailing tabs will be shrink only if central one aren't visible anymore, so layout the shrink data as: leading, trailing, central
     // (whereas our tabs are stored as: leading, central, trailing)
@@ -8062,10 +8062,10 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
 
         if ((most_recently_selected_tab == NULL || most_recently_selected_tab->LastFrameSelected < tab->LastFrameSelected) && !(tab->Flags & ImGuiTabItemFlags_Button))
             most_recently_selected_tab = tab;
-        if (tab->Id == tab_bar->SelectedTabId)
+        if (tab->ID == tab_bar->SelectedTabId)
             found_selected_tab_id = true;
-        if (scroll_to_tab_id == 0 && g.NavJustMovedToId == tab->Id)
-            scroll_to_tab_id = tab->Id;
+        if (scroll_to_tab_id == 0 && g.NavJustMovedToId == tab->ID)
+            scroll_to_tab_id = tab->ID;
 
         // Refresh tab width immediately, otherwise changes of style e.g. style.FramePadding.x would noticeably lag in the tab bar.
         // Additionally, when using TabBarAddTab() to manipulate tab bar order we occasionally insert new tabs that don't have a width yet,
@@ -8097,7 +8097,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
     if ((tab_bar->WidthAllTabsIdeal > tab_bar->BarRect.GetWidth() && tab_bar->Tabs.Size > 1) && !(tab_bar->Flags & ImGuiTabBarFlags_NoTabListScrollingButtons) && (tab_bar->Flags & ImGuiTabBarFlags_FittingPolicyScroll))
         if (ImGuiTabItem* scroll_and_select_tab = TabBarScrollingButtons(tab_bar))
         {
-            scroll_to_tab_id = scroll_and_select_tab->Id;
+            scroll_to_tab_id = scroll_and_select_tab->ID;
             if ((scroll_and_select_tab->Flags & ImGuiTabItemFlags_Button) == 0)
                 tab_bar->SelectedTabId = scroll_to_tab_id;
         }
@@ -8164,7 +8164,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
     if (found_selected_tab_id == false)
         tab_bar->SelectedTabId = 0;
     if (tab_bar->SelectedTabId == 0 && tab_bar->NextSelectedTabId == 0 && most_recently_selected_tab != NULL)
-        scroll_to_tab_id = tab_bar->SelectedTabId = most_recently_selected_tab->Id;
+        scroll_to_tab_id = tab_bar->SelectedTabId = most_recently_selected_tab->ID;
 
     // Lock in visible tab
     tab_bar->VisibleTabId = tab_bar->SelectedTabId;
@@ -8177,13 +8177,13 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
     {
         const float wheel = g.IO.MouseWheelRequestAxisSwap ? g.IO.MouseWheel : g.IO.MouseWheelH;
         const ImGuiKey wheel_key = g.IO.MouseWheelRequestAxisSwap ? ImGuiKey_MouseWheelY : ImGuiKey_MouseWheelX;
-        if (TestKeyOwner(wheel_key, tab_bar->Id) && wheel != 0.0f)
+        if (TestKeyOwner(wheel_key, tab_bar->ID) && wheel != 0.0f)
         {
             const float scroll_step = wheel * TabBarCalcScrollableWidth(tab_bar, sections) / 3.0f;
             tab_bar->ScrollingTargetDistToVisibility = 0.0f;
             tab_bar->ScrollingTarget = TabBarScrollClamp(tab_bar, tab_bar->ScrollingTarget - scroll_step);
         }
-        SetKeyOwner(wheel_key, tab_bar->Id);
+        SetKeyOwner(wheel_key, tab_bar->ID);
     }
 
     // Update scrolling
@@ -8240,7 +8240,7 @@ ImGuiTabItem* ImGui::TabBarFindTabByID(ImGuiTabBar* tab_bar, ImGuiID tab_id)
 {
     if (tab_id != 0)
         for (int n = 0; n < tab_bar->Tabs.Size; n++)
-            if (tab_bar->Tabs[n].Id == tab_id)
+            if (tab_bar->Tabs[n].ID == tab_id)
                 return &tab_bar->Tabs[n];
     return NULL;
 }
@@ -8289,7 +8289,7 @@ void ImGui::TabBarCloseTab(ImGuiTabBar* tab_bar, ImGuiTabItem* tab)
         // This will remove a frame of lag for selecting another tab on closure.
         // However we don't run it in the case where the 'Unsaved' flag is set, so user gets a chance to fully undo the closure
         tab->WantClose = true;
-        if (tab_bar->VisibleTabId == tab->Id)
+        if (tab_bar->VisibleTabId == tab->ID)
         {
             tab->LastFrameVisible = -1;
             tab_bar->SelectedTabId = tab_bar->NextSelectedTabId = 0;
@@ -8298,7 +8298,7 @@ void ImGui::TabBarCloseTab(ImGuiTabBar* tab_bar, ImGuiTabItem* tab)
     else
     {
         // Actually select before expecting closure attempt (on an UnsavedDocument tab user is expect to e.g. show a popup)
-        if (tab_bar->VisibleTabId != tab->Id)
+        if (tab_bar->VisibleTabId != tab->ID)
             TabBarQueueFocus(tab_bar, tab);
     }
 }
@@ -8345,14 +8345,14 @@ static void ImGui::TabBarScrollToTab(ImGuiTabBar* tab_bar, ImGuiID tab_id, ImGui
 
 void ImGui::TabBarQueueFocus(ImGuiTabBar* tab_bar, ImGuiTabItem* tab)
 {
-    tab_bar->NextSelectedTabId = tab->Id;
+    tab_bar->NextSelectedTabId = tab->ID;
 }
 
 void ImGui::TabBarQueueReorder(ImGuiTabBar* tab_bar, ImGuiTabItem* tab, int offset)
 {
     IM_ASSERT(offset != 0);
     IM_ASSERT(tab_bar->ReorderRequestTabId == 0);
-    tab_bar->ReorderRequestTabId = tab->Id;
+    tab_bar->ReorderRequestTabId = tab->ID;
     tab_bar->ReorderRequestOffset = (ImS16)offset;
 }
 
@@ -8512,7 +8512,7 @@ static ImGuiTabItem* ImGui::TabBarTabListPopupButton(ImGuiTabBar* tab_bar)
                 continue;
 
             const char* tab_name = TabBarGetTabName(tab_bar, tab);
-            if (Selectable(tab_name, tab_bar->SelectedTabId == tab->Id))
+            if (Selectable(tab_name, tab_bar->SelectedTabId == tab->ID))
                 tab_to_select = tab;
         }
         EndCombo();
@@ -8554,7 +8554,7 @@ bool    ImGui::BeginTabItem(const char* label, bool* p_open, ImGuiTabItemFlags f
     if (ret && !(flags & ImGuiTabItemFlags_NoPushId))
     {
         ImGuiTabItem* tab = &tab_bar->Tabs[tab_bar->LastTabItemIdx];
-        PushOverrideID(tab->Id); // We already hashed 'label' so push into the ID stack directly instead of doing another hash through PushID(label)
+        PushOverrideID(tab->ID); // We already hashed 'label' so push into the ID stack directly instead of doing another hash through PushID(label)
     }
     return ret;
 }
@@ -8636,7 +8636,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
     {
         tab_bar->Tabs.push_back(ImGuiTabItem());
         tab = &tab_bar->Tabs.back();
-        tab->Id = id;
+        tab->ID = id;
         tab_bar->TabsAddedNew = tab_is_new = true;
     }
     tab_bar->LastTabItemIdx = (ImS16)tab_bar->Tabs.index_from_ptr(tab);
@@ -8810,7 +8810,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
         if (!(tab_bar->Flags & ImGuiTabBarFlags_NoTooltip) && !(tab->Flags & ImGuiTabItemFlags_NoTooltip))
             SetItemTooltip("%.*s", (int)(FindRenderedTextEnd(label) - label), label);
 
-    IM_ASSERT(!is_tab_button || !(tab_bar->SelectedTabId == tab->Id && is_tab_button)); // TabItemButton should not be selected
+    IM_ASSERT(!is_tab_button || !(tab_bar->SelectedTabId == tab->ID && is_tab_button)); // TabItemButton should not be selected
     if (is_tab_button)
         return pressed;
     return tab_contents_visible;

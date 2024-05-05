@@ -11,7 +11,7 @@
 /*
 * Enable USING_SEH (recommended)
 * Disable LOAD_D3DCOMPILER_47 (recommended)
-*
+* 
 * Properties -> C/C++ -> Code Generation -> Enable C++ Exceptions -> Yes (/EHsc)				(recommended)
 * Properties -> C/C++ -> Code Generation -> Security Check -> Enable Security Check (/GS)		(recommended)
 * Properties -> C/C++ -> Code Generation -> Runtime Library -> Multi-threaded (/MT)				(recommended)
@@ -25,7 +25,7 @@
 * Disable INIT_THREAD (recommended)
 * Disable UNLOAD_THREAD (REQUIRED)
 * Enable LOAD_D3DCOMPILER_47 (REQUIRED if you don't map dependencies)
-*
+* 
 * Properties -> C/C++ -> Code Generation -> Enable C++ Exceptions -> No						(REQUIRED)
 * Properties -> C/C++ -> Code Generation -> Security Check -> Disable Security Check (/GS-)	(REQUIRED)
 * Properties -> C/C++ -> Code Generation -> Runtime Library -> Multi-threaded (/MT)			(REQUIRED unless your injector handles and maps ApiSet dependencies)
@@ -48,13 +48,13 @@
 
 // Level of DEBUG_LOG to display
 #ifdef _DEBUG
-#define LOG_LEVEL		LOG_ALL
+	#define LOG_LEVEL		LOG_ALL
 #else
-#define LOG_LEVEL		LOG_ALL// No logs in release mode by default
+	#define LOG_LEVEL		LOG_NONE// No logs in release mode by default
 #endif // _DEBUG
 
 // Only enable this if you are sure your injector supports SEH
-#define USING_SEH			FALSE	// Enables the use of SEH (Structured Exception Handler) for verifying if a pointer is valid
+#define USING_SEH			TRUE	// Enables the use of SEH (Structured Exception Handler) for verifying if a pointer is valid
 #define SEASON_20_PLUS		FALSE	// REQUIRED ON SEASON 20 AND FORWARD! Enables the use of doubles instead of floats on structures like FVector, FRotator etc. Changes a few other structures too
 
 #define NAME_DUMP			FALSE	// Dumps all FNames to the log
@@ -72,6 +72,6 @@ inline HMODULE CurrentModule = nullptr;// The current module handle
 
 
 // Compile-Time Asserts
-static_assert(LOG_LEVEL < LOG_LEVEL_MAX&& LOG_LEVEL >= LOG_NONE, "Invalid log level");
+static_assert(LOG_LEVEL < LOG_LEVEL_MAX && LOG_LEVEL >= LOG_NONE, "Invalid log level");
 
-//static_assert(false, "Please read Globals.h and set the right configuration for you. If you are manual mapping, there are REQUIRED settings. DOUBLE CLICK ME AND REMOVE ME!");
+static_assert(false, "Please read Globals.h and set the right configuration for you. If you are manual mapping, there are REQUIRED settings. DOUBLE CLICK ME AND REMOVE ME!");
