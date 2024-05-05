@@ -1,11 +1,13 @@
 #pragma once
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "../SDK/SDK.h"
 
-namespace Features {
-    class IAutoRevertFeature {
+namespace Features
+{
+    class IAutoRevertFeature
+    {
     public:
         virtual ~IAutoRevertFeature() = default;
 
@@ -15,35 +17,44 @@ namespace Features {
     };
 
     template <typename T>
-    class AutoRevertFeature : public IAutoRevertFeature {
+    class AutoRevertFeature : public IAutoRevertFeature
+    {
     private:
         T* Address;
         T OriginalValue;
         bool* Enabled;
     public:
-        AutoRevertFeature(T* Address, bool* Enabled) : Address(Address), Enabled(Enabled) {
-            if (SDK::IsValidPointer(Address) && SDK::IsValidPointer(Enabled)) {
+        AutoRevertFeature(T* Address, bool* Enabled) : Address(Address), Enabled(Enabled)
+        {
+            if (SDK::IsValidPointer(Address) && SDK::IsValidPointer(Enabled))
+            {
                 OriginalValue = *Address;
             }
         }
 
-        ~AutoRevertFeature() override {
+        ~AutoRevertFeature() override
+        {
             if (SDK::IsValidPointer(Address)) *Address = OriginalValue;
         }
 
-        bool IsDuplicate(void* Address, bool* Enabled, uint8_t BitMask) const override {
+        bool IsDuplicate(void* Address, bool* Enabled, uint8_t BitMask) const override
+        {
             return (this->Address == Address) && (this->Enabled == Enabled);
         }
 
-        bool Tick() override {
-            if (SDK::IsValidPointer(Address) && SDK::IsValidPointer(Enabled)) {
-                if (*Enabled == false) {
+        bool Tick() override
+        {
+            if (SDK::IsValidPointer(Address) && SDK::IsValidPointer(Enabled))
+            {
+                if (*Enabled == false)
+                {
                     *Address = OriginalValue;
 
                     return false;
                 }
             }
-            else {
+            else
+            {
                 return false;
             }
 
@@ -51,42 +62,54 @@ namespace Features {
         }
     };
 
-    class AutoRevertBitFeature : public IAutoRevertFeature {
+    class AutoRevertBitFeature : public IAutoRevertFeature
+    {
     private:
         uint8_t* Address;
         uint8_t BitMask;
         bool OriginalValue;
         bool* Enabled;
     public:
-        AutoRevertBitFeature(uint8_t* Address, uint8_t BitMask, bool* Enabled) : Address(Address), BitMask(BitMask), Enabled(Enabled) {
-            if (Address && Enabled) {
+        AutoRevertBitFeature(uint8_t* Address, uint8_t BitMask, bool* Enabled) : Address(Address), BitMask(BitMask), Enabled(Enabled)
+        {
+            if (Address && Enabled)
+            {
                 OriginalValue = *Address & BitMask;
             }
         }
 
-        ~AutoRevertBitFeature() override {
-            if (Address && Enabled && !*Enabled) {
-                if (OriginalValue) {
+        ~AutoRevertBitFeature() override
+        {
+            if (Address && Enabled && !*Enabled)
+            {
+                if (OriginalValue)
+                {
                     *Address |= BitMask; // Set the bit
                 }
-                else {
+                else
+                {
                     *Address &= ~BitMask; // Clear the bit
                 }
             }
         }
 
-        bool IsDuplicate(void* Address, bool* Enabled, uint8_t BitMask) const override {
+        bool IsDuplicate(void* Address, bool* Enabled, uint8_t BitMask) const override
+        {
             return (this->Address == Address) && (this->Enabled == Enabled) && (this->BitMask == BitMask);
         }
 
-        bool Tick() override {
-            if (Address && Enabled) {
-                if (*Enabled == false) {
+        bool Tick() override
+        {
+            if (Address && Enabled)
+            {
+                if (*Enabled == false)
+                {
                     *Address = OriginalValue ? *Address | BitMask : *Address & ~BitMask;
                     return false;
                 }
             }
-            else {
+            else
+            {
                 return false;
             }
 
@@ -97,12 +120,15 @@ namespace Features {
     inline std::vector<std::unique_ptr<IAutoRevertFeature>> AutoRevertFeatures;
 
     template <typename T>
-    inline void CreateAutoRevertFeature(T* Address, bool* Enabled) {
+    inline void CreateAutoRevertFeature(T* Address, bool* Enabled)
+    {
         auto Feature = std::make_unique<AutoRevertFeature<T>>(Address, Enabled);
 
         // Check that there isn't already a feature with the same Address and Enabled
-        for (const auto& ExistingFeature : AutoRevertFeatures) {
-            if (ExistingFeature->IsDuplicate(Address, Enabled, 0)) {
+        for (const auto& ExistingFeature : AutoRevertFeatures)
+        {
+            if (ExistingFeature->IsDuplicate(Address, Enabled, 0))
+            {
                 return;
             }
         }
@@ -110,12 +136,15 @@ namespace Features {
         AutoRevertFeatures.push_back(std::move(Feature));
     }
 
-    inline void CreateAutoRevertBitFeature(uint8_t* Address, uint8_t BitPosition, bool* Enabled) {
+    inline void CreateAutoRevertBitFeature(uint8_t* Address, uint8_t BitPosition, bool* Enabled)
+    {
         auto Feature = std::make_unique<AutoRevertBitFeature>(Address, BitPosition, Enabled);
 
         // Check that there isn't already a feature with the same Address and Enabled
-        for (const auto& ExistingFeature : AutoRevertFeatures) {
-            if (ExistingFeature->IsDuplicate(Address, Enabled, BitPosition)) {
+        for (const auto& ExistingFeature : AutoRevertFeatures)
+        {
+            if (ExistingFeature->IsDuplicate(Address, Enabled, BitPosition))
+            {
                 return;
             }
         }
@@ -123,13 +152,17 @@ namespace Features {
         AutoRevertFeatures.push_back(std::move(Feature));
     }
 
-    inline void Tick() {
+    inline void Tick()
+    {
         auto it = AutoRevertFeatures.begin();
-        while (it != AutoRevertFeatures.end()) {
-            if ((*it)->Tick() == false) {
+        while (it != AutoRevertFeatures.end())
+        {
+            if ((*it)->Tick() == false)
+            {
                 it = AutoRevertFeatures.erase(it); // Remove the feature if Tick returns false
             }
-            else {
+            else
+            {
                 ++it;
             }
         }
@@ -139,19 +172,24 @@ namespace Features {
 
 
 
-	namespace Aimbot {
-		class Target;
-	}
+    namespace Aimbot
+    {
+        class Target;
+    }
 
-	namespace Exploits {
-        namespace Vehicle {
-
-        }
-	}
-
-	namespace FortPawnHelper {
-        namespace Bone {
+    namespace Exploits
+    {
+        namespace Vehicle
+        {
 
         }
-	}
+    }
+
+    namespace FortPawnHelper
+    {
+        namespace Bone
+        {
+
+        }
+    }
 }

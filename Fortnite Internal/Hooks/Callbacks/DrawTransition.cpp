@@ -5,66 +5,76 @@
 
 #include "../../Drawing/Drawing.h"
 
+#include "../../Utilities/Error.h"
 #include "../../Utilities/Logger.h"
 #include "../../Utilities/Math.h"
-#include "../../Utilities/Error.h"
 #include "../../Utilities/RaaxAssert.h"
 
 #include <algorithm>
 
-void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas) {
+void Hooks::DrawTransition::DrawTransition(uintptr_t this_, uintptr_t Canvas)
+{
 #ifdef _IMGUI
-	if (Hooks::Present::Mutex.ShouldReturn()) {
-		return DrawTransitionOriginal(this_, Canvas);
-	}
+    if (Hooks::Present::Mutex.ShouldReturn())
+    {
+        return DrawTransitionOriginal(this_, Canvas);
+    }
 
-	ReturnLock Lock(&Hooks::Present::Mutex);
+    ReturnLock Lock(&Hooks::Present::Mutex);
 #endif
 
-	if (Canvas == 0x0) {
-		return DrawTransitionOriginal(this_, Canvas);
-	}
+    if (Canvas == 0x0)
+    {
+        return DrawTransitionOriginal(this_, Canvas);
+    }
 
-	Game::CurrentFrame++;
-	Game::CurrentTime = std::chrono::steady_clock::now();
+    DEBUG_LOG(LOG_INFO, "-----------------------");
+    DEBUG_LOG(LOG_INFO, SDK::GetEngine()->GetFullName());
+    DEBUG_LOG(LOG_INFO, SDK::UEngine::GetDefaultObj()->GetFullName());
+    DEBUG_LOG(LOG_INFO, SDK::UEngine::StaticClass()->GetFullName());
+    DEBUG_LOG(LOG_INFO, "-----------------------");
 
-	Game::CurrentCanvas = Canvas;
-	Game::ScreenWidth = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeX();
-	Game::ScreenHeight = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeY();
+    Game::CurrentFrame++;
+    Game::CurrentTime = std::chrono::steady_clock::now();
 
-	Game::ScreenCenterX = Game::ScreenWidth / 2.f;
-	Game::ScreenCenterY = Game::ScreenHeight / 2.f;
+    Game::CurrentCanvas = Canvas;
+    Game::ScreenWidth = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeX();
+    Game::ScreenHeight = reinterpret_cast<SDK::UCanvas*>(Canvas)->SizeY();
 
-	// Clamp the FOV to fix target issues on extreme FOV's. This does make it inaccurate on FOV's above 120, but this doesn't really matter
-	Game::PixelsPerDegree = Game::ScreenWidth / Math::RadiansToDegrees((2 * tan(0.5f * Math::DegreesToRadians(std::clamp(Actors::MainCamera.FOV, 0.f, 120.f)))));
+    Game::ScreenCenterX = Game::ScreenWidth / 2.f;
+    Game::ScreenCenterY = Game::ScreenHeight / 2.f;
 
-	Hooks::Tick();
+    // Clamp the FOV to fix target issues on extreme FOV's. This does make it inaccurate on FOV's above 120, but this doesn't really matter
+    Game::PixelsPerDegree = Game::ScreenWidth / Math::RadiansToDegrees((2 * tan(0.5f * Math::DegreesToRadians(std::clamp(Actors::MainCamera.FOV, 0.f, 120.f)))));
 
-	Actors::Tick();
-	Actors::UpdateCaches();
+    Hooks::Tick();
 
-	Features::Tick();
+    Actors::Tick();
+    Actors::UpdateCaches();
 
-	Game::DrawCallback();
+    Features::Tick();
+
+    Game::DrawCallback();
 
 #ifdef _IMGUI
-	Drawing::SwapBuffers();
+    Drawing::SwapBuffers();
 
-	if (RaaxDx::Initalized == false) {
-		DEBUG_LOG(LOG_INFO, std::string(skCrypt("Initiating DirectX hooks")));
+    if (RaaxDx::Initalized == false)
+    {
+        DEBUG_LOG(LOG_INFO, std::string(skCrypt("Initiating DirectX hooks")));
 
-		RaaxDx::Status InitStatus = RaaxDx::Init();
-		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Init Status: ")) + std::to_string((int)InitStatus));
-		RaaxAssert(InitStatus == RaaxDx::Status::Success, skCrypt("Failed to initiate DirectX hooks! ").decrypt() + std::to_string((int)InitStatus));
+        RaaxDx::Status InitStatus = RaaxDx::Init();
+        DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Init Status: ")) + std::to_string((int)InitStatus));
+        RaaxAssert(InitStatus == RaaxDx::Status::Success, skCrypt("Failed to initiate DirectX hooks! ").decrypt() + std::to_string((int)InitStatus));
 
-		RaaxDx::Status HookStatus = RaaxDx::Hook();
-		DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Hook Status: ")) + std::to_string((int)HookStatus));
-		RaaxAssert(HookStatus == RaaxDx::Status::Success, skCrypt("Failed to create DirectX hooks! ").decrypt() + std::to_string((int)HookStatus));
-	}
+        RaaxDx::Status HookStatus = RaaxDx::Hook();
+        DEBUG_LOG(LOG_INFO, std::string(skCrypt("RaaxDx Hook Status: ")) + std::to_string((int)HookStatus));
+        RaaxAssert(HookStatus == RaaxDx::Status::Success, skCrypt("Failed to create DirectX hooks! ").decrypt() + std::to_string((int)HookStatus));
+}
 #else
-	Game::MenuCallback();
+    Game::MenuCallback();
 #endif
 
-	return DrawTransitionOriginal(this_, Canvas);
-	//return spoof_call<void>(PostRenderOriginal, this_, Canvas);
+    return DrawTransitionOriginal(this_, Canvas);
+    //return spoof_call<void>(PostRenderOriginal, this_, Canvas);
 }

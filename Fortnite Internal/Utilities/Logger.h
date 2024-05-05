@@ -10,11 +10,13 @@
 
 // Only log if the log level is above LOG_NONE
 #if LOG_LEVEL > LOG_NONE
-class Logger {
+class Logger
+{
 private:
     static std::ofstream File;
 
-    static std::string GetTimestamp() {
+    static std::string GetTimestamp()
+    {
         time_t Now = time(0);
         struct tm TimeInfo;
         localtime_s(&TimeInfo, &Now);
@@ -23,8 +25,10 @@ private:
         return Buffer;
     }
 
-    static std::string GetFileName(const char* FilePath) {
-        if (FilePath == nullptr) {
+    static std::string GetFileName(const char* FilePath)
+    {
+        if (FilePath == nullptr)
+        {
             return "";
         }
 
@@ -35,15 +39,19 @@ private:
     }
 
 public:
-    static void InitLogger(const std::string& FileNameWithPath) {
+    static void InitLogger(const std::string& FileNameWithPath)
+    {
         File.open(FileNameWithPath, std::ios::out | std::ios::app);
-        if (File.is_open() == false) {
+        if (File.is_open() == false)
+        {
             // Failed to open the file, realistically we should show an error message here. But I can't be bothered to move defintions to CPP file so they can cross include.
             return;
         }
-        else {
+        else
+        {
             File.seekp(0, std::ios::end);
-            if (!File.tellp() == 0) {
+            if (!File.tellp() == 0)
+            {
                 File << std::endl << std::endl << std::endl;
             }
 
@@ -51,42 +59,49 @@ public:
         }
     }
 
-    static void Log(unsigned __int8 LogLevel, const char* Message, const char* FilePath, int Line) {
-        if (LogLevel > LOG_LEVEL) {
+    static void Log(const unsigned __int8 LogLevel, const char* Message, const char* FilePath, const int Line)
+    {
+        if (LogLevel > LOG_LEVEL)
+        {
             return;
         }
 
         std::ostringstream LogStream;
         std::string FileName = GetFileName(FilePath);
 
-        if (FileName.empty() == false) {
-            LogStream << skCrypt("[")<< GetTimestamp() << skCrypt("] ")
+        if (FileName.empty() == false)
+        {
+            LogStream << skCrypt("[") << GetTimestamp() << skCrypt("] ")
                 << skCrypt("[") << FileName << skCrypt(":") << Line << skCrypt("] ")
                 << Message;
         }
-        else {
+        else
+        {
             LogStream << skCrypt("[") << GetTimestamp() << skCrypt("] ") << Message;
         }
 
         File << LogStream.str() << std::endl;
     }
 
-    static void Log(unsigned __int8 LogLevel, std::string Message, const char* FilePath, int Line) {
+    static void Log(const unsigned __int8 LogLevel, std::string Message, const char* FilePath, const int Line)
+    {
         Log(LogLevel, Message.c_str(), FilePath, Line);
     }
 
-    static void Log(unsigned __int8 LogLevel, const wchar_t* Message, const char* FilePath, int Line) {
-		Log(LogLevel, std::wstring(Message), FilePath, Line);
-	}
+    static void Log(const unsigned __int8 LogLevel, const wchar_t* Message, const char* FilePath, const int Line)
+    {
+        Log(LogLevel, std::wstring(Message), FilePath, Line);
+    }
 
-    static void Log(unsigned __int8 LogLevel, std::wstring Message, const char* FilePath, int Line) {
+    static void Log(const unsigned __int8 LogLevel, std::wstring Message, const char* FilePath, const int Line)
+    {
         Log(LogLevel, std::string(Message.begin(), Message.end()).c_str(), FilePath, Line);
-	}
+    }
 };
 
 inline std::ofstream Logger::File;
 
 #define DEBUG_LOG(LogLevel, Message) Logger::Log(LogLevel, Message, skCrypt(__FILE__), __LINE__)
 #else
-    #define DEBUG_LOG(LogLevel, Message)
+#define DEBUG_LOG(LogLevel, Message)
 #endif

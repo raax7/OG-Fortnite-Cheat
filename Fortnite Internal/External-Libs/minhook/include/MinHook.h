@@ -69,7 +69,7 @@ typedef enum MH_STATUS
     // The specified target function cannot be hooked.
     MH_ERROR_UNSUPPORTED_FUNCTION,
 
-    // Failed to allocate memory.
+    // Failed to allocate Memory::
     MH_ERROR_MEMORY_ALLOC,
 
     // Failed to change the memory protection.

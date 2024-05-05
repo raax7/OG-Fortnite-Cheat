@@ -3,22 +3,23 @@
 
 #define M_PI 3.14159265358979323f
 
-namespace Math {
-	float InvSqrt(float F);
+namespace Math
+{
+    float InvSqrt(const float F);
 
-	float GetDistance2D(float x1, float y1, float x2, float y2);
+    float GetDistance2D(const float x1, const float y1, const float x2, const float y2);
 
-	SDK::FRotator NormalizeAxis(SDK::FRotator Rotation);
+    SDK::FRotator NormalizeAxis(SDK::FRotator& Rotation);
 
-	float NormalizeAngle(float Angle);
+    float NormalizeAngle(float Angle);
 
-	float DegreesToRadians(float degrees);
+    float DegreesToRadians(const float degrees);
 
-	float RadiansToDegrees(float radians);
+    float RadiansToDegrees(const float radians);
 
-	float GetDegreeDistance(SDK::FRotator Rotator1, SDK::FRotator Rotator2);
+    float GetDegreeDistance(const SDK::FRotator& Rotator1, const SDK::FRotator& Rotator2);
 
-	float CalculateInterpolatedValue(float CurrentScalar, float MaxScalar, float MinValue, float MaxValue);
+    float CalculateInterpolatedValue(const float CurrentScalar, float MaxScalar, const float MinValue, const float MaxValue);
 
-	bool IsOnScreen(const SDK::FVector2D& Position);
+    bool IsOnScreen(const SDK::FVector2D& Position);
 }

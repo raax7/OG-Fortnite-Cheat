@@ -1550,18 +1550,18 @@ STBTT_DEF int stbtt_FindGlyphIndex(const stbtt_fontinfo *info, int unicode_codep
 
       {
          stbtt_uint16 offset, start, last;
-         stbtt_uint16 item = (stbtt_uint16) ((search - endCount) >> 1);
+         stbtt_uint16 Item = (stbtt_uint16) ((search - endCount) >> 1);
 
-         start = ttUSHORT(data + index_map + 14 + segcount*2 + 2 + 2*item);
-         last = ttUSHORT(data + endCount + 2*item);
+         start = ttUSHORT(data + index_map + 14 + segcount*2 + 2 + 2*Item);
+         last = ttUSHORT(data + endCount + 2*Item);
          if (unicode_codepoint < start || unicode_codepoint > last)
             return 0;
 
-         offset = ttUSHORT(data + index_map + 14 + segcount*6 + 2 + 2*item);
+         offset = ttUSHORT(data + index_map + 14 + segcount*6 + 2 + 2*Item);
          if (offset == 0)
-            return (stbtt_uint16) (unicode_codepoint + ttSHORT(data + index_map + 14 + segcount*4 + 2 + 2*item));
+            return (stbtt_uint16) (unicode_codepoint + ttSHORT(data + index_map + 14 + segcount*4 + 2 + 2*Item));
 
-         return ttUSHORT(data + offset + (unicode_codepoint-start)*2 + index_map + 14 + segcount*6 + 2 + 2*item);
+         return ttUSHORT(data + offset + (unicode_codepoint-start)*2 + index_map + 14 + segcount*6 + 2 + 2*Item);
       }
    } else if (format == 12 || format == 13) {
       stbtt_uint32 ngroups = ttULONG(data+index_map+12);

@@ -284,6 +284,25 @@ void SDK::AFortPlayerController::CompleteBuildingEditInteraction() {
 	CompleteBuildingEditInteraction1(this);
 }
 
+void SDK::AFortPlayerController::ServerAttemptInteract(class AActor* ReceivingActor, class UPrimitiveComponent* InteractComponent, enum class ETInteractionType InteractType, class UObject* OptionalObjectData) {
+	if (SDK::IsValidPointer(this) == false || SDK::Cached::Functions::CompleteBuildingEditInteraction == 0x0) return;
+
+	struct {
+		class AActor* ReceivingActor;
+		class UPrimitiveComponent* InteractComponent;
+		enum class ETInteractionType InteractType;
+		uint8 Pad_19CE[0x7];
+		class UObject* OptionalObjectData;
+	} params_ServerAttemptInteract{};
+
+	params_ServerAttemptInteract.ReceivingActor = ReceivingActor;
+	params_ServerAttemptInteract.InteractComponent = InteractComponent;
+	params_ServerAttemptInteract.InteractType = InteractType;
+	params_ServerAttemptInteract.OptionalObjectData = OptionalObjectData;
+
+	this->ProcessEvent(SDK::Cached::Functions::FortPlayerController::ServerAttemptInteract, &params_ServerAttemptInteract);
+}
+
 SDK::UClass* SDK::UFortLocalPlayer::StaticClass() {
 	static class UClass* Clss = nullptr;
 

@@ -5,12 +5,16 @@
 
 #include "../../Actors/ActorCache.h"
 
-namespace Features {
-    namespace FortPawnHelper {
+namespace Features
+{
+    namespace FortPawnHelper
+    {
         /* Stores the BoneID enum and is used in aimbot to calculate target bone */
-        namespace Bone {
+        namespace Bone
+        {
             /* Represents the bone names of a FortPawn */
-            struct BoneNames {
+            struct BoneNames
+            {
                 SDK::FName Head;
                 SDK::FName Neck;
 
@@ -41,7 +45,8 @@ namespace Features {
             inline BoneNames Names;
 
             /* Represents the bone IDs of a FortPawn (THE ORDER OF THE ENUM AFFECTS VARIOUS FUNCTIONS, AVOID CHANGING ORDER) */
-            enum BoneID_ : uint8_t {
+            enum BoneID_ : uint8_t
+            {
                 Head = 1,           // "head"
                 Neck = 2,           // "neck_01"
 
@@ -119,16 +124,16 @@ namespace Features {
             * @param BoneID1 - The ID of the first bone
             * @param BoneID2 - The ID of the second bone
             */
-            BoneID FindClosestBoneBetweenTwo(SDK::FVector2D BonePosition1, SDK::FVector2D BonePosition2, BoneID BoneID1, BoneID BoneID2);
+            BoneID FindClosestBoneBetweenTwo(const SDK::FVector2D& BonePosition1, const SDK::FVector2D& BonePosition2, const BoneID BoneID1, const BoneID BoneID2);
 
             /*
             * @brief Find the best bone to aim at based on the bone hierarchy and visibilities
             *
             * @param TargetBone - The optimal bone to aim at
             * @param FortPawnCache - The pawn cache of the target
-            * @param VisibleCheck - If true, 
+            * @param VisibleCheck - If true,
             */
-            BoneID FindBestBone(BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache, bool VisibleCheck);
+            BoneID FindBestBone(const BoneID TargetBone, Actors::Caches::FortPawnCache& FortPawnCache, const bool VisibleCheck);
 
             /*
             * @brief Get a cached bone FName from BoneID
@@ -137,7 +142,7 @@ namespace Features {
             *
             * @return The FName of the bone
             */
-            SDK::FName GetBoneName(BoneID BoneID);
+            SDK::FName GetBoneName(const BoneID BoneID);
 
             /* Initiate bone FNames for GetSocketLocation */
             void Init();
