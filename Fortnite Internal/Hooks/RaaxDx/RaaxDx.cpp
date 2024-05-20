@@ -19,6 +19,8 @@
 //#include <dxgi.h>
 //#include <d3d12.h>
 
+#pragma comment(lib, "d3d11.lib")
+
 RaaxDx::Status RaaxDx::Init() {
 	if (Initalized) {
 		return Status::AlreadyInitialized;
@@ -40,11 +42,6 @@ RaaxDx::Status RaaxDx::Init() {
 	}
 
 	if (DXVersion == 11) {
-		void* D3D11CreateDeviceAndSwapChain = LI_FN(GetProcAddress).safe()(DXModule, skCrypt("D3D11CreateDeviceAndSwapChain"));
-		if (SDK::IsValidPointer(D3D11CreateDeviceAndSwapChain) == false) {
-			return Status::DxFunctionNotFound;
-		}
-
 		// Create D3D11 Device and SwapChain
 		D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_11_0;
 		const D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_11_1 };
