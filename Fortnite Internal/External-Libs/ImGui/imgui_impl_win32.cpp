@@ -91,6 +91,8 @@ typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
 //  2017-10-23: Inputs: Using Win32 ::SetCapture/::GetCapture() to retrieve mouse positions outside the client area when dragging.
 //  2016-11-12: Inputs: Only call Win32 ::SetCursor(nullptr) when io.MouseDrawCursor is set.
 
+#define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD 1
+
 struct ImGui_ImplWin32_Data
 {
     HWND                        hWnd;
