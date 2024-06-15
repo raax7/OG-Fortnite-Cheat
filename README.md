@@ -21,9 +21,6 @@
 Clip from me on EZFN:
 https://streamable.com/e/75g4ic
 
-Clip from Threxo (disc id 695938625979940915) playing in Era tournament.
-https://cdn.discordapp.com/attachments/1238298241834029107/1238986852934090832/EAR_YOURENY.mp4?ex=664147ed&is=663ff66d&hm=79eab5238897479c3214a83f1950a1d90c7d3844fb6e1194c01ed24de8774541&
-
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
