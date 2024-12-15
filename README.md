@@ -6,7 +6,7 @@
 <p align="center">If you found this useful, join the Discord and star the project!</p>
 <p align="center">THIS IS STILL UNDER DEVELOPMENT, LOTS OF THE CODE IS STILL SCUFFED AND WILL BE CHANGED LATER!</p>
 <p align="center">
-	<a href="https://discord.gg/Usbk5fjZmH">Discord Server</a> |
+	<a href="https://discord.gg/QB2aafth4T">Discord Server</a> |
 	<a href="https://github.com/raax7/OG-Fortnite-Cheat/issues">Report an Issue</a>
 </p>
 <p align="center">
