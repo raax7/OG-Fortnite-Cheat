@@ -17,7 +17,9 @@ HRESULT __stdcall Hooks::Present::Present(IDXGISwapChain* pSwapChain, UINT SyncI
 	ReturnLock Lock2(&Hooks::WndProc::Mutex);
 
 	if (ImGuiBeenSetup == false) {
-		RaaxDx::InitImGui(pSwapChain);
+		if (RaaxDx::InitImGui(pSwapChain) != RaaxDx::Status::Success) {
+			return PresentOriginal(pSwapChain, SyncInterval, Flags);
+		}
 
 		Font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&RawFontData, sizeof(RawFontData), 16.f);
 		LargeFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&RawFontData, sizeof(RawFontData), 48.0f);

@@ -67,6 +67,9 @@
 #define LOAD_D3DCOMPILER_47 FALSE	// Loads D3DCompiler_47.dll with LoadLibraryA (required for manual mapping, since most mappers don't map dependencies)
 // Both of these settings will require a thread to be created, and will be a major detection vector (most of the time)!
 
+// Whether to use MinHook instead of SetWindowLongPtr for the window proc hook
+#define WNDPROC_INLINE_HOOK TRUE
+
 inline HMODULE CurrentModule = nullptr;// The current module handle
 
 

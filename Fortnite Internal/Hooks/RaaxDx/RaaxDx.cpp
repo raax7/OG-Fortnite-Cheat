@@ -164,7 +164,7 @@ void RaaxDx::Unhook() {
 	THROW_ERROR(std::string(skCrypt("RaaxDx not initalized")), false);
 }
 
-void RaaxDx::InitImGui(IDXGISwapChain* Swapchain) {
+RaaxDx::Status RaaxDx::InitImGui(IDXGISwapChain* Swapchain) {
 	if (SUCCEEDED(Swapchain->GetDevice(__uuidof(ID3D11Device), (void**)&Device))) {
 		Device->GetImmediateContext(&DeviceContext);
 
@@ -183,8 +183,22 @@ void RaaxDx::InitImGui(IDXGISwapChain* Swapchain) {
 		ImGui_ImplWin32_Init(Window);
 		ImGui_ImplDX11_Init(Device, DeviceContext);
 
+#if WNDPROC_INLINE_HOOK
+		LONG_PTR WndProc = GetWindowLongPtrW(Window, GWLP_WNDPROC);
+
+		if (WndProc == 0) {
+			return Status::WindowError;
+		}
+
+		if (MH_CreateHook((void*)WndProc, &Hooks::WndProc::WndProc, (void**)&Hooks::WndProc::WndProcOriginal) != MH_OK || MH_EnableHook((void*)WndProc) != MH_OK) {
+			return Status::WindowError;
+		}
+#else
 		Hooks::WndProc::WndProcOriginal = (WNDPROC)SetWindowLongPtr(Window, GWLP_WNDPROC, (__int3264)(LONG_PTR)Hooks::WndProc::WndProc);
+#endif
+
+		return Status::Success;
 	}
 
-	return;
+	return Status::DxNotSupported;
 }
