@@ -29,7 +29,7 @@ namespace RaaxDx {
 	/* Unhook any DX rendering. Cannot rehook after without DLL restart! */
 	void Unhook();
 
-	void InitImGui(IDXGISwapChain* Swapchain);
+	Status InitImGui(IDXGISwapChain* Swapchain);
 
 
 	inline IDXGISwapChain* SwapChain;

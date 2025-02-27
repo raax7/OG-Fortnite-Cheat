@@ -20,7 +20,7 @@
 
 /*
 * NOTES
-* 
+*
 * All specific offsets, VFT indexes, function addresses, visual explanations etc
 * mentioned in comments are from Fortnite 7.40.
 */
@@ -50,7 +50,10 @@ VOID UnloadThread() {
 
             // Unhook WndProc
 #ifdef _IMGUI
+#if !WNDPROC_INLINE_HOOK // MH_ALL_HOOKS will remove the inline hook
             LI_FN(SetWindowLongPtrA).safe()(RaaxDx::Window, GWLP_WNDPROC, (LONG_PTR)Hooks::WndProc::WndProcOriginal);
+#endif // !WNDPROC_INLINE_HOOK
+
             RaaxDx::Unhook();
 #endif // _IMGUI
 
@@ -120,7 +123,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                      )
 {
     CurrentModule = hModule;
-    
+
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
