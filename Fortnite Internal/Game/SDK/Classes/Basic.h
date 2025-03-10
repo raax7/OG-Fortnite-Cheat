@@ -399,16 +399,6 @@ namespace SDK {
 
 	// In UE5, most structs use doubles (8 bytes) instead of floats (4 bytes)
 
-	struct FMatrix
-	{
-	public:
-#if SEASON_20_PLUS
-		double M[4][4];
-#else
-		float M[4][4];
-#endif
-	};
-
 	struct FVector
 	{
 	public:
@@ -666,6 +656,33 @@ namespace SDK {
 		}
 	};
 
+
+	struct FMatrix {
+	public:
+		FMatrix() {}
+
+		union {
+#if SEASON_20_PLUS
+			double M[4][4];
+#else
+			float M[4][4];
+#endif
+			struct {
+				FVector Vec;
+				inline operator FVector() { return Vec; }
+
+			private:
+#if SEASON_20_PLUS
+				double Pad;
+#else
+				float Pad;
+#endif
+
+			} MVec[4];
+		};
+	};
+
+
 	struct FTransform {
 	public:
 		FQuat Rotation;
@@ -684,9 +701,9 @@ namespace SDK {
 		float                                        G;                                                 // 0x4(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		float                                        B;                                                 // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		float                                        A;                                                 // 0xC(0x4)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	
+
 		inline FLinearColor()
-			: R(0.0f), G(0.0f), B(0.0f), A(1.0f) 
+			: R(0.0f), G(0.0f), B(0.0f), A(1.0f)
 		{
 		}
 

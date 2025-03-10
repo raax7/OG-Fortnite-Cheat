@@ -70,11 +70,15 @@
 // Whether to use MinHook instead of SetWindowLongPtr for the window proc hook
 #define WNDPROC_INLINE_HOOK TRUE
 
+// Whether to project world to screen manually instead of K2_Project
+#define CUSTOM_W2S          TRUE
+
 inline HMODULE CurrentModule = nullptr;// The current module handle
 
 
 
 // Compile-Time Asserts
 static_assert(LOG_LEVEL < LOG_LEVEL_MAX && LOG_LEVEL >= LOG_NONE, "Invalid log level");
+static_assert(!(CUSTOM_W2S && SEASON_20_PLUS), "Unsupported"); // Custom w2s only for UE4 for now
 
 static_assert(false, "Please read Globals.h and set the right configuration for you. If you are manual mapping, there are REQUIRED settings. DOUBLE CLICK ME AND REMOVE ME!");

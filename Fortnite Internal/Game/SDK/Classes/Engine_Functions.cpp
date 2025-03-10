@@ -1,5 +1,7 @@
 #include "Engine_classes.h"
 
+#include <numbers>
+
 #include "CoreUObject_classes.h"
 
 #include "../../../Utilities/Error.h"
@@ -235,7 +237,7 @@ SDK::FString SDK::APlayerState::GetPlayerName() {
 	} params_GetPlayerName{};
 
 	this->ProcessEvent(SDK::Cached::Functions::PlayerState::GetPlayerName, &params_GetPlayerName);
-	
+
 	return params_GetPlayerName.return_value;
 }
 
@@ -816,7 +818,80 @@ SDK::FVector SDK::USkeletalMeshComponent::GetBonePosition(uint8_t BoneID) {
 	return GetSocketLocation(Features::FortPawnHelper::Bone::GetBoneName(BoneID));
 }
 
+#if CUSTOM_W2S
+SDK::FMatrix GetViewMatrix(SDK::FRotator Rotation) {
+	const __m128 RotationRadians = _mm_mul_ps(_mm_set_ps(0, Rotation.Roll, Rotation.Yaw, Rotation.Pitch), _mm_set_ps1(std::numbers::pi_v<float> / 180.f));
+
+	__m128 CosRotations;
+	const __m128 SinRotations = _mm_sincos_ps(&CosRotations, RotationRadians);
+
+	const float SinPitch = _mm_cvtss_f32(SinRotations);
+	const float CosPitch = _mm_cvtss_f32(CosRotations);
+	const float SinYaw = _mm_cvtss_f32(_mm_shuffle_ps(SinRotations, SinRotations, _MM_SHUFFLE(1, 1, 1, 1)));
+	const float CosYaw = _mm_cvtss_f32(_mm_shuffle_ps(CosRotations, CosRotations, _MM_SHUFFLE(1, 1, 1, 1)));
+	const float SinRoll = _mm_cvtss_f32(_mm_shuffle_ps(SinRotations, SinRotations, _MM_SHUFFLE(2, 2, 2, 2)));
+	const float CosRoll = _mm_cvtss_f32(_mm_shuffle_ps(CosRotations, CosRotations, _MM_SHUFFLE(2, 2, 2, 2)));
+
+	const float SinRollCosPitch = SinRoll * CosPitch;
+	const float CosRollCosPitch = CosRoll * CosPitch;
+	const float SinPitchSinYaw = SinPitch * SinYaw;
+	const float SinPitchCosYaw = SinPitch * CosYaw;
+
+	SDK::FMatrix ViewMatrix;
+	_mm_store_ps(ViewMatrix.M[0], _mm_set_ps(0.f, SinPitch, CosPitch * SinYaw, CosPitch * CosYaw));
+	_mm_store_ps(ViewMatrix.M[1], _mm_set_ps(0.f, -SinRollCosPitch, SinRoll * SinPitchSinYaw + CosRoll * CosYaw, SinRoll * SinPitchCosYaw - CosRoll * SinYaw));
+	_mm_store_ps(ViewMatrix.M[2], _mm_set_ps(0.f, CosRollCosPitch, CosYaw * SinRoll - CosRoll * SinPitchSinYaw, -(CosRoll * SinPitchCosYaw + SinRoll * SinYaw)));
+
+	return ViewMatrix;
+}
+
+bool WorldToScreen(SDK::FVector Location, SDK::FVector CamPos, SDK::FRotator CamRot, float CamFOV, SDK::FVector2D* OutScreenPos) {
+	SDK::FMatrix ViewMatrix = GetViewMatrix(CamRot);
+
+	SDK::FVector DeltaPos = Location - CamPos;
+	SDK::FVector ProjectedPos = {
+		DeltaPos.Dot(ViewMatrix.MVec[1]),
+		DeltaPos.Dot(ViewMatrix.MVec[2]),
+		DeltaPos.Dot(ViewMatrix.MVec[0])
+	};
+
+	bool OnScreen = true;
+	if (ProjectedPos.Z < 1.f) {
+		OnScreen = false;
+		ProjectedPos.Z = 1.f;
+	}
+
+	float FOVFactor = (Game::ScreenCenterX) / std::tanf(CamFOV * (std::numbers::pi_v<float> / 360.0f)) / ProjectedPos.Z;
+	OutScreenPos->X = (Game::ScreenCenterX) + ProjectedPos.X * FOVFactor;
+	OutScreenPos->Y = (Game::ScreenCenterY) + -ProjectedPos.Y * FOVFactor;
+
+	return OnScreen;
+}
+
+bool WorldToScreen(SDK::FVector Location, SDK::FVector2D* OutScreenPos) {
+	SDK::APlayerCameraManager* CameraManager = SDK::GetLocalController()->PlayerCameraManager();
+
+	SDK::FVector CameraLocation = CameraManager->GetCameraLocation();
+	SDK::FRotator CameraRotation = CameraManager->GetCameraRotation();
+	float CameraFOV = CameraManager->GetFOVAngle();
+
+	return WorldToScreen(Location, CameraLocation, CameraRotation, CameraFOV, OutScreenPos);
+}
+
+
+#endif
+
 SDK::FVector2D SDK::Project(FVector WorldLocation) {
+#if CUSTOM_W2S
+	SDK::FVector2D ReturnValue;
+	bool OnScreen = WorldToScreen(WorldLocation, &ReturnValue);
+
+	if (OnScreen) {
+		return ReturnValue;
+	}
+
+	return SDK::FVector2D(-1.f, -1.f);
+#else
 	SDK::FVector ScreenLocation = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
 
 	if (ScreenLocation.Z > 0.f) {
@@ -824,8 +899,23 @@ SDK::FVector2D SDK::Project(FVector WorldLocation) {
 	}
 
 	return SDK::FVector2D(-1.f, -1.f);
+#endif
 }
 SDK::FVector SDK::Project3D(FVector WorldLocation) {
+#if CUSTOM_W2S
+	SDK::FVector2D ReturnValue;
+	bool OnScreen = WorldToScreen(WorldLocation, &ReturnValue);
+
+	if (!OnScreen) {
+		ReturnValue.X *= -1.f;
+		ReturnValue.Y *= -1.f;
+
+		ReturnValue.X += Game::ScreenWidth;
+		ReturnValue.Y += Game::ScreenHeight;
+	}
+
+	return SDK::FVector(ReturnValue.X, ReturnValue.Y, 0.f);
+#else
 	SDK::FVector ReturnValue = SDK::GetLocalCanvas()->K2_Project(WorldLocation);
 
 	// Invert X and Y if the player is behind the camera
@@ -838,6 +928,7 @@ SDK::FVector SDK::Project3D(FVector WorldLocation) {
 	}
 
 	return ReturnValue;
+#endif
 }
 bool SDK::IsPositionVisible(SDK::UObject* WorldContextObj, FVector TargetPosition, SDK::AActor* ActorToIgnore, SDK::AActor* ActorToIgnore2) {
 	FHitResult Hit{};
